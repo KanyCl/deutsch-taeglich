@@ -27,7 +27,7 @@ sensible dedans : **ta progression ne quitte jamais ton appareil**, elle n'est e
 | Mode | Ce que ça fait |
 |---|---|
 | **La leçon** | 4 à 5 étapes courtes. Une idée par écran, et des mini-questions qui bloquent le passage à la suite tant qu'on n'a pas répondu |
-| **Les cartes** | Révision espacée : les mots ratés reviennent vite, les mots sus s'espacent. À partir du niveau 3, le mot ne se reconnaît plus — **il s'écrit** |
+| **Les cartes** | Révision espacée : les mots ratés reviennent vite, les mots sus s'espacent. Dès le second passage, le mot ne se reconnaît plus — **il s'écrit** |
 | **Le quiz** | 5 questions. 3/5 valident le jour et débloquent le suivant |
 | **L'entraînement** | Quand rien n'est à réviser, ou pour en faire plus. Reprend tes mots les plus ratés **sans toucher au calendrier** de révision |
 
@@ -45,23 +45,23 @@ n'apprend.
 | Niveau | Prochaine révision | Ce qu'on te demande |
 |---|---|---|
 | 1 | le jour même | reconnaître |
-| 2 | le jour même | reconnaître |
+| 2 | le jour même | **écrire** |
 | 3 | le lendemain | **écrire** |
 | 4 | dans 4 jours | **écrire** |
 | 5 | dans 16 jours | **écrire** |
 
-Les niveaux 1 et 2 se franchissent **dans la même séance** : un mot nouveau repasse deux
-fois, monte au niveau 3, et t'est alors demandé **à écrire le jour même**. Autrement dit un
-mot découvert aujourd'hui est déjà écrit aujourd'hui — c'est là qu'il rentre vraiment.
+Le niveau 1 est la seule vue « gratuite » — et le mot t'a déjà été présenté dans la leçon
+avant d'arriver ici. **Dès le second passage, tu l'écris**, et ce second passage a lieu dans
+la même séance. Autrement dit : un mot découvert aujourd'hui est écrit aujourd'hui.
 
-Compte donc une trentaine de cartes le premier jour d'une leçon (une dizaine de mots, trois
-passages chacun). Les jours suivants sont beaucoup plus courts.
+Compte une vingtaine de cartes le premier jour d'une leçon (une dizaine de mots, deux
+passages chacun). Les jours suivants sont plus courts.
 
 ### Écrire les mots
 
-Tant qu'un mot est neuf (niveaux 1 et 2), la carte te le montre en allemand et tu te testes
-dans ta tête. **À partir du niveau 3**, elle te montre le français et tu dois **écrire
-l'allemand** — c'est le seul sens qui fasse retenir l'orthographe.
+Au niveau 1, la carte te montre le mot en allemand et tu te testes dans ta tête.
+**À partir du niveau 2**, elle te montre le français et tu dois **écrire l'allemand** —
+c'est le seul sens qui fasse retenir l'orthographe.
 
 La correction est tolérante sur la forme et stricte sur le mot :
 

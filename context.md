@@ -19,7 +19,7 @@ Quatre modes, articulés autour d'un « jour » courant :
 2. **Les cartes** — révision espacée du vocabulaire, 5 niveaux
    (intervalles **0 / 0 / 1 / 4 / 16** jours). Un mot raté perd **un** niveau.
    Les niveaux 1 et 2 sont des étapes d'apprentissage franchies dans la même séance :
-   un mot neuf repasse jusqu'à être **écrit le jour même**.
+   un mot neuf est vu une fois, puis **écrit le jour même**.
 3. **Le quiz** — 5 questions. 3 bonnes réponses sur 5 valident le jour et débloquent le suivant.
 4. **L'entraînement libre** — quand rien n'est dû, ou pour en faire plus. Reprend les mots
    les plus ratés, note les réponses, mais **ne touche pas au calendrier** : réviser en
@@ -45,7 +45,7 @@ l'entraînement et le compteur de « mots fragiles » sur l'accueil.
 | **Mot à mot systématique** (v2) | Un débutant lit une phrase allemande sans savoir quel mot porte quel sens. L'alignement mot par mot rend la mécanique visible. |
 | **Niveaux 1-2 franchis dans la séance** (v2.3) | Demandé après usage : « monter mes mots niveau 3 sur un même jour ». Le seuil de re-passage est `<= WRITE_FROM_BOX` et non `<` — un mot qui vient d'atteindre le niveau où il s'écrit doit être écrit une fois le jour même, sinon l'y monter n'apprend rien. C'est l'auto-test qui a révélé ce défaut : le mot atteignait 3 puis quittait la séance. |
 | **Un mot raté perd 1 niveau, pas tout** (v2.3) | Demandé après usage. La chute complète efface des semaines de travail sur une simple hésitation ; elle décourage plus qu'elle n'apprend. Un mot redescendu au niveau 2 redevient dû le jour même, donc se re-travaille tout de suite. |
-| **Réponse écrite à partir du niveau 3** (v2.2) | Demandé après usage réel. Le seuil vient de la note d'origine d'Exsangue : « pas au début quand on est débutant ». Sens français → allemand, car taper la traduction française d'un mot allemand n'apprend aucune orthographe. |
+| **Réponse écrite dès le niveau 2** (v2.2, seuil abaissé en v2.3) | Demandé après usage réel. Sens français → allemand, car taper la traduction française d'un mot allemand n'apprend aucune orthographe. Le seuil était à 3 ; Exsangue l'a voulu plus tôt (« je veux devoir écrire le mot assez rapidement »). Le niveau 1 reste une vue gratuite — et le mot a déjà été présenté dans la leçon avant d'arriver aux cartes. Un seul réglage : `WRITE_FROM_BOX`. |
 | **Mauvais genre = erreur, article oublié = toléré** (v2.2) | Le genre des noms allemands ne s'acquiert pas passivement ; le sanctionner est le seul moyen de le travailler. Mais exiger l'article à chaque saisie rendrait l'exercice pénible pour rien. |
 | **Audio par `SpeechSynthesis`** (v2) | Zéro fichier à héberger, zéro poids. Les boutons restent masqués si aucune voix `de-*` n'existe sur l'appareil — mieux vaut rien qu'un bouton muet. |
 
