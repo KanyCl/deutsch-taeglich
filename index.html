@@ -101,6 +101,12 @@ body {
   font-size: 16px;
   line-height: 1.5;
   -webkit-text-size-adjust: 100%;
+
+  /* Deux appuis rapides sur un bouton sont un geste normal dans une app, pas
+     une demande de zoom : on désactive le double-tap zoom. Le pincement à deux
+     doigts reste possible — on ne retire pas le zoom, seulement ce raccourci
+     qui se déclenche par accident. */
+  touch-action: manipulation;
 }
 
 button { font: inherit; color: inherit; cursor: pointer; }
@@ -2512,6 +2518,17 @@ function runTests() {
   /* --- P. Robustesse --- */
   ok("sécurité : le HTML des contenus est échappé", esc("<b>&</b>") === "&lt;b&gt;&amp;&lt;/b&gt;");
   ok("sécurité : les guillemets sont échappés dans les attributs", att('a"b') === "a&quot;b");
+  eq("mobile : le double-tap ne déclenche pas le zoom",
+     getComputedStyle(document.body).touchAction, "manipulation");
+  ok("mobile : le champ de saisie fait au moins 16px, sinon iOS zoome au focus",
+     (function () {
+       const probe = document.createElement("input");
+       probe.className = "answer";
+       document.body.appendChild(probe);
+       const size = parseFloat(getComputedStyle(probe).fontSize);
+       document.body.removeChild(probe);
+       return size >= 16;
+     })());
   ok("audio : ne plante pas quand aucune voix allemande n'est disponible",
      (function () { try { speak("Guten Tag"); return true; } catch (e) { return false; } })());
 
