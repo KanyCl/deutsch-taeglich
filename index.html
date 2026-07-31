@@ -1,0 +1,2147 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Deutsch Täglich — l'allemand chaque jour</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="L'allemand un peu chaque jour. Application personnelle, sans compte ni serveur.">
+
+<!-- La couleur de la barre du navigateur suit le thème de l'appareil. -->
+<meta name="theme-color" content="#EDEEF0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E1116" media="(prefers-color-scheme: dark)">
+
+<!-- « Ajouter à l'écran d'accueil » : icône, nom court, plein écran. -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-180.png" sizes="180x180">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Deutsch">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+<style>
+/* ---------------------------------------------------------------
+   TOKENS — inspirés de la signalétique allemande (DIN / U-Bahn)
+   Les composants ne lisent JAMAIS une couleur en dur : uniquement
+   ces variables. C'est ce qui permet aux deux thèmes de marcher.
+----------------------------------------------------------------*/
+:root {
+  --paper:      #EDEEF0;
+  --surface:    #FFFFFF;
+  --surface-2:  #E4E6EA;
+  --ink:        #16181D;
+  --ink-2:      #4A505B;
+  --ink-3:      #7A828F;
+  --line:       #CFD3DA;
+  --accent:     #0B4FA8;
+  --accent-ink: #FFFFFF;
+  --accent-soft:rgba(11, 79, 168, .12);
+  --amber:      #B8860B;
+  --amber-bg:   #F2B705;
+  --amber-ink:  #16181D;
+  --good:       #1B7F4F;
+  --good-soft:  rgba(27, 127, 79, .12);
+  --bad:        #C6362A;
+  --bad-soft:   rgba(198, 54, 42, .12);
+
+  --ui: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --de: Georgia, "Noto Serif", "Times New Roman", serif;
+
+  --edge: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper:      #0E1116;
+    --surface:    #171B22;
+    --surface-2:  #1F242D;
+    --ink:        #E9ECF1;
+    --ink-2:      #A8B0BC;
+    --ink-3:      #79828F;
+    --line:       #2A303A;
+    --accent:     #5A9CEA;
+    --accent-ink: #0E1116;
+    --accent-soft:rgba(90, 156, 234, .16);
+    --amber:      #F5C531;
+    --amber-bg:   #F5C531;
+    --amber-ink:  #16181D;
+    --good:       #3FBE84;
+    --good-soft:  rgba(63, 190, 132, .16);
+    --bad:        #F0705F;
+    --bad-soft:   rgba(240, 112, 95, .16);
+  }
+}
+
+/* Le sélecteur du viewer doit gagner dans LES DEUX sens. */
+:root[data-theme="dark"] {
+  --paper:#0E1116; --surface:#171B22; --surface-2:#1F242D;
+  --ink:#E9ECF1; --ink-2:#A8B0BC; --ink-3:#79828F; --line:#2A303A;
+  --accent:#5A9CEA; --accent-ink:#0E1116; --accent-soft:rgba(90,156,234,.16);
+  --amber:#F5C531; --amber-bg:#F5C531; --amber-ink:#16181D;
+  --good:#3FBE84; --good-soft:rgba(63,190,132,.16);
+  --bad:#F0705F;  --bad-soft:rgba(240,112,95,.16);
+}
+:root[data-theme="light"] {
+  --paper:#EDEEF0; --surface:#FFFFFF; --surface-2:#E4E6EA;
+  --ink:#16181D; --ink-2:#4A505B; --ink-3:#7A828F; --line:#CFD3DA;
+  --accent:#0B4FA8; --accent-ink:#FFFFFF; --accent-soft:rgba(11,79,168,.12);
+  --amber:#B8860B; --amber-bg:#F2B705; --amber-ink:#16181D;
+  --good:#1B7F4F; --good-soft:rgba(27,127,79,.12);
+  --bad:#C6362A;  --bad-soft:rgba(198,54,42,.12);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--ui);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+}
+
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.app {
+  max-width: 31rem;
+  margin: 0 auto;
+  padding: 1rem 1rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ---------- Libellés de signalétique ---------- */
+.label {
+  font-size: .6875rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* ---------- En-tête ---------- */
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  border-bottom: 3px solid var(--ink);
+  padding-bottom: .625rem;
+}
+.wordmark {
+  font-size: 1.0625rem;
+  font-weight: 800;
+  letter-spacing: -.01em;
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: .4rem;
+}
+.wordmark small {
+  font-size: .625rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.streak {
+  display: inline-flex;
+  align-items: center;
+  gap: .375rem;
+  background: var(--amber-bg);
+  color: var(--amber-ink);
+  padding: .25rem .5rem;
+  font-size: .75rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .04em;
+}
+.streak[hidden] { display: none; }
+
+.back {
+  background: none;
+  border: 0;
+  padding: .25rem 0;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  align-self: flex-start;
+}
+.back:hover { color: var(--accent); }
+
+/* ---------- La ligne : le cours comme un réseau de stations ---------- */
+.line {
+  display: flex;
+  overflow-x: auto;
+  padding-bottom: .25rem;
+  scrollbar-width: thin;
+}
+.station {
+  flex: 0 0 auto;
+  width: 2.5rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .375rem;
+  background: none;
+  border: 0;
+  padding: 0;
+}
+.station::before {
+  content: "";
+  position: absolute;
+  top: .4375rem;
+  left: 0; right: 0;
+  height: 2px;
+  background: var(--line);
+}
+.station:first-child::before { left: 50%; }
+.station:last-child::before  { right: 50%; }
+.station .dot {
+  position: relative;
+  width: 1rem; height: 1rem;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  background: var(--paper);
+}
+.station .n {
+  font-size: .6875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+}
+.station.done .dot { background: var(--accent); border-color: var(--accent); }
+.station.done .n   { color: var(--ink-2); }
+.station.now .dot  { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.station.now .n    { color: var(--accent); font-weight: 800; }
+.station.soon .dot { border-style: dashed; }
+
+/* ---------- La plaque du jour ---------- */
+.plate {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--edge);
+  padding: 1rem;
+}
+.plate .num {
+  width: 4.25rem; height: 4.25rem;
+  background: var(--accent);
+  color: var(--accent-ink);
+  display: grid;
+  place-items: center;
+  line-height: 1;
+}
+.plate .num b {
+  font-size: 2.375rem;
+  font-weight: 800;
+  letter-spacing: -.04em;
+  font-variant-numeric: tabular-nums;
+}
+.plate h2 {
+  margin: .25rem 0 0;
+  font-size: 1.375rem;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  text-wrap: balance;
+}
+.plate .de {
+  font-family: var(--de);
+  font-style: italic;
+  color: var(--ink-2);
+  font-size: .9375rem;
+  margin: .125rem 0 0;
+}
+
+/* ---------- Barres d'action ---------- */
+.modes { display: flex; flex-direction: column; gap: .5rem; }
+.mode {
+  display: flex;
+  align-items: center;
+  gap: .875rem;
+  width: 100%;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--ink);
+  border-radius: var(--edge);
+  padding: .875rem 1rem;
+  transition: background .12s ease, border-color .12s ease;
+}
+.mode:hover:not(:disabled) { background: var(--surface-2); border-left-color: var(--accent); }
+.mode:disabled { opacity: .45; cursor: not-allowed; }
+.mode .txt { flex: 1; min-width: 0; }
+.mode .txt strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -.01em;
+}
+.mode .txt span {
+  display: block;
+  font-size: .8125rem;
+  color: var(--ink-3);
+}
+.chip {
+  flex: 0 0 auto;
+  min-width: 1.75rem;
+  padding: .1875rem .4375rem;
+  text-align: center;
+  font-size: .75rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  border-radius: var(--edge);
+  background: var(--surface-2);
+  color: var(--ink-2);
+}
+.chip.hot  { background: var(--amber-bg); color: var(--amber-ink); }
+.chip.ok   { background: var(--good-soft); color: var(--good); }
+
+/* ---------- Blocs de contenu ---------- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--edge);
+  padding: 1rem;
+}
+.stack { display: flex; flex-direction: column; gap: 1rem; }
+.stack-s { display: flex; flex-direction: column; gap: .5rem; }
+
+h3.sec {
+  margin: 0;
+  font-size: .6875rem;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: .375rem;
+}
+
+/* ---------- Une étape de leçon ---------- */
+.step-idea {
+  margin: 0;
+  font-size: 1.1875rem;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: -.015em;
+  text-wrap: balance;
+}
+.step-detail {
+  margin: .625rem 0 0;
+  font-size: .9375rem;
+  color: var(--ink-2);
+}
+.step-detail b { color: var(--ink); font-family: var(--de); font-weight: 600; }
+
+/* Le mot à mot : chaque mot allemand au-dessus de sa traduction */
+.gloss {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .625rem .875rem;
+  background: var(--surface-2);
+  border-radius: var(--edge);
+  padding: .75rem;
+  margin-top: .875rem;
+}
+.gloss > span { display: flex; flex-direction: column; gap: .0625rem; }
+.gloss b { font-family: var(--de); font-size: 1.0625rem; font-weight: 600; line-height: 1.2; }
+.gloss i { font-style: normal; font-size: .75rem; color: var(--ink-3); line-height: 1.2; }
+.gloss-say { display: flex; align-items: center; margin-top: .875rem; gap: .5rem; }
+.gloss-say .t { font-size: .75rem; color: var(--ink-3); }
+
+/* Tableau de conjugaison */
+.conj {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .9375rem;
+  margin-top: .875rem;
+}
+.conj td { padding: .3125rem .5rem .3125rem 0; border-bottom: 1px solid var(--line); }
+.conj td:first-child { color: var(--ink-3); width: 7.5rem; }
+.conj td:last-child { font-family: var(--de); font-weight: 600; }
+.scroll-x { overflow-x: auto; }
+
+/* Bouton écouter — masqué tant qu'aucune voix allemande n'est disponible */
+.say {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 1.75rem; height: 1.75rem;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--edge);
+  background: var(--surface);
+  color: var(--ink-3);
+  font-size: .625rem;
+  line-height: 1;
+}
+body.has-tts .say { display: inline-flex; }
+.say:hover { color: var(--accent); border-color: var(--accent); }
+
+/* Exemples : l'allemand en serif, le français en dessous */
+.ex { border-left: 3px solid var(--accent); padding-left: .75rem; }
+.ex + .ex { margin-top: .875rem; }
+.ex .top-line { display: flex; align-items: center; gap: .5rem; }
+.ex .d { font-family: var(--de); font-size: 1.0625rem; line-height: 1.4; flex: 1; }
+.ex .f { font-size: .875rem; color: var(--ink-3); margin-top: .125rem; }
+
+/* Liste de vocabulaire */
+.voc { list-style: none; margin: .25rem 0 0; padding: 0; display: flex; flex-direction: column; }
+.voc li {
+  display: flex;
+  align-items: center;
+  gap: .625rem;
+  padding: .5rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.voc li:last-child { border-bottom: 0; }
+.voc .w { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.voc .d { font-family: var(--de); font-weight: 600; font-size: 1rem; line-height: 1.25; }
+.voc .p { font-size: .6875rem; color: var(--ink-3); letter-spacing: .02em; }
+.voc .f { font-size: .875rem; color: var(--ink-3); text-align: right; max-width: 45%; }
+
+/* ---------- Flashcards ---------- */
+.flash {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--edge);
+  min-height: 14rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  width: 100%;
+}
+.flash .front { font-family: var(--de); font-size: 1.75rem; font-weight: 600; line-height: 1.25; }
+.flash .p     { font-size: .8125rem; color: var(--ink-3); letter-spacing: .02em; }
+.flash .back  { font-size: 1.125rem; color: var(--accent); font-weight: 700; margin-top: .5rem; }
+.flash .tip   { font-size: .75rem; color: var(--ink-3); }
+
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+.btn {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: var(--edge);
+  padding: .8125rem .75rem;
+  font-weight: 800;
+  font-size: .9375rem;
+  transition: background .12s ease;
+}
+.btn:hover { background: var(--surface-2); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.miss { border-color: var(--bad); color: var(--bad); }
+.btn.miss:hover { background: var(--bad-soft); }
+.btn.hit  { border-color: var(--good); color: var(--good); }
+.btn.hit:hover { background: var(--good-soft); }
+.btn.wide { width: 100%; }
+
+/* ---------- Questions (quiz et mini-questions d'étape) ---------- */
+.q { font-size: 1.0625rem; font-weight: 700; margin: 0; text-wrap: balance; }
+.opts { display: flex; flex-direction: column; gap: .5rem; }
+.opt {
+  width: 100%;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--edge);
+  padding: .75rem .875rem;
+  font-size: .9375rem;
+  transition: background .12s ease;
+}
+.opt:hover:not(:disabled) { background: var(--surface-2); }
+.opt:disabled { cursor: default; }
+.opt.right { border-color: var(--good); background: var(--good-soft); font-weight: 700; }
+.opt.wrong { border-color: var(--bad);  background: var(--bad-soft); }
+.why {
+  font-size: .875rem;
+  color: var(--ink-2);
+  background: var(--surface-2);
+  border-radius: var(--edge);
+  padding: .625rem .75rem;
+}
+.why b { color: var(--ink); font-family: var(--de); font-weight: 600; }
+
+.meter { display: flex; gap: .25rem; }
+.meter i {
+  flex: 1;
+  height: 4px;
+  background: var(--line);
+  border-radius: 2px;
+}
+.meter i.on  { background: var(--accent); }
+.meter i.err { background: var(--bad); }
+
+.score { text-align: center; padding: 1rem 0; }
+.score b {
+  display: block;
+  font-size: 3rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.04em;
+  line-height: 1;
+}
+.score span { color: var(--ink-3); font-size: .9375rem; }
+
+.tools { display: flex; flex-wrap: wrap; gap: .5rem; }
+.tool {
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: var(--edge);
+  padding: .4375rem .625rem;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.tool:hover { color: var(--ink); border-color: var(--ink-3); }
+.tool.danger:hover { color: var(--bad); border-color: var(--bad); }
+.msg { font-size: .8125rem; color: var(--ink-2); }
+.warn {
+  font-size: .8125rem;
+  color: var(--ink-2);
+  background: var(--bad-soft);
+  border-left: 3px solid var(--bad);
+  padding: .625rem .75rem;
+}
+
+/* ---------- Rapport d'auto-test (index.html#test) ---------- */
+.t-sum {
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -.04em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  margin: .25rem 0;
+}
+.t-row {
+  display: flex;
+  gap: .625rem;
+  align-items: baseline;
+  padding: .375rem 0;
+  border-bottom: 1px solid var(--line);
+  font-size: .875rem;
+}
+.t-row:last-child { border-bottom: 0; }
+.t-tag {
+  flex: 0 0 auto;
+  font-size: .625rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  padding: .0625rem .3125rem;
+  border-radius: var(--edge);
+}
+.t-tag.ok { background: var(--good-soft); color: var(--good); }
+.t-tag.ko { background: var(--bad-soft);  color: var(--bad); }
+.t-row .d { color: var(--ink-3); font-size: .75rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="top">
+    <h1 class="wordmark">Deutsch Täglich <small>A1</small></h1>
+    <span class="streak" id="streak" hidden></span>
+  </header>
+  <main id="view"></main>
+</div>
+
+<script>
+"use strict";
+
+/* ===============================================================
+   1. LE COURS
+   Un jour = un objet. Une leçon = une suite d'ETAPES courtes.
+   Chaque étape porte une idée, et parfois une mini-question qu'il
+   faut résoudre avant de continuer : c'est ce qui empêche de lire
+   sans comprendre.
+     idea   : l'idée, en une phrase simple
+     detail : une ou deux phrases de plus (facultatif)
+     gloss  : le mot à mot — de[] et fr[] ont TOUJOURS la même longueur
+     table  : deux colonnes (conjugaison, récapitulatif)
+     check  : la mini-question (facultatif)
+   =============================================================== */
+const COURSE = [
+
+/* ------------------------------- JOUR 1 ------------------------------- */
+{
+  day: 1, title: "Se présenter", de: "Guten Tag!",
+  steps: [
+    {
+      idea: "« Je » se dit ich.",
+      detail: "Le <b>ch</b> de la fin ne se prononce pas comme en français : c'est un souffle, comme si tu chuchotais un h. Appuie sur écouter.",
+      gloss: { de: ["Ich", "lerne", "Deutsch"], fr: ["Je", "apprends", "l'allemand"] }
+    },
+    {
+      idea: "Le verbe « être » change de forme selon la personne.",
+      detail: "Exactement comme en français : je suis, tu es, il est. Il n'y a rien de nouveau ici, juste des mots à retenir.",
+      table: [["ich", "bin"], ["du", "bist"], ["er / sie / es", "ist"], ["wir", "sind"], ["ihr", "seid"], ["sie / Sie", "sind"]],
+      check: { q: "« Tu es » se dit…", o: ["du bist", "du bin", "du ist"], a: 0, why: "Avec <b>du</b>, la forme est toujours <b>bist</b>." }
+    },
+    {
+      idea: "Pour donner ton nom, deux formules au choix.",
+      gloss: { de: ["Ich", "heiße", "Anna"], fr: ["Je", "m'appelle", "Anna"] },
+      detail: "Plus court et tout aussi correct : <b>Ich bin Anna</b>. Le <b>ß</b> se prononce comme un s dur ; si ton clavier n'en a pas, écris <b>ss</b>."
+    },
+    {
+      idea: "Il existe deux façons de dire « vous ».",
+      detail: "<b>ihr</b> quand tu parles à plusieurs proches. <b>Sie</b> quand tu es poli — et il prend toujours une majuscule. C'est ce qui le distingue à l'écrit de <b>sie</b>, qui veut dire « elle » ou « ils ».",
+      check: { q: "Tu t'adresses à ton patron. Tu emploies…", o: ["Sie", "du", "ihr"], a: 0, why: "<b>Sie</b> est la forme de politesse, avec sa majuscule obligatoire." }
+    }
+  ],
+  examples: [
+    { d: "Guten Tag! Ich heiße Anna.", f: "Bonjour ! Je m'appelle Anna." },
+    { d: "Wie heißen Sie?", f: "Comment vous appelez-vous ? (poli)" },
+    { d: "Wie geht es dir? — Danke, gut!", f: "Comment vas-tu ? — Merci, bien !" }
+  ],
+  vocab: [
+    { d: "Guten Tag", f: "bonjour (la journée)", p: "GOU-tenn TAAK" },
+    { d: "Guten Morgen", f: "bonjour (le matin)", p: "GOU-tenn MOR-guenn" },
+    { d: "Guten Abend", f: "bonsoir", p: "GOU-tenn AA-bennt" },
+    { d: "Hallo", f: "salut (en arrivant)", p: "HA-lo" },
+    { d: "Tschüss", f: "salut (en partant)", p: "TCHUSS" },
+    { d: "Auf Wiedersehen", f: "au revoir (poli)", p: "aouf VII-deur-zé-enn" },
+    { d: "ich heiße", f: "je m'appelle", p: "ich HAÏ-se" },
+    { d: "Wie geht's?", f: "comment ça va ?", p: "vii GUÉTSS" },
+    { d: "danke", f: "merci", p: "DANN-ke" },
+    { d: "bitte", f: "s'il vous plaît / je vous en prie", p: "BI-te" }
+  ],
+  quiz: [
+    { q: "Comment dit-on « je suis » ?", o: ["ich bin", "ich bist", "ich ist", "ich sein"], a: 0, why: "sein est irrégulier : ich <b>bin</b>, du <b>bist</b>, er <b>ist</b>." },
+    { q: "Complète : Du ___ Student.", o: ["bist", "bin", "seid", "ist"], a: 0, why: "Avec <b>du</b>, sein donne toujours <b>bist</b>." },
+    { q: "Tu quittes ton patron. Tu dis…", o: ["Auf Wiedersehen", "Tschüss", "Guten Tag", "Hallo"], a: 0, why: "<b>Auf Wiedersehen</b> est la formule polie. <b>Tschüss</b> se garde pour les proches." },
+    { q: "Le « Sie » de politesse s'écrit…", o: ["toujours avec une majuscule", "en minuscule", "en majuscules entières", "avec un accent"], a: 0, why: "La majuscule est le seul signe qui distingue <b>Sie</b> (vous) de <b>sie</b> (elle / ils)." },
+    { q: "« Wie geht's? » veut dire…", o: ["Comment ça va ?", "Où vas-tu ?", "Quel âge as-tu ?", "Comment t'appelles-tu ?"], a: 0, why: "C'est la contraction de <b>Wie geht es?</b> — littéralement « comment ça marche ? »." }
+  ]
+},
+
+/* ------------------------------- JOUR 2 ------------------------------- */
+{
+  day: 2, title: "Der, die, das", de: "Die drei Geschlechter",
+  steps: [
+    {
+      idea: "En allemand, tous les noms prennent une majuscule.",
+      detail: "Sans exception, et n'importe où dans la phrase. C'est la règle la plus visible de l'allemand écrit — et la plus facile à appliquer.",
+      gloss: { de: ["Das", "Haus", "ist", "groß"], fr: ["La", "maison", "est", "grande"] }
+    },
+    {
+      idea: "Chaque nom a un genre, et donc son article.",
+      table: [["masculin", "der Mann"], ["féminin", "die Frau"], ["neutre", "das Kind"]],
+      detail: "Attention : le genre allemand ne suit pas le français. « La table » est masculin en allemand (<b>der Tisch</b>), et « la fille » est neutre (<b>das Mädchen</b>)."
+    },
+    {
+      idea: "D'où la seule habitude qui compte vraiment : n'apprends jamais un nom tout seul.",
+      detail: "Apprends <b>der Tisch</b>, pas Tisch. L'article fait partie du mot, au même titre que ses lettres.",
+      check: { q: "La bonne façon d'apprendre un nouveau nom :", o: ["avec son article", "tout seul", "avec son pluriel seulement"], a: 0, why: "Sans l'article, il faudra le réapprendre plus tard — et le genre ne se devine pas." }
+    },
+    {
+      idea: "Bonne nouvelle : au pluriel, tout devient die.",
+      detail: "<b>der Mann</b> → <b>die Männer</b>. <b>das Buch</b> → <b>die Bücher</b>. Quel que soit le genre de départ. Un souci de moins."
+    },
+    {
+      idea: "« Un » et « une » : ein ou eine.",
+      table: [["masculin", "ein Mann"], ["féminin", "eine Frau"], ["neutre", "ein Kind"]],
+      check: { q: "« un homme » se dit…", o: ["ein Mann", "eine Mann", "einen Mann"], a: 0, why: "Masculin → <b>ein</b>. (einen existe, mais c'est pour plus tard.)" }
+    }
+  ],
+  examples: [
+    { d: "Das ist ein Buch. Das Buch ist neu.", f: "C'est un livre. Le livre est neuf." },
+    { d: "Die Frau heißt Maria.", f: "La femme s'appelle Maria." },
+    { d: "Der Tisch ist groß.", f: "La table est grande." }
+  ],
+  vocab: [
+    { d: "der Mann", f: "l'homme", p: "deer MANN" },
+    { d: "die Frau", f: "la femme", p: "dii FRAOU" },
+    { d: "das Kind", f: "l'enfant", p: "dass KINNT" },
+    { d: "der Tisch", f: "la table", p: "deer TICH" },
+    { d: "die Tür", f: "la porte", p: "dii TUUR" },
+    { d: "das Buch", f: "le livre", p: "dass BOUKH" },
+    { d: "der Tag", f: "le jour", p: "deer TAAK" },
+    { d: "die Nacht", f: "la nuit", p: "dii NAKHT" },
+    { d: "das Haus", f: "la maison", p: "dass HAOUSS" },
+    { d: "die Stadt", f: "la ville", p: "dii CHTATT" }
+  ],
+  quiz: [
+    { q: "Quel article pour Buch ?", o: ["das", "der", "die", "den"], a: 0, why: "<b>das Buch</b> — neutre. À mémoriser avec le mot, il n'y a pas de logique à deviner." },
+    { q: "En allemand, les noms communs s'écrivent…", o: ["avec une majuscule", "en minuscule", "en italique", "sans article"], a: 0, why: "Tous les noms, partout : der Hund, die Stadt, das Brot." },
+    { q: "Au pluriel, l'article défini est…", o: ["die", "der", "das", "dem"], a: 0, why: "Tous les pluriels prennent <b>die</b>, quel que soit le genre au singulier." },
+    { q: "Complète : ___ Frau ist hier.", o: ["Die", "Der", "Das", "Den"], a: 0, why: "<b>Frau</b> est féminin → <b>die</b>." },
+    { q: "Pourquoi apprendre « der Tisch » plutôt que « Tisch » ?", o: ["parce que le genre ne se devine pas", "parce que c'est plus poli", "parce que der veut dire « le »", "ce n'est pas nécessaire"], a: 0, why: "Rien dans le mot n'indique son genre : il s'apprend avec lui, ou il s'oublie." }
+  ]
+},
+
+/* ------------------------------- JOUR 3 ------------------------------- */
+{
+  day: 3, title: "Le présent des verbes", de: "Ich lerne Deutsch.",
+  steps: [
+    {
+      idea: "Un verbe allemand, c'est un radical plus une terminaison.",
+      detail: "L'infinitif finit par <b>-en</b> : <b>wohnen</b> (habiter). Enlève <b>-en</b>, il reste le radical <b>wohn-</b>. Il ne reste qu'à coller la bonne terminaison.",
+      gloss: { de: ["Ich", "wohne", "in", "Paris"], fr: ["J'", "habite", "à", "Paris"] }
+    },
+    {
+      idea: "Les six terminaisons, une fois pour toutes.",
+      table: [["ich", "wohne"], ["du", "wohnst"], ["er / sie / es", "wohnt"], ["wir", "wohnen"], ["ihr", "wohnt"], ["sie / Sie", "wohnen"]],
+      detail: "Elles marchent pour l'immense majorité des verbes. Apprends-les sur wohnen, et tu les as pour des centaines d'autres.",
+      check: { q: "« Il apprend » (lernen) se dit…", o: ["er lernt", "er lernst", "er lerne"], a: 0, why: "<b>er / sie / es</b> prend toujours <b>-t</b>." }
+    },
+    {
+      idea: "Un petit e apparaît parfois, pour pouvoir prononcer.",
+      detail: "Quand le radical finit par <b>t</b> ou <b>d</b>, on glisse un <b>e</b> : <b>arbeiten</b> → du arbeit<b>e</b>st, er arbeit<b>e</b>t. Essaie de dire « arbeitst » : c'est justement pour ça.",
+      check: { q: "Pourquoi « du arbeitest » et pas « du arbeitst » ?", o: ["pour pouvoir le prononcer", "parce que le verbe est irrégulier", "pour marquer la politesse"], a: 0, why: "Le <b>e</b> d'appui apparaît après un radical en t ou d." }
+    },
+    {
+      idea: "L'allemand n'a qu'un seul présent.",
+      detail: "<b>Ich lerne</b> traduit aussi bien « j'apprends » que « je suis en train d'apprendre ». Une conjugaison de moins à retenir."
+    }
+  ],
+  examples: [
+    { d: "Was machst du? — Ich lerne Deutsch.", f: "Que fais-tu ? — J'apprends l'allemand." },
+    { d: "Wir arbeiten heute nicht.", f: "Nous ne travaillons pas aujourd'hui." },
+    { d: "Er spielt gern Fußball.", f: "Il aime jouer au foot." }
+  ],
+  vocab: [
+    { d: "wohnen", f: "habiter", p: "VOO-nenn" },
+    { d: "lernen", f: "apprendre", p: "LÈR-nenn" },
+    { d: "machen", f: "faire", p: "MA-khenn" },
+    { d: "arbeiten", f: "travailler", p: "AR-baï-tenn" },
+    { d: "spielen", f: "jouer", p: "CHPII-lenn" },
+    { d: "kommen", f: "venir", p: "KO-menn" },
+    { d: "hören", f: "écouter, entendre", p: "HEU-renn" },
+    { d: "kaufen", f: "acheter", p: "KAOU-fenn" },
+    { d: "sagen", f: "dire", p: "ZAA-guenn" },
+    { d: "brauchen", f: "avoir besoin de", p: "BRAOU-khenn" }
+  ],
+  quiz: [
+    { q: "« Tu habites » se dit…", o: ["du wohnst", "du wohne", "du wohnt", "du wohnen"], a: 0, why: "Radical <b>wohn-</b> + terminaison <b>-st</b> pour du." },
+    { q: "Complète : Er ___ Deutsch. (lernen)", o: ["lernt", "lernst", "lerne", "lernen"], a: 0, why: "er / sie / es prend <b>-t</b>." },
+    { q: "Quelle terminaison pour wir ?", o: ["-en", "-t", "-st", "-e"], a: 0, why: "<b>wir</b> et <b>sie/Sie</b> reprennent la forme de l'infinitif." },
+    { q: "« Ich lerne » peut se traduire par…", o: ["j'apprends ET je suis en train d'apprendre", "j'apprendrai", "j'ai appris", "apprends !"], a: 0, why: "L'allemand n'a qu'un seul présent, il couvre les deux sens du français." },
+    { q: "Quel verbe demande un e d'appui ?", o: ["arbeiten", "spielen", "kaufen", "hören"], a: 0, why: "Son radical <b>arbeit-</b> finit par t → du arbeit<b>e</b>st." }
+  ]
+},
+
+/* ------------------------------- JOUR 4 ------------------------------- */
+{
+  day: 4, title: "Les nombres et l'âge", de: "Wie alt bist du?",
+  steps: [
+    {
+      idea: "De 0 à 12, il n'y a rien à comprendre : ça s'apprend.",
+      detail: "null, eins, zwei, drei, vier, fünf, sechs, sieben, acht, neun, zehn, elf, zwölf. Écoute-les plutôt que de les lire."
+    },
+    {
+      idea: "De 13 à 19, c'est l'unité collée à zehn (dix).",
+      detail: "<b>drei</b>zehn (13), <b>vier</b>zehn (14), <b>fünf</b>zehn (15). Deux abrègent : <b>sech</b>zehn (16) et <b>sieb</b>zehn (17).",
+      check: { q: "Comment dit-on 14 ?", o: ["vierzehn", "vierzig", "zehnvier"], a: 0, why: "<b>vierzehn</b> = 14. Attention, <b>vierzig</b> = 40 : une syllabe change tout." }
+    },
+    {
+      idea: "À partir de 21, les unités passent DEVANT les dizaines.",
+      detail: "21 se dit <b>einundzwanzig</b>, mot à mot « un-et-vingt ». C'est déroutant au début, et c'est le piège classique quand un Allemand dicte un numéro de téléphone.",
+      gloss: { de: ["ein", "und", "zwanzig"], fr: ["un", "et", "vingt"] },
+      check: { q: "Un Allemand dit « siebenundsechzig ». Tu écris…", o: ["67", "76", "66"], a: 0, why: "sieben (7) et sechzig (60) → on entend le 7 d'abord, mais on écrit <b>67</b>." }
+    },
+    {
+      idea: "Pour l'âge, l'allemand dit « je suis vieux de 25 ans ».",
+      gloss: { de: ["Ich", "bin", "25", "Jahre", "alt"], fr: ["Je", "suis", "25", "ans", "vieux"] },
+      detail: "On peut faire plus court : <b>Ich bin 25</b>. Et pour demander : <b>Wie alt bist du?</b>"
+    }
+  ],
+  examples: [
+    { d: "Wie alt bist du? — Ich bin dreißig Jahre alt.", f: "Quel âge as-tu ? — J'ai trente ans." },
+    { d: "Ich habe zwei Kinder.", f: "J'ai deux enfants." },
+    { d: "Das kostet fünfundzwanzig Euro.", f: "Ça coûte vingt-cinq euros." }
+  ],
+  vocab: [
+    { d: "eins", f: "un", p: "AÏNSS" },
+    { d: "zwei", f: "deux", p: "TSVAÏ" },
+    { d: "drei", f: "trois", p: "DRAÏ" },
+    { d: "vier", f: "quatre", p: "FIIR" },
+    { d: "fünf", f: "cinq", p: "FUNNF" },
+    { d: "sechs", f: "six", p: "ZÈKSS" },
+    { d: "sieben", f: "sept", p: "ZII-benn" },
+    { d: "acht", f: "huit", p: "AKHT" },
+    { d: "neun", f: "neuf", p: "NOÏN" },
+    { d: "zehn", f: "dix", p: "TSÉÉNN" }
+  ],
+  quiz: [
+    { q: "Comment dit-on 21 ?", o: ["einundzwanzig", "zwanzigundeins", "zwanzigeins", "einzwanzig"], a: 0, why: "L'unité d'abord, puis <b>und</b>, puis la dizaine." },
+    { q: "« fünf » c'est…", o: ["cinq", "quatre", "quinze", "cinquante"], a: 0, why: "<b>fünf</b> = 5, à ne pas confondre avec <b>fünfzehn</b> (15)." },
+    { q: "Que signifie « Ich bin vierzig Jahre alt » ?", o: ["J'ai quarante ans", "J'ai quatorze ans", "J'ai quatre ans", "Je suis là depuis quarante ans"], a: 0, why: "<b>vierzig</b> = 40, <b>vierzehn</b> = 14." },
+    { q: "Un Allemand dicte « siebenundsechzig ». C'est…", o: ["67", "76", "66", "77"], a: 0, why: "On entend l'unité en premier, mais on écrit <b>67</b>." },
+    { q: "Comment demander l'âge de quelqu'un qu'on tutoie ?", o: ["Wie alt bist du?", "Wie heißt du?", "Wo bist du?", "Wie geht's dir?"], a: 0, why: "Littéralement « comment vieux es-tu ? » — <b>alt</b> signifie vieux." }
+  ]
+},
+
+/* ------------------------------- JOUR 5 ------------------------------- */
+{
+  day: 5, title: "Avoir, et dire non", de: "Ich habe keine Zeit.",
+  steps: [
+    {
+      idea: "haben, c'est « avoir ». Il est irrégulier au singulier seulement.",
+      table: [["ich", "habe"], ["du", "hast"], ["er / sie / es", "hat"], ["wir", "haben"], ["ihr", "habt"], ["sie / Sie", "haben"]],
+      detail: "Regarde bien : au pluriel, il est parfaitement régulier. Il n'y a que <b>du hast</b> et <b>er hat</b> à retenir."
+    },
+    {
+      idea: "Pour dire non, l'allemand a DEUX mots là où le français en a un.",
+      detail: "Et le choix ne dépend pas du sens : il dépend de ce que tu nies. C'est l'étape la plus utile de la journée."
+    },
+    {
+      idea: "nicht nie un verbe, un adjectif, une phrase entière.",
+      gloss: { de: ["Ich", "arbeite", "heute", "nicht"], fr: ["Je", "travaille", "aujourd'hui", "pas"] },
+      detail: "Il se place après le verbe conjugué, souvent en fin de phrase."
+    },
+    {
+      idea: "kein nie un NOM.",
+      gloss: { de: ["Ich", "habe", "keine", "Zeit"], fr: ["Je", "ai", "pas-de", "temps"] },
+      detail: "On ne dit jamais « nicht ein Auto », mais <b>kein Auto</b>. Et <b>kein</b> se comporte exactement comme <b>ein</b> : kein Mann, keine Frau, kein Kind.",
+      check: { q: "« Je n'ai pas de voiture » se dit…", o: ["Ich habe kein Auto", "Ich habe nicht Auto", "Ich habe nicht ein Auto"], a: 0, why: "Un nom se nie avec <b>kein</b>, jamais avec nicht." }
+    },
+    {
+      idea: "Le réflexe à prendre, en une seconde.",
+      detail: "Un nom juste derrière ? → <b>kein</b>. Pas de nom ? → <b>nicht</b>. C'est tout.",
+      check: { q: "Complète : Ich komme heute ___.", o: ["nicht", "kein", "keine"], a: 0, why: "Il n'y a pas de nom à nier, on nie l'action → <b>nicht</b>." }
+    }
+  ],
+  examples: [
+    { d: "Ich habe keine Zeit.", f: "Je n'ai pas le temps." },
+    { d: "Das ist nicht gut.", f: "Ce n'est pas bien." },
+    { d: "Wir haben Hunger, aber wir haben kein Brot.", f: "Nous avons faim, mais nous n'avons pas de pain." }
+  ],
+  vocab: [
+    { d: "haben", f: "avoir", p: "HAA-benn" },
+    { d: "nicht", f: "ne … pas (verbe, adjectif)", p: "NIKHT" },
+    { d: "kein / keine", f: "ne … pas de (devant un nom)", p: "KAÏN / KAÏ-ne" },
+    { d: "die Zeit", f: "le temps", p: "dii TSAÏT" },
+    { d: "das Geld", f: "l'argent", p: "dass GUELT" },
+    { d: "der Hunger", f: "la faim", p: "deer HOUN-gueur" },
+    { d: "der Durst", f: "la soif", p: "deer DOURST" },
+    { d: "die Katze", f: "le chat", p: "dii KA-tse" },
+    { d: "der Hund", f: "le chien", p: "deer HOUNT" },
+    { d: "das Auto", f: "la voiture", p: "dass AOU-to" }
+  ],
+  quiz: [
+    { q: "« Il a » se dit…", o: ["er hat", "er hast", "er habt", "er habe"], a: 0, why: "haben est irrégulier au singulier : du <b>hast</b>, er <b>hat</b>." },
+    { q: "Comment dire « je n'ai pas de voiture » ?", o: ["Ich habe kein Auto", "Ich habe nicht Auto", "Ich habe nicht ein Auto", "Ich habe Auto nicht"], a: 0, why: "Un nom se nie avec <b>kein</b>." },
+    { q: "Complète : Ich komme heute ___. (je ne viens pas aujourd'hui)", o: ["nicht", "kein", "keine", "nichts"], a: 0, why: "Pas de nom à nier → <b>nicht</b>, en fin de phrase." },
+    { q: "« Ich habe Hunger » veut dire…", o: ["J'ai faim", "J'ai soif", "Je mange", "Je suis fatigué"], a: 0, why: "Littéralement « j'ai la faim ». Pour la soif : <b>Ich habe Durst</b>." },
+    { q: "Devant un nom féminin, on emploie…", o: ["keine", "kein", "keinen", "nicht"], a: 0, why: "<b>kein</b> se décline comme ein : kein Mann, <b>keine</b> Frau." }
+  ]
+},
+
+/* ------------------------------- JOUR 6 ------------------------------- */
+{
+  day: 6, title: "L'accusatif", de: "Ich sehe den Mann.",
+  steps: [
+    {
+      idea: "En allemand, l'article change selon le rôle du nom dans la phrase.",
+      detail: "Celui qui fait l'action garde <b>der</b>. Celui qui la subit passe à <b>den</b>. Le français ne fait pas ça — c'est la vraie nouveauté du jour."
+    },
+    {
+      idea: "Et il n'y a qu'UN seul changement à retenir.",
+      table: [["masculin", "der → den · ein → einen"], ["féminin", "die → die · eine → eine"], ["neutre", "das → das · ein → ein"], ["pluriel", "die → die"]],
+      detail: "Seul le masculin bouge. Le féminin, le neutre et le pluriel ne changent pas du tout.",
+      check: { q: "Quel genre change à l'accusatif ?", o: ["seulement le masculin", "seulement le féminin", "tous les genres"], a: 0, why: "Une seule ligne du tableau bouge. C'est tout ce qu'il y a à mémoriser aujourd'hui." }
+    },
+    {
+      idea: "En pratique, ça donne ça.",
+      gloss: { de: ["Ich", "sehe", "den", "Mann"], fr: ["Je", "vois", "l'(COD)", "homme"] },
+      detail: "<b>der Mann</b> subit l'action, donc <b>den Mann</b>. Compare : <b>Der Mann ist hier</b> — là, il est sujet, l'article ne bouge pas."
+    },
+    {
+      idea: "Comment savoir si un nom subit l'action ?",
+      detail: "Pose la question « qui ? » ou « quoi ? » juste après le verbe. Je vois <b>qui</b> ? → den Mann. Si la question a une réponse, c'est un accusatif.",
+      check: { q: "« Il achète une pomme » : Er kauft ___ Apfel.", o: ["einen", "ein", "eine"], a: 0, why: "der Apfel est masculin, et il subit l'action → <b>einen</b>." }
+    }
+  ],
+  examples: [
+    { d: "Ich sehe den Mann.", f: "Je vois l'homme. (der Mann → den Mann)" },
+    { d: "Wir trinken die Milch.", f: "Nous buvons le lait. (féminin : rien ne change)" },
+    { d: "Ich brauche das Buch.", f: "J'ai besoin du livre. (neutre : rien ne change)" }
+  ],
+  vocab: [
+    { d: "sehen", f: "voir", p: "ZÉÉ-enn" },
+    { d: "suchen", f: "chercher", p: "ZOU-khenn" },
+    { d: "lesen", f: "lire", p: "LÉÉ-zenn" },
+    { d: "trinken", f: "boire", p: "TRINN-kenn" },
+    { d: "essen", f: "manger", p: "È-senn" },
+    { d: "der Apfel", f: "la pomme", p: "deer AP-feul" },
+    { d: "das Wasser", f: "l'eau", p: "dass VA-seur" },
+    { d: "der Kaffee", f: "le café", p: "deer KA-fé" },
+    { d: "die Milch", f: "le lait", p: "dii MILKH" },
+    { d: "das Brot", f: "le pain", p: "dass BROOT" }
+  ],
+  quiz: [
+    { q: "Complète : Ich sehe ___ Mann.", o: ["den", "der", "dem", "das"], a: 0, why: "Mann subit l'action et il est masculin → <b>den</b>." },
+    { q: "Quel genre change à l'accusatif ?", o: ["seulement le masculin", "seulement le féminin", "tous les genres", "seulement le pluriel"], a: 0, why: "Féminin, neutre et pluriel restent identiques." },
+    { q: "« Il achète une pomme » : Er kauft ___ Apfel.", o: ["einen", "ein", "eine", "einem"], a: 0, why: "der Apfel est masculin et COD → <b>einen</b>." },
+    { q: "Complète : Ich trinke ___ Milch.", o: ["die", "der", "den", "dem"], a: 0, why: "Milch est féminin : <b>die</b> ne bouge pas." },
+    { q: "Dans « Der Hund sieht die Katze », qui voit qui ?", o: ["le chien voit le chat", "le chat voit le chien", "les deux se voient", "impossible à dire"], a: 0, why: "<b>Der</b> Hund a la forme du sujet. C'est l'article qui indique le rôle, pas l'ordre des mots." }
+  ]
+},
+
+/* ------------------------------- JOUR 7 ------------------------------- */
+{
+  day: 7, title: "Poser des questions", de: "Woher kommst du?",
+  steps: [
+    {
+      idea: "Les questions ouvertes commencent par un mot en W-.",
+      detail: "wer (qui) · was (quoi) · wo (où) · wann (quand) · wie (comment) · warum (pourquoi). Ils sont tous faciles sauf un piège : <b>wer</b> veut dire « qui », pas « où ».",
+      check: { q: "« Wer ist das? » signifie…", o: ["Qui est-ce ?", "Où est-ce ?", "Qu'est-ce que c'est ?"], a: 0, why: "<b>wer</b> = qui. L'anglais « where » n'a rien à voir : faux ami classique." }
+    },
+    {
+      idea: "La règle de fer : le verbe est toujours en deuxième position.",
+      gloss: { de: ["Wo", "wohnst", "du?"], fr: ["Où", "habites", "tu ?"] },
+      detail: "Le mot en W- occupe la place 1, le verbe la place 2, le reste suit. C'est la charpente de toute phrase allemande — on la retrouvera au jour 12.",
+      check: { q: "Dans une question ouverte, le verbe se place…", o: ["en deuxième position", "en première position", "à la fin"], a: 0, why: "Wo <b>wohnst</b> du ? — place 1 pour le mot en W-, place 2 pour le verbe." }
+    },
+    {
+      idea: "Pour une question fermée, on inverse. C'est tout.",
+      detail: "Pas d'équivalent de « est-ce que » : on met simplement le verbe en tête. <b>Du hast Zeit</b> devient <b>Hast du Zeit?</b>",
+      gloss: { de: ["Hast", "du", "Zeit?"], fr: ["As", "tu", "temps ?"] }
+    },
+    {
+      idea: "Trois mots à ne pas confondre : wo, woher, wohin.",
+      table: [["wo = où", "Wo bist du?"], ["woher = d'où", "Woher kommst du?"], ["wohin = vers où", "Wohin gehst du?"]],
+      detail: "Le français utilise « où » pour les trois. L'allemand distingue l'endroit, l'origine et la destination."
+    }
+  ],
+  examples: [
+    { d: "Woher kommst du? — Ich komme aus Frankreich.", f: "D'où viens-tu ? — Je viens de France." },
+    { d: "Warum lernst du Deutsch?", f: "Pourquoi apprends-tu l'allemand ?" },
+    { d: "Hast du Zeit?", f: "As-tu le temps ?" }
+  ],
+  vocab: [
+    { d: "wer", f: "qui", p: "VÉÈR" },
+    { d: "was", f: "quoi, que", p: "VASS" },
+    { d: "wo", f: "où (position)", p: "VOO" },
+    { d: "woher", f: "d'où (origine)", p: "vo-HÉÈR" },
+    { d: "wohin", f: "où (destination)", p: "vo-HINN" },
+    { d: "wann", f: "quand", p: "VANN" },
+    { d: "wie", f: "comment", p: "VII" },
+    { d: "warum", f: "pourquoi", p: "va-ROUM" },
+    { d: "wie viel", f: "combien", p: "vii FIIL" },
+    { d: "aus", f: "de, en provenance de", p: "AOUSS" }
+  ],
+  quiz: [
+    { q: "« D'où viens-tu ? » se dit…", o: ["Woher kommst du?", "Wohin kommst du?", "Wo kommst du?", "Wann kommst du?"], a: 0, why: "<b>woher</b> marque l'origine, <b>wohin</b> la destination." },
+    { q: "Dans une question ouverte, le verbe conjugué se place…", o: ["en deuxième position", "en première position", "à la fin", "n'importe où"], a: 0, why: "Wo <b>wohnst</b> du ? — le mot en W- prend la place 1." },
+    { q: "Comment transformer « Du hast Zeit » en question ?", o: ["Hast du Zeit?", "Du hast Zeit?", "Ist du hast Zeit?", "Was du hast Zeit?"], a: 0, why: "Simple inversion : l'allemand n'a pas d'« est-ce que »." },
+    { q: "« Wann » signifie…", o: ["quand", "où", "qui", "comment"], a: 0, why: "<b>wann</b> = quand. À ne pas confondre avec <b>wo</b> ni <b>wer</b>." },
+    { q: "« Wer ist das? » veut dire…", o: ["Qui est-ce ?", "Où est-ce ?", "Qu'est-ce que c'est ?", "Comment est-ce ?"], a: 0, why: "Faux ami redoutable : l'allemand <b>wer</b> veut dire qui." }
+  ]
+},
+
+/* ------------------------------- JOUR 8 ------------------------------- */
+{
+  day: 8, title: "Décrire les choses", de: "Das Auto ist rot.",
+  steps: [
+    {
+      idea: "Aujourd'hui, la façon la plus simple de décrire : sein + adjectif.",
+      gloss: { de: ["Das", "Auto", "ist", "rot"], fr: ["La", "voiture", "est", "rouge"] },
+      detail: "Quand l'adjectif vient APRÈS le verbe, il ne change jamais. Pas de masculin, pas de féminin, pas de pluriel. Rien."
+    },
+    {
+      idea: "Vraiment rien ne change. Regarde.",
+      table: [["der Mann ist groß", "l'homme est grand"], ["die Frau ist groß", "la femme est grande"], ["das Kind ist groß", "l'enfant est grand"], ["die Kinder sind groß", "les enfants sont grands"]],
+      detail: "Le français accorde à chaque fois. L'allemand, dans cette position, jamais. Profites-en : c'est un cadeau.",
+      check: { q: "« La femme est grande » se dit…", o: ["Die Frau ist groß", "Die Frau ist große", "Die Frau ist großen"], a: 0, why: "Après <b>sein</b>, l'adjectif reste nu. Aucun accord." }
+    },
+    {
+      idea: "Attention : ce cadeau ne vaut QUE dans cette position.",
+      detail: "Si l'adjectif passe devant le nom (« une voiture rouge »), il prend une terminaison. C'est un gros morceau, on le verra bien plus tard. Pour l'instant, contourne-le : dis <b>Das Auto ist rot</b>."
+    },
+    {
+      idea: "Deux petits mots pour nuancer : sehr et ein bisschen.",
+      detail: "<b>sehr</b> = très. <b>ein bisschen</b> = un peu. <b>Das ist sehr gut</b>. <b>Ich bin ein bisschen müde</b> (un peu fatigué).",
+      check: { q: "Comment dire « c'est très beau » ?", o: ["Das ist sehr schön", "Das ist schön sehr", "Das sehr ist schön"], a: 0, why: "<b>sehr</b> se place juste avant l'adjectif, comme « très » en français." }
+    }
+  ],
+  examples: [
+    { d: "Das Haus ist sehr alt.", f: "La maison est très vieille." },
+    { d: "Mein Auto ist nicht neu.", f: "Ma voiture n'est pas neuve." },
+    { d: "Die Stadt ist schön, aber sehr groß.", f: "La ville est belle, mais très grande." }
+  ],
+  vocab: [
+    { d: "groß", f: "grand", p: "GROOSS" },
+    { d: "klein", f: "petit", p: "KLAÏN" },
+    { d: "gut", f: "bon, bien", p: "GOUT" },
+    { d: "schlecht", f: "mauvais", p: "CHLÈKHT" },
+    { d: "schön", f: "beau, joli", p: "CHEUN" },
+    { d: "neu", f: "neuf, nouveau", p: "NOÏ" },
+    { d: "alt", f: "vieux, ancien", p: "ALT" },
+    { d: "rot", f: "rouge", p: "ROOT" },
+    { d: "blau", f: "bleu", p: "BLAOU" },
+    { d: "grün", f: "vert", p: "GRUUN" }
+  ],
+  quiz: [
+    { q: "« La maison est petite » se dit…", o: ["Das Haus ist klein", "Das Haus ist kleine", "Das Haus ist kleines", "Das kleine Haus ist"], a: 0, why: "Après <b>sein</b>, l'adjectif ne prend aucune terminaison." },
+    { q: "L'adjectif placé après sein…", o: ["ne change jamais", "s'accorde en genre", "s'accorde au pluriel", "prend toujours -e"], a: 0, why: "C'est la position la plus simple de l'allemand. Aucun accord." },
+    { q: "« sehr » veut dire…", o: ["très", "un peu", "presque", "trop"], a: 0, why: "<b>sehr gut</b> = très bien. Pour « un peu » : <b>ein bisschen</b>." },
+    { q: "Comment dire « la voiture n'est pas verte » ?", o: ["Das Auto ist nicht grün", "Das Auto ist kein grün", "Das Auto nicht ist grün", "Das Auto ist grün nicht"], a: 0, why: "On nie un adjectif, pas un nom → <b>nicht</b>, placé avant l'adjectif." },
+    { q: "Pourquoi éviter pour l'instant « ein rotes Auto » ?", o: ["devant le nom, l'adjectif prend une terminaison", "cette phrase est fausse", "rot ne s'emploie pas avec Auto", "il faut le pluriel"], a: 0, why: "Devant le nom, les adjectifs se déclinent — un chapitre bien plus lourd, à garder pour plus tard." }
+  ]
+},
+
+/* ------------------------------- JOUR 9 ------------------------------- */
+{
+  day: 9, title: "Les verbes qui changent", de: "Du sprichst gut!",
+  steps: [
+    {
+      idea: "Quelques verbes très courants changent de voyelle — mais seulement avec du et er/sie/es.",
+      table: [["ich", "spreche"], ["du", "sprichst"], ["er / sie / es", "spricht"], ["wir", "sprechen"], ["ihr", "sprecht"], ["sie / Sie", "sprechen"]],
+      detail: "Regarde bien : le <b>e</b> devient <b>i</b> sur deux lignes seulement. Partout ailleurs, le verbe est parfaitement normal."
+    },
+    {
+      idea: "Il y a exactement deux changements possibles.",
+      table: [["e → i", "sprechen → du sprichst"], ["e → ie", "lesen → du liest"], ["a → ä", "fahren → du fährst"]],
+      detail: "Trois motifs en tout, et toujours aux deux mêmes personnes. Ce n'est pas du hasard à apprendre par cœur mot par mot.",
+      check: { q: "Sur quelles personnes la voyelle change-t-elle ?", o: ["du et er/sie/es", "toutes", "seulement ich"], a: 0, why: "Deux lignes du tableau, jamais les autres. Le pluriel est toujours régulier." }
+    },
+    {
+      idea: "Pourquoi ces verbes-là ? Parce que ce sont les plus utilisés.",
+      detail: "essen (manger), sprechen (parler), fahren (aller en voiture), lesen (lire), nehmen (prendre). Tu vas les croiser tous les jours — c'est précisément pour ça qu'ils ont gardé leur irrégularité."
+    },
+    {
+      idea: "Le plus tordu de tous : nehmen (prendre).",
+      gloss: { de: ["Ich", "nehme", "den", "Bus"], fr: ["Je", "prends", "le", "bus"] },
+      detail: "Mais : <b>du nimmst</b>, <b>er nimmt</b>. La voyelle change ET la consonne double. Celui-là s'apprend tel quel.",
+      check: { q: "« Il prend » se dit…", o: ["er nimmt", "er nehmt", "er nimmst"], a: 0, why: "<b>nehmen</b> devient <b>nimmt</b> à la 3e personne. Un cas à part, à mémoriser." }
+    }
+  ],
+  examples: [
+    { d: "Sprichst du Deutsch? — Ein bisschen.", f: "Parles-tu allemand ? — Un peu." },
+    { d: "Er liest ein Buch.", f: "Il lit un livre." },
+    { d: "Wir fahren nach Berlin.", f: "Nous allons à Berlin (en véhicule)." }
+  ],
+  vocab: [
+    { d: "sprechen (du sprichst)", f: "parler", p: "CHPRÈ-khenn" },
+    { d: "essen (du isst)", f: "manger", p: "È-senn" },
+    { d: "lesen (du liest)", f: "lire", p: "LÉÉ-zenn" },
+    { d: "fahren (du fährst)", f: "aller en véhicule", p: "FAA-renn" },
+    { d: "nehmen (du nimmst)", f: "prendre", p: "NÉÉ-menn" },
+    { d: "geben (du gibst)", f: "donner", p: "GUÉÉ-benn" },
+    { d: "schlafen (du schläfst)", f: "dormir", p: "CHLAA-fenn" },
+    { d: "laufen (du läufst)", f: "courir, marcher", p: "LAOU-fenn" },
+    { d: "helfen (du hilfst)", f: "aider", p: "HÈL-fenn" },
+    { d: "treffen (du triffst)", f: "rencontrer", p: "TRÈ-fenn" }
+  ],
+  quiz: [
+    { q: "« Tu parles » se dit…", o: ["du sprichst", "du sprechst", "du spricht", "du sprechen"], a: 0, why: "Le <b>e</b> devient <b>i</b> avec du : <b>sprichst</b>." },
+    { q: "Sur quelles personnes la voyelle change-t-elle ?", o: ["du et er/sie/es", "toutes les personnes", "seulement ich", "seulement le pluriel"], a: 0, why: "Deux lignes seulement. Le reste de la conjugaison est régulier." },
+    { q: "Complète : Er ___ ein Buch. (lesen)", o: ["liest", "lest", "lesst", "liesen"], a: 0, why: "lesen fait <b>e → ie</b> : du liest, er liest." },
+    { q: "« Nous allons à Berlin » (en voiture) :", o: ["Wir fahren nach Berlin", "Wir fährt nach Berlin", "Wir fährst nach Berlin", "Wir fahrt nach Berlin"], a: 0, why: "<b>wir</b> ne change jamais de voyelle : forme de l'infinitif." },
+    { q: "« Il prend le bus » :", o: ["Er nimmt den Bus", "Er nehmt den Bus", "Er nimmst den Bus", "Er nehme den Bus"], a: 0, why: "nehmen est le plus irrégulier du lot : <b>er nimmt</b>." }
+  ]
+},
+
+/* ------------------------------- JOUR 10 ------------------------------ */
+{
+  day: 10, title: "Les jours et le temps", de: "Was machst du am Montag?",
+  steps: [
+    {
+      idea: "Les jours de la semaine sont tous masculins : der.",
+      detail: "Montag, Dienstag, Mittwoch, Donnerstag, Freitag, Samstag, Sonntag. Quatre d'entre eux finissent par <b>-tag</b>, qui veut simplement dire « jour »."
+    },
+    {
+      idea: "Pour dire « le lundi », l'allemand emploie am.",
+      gloss: { de: ["Am", "Montag", "arbeite", "ich"], fr: ["Le", "lundi", "travaille", "je"] },
+      detail: "Remarque quelque chose d'étrange dans le mot à mot : le verbe est en deuxième position, et <b>ich</b> passe derrière. On y revient au jour 12.",
+      check: { q: "Comment dit-on « le vendredi » ?", o: ["am Freitag", "in Freitag", "der Freitag"], a: 0, why: "<b>am</b> + le jour. Am Montag, am Freitag, am Wochenende." }
+    },
+    {
+      idea: "Trois mots à connaître avant tous les autres.",
+      table: [["gestern", "hier"], ["heute", "aujourd'hui"], ["morgen", "demain"]],
+      detail: "Attention au piège : <b>morgen</b> veut dire demain, mais <b>der Morgen</b> (avec majuscule) veut dire le matin. <b>morgen früh</b> = demain matin.",
+      check: { q: "« morgen » (sans majuscule) signifie…", o: ["demain", "le matin", "hier"], a: 0, why: "Sans majuscule c'est un adverbe : demain. Avec majuscule, <b>der Morgen</b> = le matin." }
+    },
+    {
+      idea: "Pour l'heure, un seul mot suffit au début : um.",
+      detail: "<b>um</b> + l'heure. <b>Um acht Uhr</b> = à huit heures. Et pour demander : <b>Wie spät ist es?</b> — littéralement « comme tard est-il ? »."
+    }
+  ],
+  examples: [
+    { d: "Was machst du am Wochenende?", f: "Que fais-tu le week-end ?" },
+    { d: "Heute arbeite ich nicht.", f: "Aujourd'hui je ne travaille pas." },
+    { d: "Der Kurs beginnt um neun Uhr.", f: "Le cours commence à neuf heures." }
+  ],
+  vocab: [
+    { d: "der Montag", f: "lundi", p: "deer MOON-taak" },
+    { d: "der Dienstag", f: "mardi", p: "deer DIINSS-taak" },
+    { d: "der Mittwoch", f: "mercredi", p: "deer MITT-vokh" },
+    { d: "der Freitag", f: "vendredi", p: "deer FRAÏ-taak" },
+    { d: "das Wochenende", f: "le week-end", p: "dass VO-khenn-enn-de" },
+    { d: "die Woche", f: "la semaine", p: "dii VO-khe" },
+    { d: "heute", f: "aujourd'hui", p: "HOÏ-te" },
+    { d: "morgen", f: "demain", p: "MOR-guenn" },
+    { d: "gestern", f: "hier", p: "GUÈSS-teurn" },
+    { d: "die Uhr", f: "l'heure, la montre", p: "dii OUR" }
+  ],
+  quiz: [
+    { q: "« le lundi » se dit…", o: ["am Montag", "in Montag", "auf Montag", "zu Montag"], a: 0, why: "<b>am</b> introduit les jours et le week-end." },
+    { q: "« morgen » sans majuscule veut dire…", o: ["demain", "le matin", "hier", "tôt"], a: 0, why: "<b>der Morgen</b> (majuscule) = le matin ; <b>morgen</b> = demain." },
+    { q: "Quel mot signifie « hier » ?", o: ["gestern", "heute", "morgen", "früh"], a: 0, why: "<b>gestern</b> = hier, <b>heute</b> = aujourd'hui." },
+    { q: "Comment dire « à huit heures » ?", o: ["um acht Uhr", "am acht Uhr", "in acht Uhr", "acht Uhr an"], a: 0, why: "<b>um</b> sert pour l'heure précise, <b>am</b> pour les jours." },
+    { q: "Les jours de la semaine sont…", o: ["tous masculins (der)", "tous neutres (das)", "tous féminins (die)", "de genres variés"], a: 0, why: "der Montag, der Dienstag… tous <b>der</b>. Une exception bienvenue à la règle du hasard." }
+  ]
+},
+
+/* ------------------------------- JOUR 11 ------------------------------ */
+{
+  day: 11, title: "Pouvoir et vouloir", de: "Ich kann schwimmen.",
+  steps: [
+    {
+      idea: "Trois verbes changent la structure de la phrase : können, wollen, müssen.",
+      detail: "pouvoir, vouloir, devoir. Ils ne s'emploient presque jamais seuls : ils viennent avec un second verbe."
+    },
+    {
+      idea: "Et c'est là qu'il se passe quelque chose d'unique en allemand.",
+      gloss: { de: ["Ich", "kann", "gut", "schwimmen"], fr: ["Je", "peux", "bien", "nager"] },
+      detail: "Le deuxième verbe part tout à la fin de la phrase, et reste à l'infinitif. En français il colle au premier ; en allemand, il est rejeté au bout.",
+      check: { q: "« Je veux apprendre l'allemand » se dit…", o: ["Ich will Deutsch lernen", "Ich will lernen Deutsch", "Ich lernen will Deutsch"], a: 0, why: "L'infinitif <b>lernen</b> se place tout à la fin, après le complément." }
+    },
+    {
+      idea: "Leur conjugaison est bizarre au singulier — et régulière au pluriel.",
+      table: [["ich", "kann"], ["du", "kannst"], ["er / sie / es", "kann"], ["wir", "können"], ["ihr", "könnt"], ["sie / Sie", "können"]],
+      detail: "Note ce détail inhabituel : <b>ich</b> et <b>er</b> ont exactement la même forme, <b>kann</b>. Ça ne se produit avec aucun verbe normal."
+    },
+    {
+      idea: "Les trois, côte à côte.",
+      table: [["können", "ich kann — pouvoir"], ["wollen", "ich will — vouloir"], ["müssen", "ich muss — devoir"]],
+      detail: "Faux ami à surveiller : <b>ich will</b> ne veut pas dire « je vais », mais « je veux ».",
+      check: { q: "« Ich will » signifie…", o: ["je veux", "je vais", "je peux"], a: 0, why: "Faux ami avec l'anglais « I will ». En allemand, <b>wollen</b> = vouloir." }
+    }
+  ],
+  examples: [
+    { d: "Kannst du mir helfen?", f: "Peux-tu m'aider ?" },
+    { d: "Ich muss heute arbeiten.", f: "Je dois travailler aujourd'hui." },
+    { d: "Wir wollen nach Berlin fahren.", f: "Nous voulons aller à Berlin." }
+  ],
+  vocab: [
+    { d: "können (ich kann)", f: "pouvoir, savoir faire", p: "KEU-nenn" },
+    { d: "wollen (ich will)", f: "vouloir", p: "VO-lenn" },
+    { d: "müssen (ich muss)", f: "devoir", p: "MU-senn" },
+    { d: "schwimmen", f: "nager", p: "CHVI-menn" },
+    { d: "singen", f: "chanter", p: "ZINN-guenn" },
+    { d: "tanzen", f: "danser", p: "TANN-tsenn" },
+    { d: "kochen", f: "cuisiner", p: "KO-khenn" },
+    { d: "verstehen", f: "comprendre", p: "feur-CHTÉÉ-enn" },
+    { d: "gern", f: "volontiers, avec plaisir", p: "GUÈRN" },
+    { d: "vielleicht", f: "peut-être", p: "fi-LAÏKHT" }
+  ],
+  quiz: [
+    { q: "« Je peux nager » se dit…", o: ["Ich kann schwimmen", "Ich kann schwimme", "Ich schwimmen kann", "Ich kanne schwimmen"], a: 0, why: "Le second verbe reste à l'infinitif et part à la fin." },
+    { q: "Où se place le deuxième verbe ?", o: ["à la fin de la phrase", "juste après le premier", "en début de phrase", "n'importe où"], a: 0, why: "C'est la particularité de ces verbes : l'infinitif est rejeté au bout." },
+    { q: "« Ich will » veut dire…", o: ["je veux", "je vais", "je peux", "je dois"], a: 0, why: "Faux ami avec l'anglais : <b>wollen</b> = vouloir." },
+    { q: "Complète : Wir ___ heute arbeiten. (devoir)", o: ["müssen", "muss", "musst", "müsst"], a: 0, why: "Avec <b>wir</b>, on reprend la forme de l'infinitif : <b>müssen</b>." },
+    { q: "Quelle particularité ont ces verbes au singulier ?", o: ["ich et er ont la même forme", "ils n'ont pas de forme pour du", "ils sont réguliers", "ils changent de voyelle"], a: 0, why: "<b>ich kann</b> et <b>er kann</b> : identiques. Aucun verbe normal ne fait ça." }
+  ]
+},
+
+/* ------------------------------- JOUR 12 ------------------------------ */
+{
+  day: 12, title: "Ma famille, ta famille", de: "Das ist meine Schwester.",
+  steps: [
+    {
+      idea: "« Mon » se dit mein, et il se comporte exactement comme ein.",
+      table: [["masculin", "mein Vater"], ["féminin", "meine Mutter"], ["neutre", "mein Kind"], ["pluriel", "meine Kinder"]],
+      detail: "Si tu sais dire <b>ein</b> / <b>eine</b>, tu sais déjà dire <b>mein</b> / <b>meine</b>. Même chose pour <b>dein</b> (ton) et <b>kein</b> (pas de)."
+    },
+    {
+      idea: "Le -e final suit le genre du nom possédé, pas le tien.",
+      gloss: { de: ["Das", "ist", "meine", "Schwester"], fr: ["C'", "est", "ma", "sœur"] },
+      detail: "Un homme dit <b>meine Schwester</b> et une femme dit <b>mein Bruder</b>. Ce qui compte, c'est le mot qui suit.",
+      check: { q: "Comment un homme dit-il « ma mère » ?", o: ["meine Mutter", "mein Mutter", "meiner Mutter"], a: 0, why: "<b>Mutter</b> est féminin → <b>meine</b>. Le genre de celui qui parle n'entre pas en jeu." }
+    },
+    {
+      idea: "Un piège de vocabulaire à connaître tout de suite.",
+      detail: "<b>die Tochter</b> = la fille (au sens de « ma fille »). <b>das Mädchen</b> = la fille (une jeune fille) — et il est neutre, pas féminin. Deux mots bien distincts."
+    },
+    {
+      idea: "Pour présenter quelqu'un, une seule formule suffit.",
+      detail: "<b>Das ist …</b> = « c'est … ». Elle marche pour tout : <b>Das ist mein Bruder</b>, <b>Das ist meine Familie</b>, <b>Das ist ein Buch</b>.",
+      check: { q: "« C'est mon frère » se dit…", o: ["Das ist mein Bruder", "Das ist meine Bruder", "Der ist mein Bruder"], a: 0, why: "<b>Das ist</b> est invariable, et <b>Bruder</b> est masculin → <b>mein</b>." }
+    }
+  ],
+  examples: [
+    { d: "Das ist meine Familie.", f: "C'est ma famille." },
+    { d: "Mein Bruder wohnt in Berlin.", f: "Mon frère habite à Berlin." },
+    { d: "Wie heißt deine Schwester?", f: "Comment s'appelle ta sœur ?" }
+  ],
+  vocab: [
+    { d: "mein / meine", f: "mon / ma", p: "MAÏN / MAÏ-ne" },
+    { d: "dein / deine", f: "ton / ta", p: "DAÏN / DAÏ-ne" },
+    { d: "der Vater", f: "le père", p: "deer FAA-teur" },
+    { d: "die Mutter", f: "la mère", p: "dii MOU-teur" },
+    { d: "der Bruder", f: "le frère", p: "deer BROU-deur" },
+    { d: "die Schwester", f: "la sœur", p: "dii CHVÈSS-teur" },
+    { d: "der Sohn", f: "le fils", p: "deer ZOON" },
+    { d: "die Tochter", f: "la fille (de qqn)", p: "dii TOKH-teur" },
+    { d: "die Familie", f: "la famille", p: "dii fa-MII-lie" },
+    { d: "der Freund", f: "l'ami", p: "deer FROÏNT" }
+  ],
+  quiz: [
+    { q: "« ma sœur » se dit…", o: ["meine Schwester", "mein Schwester", "meiner Schwester", "meines Schwester"], a: 0, why: "Schwester est féminin → <b>meine</b>." },
+    { q: "Le -e de « meine » dépend…", o: ["du genre du nom qui suit", "du genre de celui qui parle", "du nombre de personnes", "de la politesse"], a: 0, why: "Comme pour ein / eine : c'est le nom possédé qui commande." },
+    { q: "« mein » se comporte comme…", o: ["ein", "der", "das", "nicht"], a: 0, why: "mein, dein et kein suivent tous le modèle de <b>ein</b>." },
+    { q: "Comment dire « c'est mon père » ?", o: ["Das ist mein Vater", "Das ist meine Vater", "Der ist mein Vater", "Das sind mein Vater"], a: 0, why: "<b>Das ist</b> est invariable ; Vater est masculin → <b>mein</b>." },
+    { q: "« das Mädchen » est…", o: ["neutre, et veut dire jeune fille", "féminin, et veut dire jeune fille", "neutre, et veut dire garçon", "féminin, et veut dire fille de quelqu'un"], a: 0, why: "Neutre malgré le sens — c'est l'exemple le plus cité de l'écart entre genre et sens." }
+  ]
+}
+
+];
+
+const TOTAL_PLANNED = 30; // objectif du cours complet
+
+/* ===============================================================
+   2. L'ÉTAT
+   =============================================================== */
+const KEY = "deutsch-taeglich-v1";
+const INTERVALS = { 1: 0, 2: 2, 3: 4, 4: 8, 5: 16 }; // méthode Leitner, en jours
+
+let storageOK = true;
+let S = load();
+
+function fresh() {
+  return { day: 1, done: [], cards: {}, streak: 0, last: null, scores: {} };
+}
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) return Object.assign(fresh(), JSON.parse(raw));
+  } catch (e) { storageOK = false; }
+  return fresh();
+}
+function persist() {
+  try { localStorage.setItem(KEY, JSON.stringify(S)); }
+  catch (e) { storageOK = false; }
+}
+
+function today() {
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+function shift(iso, days) {
+  const [y, m, d] = iso.split("-").map(Number);
+  const dt = new Date(y, m - 1, d + days);
+  return dt.getFullYear() + "-" + String(dt.getMonth() + 1).padStart(2, "0") + "-" + String(dt.getDate()).padStart(2, "0");
+}
+
+function touchStreak() {
+  const t = today();
+  if (S.last === t) return;
+  S.streak = (S.last === shift(t, -1)) ? S.streak + 1 : 1;
+  S.last = t;
+  persist();
+  paintStreak();
+}
+
+function seed(dayNo) {
+  const lesson = COURSE[dayNo - 1];
+  if (!lesson) return;
+  let added = false;
+  lesson.vocab.forEach(function (v, i) {
+    const id = dayNo + ":" + i;
+    if (!S.cards[id]) { S.cards[id] = { box: 1, due: today() }; added = true; }
+  });
+  if (added) persist();
+}
+function cardById(id) {
+  const parts = id.split(":").map(Number);
+  const lesson = COURSE[parts[0] - 1];
+  if (!lesson || !lesson.vocab[parts[1]]) return null;
+  return Object.assign({ id: id, day: parts[0] }, lesson.vocab[parts[1]]);
+}
+function dueCards() {
+  const t = today();
+  return Object.keys(S.cards)
+    .filter(function (id) { return S.cards[id].due <= t && cardById(id); })
+    .map(cardById);
+}
+function grade(id, ok) {
+  const c = S.cards[id];
+  if (!c) return;
+  // Bonne réponse : on monte d'un cran, la carte revient plus tard.
+  // Ratée : retour à la case 1, donc due aujourd'hui (INTERVALS[1] vaut 0).
+  c.box = ok ? Math.min(5, c.box + 1) : 1;
+  c.due = shift(today(), INTERVALS[c.box]);
+  persist();
+}
+function learnedCount() {
+  return Object.keys(S.cards).filter(function (id) { return S.cards[id].box >= 4; }).length;
+}
+
+/* ===============================================================
+   3. LA VOIX — prononciation par le navigateur, sans fichier audio
+   Les boutons restent masqués tant qu'aucune voix allemande n'est
+   installée sur l'appareil : mieux vaut rien qu'un bouton muet.
+   =============================================================== */
+const TTS = { voice: null };
+
+function initTTS() {
+  if (!("speechSynthesis" in window)) return;
+  function pick() {
+    let list = [];
+    try { list = window.speechSynthesis.getVoices() || []; } catch (e) { return; }
+    TTS.voice = list.filter(function (v) { return /^de/i.test(v.lang); })[0] || null;
+    document.body.classList.toggle("has-tts", !!TTS.voice);
+  }
+  pick();
+  try { window.speechSynthesis.addEventListener("voiceschanged", pick); } catch (e) {}
+}
+
+function speak(text) {
+  if (!TTS.voice || !("speechSynthesis" in window)) return;
+  try {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.voice = TTS.voice;
+    u.lang = TTS.voice.lang;
+    u.rate = 0.85;
+    window.speechSynthesis.speak(u);
+  } catch (e) {}
+}
+
+/* ===============================================================
+   4. RENDU
+   =============================================================== */
+const view = document.getElementById("view");
+const streakEl = document.getElementById("streak");
+
+function esc(s) {
+  return String(s).replace(/[<>&]/g, function (c) { return { "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]; });
+}
+function att(s) {
+  return esc(s).replace(/"/g, "&quot;");
+}
+function sayBtn(text) {
+  return '<button class="say" data-say="' + att(text) + '" aria-label="Écouter">&#9654;</button>';
+}
+function paintStreak() {
+  if (S.streak > 0) {
+    streakEl.hidden = false;
+    streakEl.textContent = S.streak + (S.streak > 1 ? " jours d'affilée" : " jour");
+  } else {
+    streakEl.hidden = true;
+  }
+}
+function show(html) {
+  view.innerHTML = html;
+  window.scrollTo(0, 0);
+}
+function backBar(label) {
+  return '<button class="back" data-go="home">&#8592; ' + label + '</button>';
+}
+function glossHTML(g) {
+  const cells = g.de.map(function (w, i) {
+    return '<span><b>' + esc(w) + '</b><i>' + esc(g.fr[i]) + '</i></span>';
+  }).join("");
+  return '<div class="gloss">' + cells + '</div>' +
+         '<div class="gloss-say">' + sayBtn(g.de.join(" ")) + '<span class="t">Écouter la phrase</span></div>';
+}
+function tableHTML(rows) {
+  return '<div class="scroll-x"><table class="conj"><tbody>' +
+    rows.map(function (r) { return '<tr><td>' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td></tr>'; }).join("") +
+    '</tbody></table></div>';
+}
+
+/* Mélange (Fisher-Yates) — renvoie les indices 0..n-1 dans un ordre au hasard.
+   Seul l'ORDRE D'AFFICHAGE change : chaque bouton garde son index d'origine
+   dans data-pick / data-scheck. Le calcul du score, comme l'auto-test,
+   continue donc de raisonner sur le fichier et pas sur l'écran. */
+function shuffleIdx(n) {
+  const a = [];
+  for (let i = 0; i < n; i++) a.push(i);
+  for (let i = n - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+/* Un jour est atteignable s'il est déjà fait, ou s'il suit immédiatement
+   les jours validés. Sert aux pastilles de l'accueil et aux boutons de leçon. */
+function reachable(n) {
+  return n >= 1 && n <= COURSE.length &&
+         (S.done.indexOf(n) !== -1 || n <= Math.max(1, S.done.length + 1));
+}
+
+/* ---------- Accueil ---------- */
+function home() {
+  seed(S.day);
+
+  const lesson = COURSE[S.day - 1];
+  const due = dueCards().length;
+  const doneToday = S.done.indexOf(S.day) !== -1;
+
+  let stations = "";
+  for (let n = 1; n <= COURSE.length; n++) {
+    const cls = S.done.indexOf(n) !== -1 ? "done" : (n === S.day ? "now" : "soon");
+    stations += '<button class="station ' + cls + '" data-day="' + n + '" aria-label="Jour ' + n + '">' +
+                '<span class="dot"></span><span class="n">' + n + '</span></button>';
+  }
+
+  const finished = S.done.length >= COURSE.length;
+
+  return [
+    '<div class="stack">',
+
+      '<div class="stack-s">',
+        '<span class="label">Progression &#183; ' + S.done.length + ' / ' + COURSE.length + ' jours &#183; ' + TOTAL_PLANNED + ' prévus</span>',
+        '<div class="line">' + stations + '</div>',
+      '</div>',
+
+      '<div class="plate">',
+        '<div class="num"><b>' + S.day + '</b></div>',
+        '<div>',
+          '<span class="label">' + (doneToday ? 'Jour terminé' : 'Jour en cours') + '</span>',
+          '<h2>' + esc(lesson.title) + '</h2>',
+          '<p class="de">' + esc(lesson.de) + '</p>',
+        '</div>',
+      '</div>',
+
+      '<div class="modes">',
+        '<button class="mode" data-go="lesson">',
+          '<div class="txt"><strong>La leçon</strong><span>' + lesson.steps.length + ' étapes courtes, ' + lesson.vocab.length + ' mots</span></div>',
+          '<span class="chip">' + lesson.steps.length + '</span>',
+        '</button>',
+        '<button class="mode" data-go="cards"' + (due === 0 ? ' disabled' : '') + '>',
+          '<div class="txt"><strong>Les cartes</strong><span>' + (due === 0 ? 'Rien à réviser aujourd\'hui — reviens demain' : 'Révision espacée du vocabulaire') + '</span></div>',
+          '<span class="chip' + (due > 0 ? ' hot' : '') + '">' + due + '</span>',
+        '</button>',
+        '<button class="mode" data-go="quiz">',
+          '<div class="txt"><strong>Le quiz</strong><span>' + (doneToday ? 'Refaire le test du jour ' + S.day : 'Valide le jour ' + S.day + ' et débloque la suite') + '</span></div>',
+          '<span class="chip' + (doneToday ? ' ok' : '') + '">' + (S.scores[S.day] != null ? S.scores[S.day] + '/' + lesson.quiz.length : lesson.quiz.length) + '</span>',
+        '</button>',
+      '</div>',
+
+      finished ? '<div class="card"><span class="label">Fin de la série</span><p class="msg" style="margin:.5rem 0 0">Tu as terminé les ' + COURSE.length + ' jours écrits. Demande-moi la suite — le contenu s\'ajoute dans un seul fichier.</p></div>' : '',
+
+      !storageOK ? '<p class="warn">Ton navigateur bloque le stockage local : la progression ne sera pas conservée après fermeture. Essaie hors navigation privée.</p>' : '',
+
+      '<div class="stack-s">',
+        '<h3 class="sec">Ma progression</h3>',
+        '<p class="msg">' + Object.keys(S.cards).length + ' mots en circulation &#183; ' + learnedCount() + ' bien ancrés &#183; série de ' + S.streak + ' jour' + (S.streak > 1 ? 's' : '') + '</p>',
+        '<div class="tools">',
+          '<button class="tool" data-act="export">Sauvegarder</button>',
+          '<button class="tool" data-act="import">Restaurer</button>',
+          '<button class="tool danger" data-act="reset">Tout effacer</button>',
+        '</div>',
+        '<p class="msg" id="toolmsg"></p>',
+      '</div>',
+
+    '</div>'
+  ].join("");
+}
+
+/* ---------- La leçon, étape par étape ---------- */
+let stepIdx = 0, stepPick = null, stepPerm = null;
+
+/* Se placer sur une étape. L'ordre des réponses est figé ICI, une fois :
+   sinon elles se remélangeraient à chaque redessin — en particulier
+   juste après avoir répondu, ce qui serait illisible. */
+function setStep(i) {
+  stepIdx = i;
+  stepPick = null;
+  const l = COURSE[S.day - 1];
+  const st = l && l.steps[i];
+  stepPerm = (st && st.check) ? shuffleIdx(st.check.o.length) : null;
+}
+
+function lessonView() {
+  seed(S.day);
+  setStep(0);
+  return renderStep();
+}
+
+function renderStep() {
+  const l = COURSE[S.day - 1];
+  if (stepIdx >= l.steps.length) return renderRecap();
+
+  const st = l.steps[stepIdx];
+  const answered = stepPick !== null;
+
+  let body = '<p class="step-idea">' + esc(st.idea) + '</p>';
+  if (st.detail) body += '<p class="step-detail">' + st.detail + '</p>';
+  if (st.gloss)  body += glossHTML(st.gloss);
+  if (st.table)  body += tableHTML(st.table);
+
+  let quest = "";
+  if (st.check) {
+    const order = stepPerm || st.check.o.map(function (_, i) { return i; });
+    const opts = order.map(function (i) {
+      let cls = "opt";
+      if (answered) {
+        if (i === st.check.a) cls += " right";
+        else if (i === stepPick) cls += " wrong";
+      }
+      return '<button class="' + cls + '" data-scheck="' + i + '"' + (answered ? " disabled" : "") + '>' + esc(st.check.o[i]) + '</button>';
+    }).join("");
+    quest = [
+      '<div class="card">',
+        '<h3 class="sec">À toi</h3>',
+        '<p class="q" style="margin-top:.75rem">' + esc(st.check.q) + '</p>',
+        '<div class="opts" style="margin-top:.75rem">' + opts + '</div>',
+        answered ? '<div class="why" style="margin-top:.75rem">' + st.check.why + '</div>' : '',
+      '</div>'
+    ].join("");
+  }
+
+  // Sans mini-question, on peut continuer tout de suite.
+  // Avec, il faut avoir répondu : c'est ce qui empêche de survoler.
+  const canGo = !st.check || answered;
+  const nav = stepIdx === 0
+    ? (canGo ? '<button class="btn primary wide" data-act="step-next">Continuer</button>' : '')
+    : '<div class="pair"><button class="btn" data-act="step-back">Précédent</button>' +
+      (canGo ? '<button class="btn primary" data-act="step-next">Continuer</button>' : '<button class="btn" disabled>Réponds d\'abord</button>') +
+      '</div>';
+
+  return [
+    backBar('Accueil'),
+    '<div class="stack">',
+      '<div class="stack-s">',
+        '<span class="label">Jour ' + S.day + ' &#183; ' + esc(l.title) + ' &#183; étape ' + (stepIdx + 1) + ' sur ' + l.steps.length + '</span>',
+        '<div class="meter">' + l.steps.map(function (_, i) {
+          return '<i class="' + (i <= stepIdx ? 'on' : '') + '"></i>';
+        }).join("") + '</div>',
+      '</div>',
+      '<div class="card">' + body + '</div>',
+      quest,
+      nav,
+    '</div>'
+  ].join("");
+}
+
+/* Fin de la leçon : les phrases, puis les mots, puis le quiz. */
+function renderRecap() {
+  const l = COURSE[S.day - 1];
+  touchStreak();
+
+  const ex = l.examples.map(function (e) {
+    return '<div class="ex"><div class="top-line"><span class="d">' + esc(e.d) + '</span>' + sayBtn(e.d) + '</div>' +
+           '<div class="f">' + esc(e.f) + '</div></div>';
+  }).join("");
+
+  const voc = l.vocab.map(function (v) {
+    return '<li>' + sayBtn(v.d) +
+      '<span class="w"><span class="d">' + esc(v.d) + '</span><span class="p">' + esc(v.p) + '</span></span>' +
+      '<span class="f">' + esc(v.f) + '</span></li>';
+  }).join("");
+
+  return [
+    backBar('Accueil'),
+    '<div class="stack">',
+      '<div class="plate">',
+        '<div class="num"><b>' + S.day + '</b></div>',
+        '<div><span class="label">Leçon terminée</span><h2>' + esc(l.title) + '</h2><p class="de">' + esc(l.de) + '</p></div>',
+      '</div>',
+      '<div class="card"><h3 class="sec">Des phrases entières</h3><div style="margin-top:.875rem">' + ex + '</div></div>',
+      '<div class="card"><h3 class="sec">Les mots du jour</h3><ul class="voc">' + voc + '</ul></div>',
+      '<div class="pair">',
+        '<button class="btn" data-act="step-restart">Revoir</button>',
+        '<button class="btn primary" data-go="quiz">Passer au quiz</button>',
+      '</div>',
+      S.day > 1 ? '<button class="btn wide" data-lesson="' + (S.day - 1) + '">Revenir au jour ' + (S.day - 1) + '</button>' : '',
+    '</div>'
+  ].join("");
+}
+
+/* ---------- Cartes (Leitner) ---------- */
+let deck = [], pos = 0, revealed = false;
+
+function cardsView() {
+  deck = dueCards();
+  pos = 0;
+  revealed = false;
+  return renderCard();
+}
+function renderCard() {
+  if (pos >= deck.length) {
+    touchStreak();
+    return [
+      backBar('Accueil'),
+      '<div class="stack">',
+        '<div class="score"><b>' + deck.length + '</b><span>carte' + (deck.length > 1 ? 's' : '') + ' révisée' + (deck.length > 1 ? 's' : '') + '. Les mots sus reviendront plus tard, les ratés dès demain.</span></div>',
+        '<button class="btn primary wide" data-go="home">Retour à l\'accueil</button>',
+      '</div>'
+    ].join("");
+  }
+
+  const c = deck[pos];
+  const box = S.cards[c.id].box;
+
+  return [
+    backBar('Accueil'),
+    '<div class="stack">',
+      '<div class="stack-s">',
+        '<span class="label">Carte ' + (pos + 1) + ' sur ' + deck.length + ' &#183; jour ' + c.day + ' &#183; niveau ' + box + '/5</span>',
+        '<div class="meter">' + deck.map(function (_, i) { return '<i class="' + (i < pos ? 'on' : '') + '"></i>'; }).join("") + '</div>',
+      '</div>',
+
+      '<div class="flash">',
+        '<div class="front">' + esc(c.d) + '</div>',
+        revealed ? '<div class="p">' + esc(c.p) + '</div>' : '',
+        sayBtn(c.d),
+        revealed
+          ? '<div class="back">' + esc(c.f) + '</div>'
+          : '<div class="tip">Traduis dans ta tête, puis révèle.</div>',
+      '</div>',
+
+      revealed
+        ? '<div class="pair"><button class="btn miss" data-grade="0">Raté</button><button class="btn hit" data-grade="1">Je savais</button></div>'
+        : '<button class="btn primary wide" data-act="reveal">Révéler</button>',
+    '</div>'
+  ].join("");
+}
+
+/* ---------- Quiz ---------- */
+let qi = 0, qScore = 0, qLog = [], answered = false;
+/* qOrder[position] = l'index de la question dans le fichier
+   qPerm[position]  = l'ordre d'affichage de ses réponses
+   Tirés une seule fois au démarrage du quiz, pour rester stables ensuite. */
+let qOrder = [], qPerm = [];
+
+function quizView() {
+  const l = COURSE[S.day - 1];
+  qi = 0; qScore = 0; qLog = []; answered = false;
+  qOrder = shuffleIdx(l.quiz.length);
+  qPerm = qOrder.map(function (src) { return shuffleIdx(l.quiz[src].o.length); });
+  return renderQuestion();
+}
+function renderQuestion() {
+  const l = COURSE[S.day - 1];
+
+  if (qi >= l.quiz.length) {
+    const d = S.day;                                   // le jour testé, avant tout déblocage
+    const passed = qScore >= Math.ceil(l.quiz.length * 0.6);
+
+    S.scores[d] = Math.max(S.scores[d] || 0, qScore);
+    if (passed) {
+      if (S.done.indexOf(d) === -1) S.done.push(d);
+      // On n'avance que si c'était le jour le plus avancé (pas en rejouant un ancien).
+      if (d === Math.max.apply(null, S.done) && d < COURSE.length) {
+        S.day = d + 1;
+        seed(S.day);
+      }
+    }
+    persist();
+    touchStreak();
+
+    const need = Math.ceil(l.quiz.length * 0.6);
+    const nextOK = reachable(d + 1);
+
+    return [
+      backBar('Accueil'),
+      '<div class="stack">',
+        '<div class="score"><b>' + qScore + '/' + l.quiz.length + '</b><span>' +
+          (passed
+            ? (d < COURSE.length ? 'Jour validé. Le jour ' + (d + 1) + ' est débloqué.' : 'Jour validé.')
+            : 'Il faut ' + need + ' bonnes réponses sur ' + l.quiz.length + ' pour valider. Relis la leçon et retente.') +
+        '</span></div>',
+        // On repart du jour TESTÉ (d), pas du jour courant : la validation
+        // vient peut-être de faire passer S.day au suivant.
+        nextOK
+          ? '<div class="pair">' +
+              '<button class="btn" data-lesson="' + d + '">Revoir le jour ' + d + '</button>' +
+              '<button class="btn primary" data-lesson="' + (d + 1) + '">Leçon suivante</button>' +
+            '</div>'
+          : '<button class="btn wide" data-lesson="' + d + '">Revoir le jour ' + d + '</button>',
+        '<button class="btn' + (nextOK ? '' : ' primary') + ' wide" data-go="home">Accueil</button>',
+      '</div>'
+    ].join("");
+  }
+
+  const q = l.quiz[qOrder[qi]];
+  const picked = answered ? qLog[qi] : null;
+
+  const opts = qPerm[qi].map(function (i) {
+    let cls = "opt";
+    if (answered) {
+      if (i === q.a) cls += " right";
+      else if (i === picked) cls += " wrong";
+    }
+    return '<button class="' + cls + '" data-pick="' + i + '"' + (answered ? " disabled" : "") + '>' + esc(q.o[i]) + '</button>';
+  }).join("");
+
+  return [
+    backBar('Accueil'),
+    '<div class="stack">',
+      '<div class="stack-s">',
+        '<span class="label">Quiz &#183; jour ' + S.day + ' &#183; question ' + (qi + 1) + ' sur ' + l.quiz.length + '</span>',
+        '<div class="meter">' + l.quiz.map(function (_, i) {
+          return '<i class="' + (i < qi || (answered && i === qi) ? (qLog[i] === l.quiz[qOrder[i]].a ? 'on' : 'err') : '') + '"></i>';
+        }).join("") + '</div>',
+      '</div>',
+
+      '<p class="q">' + esc(q.q) + '</p>',
+      '<div class="opts">' + opts + '</div>',
+      answered ? '<div class="why">' + q.why + '</div>' : '',
+      answered ? '<button class="btn primary wide" data-act="next">' + (qi + 1 >= l.quiz.length ? 'Voir le résultat' : 'Question suivante') + '</button>' : '',
+    '</div>'
+  ].join("");
+}
+
+/* ===============================================================
+   5. NAVIGATION — un seul écouteur pour toute l'app
+   =============================================================== */
+const ROUTES = { home: home, lesson: lessonView, cards: cardsView, quiz: quizView };
+
+function go(name) { show(ROUTES[name]()); }
+
+view.addEventListener("click", function (e) {
+  const t = e.target.closest("[data-go],[data-act],[data-pick],[data-grade],[data-day],[data-lesson],[data-say],[data-scheck]");
+  if (!t) return;
+
+  if (t.hasAttribute("data-say")) { speak(t.getAttribute("data-say")); return; }
+
+  if (t.dataset.go) { go(t.dataset.go); return; }
+
+  if (t.dataset.day) {
+    const n = Number(t.dataset.day);
+    if (reachable(n)) { S.day = n; persist(); go("home"); }
+    return;
+  }
+
+  // Ouvrir directement la leçon d'un jour donné (précédent ou suivant).
+  if (t.dataset.lesson) {
+    const n = Number(t.dataset.lesson);
+    if (reachable(n)) { S.day = n; persist(); go("lesson"); }
+    return;
+  }
+
+  /* --- étapes de la leçon --- */
+  if (t.hasAttribute("data-scheck")) {
+    if (stepPick !== null) return;
+    stepPick = Number(t.dataset.scheck);
+    show(renderStep());
+    return;
+  }
+  if (t.dataset.act === "step-next")    { setStep(stepIdx + 1); show(renderStep()); return; }
+  if (t.dataset.act === "step-back")    { setStep(Math.max(0, stepIdx - 1)); show(renderStep()); return; }
+  if (t.dataset.act === "step-restart") { setStep(0); show(renderStep()); return; }
+
+  if (t.dataset.act === "reveal") { revealed = true; show(renderCard()); return; }
+
+  if (t.hasAttribute("data-grade")) {
+    grade(deck[pos].id, t.dataset.grade === "1");
+    if (t.dataset.grade === "0") deck.push(deck[pos]); // on la repasse en fin de paquet
+    pos++; revealed = false;
+    show(renderCard());
+    return;
+  }
+
+  if (t.hasAttribute("data-pick")) {
+    if (answered) return;
+    qLog[qi] = Number(t.dataset.pick);
+    if (qLog[qi] === COURSE[S.day - 1].quiz[qOrder[qi]].a) qScore++;
+    answered = true;
+    show(renderQuestion());
+    return;
+  }
+
+  if (t.dataset.act === "next") { qi++; answered = false; show(renderQuestion()); return; }
+
+  if (t.dataset.act === "quit-test") {
+    try { history.replaceState(null, "", window.location.pathname); } catch (e) {}
+    go("home");
+    return;
+  }
+
+  if (t.dataset.act === "export") { exportData(); return; }
+  if (t.dataset.act === "import") { importData(); return; }
+  if (t.dataset.act === "reset") {
+    if (window.confirm("Effacer toute ta progression ? C'est définitif.")) {
+      S = fresh(); persist(); paintStreak(); go("home");
+    }
+    return;
+  }
+});
+
+/* ===============================================================
+   6. SAUVEGARDE / RESTAURATION
+   =============================================================== */
+function toolMsg(txt) {
+  const el = document.getElementById("toolmsg");
+  if (el) el.textContent = txt;
+}
+function exportData() {
+  const json = JSON.stringify(S, null, 2);
+  const name = "allemand-progression-" + today() + ".json";
+
+  if (window.claude && window.claude.downloads) {
+    window.claude.downloads.save({ filename: name, data: json })
+      .then(function () { toolMsg("Sauvegarde enregistrée."); })
+      .catch(function (err) {
+        if (err && err.code === "declined") toolMsg("Sauvegarde annulée.");
+        else toolMsg("Sauvegarde impossible ici. Essaie depuis un navigateur classique.");
+      });
+    return;
+  }
+  try {
+    const url = URL.createObjectURL(new Blob([json], { type: "application/json" }));
+    const a = document.createElement("a");
+    a.href = url; a.download = name; a.click();
+    URL.revokeObjectURL(url);
+    toolMsg("Sauvegarde enregistrée.");
+  } catch (e) { toolMsg("Sauvegarde impossible dans ce navigateur."); }
+}
+function importData() {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "application/json,.json";
+  input.addEventListener("change", function () {
+    const f = input.files && input.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = function () {
+      try {
+        const p = JSON.parse(r.result);
+        if (typeof p !== "object" || !p.cards) throw new Error("format");
+        S = Object.assign(fresh(), p);
+        persist(); paintStreak(); go("home");
+        toolMsg("Progression restaurée.");
+      } catch (e) { toolMsg("Ce fichier n'est pas une sauvegarde valide."); }
+    };
+    r.readAsText(f);
+  });
+  input.click();
+}
+
+/* ===============================================================
+   7. AUTO-TEST — ouvrir index.html#test
+   =============================================================== */
+let T = [];
+function ok(name, cond, detail) { T.push({ n: name, p: !!cond, d: detail || "" }); }
+function eq(name, got, want) {
+  ok(name, got === want, "obtenu " + JSON.stringify(got) + " · attendu " + JSON.stringify(want));
+}
+
+function runTests() {
+  let backup = null;
+  try { backup = localStorage.getItem(KEY); } catch (e) {}
+  T = [];
+
+  /* --- A. Intégrité du contenu --- */
+  COURSE.forEach(function (l, i) {
+    const tag = "jour " + (i + 1);
+    ok(tag + " : numéro cohérent avec sa position", l.day === i + 1);
+    ok(tag + " : titre et phrase-titre renseignés", !!l.title && !!l.de);
+
+    ok(tag + " : au moins deux étapes", l.steps.length >= 2);
+    ok(tag + " : chaque étape porte une idée", l.steps.every(function (s) { return !!s.idea; }));
+    ok(tag + " : les mots à mots sont alignés",
+       l.steps.every(function (s) { return !s.gloss || s.gloss.de.length === s.gloss.fr.length; }));
+    ok(tag + " : aucun mot à mot vide",
+       l.steps.every(function (s) { return !s.gloss || (s.gloss.de.length > 0 && s.gloss.de.every(Boolean) && s.gloss.fr.every(Boolean)); }));
+    ok(tag + " : les tableaux ont deux colonnes",
+       l.steps.every(function (s) { return !s.table || s.table.every(function (r) { return r.length === 2 && r[0] && r[1]; }); }));
+    ok(tag + " : au moins une mini-question dans la leçon",
+       l.steps.some(function (s) { return !!s.check; }));
+    ok(tag + " : chaque mini-question est valide",
+       l.steps.every(function (s) {
+         if (!s.check) return true;
+         const c = s.check;
+         return !!c.q && !!c.why && c.o.length >= 2 &&
+                Number.isInteger(c.a) && c.a >= 0 && c.a < c.o.length &&
+                new Set(c.o).size === c.o.length;
+       }));
+
+    ok(tag + " : exemples complets (allemand + français)", l.examples.length > 0 && l.examples.every(function (e) { return e.d && e.f; }));
+    ok(tag + " : vocabulaire complet, prononciation comprise",
+       l.vocab.length > 0 && l.vocab.every(function (v) { return v.d && v.f && v.p; }));
+    ok(tag + " : aucun mot en double", new Set(l.vocab.map(function (v) { return v.d; })).size === l.vocab.length);
+
+    ok(tag + " : quiz non vide", l.quiz.length > 0);
+    ok(tag + " : chaque bonne réponse pointe sur une option existante",
+       l.quiz.every(function (q) { return Number.isInteger(q.a) && q.a >= 0 && q.a < q.o.length; }));
+    ok(tag + " : aucune option dupliquée dans une question",
+       l.quiz.every(function (q) { return new Set(q.o).size === q.o.length; }));
+    ok(tag + " : chaque question est expliquée", l.quiz.every(function (q) { return !!q.why; }));
+  });
+
+  /* --- B. Calcul des dates --- */
+  eq("date : +2 jours franchit le mois", shift("2026-07-30", 2), "2026-08-01");
+  eq("date : -1 jour franchit le mois", shift("2026-03-01", -1), "2026-02-28");
+  eq("date : +1 jour franchit l'année", shift("2025-12-31", 1), "2026-01-01");
+  eq("date : le 29 février existe en année bissextile", shift("2024-02-28", 1), "2024-02-29");
+  ok("date : today() au format AAAA-MM-JJ", /^\d{4}-\d{2}-\d{2}$/.test(today()), today());
+
+  /* --- C. Répétition espacée --- */
+  S = fresh(); S.day = 1; seed(1);
+  const id = "1:0";
+  eq("carte neuve : niveau 1", S.cards[id].box, 1);
+  eq("carte neuve : à réviser aujourd'hui", S.cards[id].due, today());
+  eq("toutes les cartes du jour 1 sont dues", dueCards().length, COURSE[0].vocab.length);
+
+  grade(id, true);
+  eq("bonne réponse : passe au niveau 2", S.cards[id].box, 2);
+  eq("bonne réponse : revient dans 2 jours", S.cards[id].due, shift(today(), 2));
+  eq("une carte repoussée sort du paquet du jour", dueCards().length, COURSE[0].vocab.length - 1);
+
+  grade(id, true); grade(id, true); grade(id, true);
+  eq("quatre bonnes réponses : niveau 5", S.cards[id].box, 5);
+  eq("niveau 5 : revient dans 16 jours", S.cards[id].due, shift(today(), 16));
+  grade(id, true);
+  eq("le niveau ne dépasse jamais 5", S.cards[id].box, 5);
+
+  grade(id, false);
+  eq("carte ratée : retombe au niveau 1", S.cards[id].box, 1);
+  eq("carte ratée : à revoir aujourd'hui", S.cards[id].due, today());
+
+  /* --- D. La série --- */
+  S = fresh();
+  touchStreak();
+  eq("série : premier jour de travail", S.streak, 1);
+  touchStreak();
+  eq("série : deux sessions le même jour ne comptent qu'une fois", S.streak, 1);
+  S.last = shift(today(), -1); touchStreak();
+  eq("série : travaillé hier, elle s'incrémente", S.streak, 2);
+  S.last = shift(today(), -3); touchStreak();
+  eq("série : après une coupure, elle repart à 1", S.streak, 1);
+
+  /* Lit l'ordre des boutons de réponse actuellement à l'écran, par index d'origine. */
+  function optOrder(attr) {
+    return Array.prototype.map.call(view.querySelectorAll(".opts .opt"), function (b) {
+      return b.getAttribute(attr);
+    }).join(",");
+  }
+
+  /* --- E. La leçon pas à pas, en cliquant vraiment --- */
+  S = fresh(); S.day = 1; seed(1);
+  go("lesson");
+  const steps1 = COURSE[0].steps;
+  let sawCheck = false;
+  for (let i = 0; i < steps1.length; i++) {
+    if (steps1[i].check) {
+      sawCheck = true;
+      ok("leçon : « Continuer » est bloqué tant qu'on n'a pas répondu (étape " + (i + 1) + ")",
+         !view.querySelector('[data-act="step-next"]'));
+      const pick = view.querySelector('[data-scheck="' + steps1[i].check.a + '"]');
+      if (!pick) { ok("leçon : la mini-question de l'étape " + (i + 1) + " est cliquable", false); break; }
+      const ordBefore = optOrder("data-scheck");
+      pick.click();
+      ok("leçon : l'explication apparaît après la réponse", !!view.querySelector(".why"));
+      eq("leçon : répondre ne remélange pas les réponses (étape " + (i + 1) + ")", optOrder("data-scheck"), ordBefore);
+    }
+    const nx = view.querySelector('[data-act="step-next"]');
+    if (!nx) { ok("leçon : bouton « Continuer » à l'étape " + (i + 1), false); break; }
+    nx.click();
+  }
+  ok("leçon : au moins une étape comporte une mini-question", sawCheck);
+  ok("leçon : le récapitulatif s'affiche à la fin", !!view.querySelector(".voc"));
+  eq("récapitulatif : tout le vocabulaire est listé", view.querySelectorAll(".voc li").length, COURSE[0].vocab.length);
+  ok("récapitulatif : la prononciation est affichée", view.querySelectorAll(".voc .p").length === COURSE[0].vocab.length);
+
+  /* --- F. Le quiz, de bout en bout --- */
+  const l1 = COURSE[0];
+
+  S = fresh(); S.day = 1; seed(1);
+  go("quiz");
+  ok("quiz : la première question s'affiche", !!view.querySelector('[data-pick="0"]'));
+  for (let i = 0; i < l1.quiz.length; i++) {
+    const good = view.querySelector('[data-pick="' + l1.quiz[qOrder[i]].a + '"]');
+    if (!good) { ok("quiz : question " + (i + 1) + " affichée", false); break; }
+    good.click();
+    const next = view.querySelector('[data-act="next"]');
+    if (!next) { ok("quiz : bouton de passage après la question " + (i + 1), false); break; }
+    next.click();
+  }
+  eq("quiz réussi : score plein", S.scores[1], l1.quiz.length);
+  ok("quiz réussi : le jour 1 est marqué fait", S.done.indexOf(1) !== -1);
+  eq("quiz réussi : le jour 2 devient le jour courant", S.day, 2);
+  ok("quiz réussi : le vocabulaire du jour 2 est chargé", !!S.cards["2:0"]);
+
+  S = fresh(); S.day = 1; seed(1);
+  go("quiz");
+  for (let i = 0; i < l1.quiz.length; i++) {
+    const src = l1.quiz[qOrder[i]];
+    const wrong = (src.a + 1) % src.o.length;
+    view.querySelector('[data-pick="' + wrong + '"]').click();
+    view.querySelector('[data-act="next"]').click();
+  }
+  eq("quiz raté : score nul", S.scores[1], 0);
+  ok("quiz raté : le jour n'est pas validé", S.done.indexOf(1) === -1);
+  eq("quiz raté : aucun déblocage", S.day, 1);
+  ok("quiz raté : aucun bouton « Leçon suivante »", !view.querySelector('[data-lesson="2"]'));
+
+  /* --- G. Le mélange — le défaut trouvé en jouant : sans lui, la bonne
+     réponse était TOUJOURS le premier bouton (les 84 questions ont a: 0). --- */
+  eq("mélange : autant d'indices que demandé", shuffleIdx(5).length, 5);
+  ok("mélange : chaque indice apparaît une fois et une seule",
+     (function () {
+       for (let n = 1; n <= 6; n++) {
+         const a = shuffleIdx(n).slice().sort(function (x, y) { return x - y; });
+         for (let i = 0; i < n; i++) if (a[i] !== i) return false;
+       }
+       return true;
+     })());
+  ok("mélange : l'ordre change vraiment d'un tirage à l'autre",
+     (function () {
+       let moved = 0;
+       for (let k = 0; k < 200; k++) if (shuffleIdx(4)[0] !== 0) moved++;
+       return moved > 20; // ~150 attendus ; 0 trahirait un mélange inerte
+     })());
+
+  S = fresh(); S.day = 1; seed(1);
+  let firstCount = 0, orderCount = 0;
+  const ROUNDS = 40;
+  for (let k = 0; k < ROUNDS; k++) {
+    go("quiz");
+    const q0 = l1.quiz[qOrder[0]];
+    const btns = view.querySelectorAll(".opts .opt");
+    for (let i = 0; i < btns.length; i++) {
+      if (Number(btns[i].getAttribute("data-pick")) === q0.a && i === 0) firstCount++;
+    }
+    if (qOrder[0] === 0) orderCount++;
+  }
+  ok("quiz : la bonne réponse n'est plus toujours le premier bouton",
+     firstCount < ROUNDS, firstCount + " fois en tête sur " + ROUNDS + " parties");
+  ok("quiz : l'ordre des questions change d'une partie à l'autre",
+     orderCount < ROUNDS, orderCount + " fois la même question en tête sur " + ROUNDS);
+  ok("quiz : chaque question est posée une fois et une seule",
+     (function () {
+       const seen = qOrder.slice().sort(function (a, b) { return a - b; });
+       for (let i = 0; i < l1.quiz.length; i++) if (seen[i] !== i) return false;
+       return true;
+     })());
+
+  S = fresh(); S.day = 1; seed(1);
+  go("quiz");
+  const qOrdBefore = optOrder("data-pick");
+  view.querySelector('[data-pick="' + l1.quiz[qOrder[0]].a + '"]').click();
+  eq("quiz : répondre ne remélange pas les réponses", optOrder("data-pick"), qOrdBefore);
+
+  /* --- H. Fin de quiz : les boutons pointent sur le bon jour --- */
+  S = fresh(); S.day = 1; seed(1);
+  go("quiz");
+  for (let i = 0; i < l1.quiz.length; i++) {
+    view.querySelector('[data-pick="' + l1.quiz[qOrder[i]].a + '"]').click();
+    view.querySelector('[data-act="next"]').click();
+  }
+  ok("fin de quiz : « Revoir » vise le jour qu'on vient de faire, pas le suivant",
+     !!view.querySelector('[data-lesson="1"]'));
+  ok("fin de quiz : un bouton « Leçon suivante » est proposé",
+     !!view.querySelector('[data-lesson="2"]'));
+  const back1 = view.querySelector('[data-lesson="1"]');
+  if (back1) {
+    back1.click();
+    eq("fin de quiz : « Revoir » rouvre bien le jour 1", S.day, 1);
+    ok("fin de quiz : et c'est l'écran leçon qui s'affiche", !!view.querySelector(".step-idea"));
+  }
+
+  /* --- I. Revenir à la leçon précédente depuis la fin d'une leçon --- */
+  S = fresh(); S.day = 2; S.done = [1]; seed(2);
+  go("lesson");
+  const steps2 = COURSE[1].steps;
+  for (let i = 0; i < steps2.length; i++) {
+    if (steps2[i].check) {
+      const p = view.querySelector('[data-scheck="' + steps2[i].check.a + '"]');
+      if (p) p.click();
+    }
+    const nx = view.querySelector('[data-act="step-next"]');
+    if (!nx) break;
+    nx.click();
+  }
+  ok("fin de leçon : le bouton vers le jour précédent est présent",
+     !!view.querySelector('[data-lesson="1"]'));
+  const prevBtn = view.querySelector('[data-lesson="1"]');
+  if (prevBtn) {
+    prevBtn.click();
+    eq("fin de leçon : il ouvre bien le jour 1", S.day, 1);
+  }
+
+  /* --- J. Les écrans --- */
+  S = fresh(); S.day = 1; seed(1);
+  go("home");
+  eq("accueil : une station par jour du cours", view.querySelectorAll(".station").length, COURSE.length);
+  eq("accueil : les trois modes sont présents", view.querySelectorAll(".mode").length, 3);
+  eq("accueil : la plaque affiche le bon numéro", view.querySelector(".plate .num b").textContent, "1");
+
+  go("cards");
+  const firstId = deck[0] ? deck[0].id : null;
+  ok("cartes : une carte est présentée", !!view.querySelector(".flash .front"));
+  ok("cartes : la traduction est cachée au départ", !view.querySelector(".flash .back"));
+  view.querySelector('[data-act="reveal"]').click();
+  ok("cartes : « Révéler » affiche la traduction", !!view.querySelector(".flash .back"));
+  ok("cartes : « Révéler » affiche aussi la prononciation", !!view.querySelector(".flash .p"));
+  const sizeBefore = deck.length;
+  view.querySelector('[data-grade="0"]').click();
+  eq("cartes : une carte ratée est remise dans le paquet", deck.length, sizeBefore + 1);
+  eq("cartes : et elle retombe au niveau 1", S.cards[firstId].box, 1);
+
+  /* --- K. Robustesse --- */
+  ok("sécurité : le HTML des contenus est échappé", esc("<b>&</b>") === "&lt;b&gt;&amp;&lt;/b&gt;");
+  ok("sécurité : les guillemets sont échappés dans les attributs", att('a"b') === "a&quot;b");
+  ok("audio : ne plante pas quand aucune voix allemande n'est disponible",
+     (function () { try { speak("Guten Tag"); return true; } catch (e) { return false; } })());
+
+  /* --- Restauration de la vraie progression --- */
+  try {
+    if (backup === null) localStorage.removeItem(KEY);
+    else localStorage.setItem(KEY, backup);
+  } catch (e) {}
+  S = load();
+  paintStreak();
+  report();
+}
+
+function report() {
+  const failed = T.filter(function (t) { return !t.p; });
+  const rows = T.map(function (t) {
+    return '<div class="t-row"><span class="t-tag ' + (t.p ? "ok" : "ko") + '">' + (t.p ? "OK" : "KO") + '</span><span>' +
+      esc(t.n) + ((t.p || !t.d) ? "" : '<br><span class="d">' + esc(t.d) + '</span>') +
+    '</span></div>';
+  }).join("");
+
+  show([
+    '<div class="stack">',
+      '<div class="card">',
+        '<span class="label">Auto-test</span>',
+        '<div class="t-sum" style="color:' + (failed.length ? "var(--bad)" : "var(--good)") + '">' +
+          (T.length - failed.length) + ' / ' + T.length + '</div>',
+        '<p class="msg">' +
+          (failed.length ? failed.length + " test(s) en échec." : "Tout passe.") +
+          ' La progression enregistrée n\'a pas été modifiée.</p>',
+      '</div>',
+      '<div class="card">' + rows + '</div>',
+      '<button class="btn primary wide" data-act="quit-test">Ouvrir l\'application</button>',
+    '</div>'
+  ].join(""));
+}
+
+/* ---- Démarrage ----
+   #test        → lance l'auto-test
+   #lesson etc. → ouvre directement un écran (pratique pour tester)
+   sinon        → l'accueil                                        */
+initTTS();
+seed(S.day);
+paintStreak();
+
+const entry = (window.location.hash || "").replace("#", "");
+if (entry === "test") runTests();
+else if (Object.prototype.hasOwnProperty.call(ROUTES, entry)) go(entry);
+else go("home");
+</script>
+
+</body>
+</html>

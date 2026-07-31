@@ -1,0 +1,5 @@
+# Captures d'ecran : regenerees a la demande par .\test.ps1 -Shots
+captures/
+
+# Sauvegardes de progression exportees depuis l'app
+allemand-progression-*.json

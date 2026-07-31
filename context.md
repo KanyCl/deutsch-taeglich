@@ -1,0 +1,87 @@
+# Contexte — Deutsch Täglich
+
+## Ce que c'est
+
+Une application web personnelle pour apprendre l'allemand un peu chaque jour.
+Usage strictement privé (Exsangue, un seul utilisateur). Pas de compte, pas de serveur,
+pas de publication sur un store.
+
+Inspirée dans sa **structure** du livre *Apprendre l'allemand en 30 jours*
+(Werner Dubois & Álvaro García Noble) — progression jour par jour. Le livre est possédé
+en **papier** : le contenu de l'app est rédigé indépendamment, il n'en reproduit pas le texte.
+
+## Comment ça marche
+
+Trois modes, articulés autour d'un « jour » courant :
+
+1. **La leçon** — 4 à 5 étapes courtes, une idée par écran. Certaines étapes posent une
+   mini-question qui **bloque** le passage à la suivante tant qu'on n'a pas répondu.
+2. **Les cartes** — révision espacée du vocabulaire, méthode Leitner à 5 niveaux
+   (intervalles 0 / 2 / 4 / 8 / 16 jours). Un mot raté retombe au niveau 1.
+3. **Le quiz** — 5 questions. 3 bonnes réponses sur 5 valident le jour et débloquent le suivant.
+
+Une « série » (streak) compte les jours consécutifs de travail.
+
+## Décisions prises et pourquoi
+
+| Décision | Raison |
+|---|---|
+| PWA / page web plutôt qu'Android natif | Le compte `franky` est standard : impossible d'installer Android Studio + JDK 17 sans l'admin. Une page web ne demande rien. |
+| Un seul fichier `index.html` | Zéro build, zéro dépendance, zéro `npm install`. Le fichier s'ouvre tel quel et se publie tel quel. |
+| Contenu écrit à la main dans `COURSE` | Pas de base de données ni d'API à maintenir. Ajouter un jour = ajouter un objet au tableau. |
+| Progression dans `localStorage` | Suffisant pour un usage mono-appareil. Sauvegarde/restauration JSON pour ne rien perdre. |
+| Pas de `<!doctype>` ni de `<html>` dans le fichier | Le format Artifact enveloppe le fichier lui-même. En ajouter produirait du HTML imbriqué. |
+| **Leçons en étapes plutôt qu'en prose** (v2) | Retour utilisateur direct : « des leçons plus simplifiées que juste devoir lire sans forcément comprendre ». Un mur de texte se survole ; une mini-question obligatoire ne se survole pas. |
+| **Mot à mot systématique** (v2) | Un débutant lit une phrase allemande sans savoir quel mot porte quel sens. L'alignement mot par mot rend la mécanique visible. |
+| **Audio par `SpeechSynthesis`** (v2) | Zéro fichier à héberger, zéro poids. Les boutons restent masqués si aucune voix `de-*` n'existe sur l'appareil — mieux vaut rien qu'un bouton muet. |
+
+## Comment on vérifie
+
+`test.ps1` pilote le Chrome déjà installé, en mode sans fenêtre. Il lance l'auto-test
+embarqué (`index.html#test`, **240 vérifications**) et sait photographier chaque écran
+en thème clair et sombre. Aucune dépendance : ni Node, ni Playwright, ni droits admin.
+
+Les écrans sont aussi accessibles par l'URL (`#lesson`, `#cards`, `#quiz`).
+
+Deux pièges du harnais, à ne pas re-découvrir :
+- Chrome sans fenêtre plafonne à 500 px de large minimum → les captures passent par un
+  cadre de 390 px, sinon la page est mise en page en 500 px puis rognée.
+- Poser `data-theme` sur l'app depuis une page parente donne des styles calculés faux
+  (un `background-color` posé en ligne se lit encore à sa valeur d'avant) → le script
+  génère une copie de l'app qui applique le thème elle-même avant l'affichage.
+
+## Où ça en est
+
+- ✅ v2 : 12 jours (A1), leçons pas à pas, mot à mot, prononciation écrite, audio.
+- ✅ v2.1 (31/07/2026) : réponses et questions mélangées, navigation entre leçons réparée.
+  Voir `TODO.md` — issu d'un usage réel, 9 retours dont 3 traités.
+- ✅ Vérifiée : 256 tests au vert, écrans relus en clair et sombre à 390 px.
+- ✅ Confirmée utilisable par l'utilisateur (ouverture locale sur le PC).
+- ❌ **Inutilisable sur iPhone : la progression repart à zéro.** Cause probable : la page
+  publiée tourne dans un cadre inséré dans claude.ai, et iOS refuse le stockage local
+  dans ce cas. Le fichier ouvert depuis sa propre adresse n'aurait pas le problème.
+- ⛔ **Un dialogue avec une IA est impossible dans la page publiée.** Vérifié le 31/07/2026 :
+  une page publiée ne dispose que de `downloads` (proposer un fichier à enregistrer) et
+  `mcp` (appeler les connecteurs du lecteur). Aucun accès à un modèle. Un vrai dialogue
+  demande donc d'héberger l'app ailleurs, avec un petit serveur qui détient la clé d'API.
+- ⬜ Jours 13 à 30 — à écrire.
+- ⬜ Non testé automatiquement : le rendu sur un vrai téléphone (police système, zone
+  sûre), et la qualité réelle de la voix allemande selon l'appareil.
+- ⬜ Le dépôt n'est pas encore sous git (`git init` à faire).
+- ⬜ Piste écartée pour l'instant : l'adjectif épithète décliné (*ein rotes Auto*),
+  volontairement contourné au jour 8 — trop lourd à ce stade.
+
+## Le contenu des jours 1 à 12
+
+1. Se présenter — pronoms, verbe *sein*
+2. Der / die / das — genres, majuscule des noms, ein/eine
+3. Le présent des verbes réguliers — terminaisons, -e d'appui
+4. Les nombres et l'âge — 0-20, inversion des dizaines
+5. *haben* et la négation — nicht vs kein
+6. L'accusatif — der → den, ein → einen
+7. Poser des questions — mots en W-, verbe en position 2, inversion
+8. Décrire — *sein* + adjectif (invariable), couleurs, *sehr*
+9. Les verbes à changement de voyelle — e→i, e→ie, a→ä
+10. Les jours et le temps — *am* / *um*, heute / morgen / gestern
+11. *können*, *wollen*, *müssen* — l'infinitif rejeté en fin de phrase
+12. *mein* / *dein* et la famille
