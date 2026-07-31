@@ -41,6 +41,8 @@ l'entraînement et le compteur de « mots fragiles » sur l'accueil.
 | Hébergement sur GitHub Pages | Gratuit, adresse propre (indispensable pour le stockage iOS), et le dépôt git sert aussi d'historique. Dépôt public : c'est la contrepartie du gratuit, sans conséquence ici. |
 | **Leçons en étapes plutôt qu'en prose** (v2) | Retour utilisateur direct : « des leçons plus simplifiées que juste devoir lire sans forcément comprendre ». Un mur de texte se survole ; une mini-question obligatoire ne se survole pas. |
 | **Mot à mot systématique** (v2) | Un débutant lit une phrase allemande sans savoir quel mot porte quel sens. L'alignement mot par mot rend la mécanique visible. |
+| **Réponse écrite à partir du niveau 3** (v2.2) | Demandé après usage réel. Le seuil vient de la note d'origine d'Exsangue : « pas au début quand on est débutant ». Sens français → allemand, car taper la traduction française d'un mot allemand n'apprend aucune orthographe. |
+| **Mauvais genre = erreur, article oublié = toléré** (v2.2) | Le genre des noms allemands ne s'acquiert pas passivement ; le sanctionner est le seul moyen de le travailler. Mais exiger l'article à chaque saisie rendrait l'exercice pénible pour rien. |
 | **Audio par `SpeechSynthesis`** (v2) | Zéro fichier à héberger, zéro poids. Les boutons restent masqués si aucune voix `de-*` n'existe sur l'appareil — mieux vaut rien qu'un bouton muet. |
 
 ## Comment on vérifie

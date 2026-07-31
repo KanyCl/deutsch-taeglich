@@ -49,8 +49,15 @@ Rangés par lot, pas par ordre d'importance : le lot 1 est le plus rentable à l
 - [ ] **Éviter les suites logiques.** un-deux-trois, les jours de la semaine… ne doivent pas
       se suivre dans un quiz ou un paquet de cartes : la réponse se devine.
       Demande d'étiqueter le contenu par thème.
-- [ ] **Écrire la réponse** au lieu de cocher, pour retenir l'orthographe. Plutôt à partir
-      d'un certain niveau, pas au tout début.
+- [x] **Écrire la réponse — fait pour les cartes le 01/08/2026.** À partir du niveau 3
+      (`WRITE_FROM_BOX`), la carte montre le **français** et demande d'écrire l'allemand :
+      c'est le seul sens qui apprenne l'orthographe. En dessous du seuil le mot vient
+      d'être vu, on garde « Révéler / Je savais ».
+      Tolérant sur la forme (casse, `ae`/`ä`, `ss`/`ß`, espaces), strict sur le mot.
+      L'article oublié passe avec un rappel ; un **mauvais genre** compte comme une erreur —
+      c'est justement ce qui s'apprend mal tout seul. Bouton « je ne sais pas » toujours
+      disponible. Le bouton « écouter » n'apparaît qu'après la réponse, sinon il la donnerait.
+- [ ] **Écrire la réponse — reste à faire pour le quiz.** Aujourd'hui encore en QCM.
 - [ ] **Dialogue guidé** qui s'adapte au niveau : très aidé en A1 (structure suggérée,
       traduction disponible mais cachée pour ne pas tricher), libre en B2.
       ⚠️ À vérifier avant de promettre : l'app est un fichier HTML seul, sans serveur.

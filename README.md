@@ -27,7 +27,7 @@ sensible dedans : **ta progression ne quitte jamais ton appareil**, elle n'est e
 | Mode | Ce que ça fait |
 |---|---|
 | **La leçon** | 4 à 5 étapes courtes. Une idée par écran, et des mini-questions qui bloquent le passage à la suite tant qu'on n'a pas répondu |
-| **Les cartes** | Révision espacée : les mots ratés reviennent vite, les mots sus s'espacent |
+| **Les cartes** | Révision espacée : les mots ratés reviennent vite, les mots sus s'espacent. À partir du niveau 3, le mot ne se reconnaît plus — **il s'écrit** |
 | **Le quiz** | 5 questions. 3/5 valident le jour et débloquent le suivant |
 | **L'entraînement** | Quand rien n'est à réviser, ou pour en faire plus. Reprend tes mots les plus ratés **sans toucher au calendrier** de révision |
 
@@ -35,6 +35,23 @@ Compter 10 à 15 minutes. La série en haut à droite compte les jours d'affilé
 
 Rien ne t'oblige à t'arrêter : si tu as le temps, enchaîne sur le jour suivant ou lance un
 entraînement. Et si tu sautes un jour, rien n'est perdu — seule la série repart de 1.
+
+### Écrire les mots
+
+Tant qu'un mot est neuf (niveaux 1 et 2), la carte te le montre en allemand et tu te testes
+dans ta tête. **À partir du niveau 3**, elle te montre le français et tu dois **écrire
+l'allemand** — c'est le seul sens qui fasse retenir l'orthographe.
+
+La correction est tolérante sur la forme et stricte sur le mot :
+
+- la **casse** est ignorée (le téléphone met des majuscules tout seul de toute façon)
+- `ae` vaut `ä`, `oe` vaut `ö`, `ue` vaut `ü`, `ss` vaut `ß` — pratique sans clavier allemand
+- **l'article oublié passe**, avec un rappel de la forme complète
+- **le mauvais article compte comme une erreur** : le genre est ce qui s'apprend le plus mal
+  tout seul, autant le travailler
+
+Un bouton **« je ne sais pas »** est toujours là — mieux vaut voir la réponse que rester
+bloqué. Le bouton ▶ n'apparaît qu'**après** avoir répondu : avant, il donnerait la solution.
 
 L'app **note tes erreurs** : chaque mot compte ses réussites et ses échecs, chaque question
 de quiz ratée est enregistrée. L'accueil indique combien de mots restent fragiles, et
