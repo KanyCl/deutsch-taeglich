@@ -58,6 +58,18 @@ Rangés par lot, pas par ordre d'importance : le lot 1 est le plus rentable à l
       remplacé par « Encore N ».
 - [x] Auto-test : **328 vérifications**.
 
+## Le mode oral ✅ ajouté le 01/08/2026
+
+- [x] **Onglet « L'oral »** — aucun texte à l'écran, la phrase est prononcée à l'affichage.
+      Consigne tirée au sort : écrire en allemand ce qu'on entend, ou le traduire.
+      Puise dans le vocabulaire **et** les phrases entières de la leçon.
+- [x] `checkFR` — correction du français volontairement lâche (accents, ponctuation,
+      article, parenthèses facultatifs). L'allemand, lui, reste contrôlé strictement.
+- [x] Écran d'explication si l'appareil n'a pas de voix allemande, au lieu d'un écran muet.
+- [x] Corrigé au passage : `.back` servait au bouton « ← Accueil » **et** à la traduction,
+      qui s'affichait donc en majuscules. Défaut présent depuis la v2.
+- [x] Auto-test : **354 vérifications**.
+
 ## Lot 3 — à discuter avant d'attaquer
 
 - [ ] **Éviter les suites logiques.** un-deux-trois, les jours de la semaine… ne doivent pas

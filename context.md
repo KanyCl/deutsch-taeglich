@@ -12,7 +12,7 @@ en **papier** : le contenu de l'app est rédigé indépendamment, il n'en reprod
 
 ## Comment ça marche
 
-Quatre modes, articulés autour d'un « jour » courant :
+Cinq modes, articulés autour d'un « jour » courant :
 
 1. **La leçon** — 4 à 5 étapes courtes, une idée par écran. Certaines étapes posent une
    mini-question qui **bloque** le passage à la suivante tant qu'on n'a pas répondu.
@@ -24,6 +24,9 @@ Quatre modes, articulés autour d'un « jour » courant :
 4. **L'entraînement libre** — quand rien n'est dû, ou pour en faire plus. Reprend les mots
    les plus ratés, note les réponses, mais **ne touche pas au calendrier** : réviser en
    avance ne doit pas dérégler l'espacement.
+5. **L'oral** — aucun texte à l'écran. La phrase est prononcée, et il faut soit l'écrire en
+   allemand (dictée), soit la traduire. Puise dans le vocabulaire **et** les phrases de la
+   leçon. Ne touche pas au calendrier non plus.
 
 Une « série » (streak) compte les jours consécutifs de travail.
 
@@ -43,6 +46,9 @@ l'entraînement et le compteur de « mots fragiles » sur l'accueil.
 | Hébergement sur GitHub Pages | Gratuit, adresse propre (indispensable pour le stockage iOS), et le dépôt git sert aussi d'historique. Dépôt public : c'est la contrepartie du gratuit, sans conséquence ici. |
 | **Leçons en étapes plutôt qu'en prose** (v2) | Retour utilisateur direct : « des leçons plus simplifiées que juste devoir lire sans forcément comprendre ». Un mur de texte se survole ; une mini-question obligatoire ne se survole pas. |
 | **Mot à mot systématique** (v2) | Un débutant lit une phrase allemande sans savoir quel mot porte quel sens. L'alignement mot par mot rend la mécanique visible. |
+| **Correction du français très lâche** (v2.4) | Une traduction s'écrit de dix façons. Contrôler le français comme on contrôle l'allemand transformerait un exercice de compréhension en piège orthographique. `checkFR` ignore accents, ponctuation, article et parenthèses ; `checkAnswer` reste strict pour l'allemand, où l'orthographe *est* l'objectif. |
+| **Le mode oral ne touche pas au calendrier** (v2.4) | Même raison que l'entraînement : reconnaître un mot à l'oreille n'est pas la même compétence que le restituer à l'écrit. Il nourrit le journal, pas l'espacement. |
+| **Classe `.trad` séparée de `.back`** (v2.4) | `.back` servait à la fois au bouton « ← Accueil » (majuscules, interlettrage large) et à la traduction dans les cartes, qui héritait donc des majuscules. Défaut présent depuis la v2, repéré en relisant les captures du mode oral. |
 | **Niveaux 1-2 franchis dans la séance** (v2.3) | Demandé après usage : « monter mes mots niveau 3 sur un même jour ». Le seuil de re-passage est `<= WRITE_FROM_BOX` et non `<` — un mot qui vient d'atteindre le niveau où il s'écrit doit être écrit une fois le jour même, sinon l'y monter n'apprend rien. C'est l'auto-test qui a révélé ce défaut : le mot atteignait 3 puis quittait la séance. |
 | **Un mot raté perd 1 niveau, pas tout** (v2.3) | Demandé après usage. La chute complète efface des semaines de travail sur une simple hésitation ; elle décourage plus qu'elle n'apprend. Un mot redescendu au niveau 2 redevient dû le jour même, donc se re-travaille tout de suite. |
 | **Réponse écrite dès le niveau 2** (v2.2, seuil abaissé en v2.3) | Demandé après usage réel. Sens français → allemand, car taper la traduction française d'un mot allemand n'apprend aucune orthographe. Le seuil était à 3 ; Exsangue l'a voulu plus tôt (« je veux devoir écrire le mot assez rapidement »). Le niveau 1 reste une vue gratuite — et le mot a déjà été présenté dans la leçon avant d'arriver aux cartes. Un seul réglage : `WRITE_FROM_BOX`. |

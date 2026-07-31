@@ -30,6 +30,7 @@ sensible dedans : **ta progression ne quitte jamais ton appareil**, elle n'est e
 | **Les cartes** | Révision espacée : les mots ratés reviennent vite, les mots sus s'espacent. Dès le second passage, le mot ne se reconnaît plus — **il s'écrit** |
 | **Le quiz** | 5 questions. 3/5 valident le jour et débloquent le suivant |
 | **L'entraînement** | Quand rien n'est à réviser, ou pour en faire plus. Reprend tes mots les plus ratés **sans toucher au calendrier** de révision |
+| **L'oral** | Aucun texte à l'écran : tu écoutes, puis tu **écris ce que tu entends** ou tu le **traduis** |
 
 Compter 10 à 15 minutes. La série en haut à droite compte les jours d'affilée.
 
@@ -56,6 +57,28 @@ la même séance. Autrement dit : un mot découvert aujourd'hui est écrit aujou
 
 Compte une vingtaine de cartes le premier jour d'une leçon (une dizaine de mots, deux
 passages chacun). Les jours suivants sont plus courts.
+
+### L'oral
+
+Le seul mode où **rien n'est écrit à l'écran**. La phrase est prononcée dès l'affichage
+(bouton ▶ pour la réentendre autant que tu veux), et une consigne tombe au hasard :
+
+- **écris en allemand ce que tu entends** — de la dictée ;
+- **écris en français ce que ça veut dire** — de la compréhension.
+
+Le tirage mélange les mots du jour **et les phrases entières de la leçon** : c'est à
+l'oreille que les phrases servent le plus.
+
+La correction du français est volontairement très lâche — on vérifie que tu as *compris*,
+pas que tu sais écrire le français. Accents, ponctuation, article et précision entre
+parenthèses sont facultatifs : pour « salut (en partant) », écrire `salut` suffit.
+
+Comme l'entraînement, l'oral **ne touche pas au calendrier** de révision, mais il nourrit
+le journal de tes erreurs.
+
+> **Il faut une voix allemande sur l'appareil.** Sans elle, rien ne peut être prononcé et
+> l'écran te le dit. Sur iPhone : *Réglages → Accessibilité → Contenu énoncé → Voix →
+> Allemand*.
 
 ### Écrire les mots
 

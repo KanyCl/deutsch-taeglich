@@ -436,7 +436,7 @@ body.has-tts .say { display: inline-flex; }
 }
 .flash .front { font-family: var(--de); font-size: 1.75rem; font-weight: 600; line-height: 1.25; }
 .flash .p     { font-size: .8125rem; color: var(--ink-3); letter-spacing: .02em; }
-.flash .back  { font-size: 1.125rem; color: var(--accent); font-weight: 700; margin-top: .5rem; }
+.flash .trad  { font-size: 1.125rem; color: var(--accent); font-weight: 700; margin-top: .5rem; }
 .flash .tip   { font-size: .75rem; color: var(--ink-3); }
 .flash .ask   { font-size: 1.375rem; font-weight: 600; line-height: 1.3; }
 .flash .sol   { font-family: var(--de); font-size: 1.625rem; font-weight: 600; color: var(--accent); }
@@ -1444,6 +1444,10 @@ function paintStreak() {
 function show(html) {
   view.innerHTML = html;
   window.scrollTo(0, 0);
+  // L'oral : la phrase est prononcée dès l'affichage. Avant le focus, sinon
+  // l'ouverture du clavier peut couper le début.
+  const auto = view.querySelector("[data-autosay]");
+  if (auto) speak(auto.getAttribute("data-autosay"));
   // Carte à écrire : le clavier s'ouvre tout de suite, ça évite un appui.
   const field = view.querySelector("#answer");
   if (field) { try { field.focus(); } catch (e) {} }
@@ -1531,6 +1535,12 @@ function home() {
             (due === 0 ? 'Rien d\'obligatoire aujourd\'hui — entraîne-toi si tu veux' : 'Révision espacée du vocabulaire') +
           '</span></div>',
           '<span class="chip' + (due > 0 ? ' hot' : '') + '">' + (due > 0 ? due : 'libre') + '</span>',
+        '</button>',
+        // Toujours actif : les voix de l'appareil arrivent parfois après le
+        // premier affichage. C'est l'écran lui-même qui explique s'il en manque.
+        '<button class="mode" data-go="oral">',
+          '<div class="txt"><strong>L\'oral</strong><span>Écoute seule — écris ou traduis ce qui est dit</span></div>',
+          '<span class="chip">' + ORAL_SIZE + '</span>',
         '</button>',
         '<button class="mode" data-go="quiz">',
           '<div class="txt"><strong>Le quiz</strong><span>' + (doneToday ? 'Refaire le test du jour ' + S.day : 'Valide le jour ' + S.day + ' et débloque la suite') + '</span></div>',
@@ -1715,6 +1725,37 @@ function checkAnswer(typed, expected) {
   return { ok: false, kind: "wrong" };
 }
 
+/* ---------- Comparaison d'une traduction française ----------
+   Bien plus lâche que le contrôle de l'allemand : ici on vérifie qu'on a
+   COMPRIS, pas qu'on sait écrire le français. Accents, ponctuation, article
+   et précision entre parenthèses sont tous facultatifs — « salut » suffit
+   pour « salut (en partant) ». */
+const FR_ARTICLES = ["le", "la", "les", "l", "un", "une", "des", "du"];
+
+function normFR(s) {
+  return String(s)
+    .toLowerCase()
+    .replace(/[àâä]/g, "a").replace(/[éèêë]/g, "e").replace(/[îï]/g, "i")
+    .replace(/[ôö]/g, "o").replace(/[ùûü]/g, "u").replace(/ç/g, "c")
+    .replace(/[.,!?;:'’"()\[\]-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+function stripFR(n) {
+  const parts = n.split(" ");
+  if (parts.length > 1 && FR_ARTICLES.indexOf(parts[0]) !== -1) return parts.slice(1).join(" ");
+  return n;
+}
+function checkFR(typed, expected) {
+  const t = normFR(typed);
+  if (!t) return { ok: false, kind: "empty" };
+  const full = normFR(expected);
+  const core = normFR(String(expected).replace(/\([^)]*\)/g, " "));
+  if (t === full || t === core) return { ok: true, kind: "exact" };
+  if (stripFR(t) === stripFR(full) || stripFR(t) === stripFR(core)) return { ok: true, kind: "exact" };
+  return { ok: false, kind: "wrong" };
+}
+
 /* ---------- Cartes ----------
    Deux modes sur le même écran :
    - la révision du jour (Leitner), qui fait avancer le calendrier ;
@@ -1796,7 +1837,7 @@ function revealBody(c) {
       revealed ? '<div class="p">' + esc(c.p) + '</div>' : '',
       sayBtn(c.d),
       revealed
-        ? '<div class="back">' + esc(c.f) + '</div>'
+        ? '<div class="trad">' + esc(c.f) + '</div>'
         : '<div class="tip">Traduis dans ta tête, puis révèle.</div>',
     '</div>',
     revealed
@@ -1957,10 +1998,128 @@ function renderQuestion() {
   ].join("");
 }
 
+/* ---------- L'oral ----------
+   Aucun texte allemand à l'écran tant qu'on n'a pas répondu : on écoute, et
+   on écrit. Deux consignes tirées au sort — réécrire ce qui est dit, ou le
+   traduire. Les phrases entières de la leçon viennent s'ajouter aux mots :
+   c'est à l'oreille qu'elles servent le plus. */
+const ORAL_SIZE = 8;
+let oral = [], oi = 0, oralVerdict = null;
+
+function oralItems(n) {
+  const l = COURSE[S.day - 1];
+  const pool = [];
+  l.vocab.forEach(function (v, i) {
+    pool.push({ de: v.d, fr: v.f, p: v.p, id: S.day + ":" + i });
+  });
+  l.examples.forEach(function (e) {
+    pool.push({ de: e.d, fr: e.f, p: "", id: null });
+  });
+  return shuffleIdx(pool.length).slice(0, Math.min(n, pool.length)).map(function (i) {
+    return Object.assign({ task: Math.random() < 0.5 ? "write" : "translate" }, pool[i]);
+  });
+}
+
+function oralView() {
+  oral = oralItems(ORAL_SIZE);
+  oi = 0;
+  oralVerdict = null;
+  return renderOral();
+}
+
+function renderOral() {
+  // Sans voix allemande, ce mode n'a aucun sens : on le dit, plutôt que
+  // d'afficher un écran muet où rien ne se passe.
+  if (!TTS.voice) {
+    return [
+      backBar('Accueil'),
+      '<div class="stack">',
+        '<div class="card">',
+          '<span class="label">L\'oral</span>',
+          '<p class="msg" style="margin:.5rem 0 0">Cet appareil n\'a pas de voix allemande installée, ' +
+            'rien ne peut donc être prononcé.<br><br>Sur iPhone : <b>Réglages → Accessibilité → ' +
+            'Contenu énoncé → Voix → Allemand</b>, puis reviens ici.</p>',
+        '</div>',
+        '<button class="btn primary wide" data-go="home">Retour à l\'accueil</button>',
+      '</div>'
+    ].join("");
+  }
+
+  if (oi >= oral.length) {
+    touchStreak();
+    const good = oral.filter(function (x) { return x.ok; }).length;
+    return [
+      backBar('Accueil'),
+      '<div class="stack">',
+        '<div class="score"><b>' + good + '/' + oral.length + '</b><span>à l\'oreille. ' +
+          'Le calendrier de révision n\'a pas bougé, mais tes erreurs sont notées.</span></div>',
+        '<button class="btn wide" data-go="oral">Encore un tour</button>',
+        '<button class="btn primary wide" data-go="home">Retour à l\'accueil</button>',
+      '</div>'
+    ].join("");
+  }
+
+  const it = oral[oi];
+  const head = [
+    backBar('Accueil'),
+    '<div class="stack">',
+      '<div class="stack-s">',
+        '<span class="label">L\'oral &#183; ' + (oi + 1) + ' sur ' + oral.length + '</span>',
+        '<div class="meter">' + oral.map(function (_, i) {
+          return '<i class="' + (i < oi ? (oral[i].ok ? 'on' : 'err') : '') + '"></i>';
+        }).join("") + '</div>',
+      '</div>'
+  ].join("");
+
+  if (!oralVerdict) {
+    return head + [
+      '<div class="flash">',
+        // data-autosay : la phrase est prononcée dès que l'écran s'affiche.
+        '<button class="btn primary" data-say="' + att(it.de) + '" data-autosay="' + att(it.de) + '">&#9654;&nbsp; Réécouter</button>',
+        '<div class="tip">' + (it.task === "write"
+          ? 'Écris en allemand ce que tu entends.'
+          : 'Écris en français ce que ça veut dire.') + '</div>',
+      '</div>',
+      '<input class="answer" id="answer" type="text" enterkeyhint="done"',
+        ' autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"',
+        ' aria-label="Ce que tu entends">',
+      '<div class="pair">',
+        '<button class="btn" data-act="oral-dunno">Je ne sais pas</button>',
+        '<button class="btn primary" data-act="oral-check">Vérifier</button>',
+      '</div>',
+    '</div>'
+    ].join("");
+  }
+
+  let note;
+  if (oralVerdict.kind === "exact")            note = "Exact.";
+  else if (oralVerdict.kind === "no-article")  note = "Juste. Pense à l'article : <b>" + esc(it.de) + "</b>.";
+  else if (oralVerdict.kind === "bad-article") note = "Le mot est bon, mais pas le genre : c'est <b>" + esc(it.de) + "</b>.";
+  else if (oralVerdict.kind === "dunno")       note = "Pas grave — réécoute-la une fois de plus.";
+  else if (oralVerdict.kind === "empty")       note = "Rien d'écrit.";
+  else                                         note = "Ce n'était pas ça.";
+
+  return head + [
+    '<div class="flash">',
+      '<div class="sol">' + esc(it.de) + '</div>',
+      it.p ? '<div class="p">' + esc(it.p) + '</div>' : '',
+      sayBtn(it.de),
+      '<div class="trad">' + esc(it.fr) + '</div>',
+      oralVerdict.typed ? '<div class="tip">Tu as écrit : ' + esc(oralVerdict.typed) + '</div>' : '',
+    '</div>',
+    '<div class="why ' + (oralVerdict.ok ? "good" : "bad") + '">' + note + '</div>',
+    '<button class="btn primary wide" data-act="oral-next">Continuer</button>',
+  '</div>'
+  ].join("");
+}
+
 /* ===============================================================
    5. NAVIGATION — un seul écouteur pour toute l'app
    =============================================================== */
-const ROUTES = { home: home, lesson: lessonView, cards: cardsView, practice: practiceView, quiz: quizView };
+const ROUTES = {
+  home: home, lesson: lessonView, cards: cardsView,
+  practice: practiceView, oral: oralView, quiz: quizView
+};
 
 function go(name) { show(ROUTES[name]()); }
 
@@ -2013,6 +2172,25 @@ view.addEventListener("click", function (e) {
 
   if (t.dataset.act === "card-next") { advanceCard(!!(verdict && verdict.ok)); return; }
 
+  if (t.dataset.act === "oral-check" || t.dataset.act === "oral-dunno") {
+    const inp = document.getElementById("answer");
+    const raw = inp ? inp.value : "";
+    const it = oral[oi];
+    if (t.dataset.act === "oral-dunno") {
+      oralVerdict = { ok: false, kind: "dunno", typed: "" };
+    } else {
+      oralVerdict = it.task === "write" ? checkAnswer(raw, it.de) : checkFR(raw, it.fr);
+      oralVerdict.typed = raw.trim();
+    }
+    it.ok = oralVerdict.ok;
+    // Seuls les mots du vocabulaire ont une fiche ; les phrases n'en ont pas.
+    // Comme l'entraînement, l'oral nourrit le journal sans toucher au calendrier.
+    if (it.id && S.cards[it.id]) grade(it.id, oralVerdict.ok, false);
+    show(renderOral());
+    return;
+  }
+  if (t.dataset.act === "oral-next") { oi++; oralVerdict = null; show(renderOral()); return; }
+
   if (t.hasAttribute("data-pick")) {
     if (answered) return;
     qLog[qi] = Number(t.dataset.pick);
@@ -2052,7 +2230,7 @@ view.addEventListener("keydown", function (e) {
   if (e.key !== "Enter") return;
   if (!e.target || e.target.id !== "answer") return;
   e.preventDefault();
-  const btn = view.querySelector('[data-act="check-word"]');
+  const btn = view.querySelector('[data-act="check-word"],[data-act="oral-check"]');
   if (btn) btn.click();
 });
 
@@ -2365,15 +2543,15 @@ function runTests() {
   S = fresh(); S.day = 1; seed(1);
   go("home");
   eq("accueil : une station par jour du cours", view.querySelectorAll(".station").length, COURSE.length);
-  eq("accueil : les trois modes sont présents", view.querySelectorAll(".mode").length, 3);
+  eq("accueil : les quatre modes sont présents", view.querySelectorAll(".mode").length, 4);
   eq("accueil : la plaque affiche le bon numéro", view.querySelector(".plate .num b").textContent, "1");
 
   go("cards");
   const firstId = deck[0] ? deck[0].id : null;
   ok("cartes : une carte est présentée", !!view.querySelector(".flash .front"));
-  ok("cartes : la traduction est cachée au départ", !view.querySelector(".flash .back"));
+  ok("cartes : la traduction est cachée au départ", !view.querySelector(".flash .trad"));
   view.querySelector('[data-act="reveal"]').click();
-  ok("cartes : « Révéler » affiche la traduction", !!view.querySelector(".flash .back"));
+  ok("cartes : « Révéler » affiche la traduction", !!view.querySelector(".flash .trad"));
   ok("cartes : « Révéler » affiche aussi la prononciation", !!view.querySelector(".flash .p"));
   const sizeBefore = deck.length;
   view.querySelector('[data-grade="0"]').click();
@@ -2602,6 +2780,89 @@ function runTests() {
   view.querySelector('[data-act="reveal"]').click();
   view.querySelector('[data-grade="1"]').click();
   eq("entraînement : une bonne réponse ne réinjecte pas le mot", deck.length, beforeTraining);
+
+  /* --- S. L'oral --- */
+  ok("traduction : les accents sont ignorés", checkFR("bonjour", "Bonjour").ok);
+  ok("traduction : la précision entre parenthèses est facultative",
+     checkFR("salut", "salut (en partant)").ok);
+  ok("traduction : la forme complète marche aussi",
+     checkFR("salut en partant", "salut (en partant)").ok);
+  ok("traduction : l'article français est facultatif", checkFR("mot", "le mot").ok);
+  ok("traduction : la ponctuation est ignorée", checkFR("bonjour !", "Bonjour").ok);
+  ok("traduction : un autre mot est refusé", !checkFR("maison", "le mot").ok);
+  ok("traduction : une réponse vide est refusée", !checkFR("   ", "le mot").ok);
+
+  /* Sans voix installée, le mode doit se justifier au lieu d'être muet. */
+  const keepVoice = TTS.voice;
+  TTS.voice = null;
+  S = fresh(); S.day = 1; seed(1);
+  go("oral");
+  ok("oral : sans voix allemande, l'écran l'explique",
+     view.innerHTML.indexOf("voix allemande") !== -1);
+  ok("oral : et ne propose pas d'exercice", !view.querySelector("#answer"));
+
+  TTS.voice = { lang: "de-DE", name: "test" };
+  S = fresh(); S.day = 1; seed(1);
+  go("oral");
+  ok("oral : une consigne est donnée", !!view.querySelector(".flash .tip"));
+  ok("oral : un champ de saisie est présent", !!view.querySelector("#answer"));
+  ok("oral : un bouton permet de réécouter", !!view.querySelector("[data-say]"));
+  ok("oral : la phrase est prononcée dès l'affichage", !!view.querySelector("[data-autosay]"));
+  ok("oral : AUCUN texte allemand n'est montré avant de répondre",
+     !view.querySelector(".flash .sol"));
+  ok("oral : ni la traduction", !view.querySelector(".flash .trad"));
+
+  const it0 = oral[0];
+  document.getElementById("answer").value = (it0.task === "write") ? it0.de : it0.fr;
+  view.querySelector('[data-act="oral-check"]').click();
+  ok("oral : la bonne réponse est acceptée, quelle que soit la consigne",
+     !!view.querySelector(".why.good"), "consigne : " + it0.task);
+  ok("oral : la solution allemande s'affiche ensuite", !!view.querySelector(".flash .sol"));
+  ok("oral : la traduction aussi", !!view.querySelector(".flash .trad"));
+  view.querySelector('[data-act="oral-next"]').click();
+  ok("oral : on passe à la suite", oi === 1);
+
+  S = fresh(); S.day = 1; seed(1);
+  go("oral");
+  view.querySelector('[data-act="oral-dunno"]').click();
+  ok("oral : « je ne sais pas » montre la réponse", !!view.querySelector(".flash .sol"));
+  ok("oral : et compte comme raté", !!view.querySelector(".why.bad"));
+
+  /* Le journal est nourri, le calendrier de révision ne bouge pas. */
+  S = fresh(); S.day = 1; seed(1);
+  go("oral");
+  const ov = COURSE[0].vocab[0];
+  oral = [{ de: ov.d, fr: ov.f, p: ov.p, id: "1:0", task: "write" }];
+  oi = 0; oralVerdict = null;
+  show(renderOral());
+  const oBox = S.cards["1:0"].box, oDue = S.cards["1:0"].due;
+  document.getElementById("answer").value = ov.d;
+  view.querySelector('[data-act="oral-check"]').click();
+  eq("oral : la réussite est notée au journal", S.cards["1:0"].hit, 1);
+  eq("oral : mais le niveau ne bouge pas", S.cards["1:0"].box, oBox);
+  eq("oral : ni la date de révision", S.cards["1:0"].due, oDue);
+
+  /* Les phrases de la leçon entrent aussi dans le tirage. */
+  ok("oral : les phrases entières sont proposées, pas seulement les mots",
+     (function () {
+       for (let k = 0; k < 30; k++) {
+         if (oralItems(ORAL_SIZE).some(function (x) { return x.id === null; })) return true;
+       }
+       return false;
+     })());
+  ok("oral : les deux consignes sortent l'une et l'autre",
+     (function () {
+       let w = false, t = false;
+       for (let k = 0; k < 30; k++) {
+         oralItems(ORAL_SIZE).forEach(function (x) {
+           if (x.task === "write") w = true;
+           if (x.task === "translate") t = true;
+         });
+       }
+       return w && t;
+     })());
+
+  TTS.voice = keepVoice;
 
   /* --- P. Robustesse --- */
   ok("sécurité : le HTML des contenus est échappé", esc("<b>&</b>") === "&lt;b&gt;&amp;&lt;/b&gt;");
