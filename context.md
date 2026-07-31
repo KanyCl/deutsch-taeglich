@@ -12,15 +12,22 @@ en **papier** : le contenu de l'app est rédigé indépendamment, il n'en reprod
 
 ## Comment ça marche
 
-Trois modes, articulés autour d'un « jour » courant :
+Quatre modes, articulés autour d'un « jour » courant :
 
 1. **La leçon** — 4 à 5 étapes courtes, une idée par écran. Certaines étapes posent une
    mini-question qui **bloque** le passage à la suivante tant qu'on n'a pas répondu.
 2. **Les cartes** — révision espacée du vocabulaire, méthode Leitner à 5 niveaux
    (intervalles 0 / 2 / 4 / 8 / 16 jours). Un mot raté retombe au niveau 1.
 3. **Le quiz** — 5 questions. 3 bonnes réponses sur 5 valident le jour et débloquent le suivant.
+4. **L'entraînement libre** — quand rien n'est dû, ou pour en faire plus. Reprend les mots
+   les plus ratés, note les réponses, mais **ne touche pas au calendrier** : réviser en
+   avance ne doit pas dérégler l'espacement.
 
 Une « série » (streak) compte les jours consécutifs de travail.
+
+Chaque mot compte ses réussites et ses échecs (`hit` / `miss`), chaque question de quiz
+ratée est comptée dans `S.qmiss`. C'est ce journal qui alimente la priorité de
+l'entraînement et le compteur de « mots fragiles » sur l'accueil.
 
 ## Décisions prises et pourquoi
 

@@ -1223,7 +1223,8 @@ let storageOK = true;
 let S = load();
 
 function fresh() {
-  return { day: 1, done: [], cards: {}, streak: 0, last: null, scores: {} };
+  // qmiss : nombre de fois où chaque question de quiz a été ratée, clé "jour:index".
+  return { day: 1, done: [], cards: {}, streak: 0, last: null, scores: {}, qmiss: {} };
 }
 function load() {
   try {
@@ -1262,9 +1263,19 @@ function seed(dayNo) {
   let added = false;
   lesson.vocab.forEach(function (v, i) {
     const id = dayNo + ":" + i;
-    if (!S.cards[id]) { S.cards[id] = { box: 1, due: today() }; added = true; }
+    if (!S.cards[id]) { S.cards[id] = { box: 1, due: today(), hit: 0, miss: 0 }; added = true; }
   });
   if (added) persist();
+}
+
+/* Fragilité d'un mot, entre 0 (toujours su) et 1 (toujours raté).
+   Un mot jamais révisé vaut 0.5 : il mérite plus d'attention qu'un mot
+   toujours réussi, mais moins qu'un mot réellement raté. */
+function weakness(id) {
+  const c = S.cards[id] || {};
+  const hit = c.hit || 0, miss = c.miss || 0;
+  if (hit + miss === 0) return 0.5;
+  return miss / (hit + miss);
 }
 function cardById(id) {
   const parts = id.split(":").map(Number);
@@ -1272,23 +1283,73 @@ function cardById(id) {
   if (!lesson || !lesson.vocab[parts[1]]) return null;
   return Object.assign({ id: id, day: parts[0] }, lesson.vocab[parts[1]]);
 }
+/* Le paquet du jour, dans un ordre différent à chaque session. */
 function dueCards() {
   const t = today();
-  return Object.keys(S.cards)
-    .filter(function (id) { return S.cards[id].due <= t && cardById(id); })
-    .map(cardById);
+  const ids = Object.keys(S.cards).filter(function (id) {
+    return S.cards[id].due <= t && cardById(id);
+  });
+  return shuffleIdx(ids.length).map(function (i) { return cardById(ids[i]); });
 }
-function grade(id, ok) {
+
+/* L'entraînement libre : réviser quand rien n'est dû, sans attendre demain.
+   Les mots les plus ratés d'abord, mais tirés dans un vivier deux fois plus
+   grand que nécessaire — sinon deux entraînements de suite donneraient
+   exactement la même liste. */
+function practiceCards(n) {
+  const ids = Object.keys(S.cards).filter(function (id) { return !!cardById(id); });
+  if (!ids.length) return [];
+  ids.sort(function (a, b) { return weakness(b) - weakness(a); });
+
+  // La moitié la plus fragile est TOUJOURS reprise — c'est le but de
+  // l'entraînement. L'autre moitié est tirée dans un vivier plus large, pour
+  // que deux séances de suite ne donnent pas exactement la même liste.
+  const keep = Math.min(ids.length, Math.ceil(n / 2));
+  const head = ids.slice(0, keep);
+  const want = Math.min(n, ids.length) - keep;
+  const rest = ids.slice(keep, keep + want * 2);
+  const extra = shuffleIdx(rest.length).slice(0, want).map(function (i) { return rest[i]; });
+
+  const chosen = head.concat(extra);
+  return shuffleIdx(chosen.length).map(function (i) { return cardById(chosen[i]); });
+}
+
+/* Un mot déjà su, tiré au hasard. Sert à ne pas finir une session en boucle
+   sur ses seules erreurs : chaque mot raté revient accompagné de celui-ci. */
+function pickEasy(excludeId) {
+  const ids = Object.keys(S.cards).filter(function (id) {
+    return id !== excludeId && cardById(id) && weakness(id) < 0.5;
+  });
+  if (!ids.length) return null;
+  return cardById(ids[shuffleIdx(ids.length)[0]]);
+}
+
+/* schedule === false : on note la réponse sans toucher au calendrier.
+   C'est le mode entraînement — réviser en avance ne doit pas dérégler
+   l'espacement calculé par la méthode Leitner. */
+function grade(id, ok, schedule) {
   const c = S.cards[id];
   if (!c) return;
-  // Bonne réponse : on monte d'un cran, la carte revient plus tard.
-  // Ratée : retour à la case 1, donc due aujourd'hui (INTERVALS[1] vaut 0).
-  c.box = ok ? Math.min(5, c.box + 1) : 1;
-  c.due = shift(today(), INTERVALS[c.box]);
+  // Le journal, lui, compte toujours : c'est lui qui repère les mots fragiles.
+  if (ok) c.hit = (c.hit || 0) + 1;
+  else    c.miss = (c.miss || 0) + 1;
+  if (schedule !== false) {
+    // Bonne réponse : on monte d'un cran, la carte revient plus tard.
+    // Ratée : retour à la case 1, donc due aujourd'hui (INTERVALS[1] vaut 0).
+    c.box = ok ? Math.min(5, c.box + 1) : 1;
+    c.due = shift(today(), INTERVALS[c.box]);
+  }
   persist();
 }
 function learnedCount() {
   return Object.keys(S.cards).filter(function (id) { return S.cards[id].box >= 4; }).length;
+}
+/* Mots réellement fragiles : ratés au moins une fois, et au moins une fois
+   sur trois. C'est ce chiffre qui dit sur quoi il reste du travail. */
+function shakyCount() {
+  return Object.keys(S.cards).filter(function (id) {
+    return (S.cards[id].miss || 0) > 0 && weakness(id) >= 1 / 3;
+  }).length;
 }
 
 /* ===============================================================
@@ -1425,9 +1486,13 @@ function home() {
           '<div class="txt"><strong>La leçon</strong><span>' + lesson.steps.length + ' étapes courtes, ' + lesson.vocab.length + ' mots</span></div>',
           '<span class="chip">' + lesson.steps.length + '</span>',
         '</button>',
-        '<button class="mode" data-go="cards"' + (due === 0 ? ' disabled' : '') + '>',
-          '<div class="txt"><strong>Les cartes</strong><span>' + (due === 0 ? 'Rien à réviser aujourd\'hui — reviens demain' : 'Révision espacée du vocabulaire') + '</span></div>',
-          '<span class="chip' + (due > 0 ? ' hot' : '') + '">' + due + '</span>',
+        // Rien à réviser n'est plus un cul-de-sac : on bascule sur l'entraînement
+        // libre, qui travaille les mots les plus ratés sans toucher au calendrier.
+        '<button class="mode" data-go="' + (due === 0 ? 'practice' : 'cards') + '">',
+          '<div class="txt"><strong>Les cartes</strong><span>' +
+            (due === 0 ? 'Rien d\'obligatoire aujourd\'hui — entraîne-toi si tu veux' : 'Révision espacée du vocabulaire') +
+          '</span></div>',
+          '<span class="chip' + (due > 0 ? ' hot' : '') + '">' + (due > 0 ? due : 'libre') + '</span>',
         '</button>',
         '<button class="mode" data-go="quiz">',
           '<div class="txt"><strong>Le quiz</strong><span>' + (doneToday ? 'Refaire le test du jour ' + S.day : 'Valide le jour ' + S.day + ' et débloque la suite') + '</span></div>',
@@ -1435,13 +1500,19 @@ function home() {
         '</button>',
       '</div>',
 
+      // Le jour est fini mais l'envie est là : on ne renvoie pas à demain.
+      (doneToday && reachable(S.day + 1)
+        ? '<button class="btn primary wide" data-lesson="' + (S.day + 1) + '">Enchaîner sur le jour ' + (S.day + 1) + '</button>'
+        : ''),
+
       finished ? '<div class="card"><span class="label">Fin de la série</span><p class="msg" style="margin:.5rem 0 0">Tu as terminé les ' + COURSE.length + ' jours écrits. Demande-moi la suite — le contenu s\'ajoute dans un seul fichier.</p></div>' : '',
 
       !storageOK ? '<p class="warn">Ton navigateur bloque le stockage local : la progression ne sera pas conservée après fermeture. Essaie hors navigation privée.</p>' : '',
 
       '<div class="stack-s">',
         '<h3 class="sec">Ma progression</h3>',
-        '<p class="msg">' + Object.keys(S.cards).length + ' mots en circulation &#183; ' + learnedCount() + ' bien ancrés &#183; série de ' + S.streak + ' jour' + (S.streak > 1 ? 's' : '') + '</p>',
+        '<p class="msg">' + Object.keys(S.cards).length + ' mots en circulation &#183; ' + learnedCount() + ' bien ancrés &#183; ' +
+          shakyCount() + ' fragiles &#183; série de ' + S.streak + ' jour' + (S.streak > 1 ? 's' : '') + '</p>',
         '<div class="tools">',
           '<button class="tool" data-act="export">Sauvegarder</button>',
           '<button class="tool" data-act="import">Restaurer</button>',
@@ -1566,35 +1637,58 @@ function renderRecap() {
   ].join("");
 }
 
-/* ---------- Cartes (Leitner) ---------- */
-let deck = [], pos = 0, revealed = false;
+/* ---------- Cartes ----------
+   Deux modes sur le même écran :
+   - la révision du jour (Leitner), qui fait avancer le calendrier ;
+   - l'entraînement libre, qui n'y touche pas — pour pouvoir travailler
+     plus un jour où on a le temps, sans dérégler l'espacement. */
+let deck = [], pos = 0, revealed = false, training = false, deckCap = 0;
 
-function cardsView() {
-  deck = dueCards();
+const PRACTICE_SIZE = 10;
+
+function startDeck(cards, isTraining) {
+  deck = cards;
   pos = 0;
   revealed = false;
+  training = isTraining;
+  // Chaque mot raté réinjecte deux cartes : sans plafond, une mauvaise
+  // session n'aurait pas de fin.
+  deckCap = cards.length * 2 + 6;
   return renderCard();
 }
+function cardsView()    { return startDeck(dueCards(), false); }
+function practiceView() { return startDeck(practiceCards(PRACTICE_SIZE), true); }
+
 function renderCard() {
   if (pos >= deck.length) {
     touchStreak();
+    const n = deck.length;
+    let msg;
+    if (n === 0) msg = 'Aucun mot à réviser pour l\'instant. Fais une leçon pour en apprendre de nouveaux.';
+    else if (training) msg = 'Entraînement : le calendrier de révision n\'a pas bougé, mais tes erreurs sont notées.';
+    else msg = 'Les mots sus reviendront plus tard, les ratés dès demain.';
+
     return [
       backBar('Accueil'),
       '<div class="stack">',
-        '<div class="score"><b>' + deck.length + '</b><span>carte' + (deck.length > 1 ? 's' : '') + ' révisée' + (deck.length > 1 ? 's' : '') + '. Les mots sus reviendront plus tard, les ratés dès demain.</span></div>',
+        '<div class="score"><b>' + n + '</b><span>carte' + (n > 1 ? 's passées' : ' passée') + '. ' + msg + '</span></div>',
+        Object.keys(S.cards).length ? '<button class="btn wide" data-go="practice">Encore un tour</button>' : '',
         '<button class="btn primary wide" data-go="home">Retour à l\'accueil</button>',
       '</div>'
     ].join("");
   }
 
   const c = deck[pos];
-  const box = S.cards[c.id].box;
+  const st = S.cards[c.id];
+  const tag = training
+    ? (st.miss ? 'entraînement &#183; raté ' + st.miss + ' fois' : 'entraînement')
+    : 'niveau ' + st.box + '/5';
 
   return [
     backBar('Accueil'),
     '<div class="stack">',
       '<div class="stack-s">',
-        '<span class="label">Carte ' + (pos + 1) + ' sur ' + deck.length + ' &#183; jour ' + c.day + ' &#183; niveau ' + box + '/5</span>',
+        '<span class="label">Carte ' + (pos + 1) + ' sur ' + deck.length + ' &#183; jour ' + c.day + ' &#183; ' + tag + '</span>',
         '<div class="meter">' + deck.map(function (_, i) { return '<i class="' + (i < pos ? 'on' : '') + '"></i>'; }).join("") + '</div>',
       '</div>',
 
@@ -1704,7 +1798,7 @@ function renderQuestion() {
 /* ===============================================================
    5. NAVIGATION — un seul écouteur pour toute l'app
    =============================================================== */
-const ROUTES = { home: home, lesson: lessonView, cards: cardsView, quiz: quizView };
+const ROUTES = { home: home, lesson: lessonView, cards: cardsView, practice: practiceView, quiz: quizView };
 
 function go(name) { show(ROUTES[name]()); }
 
@@ -1743,8 +1837,14 @@ view.addEventListener("click", function (e) {
   if (t.dataset.act === "reveal") { revealed = true; show(renderCard()); return; }
 
   if (t.hasAttribute("data-grade")) {
-    grade(deck[pos].id, t.dataset.grade === "1");
-    if (t.dataset.grade === "0") deck.push(deck[pos]); // on la repasse en fin de paquet
+    const cur = deck[pos];
+    const ok = t.dataset.grade === "1";
+    grade(cur.id, ok, !training);
+    if (!ok && deck.length < deckCap) {
+      deck.push(cur);                       // le mot raté repasse en fin de paquet
+      const easy = pickEasy(cur.id);        // accompagné d'un mot déjà su, pour ne pas
+      if (easy) deck.push(easy);            // terminer en boucle sur ses seules erreurs
+    }
     pos++; revealed = false;
     show(renderCard());
     return;
@@ -1753,7 +1853,14 @@ view.addEventListener("click", function (e) {
   if (t.hasAttribute("data-pick")) {
     if (answered) return;
     qLog[qi] = Number(t.dataset.pick);
-    if (qLog[qi] === COURSE[S.day - 1].quiz[qOrder[qi]].a) qScore++;
+    const src = qOrder[qi];
+    if (qLog[qi] === COURSE[S.day - 1].quiz[src].a) qScore++;
+    else {
+      // Journal : quelle question résiste, et depuis combien de fois.
+      const k = S.day + ":" + src;
+      S.qmiss[k] = (S.qmiss[k] || 0) + 1;
+      persist();
+    }
     answered = true;
     show(renderQuestion());
     return;
@@ -2089,7 +2196,112 @@ function runTests() {
   eq("cartes : une carte ratée est remise dans le paquet", deck.length, sizeBefore + 1);
   eq("cartes : et elle retombe au niveau 1", S.cards[firstId].box, 1);
 
-  /* --- K. Robustesse --- */
+  /* --- L. Le journal des erreurs --- */
+  S = fresh(); S.day = 1; seed(1);
+  const jid = "1:0";
+  eq("journal : un mot neuf part de zéro", (S.cards[jid].hit || 0) + (S.cards[jid].miss || 0), 0);
+  eq("journal : un mot jamais révisé est à mi-chemin", weakness(jid), 0.5);
+  grade(jid, false);
+  eq("journal : une erreur est comptée", S.cards[jid].miss, 1);
+  eq("journal : et la fragilité monte à 1", weakness(jid), 1);
+  grade(jid, true); grade(jid, true); grade(jid, true);
+  eq("journal : trois réussites plus tard, une erreur sur quatre", weakness(jid), 0.25);
+  eq("journal : les réussites sont comptées aussi", S.cards[jid].hit, 3);
+
+  S = fresh(); S.day = 1; seed(1);
+  go("quiz");
+  const badSrc = qOrder[0];
+  const badOpt = (l1.quiz[badSrc].a + 1) % l1.quiz[badSrc].o.length;
+  view.querySelector('[data-pick="' + badOpt + '"]').click();
+  eq("journal : la question de quiz ratée est enregistrée", S.qmiss["1:" + badSrc], 1);
+
+  /* --- M. L'entraînement libre ne dérègle pas le calendrier --- */
+  S = fresh(); S.day = 1; seed(1);
+  const tid = "1:0";
+  S.cards[tid].box = 3;
+  S.cards[tid].due = shift(today(), 4);
+  grade(tid, true, false);
+  eq("entraînement : le niveau ne bouge pas", S.cards[tid].box, 3);
+  eq("entraînement : la date de révision ne bouge pas", S.cards[tid].due, shift(today(), 4));
+  eq("entraînement : mais la réponse est notée", S.cards[tid].hit, 1);
+
+  /* Le mot le plus raté doit ressortir à tous les coups. */
+  S = fresh(); S.day = 1; seed(1);
+  Object.keys(S.cards).forEach(function (id) { grade(id, true, false); grade(id, true, false); });
+  grade("1:3", false, false); grade("1:3", false, false); grade("1:3", false, false);
+  ok("entraînement : le mot le plus raté est repris à chaque fois",
+     (function () {
+       for (let k = 0; k < 25; k++) {
+         const has = practiceCards(4).some(function (c) { return c.id === "1:3"; });
+         if (!has) return false;
+       }
+       return true;
+     })());
+  eq("entraînement : on obtient bien le nombre de cartes demandé", practiceCards(4).length, 4);
+  ok("entraînement : la liste varie d'une séance à l'autre",
+     (function () {
+       const ref = practiceCards(4).map(function (c) { return c.id; }).join(",");
+       for (let k = 0; k < 40; k++) {
+         if (practiceCards(4).map(function (c) { return c.id; }).join(",") !== ref) return true;
+       }
+       return false;
+     })());
+
+  /* --- N. Le paquet de cartes : ordre, relances, plafond --- */
+  S = fresh(); S.day = 1; seed(1);
+  ok("cartes : l'ordre du paquet change d'une session à l'autre",
+     (function () {
+       const first = dueCards()[0].id;
+       for (let k = 0; k < 40; k++) if (dueCards()[0].id !== first) return true;
+       return false;
+     })());
+
+  S = fresh(); S.day = 1; seed(1);
+  grade("1:8", true, false); grade("1:9", true, false);   // deux mots désormais « sus »
+  go("cards");
+  const beforeMiss = deck.length;
+  view.querySelector('[data-act="reveal"]').click();
+  view.querySelector('[data-grade="0"]').click();
+  eq("cartes : un mot raté revient accompagné d'un mot déjà su", deck.length, beforeMiss + 2);
+
+  S = fresh(); S.day = 1; seed(1);
+  go("cards");
+  const cap = deckCap;
+  for (let k = 0; k < 80; k++) {
+    const rev = view.querySelector('[data-act="reveal"]');
+    if (!rev) break;
+    rev.click();
+    const miss = view.querySelector('[data-grade="0"]');
+    if (!miss) break;
+    miss.click();
+  }
+  ok("cartes : rater en boucle ne produit pas un paquet sans fin",
+     deck.length <= cap, "paquet " + deck.length + " pour un plafond de " + cap);
+
+  /* --- O. Ne plus être renvoyé à demain --- */
+  S = fresh(); S.day = 1; seed(1);
+  Object.keys(S.cards).forEach(function (id) { S.cards[id].due = shift(today(), 3); });
+  go("home");
+  eq("accueil : plus rien à réviser aujourd'hui", dueCards().length, 0);
+  ok("accueil : l'entraînement libre est proposé à la place",
+     !!view.querySelector('.mode[data-go="practice"]'));
+  ok("accueil : et le bouton n'est pas grisé", !view.querySelector(".mode[disabled]"));
+
+  S = fresh(); S.day = 1; S.done = [1]; seed(1);
+  go("home");
+  ok("accueil : jour terminé, on peut enchaîner sur le suivant",
+     !!view.querySelector('[data-lesson="2"]'));
+
+  S = fresh(); S.day = 1; seed(1);
+  go("practice");
+  ok("entraînement : l'écran s'ouvre sur une carte", !!view.querySelector(".flash .front"));
+  const pBox = S.cards[deck[0].id].box, pDue = S.cards[deck[0].id].due, pId = deck[0].id;
+  view.querySelector('[data-act="reveal"]').click();
+  view.querySelector('[data-grade="1"]').click();
+  eq("entraînement : depuis l'écran, le niveau reste inchangé", S.cards[pId].box, pBox);
+  eq("entraînement : et la date aussi", S.cards[pId].due, pDue);
+
+  /* --- P. Robustesse --- */
   ok("sécurité : le HTML des contenus est échappé", esc("<b>&</b>") === "&lt;b&gt;&amp;&lt;/b&gt;");
   ok("sécurité : les guillemets sont échappés dans les attributs", att('a"b') === "a&quot;b");
   ok("audio : ne plante pas quand aucune voix allemande n'est disponible",

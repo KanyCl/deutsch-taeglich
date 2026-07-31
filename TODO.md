@@ -26,18 +26,23 @@ Rangés par lot, pas par ordre d'importance : le lot 1 est le plus rentable à l
 - [ ] **À confirmer par Exsangue** : ouvrir la nouvelle adresse sur l'iPhone, l'ajouter à
       l'écran d'accueil, faire une leçon, fermer, rouvrir → la progression doit tenir.
 
-## Lot 2 — le système de révision
+## Lot 2 — le système de révision ✅ fait le 31/07/2026
 
-- [ ] **Cartes mélangées.** Toujours le même ordre aujourd'hui.
-- [ ] **Repiocher les mots ratés.** Un mot raté revient, mais accompagné d'un mot su tiré au
-      sort — pour ne pas terminer la session en boucle sur ses seules erreurs.
-      Priorité aux mots au plus fort pourcentage de fautes.
-- [ ] **Apprentissage irrégulier.** Pouvoir en faire plus un jour où on a le temps. Ce qui
-      bloque aujourd'hui : les cartes se grisent avec « reviens demain » (`index.html:1388`).
-      Les leçons, elles, ne sont pas bloquées.
-- [ ] **Journal des erreurs.** Enregistrer quelle question et quel mot sont ratés, et combien
-      de fois — pour pouvoir travailler les vraies fautes. (La progression, elle, est déjà
-      sauvegardée automatiquement.)
+- [x] **Cartes mélangées** à chaque session (`dueCards` passe par `shuffleIdx`).
+- [x] **Mots ratés repiochés.** Un mot raté repasse en fin de paquet, accompagné d'un mot
+      déjà su tiré au hasard (`pickEasy`) — on ne finit plus en boucle sur ses erreurs.
+      Plafond de paquet (`deckCap`) pour qu'une mauvaise session ait quand même une fin.
+- [x] **Priorité aux mots les plus ratés.** L'entraînement reprend *toujours* la moitié la
+      plus fragile, et complète par un tirage dans un vivier plus large pour varier.
+- [x] **Apprentissage irrégulier.** « Rien à réviser » n'est plus un cul-de-sac : le bouton
+      bascule sur l'**entraînement libre**, qui note les réponses **sans toucher au
+      calendrier** — réviser en avance ne doit pas dérégler l'espacement Leitner.
+      Ajout aussi d'un « Enchaîner sur le jour suivant » quand le jour est validé.
+- [x] **Journal des erreurs.** Chaque mot compte ses `hit` / `miss` ; chaque question de quiz
+      ratée est comptée dans `S.qmiss`. L'accueil affiche le nombre de mots fragiles.
+      Tout part dans le fichier de sauvegarde : il suffit de me l'envoyer pour qu'on
+      travaille les vraies fautes.
+- [x] Auto-test : **279 vérifications**.
 
 ## Lot 3 — à discuter avant d'attaquer
 

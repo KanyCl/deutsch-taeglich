@@ -29,8 +29,17 @@ sensible dedans : **ta progression ne quitte jamais ton appareil**, elle n'est e
 | **La leçon** | 4 à 5 étapes courtes. Une idée par écran, et des mini-questions qui bloquent le passage à la suite tant qu'on n'a pas répondu |
 | **Les cartes** | Révision espacée : les mots ratés reviennent vite, les mots sus s'espacent |
 | **Le quiz** | 5 questions. 3/5 valident le jour et débloquent le suivant |
+| **L'entraînement** | Quand rien n'est à réviser, ou pour en faire plus. Reprend tes mots les plus ratés **sans toucher au calendrier** de révision |
 
 Compter 10 à 15 minutes. La série en haut à droite compte les jours d'affilée.
+
+Rien ne t'oblige à t'arrêter : si tu as le temps, enchaîne sur le jour suivant ou lance un
+entraînement. Et si tu sautes un jour, rien n'est perdu — seule la série repart de 1.
+
+L'app **note tes erreurs** : chaque mot compte ses réussites et ses échecs, chaque question
+de quiz ratée est enregistrée. L'accueil indique combien de mots restent fragiles, et
+l'entraînement les reprend en priorité. Tout part dans le fichier de sauvegarde — envoie-le
+moi et on travaillera tes vraies fautes.
 
 Trois aides pour ne pas lire sans comprendre :
 

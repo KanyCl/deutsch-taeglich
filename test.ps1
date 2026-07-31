@@ -82,7 +82,7 @@ if ($Shots) {
     $target = "file:///" + ($copy -replace '\\', '/')
   }
 
-  foreach ($screen in @("home", "lesson", "cards", "quiz", "test")) {
+  foreach ($screen in @("home", "lesson", "cards", "practice", "quiz", "test")) {
     $hash    = if ($screen -eq "home") { "" } else { "#$screen" }
     $wrapper = Join-Path $env:TEMP "deutsch-shot-$screen.html"
     $png     = Join-Path $out "$screen$suffix.png"
