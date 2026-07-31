@@ -68,7 +68,14 @@ Rangés par lot, pas par ordre d'importance : le lot 1 est le plus rentable à l
 - [x] Écran d'explication si l'appareil n'a pas de voix allemande, au lieu d'un écran muet.
 - [x] Corrigé au passage : `.back` servait au bouton « ← Accueil » **et** à la traduction,
       qui s'affichait donc en majuscules. Défaut présent depuis la v2.
-- [x] Auto-test : **354 vérifications**.
+- [x] **Niveaux à l'oreille** (1 à 5, `S.oral`), indépendants de ceux des cartes.
+      Deux axes montent ensemble : moins de français, moins d'indulgence.
+      1 traduire · 2 traduire ou écrire · 3 écrire · 4 + article obligatoire ·
+      5 forme exacte. +1 si juste, −1 sinon, comme les cartes.
+- [x] **Bug corrigé : « la soeur » comptait faux.** Le contenu écrit `sœur` avec la
+      ligature (un seul caractère) ; on tape `o` puis `e`. `normFR` les rapproche
+      maintenant. Une vérification retape chaque traduction des 12 jours au clavier.
+- [x] Auto-test : **396 vérifications**.
 
 ## Lot 3 — à discuter avant d'attaquer
 

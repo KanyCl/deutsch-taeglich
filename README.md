@@ -61,17 +61,30 @@ passages chacun). Les jours suivants sont plus courts.
 ### L'oral
 
 Le seul mode où **rien n'est écrit à l'écran**. La phrase est prononcée dès l'affichage
-(bouton ▶ pour la réentendre autant que tu veux), et une consigne tombe au hasard :
+(bouton ▶ pour la réentendre autant que tu veux), et tu réponds au clavier.
 
-- **écris en allemand ce que tu entends** — de la dictée ;
-- **écris en français ce que ça veut dire** — de la compréhension.
+Chaque phrase entendue a **son propre niveau**, séparé de celui des cartes — reconnaître à
+l'oreille n'est pas la même compétence que restituer à l'écrit. La difficulté monte sur
+**deux axes à la fois** : de moins en moins de français, de moins en moins d'indulgence.
+
+| Niveau | Ce qu'on te demande | Ce qui est pardonné |
+|---|---|---|
+| 1 | traduire en français | une faute de frappe |
+| 2 | traduire **ou** écrire en allemand | une faute de frappe |
+| 3 | écrire en allemand | `ae` `ss` pour `ä` `ß`, article facultatif |
+| 4 | écrire en allemand | `ae` `ss` — mais **l'article compte** |
+| 5 | écrire en allemand | **rien** : forme exacte, tréma et ß compris |
+
+Bonne réponse : **+1**. Ratée : **−1**. Le niveau atteint est affiché pendant l'exercice et
+le changement t'est annoncé après chaque réponse.
 
 Le tirage mélange les mots du jour **et les phrases entières de la leçon** : c'est à
 l'oreille que les phrases servent le plus.
 
-La correction du français est volontairement très lâche — on vérifie que tu as *compris*,
-pas que tu sais écrire le français. Accents, ponctuation, article et précision entre
-parenthèses sont facultatifs : pour « salut (en partant) », écrire `salut` suffit.
+Aux niveaux 1 et 2, la correction du français est volontairement très lâche — on vérifie
+que tu as *compris*, pas que tu sais écrire le français. Accents, ponctuation, article,
+ligatures (`sœur` ou `soeur`, au choix) et précision entre parenthèses sont facultatifs :
+pour « salut (en partant) », écrire `salut` suffit.
 
 Comme l'entraînement, l'oral **ne touche pas au calendrier** de révision, mais il nourrit
 le journal de tes erreurs.

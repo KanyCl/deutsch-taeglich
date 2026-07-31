@@ -1258,7 +1258,8 @@ let S = load();
 
 function fresh() {
   // qmiss : nombre de fois où chaque question de quiz a été ratée, clé "jour:index".
-  return { day: 1, done: [], cards: {}, streak: 0, last: null, scores: {}, qmiss: {} };
+  // oral  : niveau atteint à l'oreille, clé "v:jour:index" (mot) ou "p:jour:index" (phrase).
+  return { day: 1, done: [], cards: {}, streak: 0, last: null, scores: {}, qmiss: {}, oral: {} };
 }
 function load() {
   try {
@@ -1735,6 +1736,9 @@ const FR_ARTICLES = ["le", "la", "les", "l", "un", "une", "des", "du"];
 function normFR(s) {
   return String(s)
     .toLowerCase()
+    // Les ligatures d'abord : « sœur » s'écrit avec UN caractère, alors qu'au
+    // clavier on tape o puis e. Sans cette ligne, « la soeur » était refusé.
+    .replace(/œ/g, "oe").replace(/æ/g, "ae")
     .replace(/[àâä]/g, "a").replace(/[éèêë]/g, "e").replace(/[îï]/g, "i")
     .replace(/[ôö]/g, "o").replace(/[ùûü]/g, "u").replace(/ç/g, "c")
     .replace(/[.,!?;:'’"()\[\]-]/g, " ")
@@ -1746,6 +1750,26 @@ function stripFR(n) {
   if (parts.length > 1 && FR_ARTICLES.indexOf(parts[0]) !== -1) return parts.slice(1).join(" ");
   return n;
 }
+/* Distance d'édition, plafonnée à `max` : au-delà, la valeur exacte ne sert
+   à rien. Permet de pardonner une faute de frappe aux premiers niveaux. */
+function editDistance(a, b, max) {
+  if (Math.abs(a.length - b.length) > max) return max + 1;
+  let prev = [];
+  for (let j = 0; j <= b.length; j++) prev[j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    const cur = [i];
+    let best = i;
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1;
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + cost);
+      if (cur[j] < best) best = cur[j];
+    }
+    if (best > max) return max + 1;   // plus aucune chance de repasser sous le seuil
+    prev = cur;
+  }
+  return prev[b.length];
+}
+
 function checkFR(typed, expected) {
   const t = normFR(typed);
   if (!t) return { ok: false, kind: "empty" };
@@ -2004,19 +2028,70 @@ function renderQuestion() {
    traduire. Les phrases entières de la leçon viennent s'ajouter aux mots :
    c'est à l'oreille qu'elles servent le plus. */
 const ORAL_SIZE = 8;
+const ORAL_MAX = 5;
 let oral = [], oi = 0, oralVerdict = null;
+
+/* Chaque phrase entendue a son propre niveau, indépendant de celui des cartes :
+   reconnaître un mot à l'oreille n'est pas la même compétence que le restituer
+   à l'écrit. La difficulté monte sur DEUX axes à la fois.
+
+     niveau 1  traduire en français   une faute de frappe pardonnée
+     niveau 2  traduire OU écrire     une faute de frappe pardonnée
+     niveau 3  écrire en allemand     ae/ss acceptés, article facultatif
+     niveau 4  écrire en allemand     l'article devient obligatoire
+     niveau 5  écrire en allemand     forme exacte, tréma et ß compris
+
+   Bonne réponse : +1. Ratée : −1, comme pour les cartes. */
+function oralLevel(key) {
+  return (S.oral && S.oral[key]) || 1;
+}
+function oralTask(level) {
+  if (level <= 1) return "translate";
+  if (level === 2) return Math.random() < 0.5 ? "translate" : "write";
+  return "write";
+}
+
+function checkOral(typed, it, level) {
+  if (!String(typed).trim()) return { ok: false, kind: "empty" };
+
+  if (it.task === "translate") {
+    const v = checkFR(typed, it.fr);
+    if (v.ok || level > 2) return v;
+    const core = normFR(String(it.fr).replace(/\([^)]*\)/g, " "));
+    if (editDistance(normFR(typed), core, 2) <= 2) return { ok: true, kind: "typo" };
+    return v;
+  }
+
+  if (level >= ORAL_MAX) {
+    // Dernier niveau : la forme exacte. Seule la casse reste libre — le
+    // téléphone met une majuscule tout seul, ce n'est pas une faute de l'élève.
+    const got  = String(typed).trim().replace(/\s+/g, " ").toLowerCase();
+    const want = String(it.de).trim().replace(/\s+/g, " ").toLowerCase();
+    return got === want ? { ok: true, kind: "exact" } : { ok: false, kind: "strict" };
+  }
+
+  const v = checkAnswer(typed, it.de);
+  if (level >= 4 && v.kind === "no-article") return { ok: false, kind: "need-article" };
+  if (v.ok) return v;
+  if (level <= 2 && v.kind === "wrong" &&
+      editDistance(normDE(typed), normDE(it.de), 1) <= 1) {
+    return { ok: true, kind: "typo" };
+  }
+  return v;
+}
 
 function oralItems(n) {
   const l = COURSE[S.day - 1];
   const pool = [];
   l.vocab.forEach(function (v, i) {
-    pool.push({ de: v.d, fr: v.f, p: v.p, id: S.day + ":" + i });
+    pool.push({ de: v.d, fr: v.f, p: v.p, id: S.day + ":" + i, key: "v:" + S.day + ":" + i });
   });
-  l.examples.forEach(function (e) {
-    pool.push({ de: e.d, fr: e.f, p: "", id: null });
+  l.examples.forEach(function (e, i) {
+    pool.push({ de: e.d, fr: e.f, p: "", id: null, key: "p:" + S.day + ":" + i });
   });
   return shuffleIdx(pool.length).slice(0, Math.min(n, pool.length)).map(function (i) {
-    return Object.assign({ task: Math.random() < 0.5 ? "write" : "translate" }, pool[i]);
+    const lvl = oralLevel(pool[i].key);
+    return Object.assign({ level: lvl, task: oralTask(lvl) }, pool[i]);
   });
 }
 
@@ -2064,7 +2139,8 @@ function renderOral() {
     backBar('Accueil'),
     '<div class="stack">',
       '<div class="stack-s">',
-        '<span class="label">L\'oral &#183; ' + (oi + 1) + ' sur ' + oral.length + '</span>',
+        '<span class="label">L\'oral &#183; ' + (oi + 1) + ' sur ' + oral.length +
+          ' &#183; niveau ' + it.level + '/' + ORAL_MAX + '</span>',
         '<div class="meter">' + oral.map(function (_, i) {
           return '<i class="' + (i < oi ? (oral[i].ok ? 'on' : 'err') : '') + '"></i>';
         }).join("") + '</div>',
@@ -2077,7 +2153,11 @@ function renderOral() {
         // data-autosay : la phrase est prononcée dès que l'écran s'affiche.
         '<button class="btn primary" data-say="' + att(it.de) + '" data-autosay="' + att(it.de) + '">&#9654;&nbsp; Réécouter</button>',
         '<div class="tip">' + (it.task === "write"
-          ? 'Écris en allemand ce que tu entends.'
+          ? (it.level >= ORAL_MAX
+              ? 'Écris en allemand, <b>exactement</b> — tréma et ß compris.'
+              : (it.level >= 4
+                  ? 'Écris en allemand, <b>article compris</b>.'
+                  : 'Écris en allemand ce que tu entends.'))
           : 'Écris en français ce que ça veut dire.') + '</div>',
       '</div>',
       '<input class="answer" id="answer" type="text" enterkeyhint="done"',
@@ -2093,11 +2173,20 @@ function renderOral() {
 
   let note;
   if (oralVerdict.kind === "exact")            note = "Exact.";
+  else if (oralVerdict.kind === "typo")        note = "Juste, à une faute de frappe près.";
   else if (oralVerdict.kind === "no-article")  note = "Juste. Pense à l'article : <b>" + esc(it.de) + "</b>.";
+  else if (oralVerdict.kind === "need-article") note = "À ce niveau l'article compte : c'est <b>" + esc(it.de) + "</b>.";
+  else if (oralVerdict.kind === "strict")      note = "Presque — à ce niveau il faut la forme exacte : <b>" + esc(it.de) + "</b>.";
   else if (oralVerdict.kind === "bad-article") note = "Le mot est bon, mais pas le genre : c'est <b>" + esc(it.de) + "</b>.";
   else if (oralVerdict.kind === "dunno")       note = "Pas grave — réécoute-la une fois de plus.";
   else if (oralVerdict.kind === "empty")       note = "Rien d'écrit.";
   else                                         note = "Ce n'était pas ça.";
+
+  // Le déplacement de niveau, dit explicitement : c'est ce qui rend la
+  // progression lisible d'une séance à l'autre.
+  if (it.after > it.level)      note += ' <b>Niveau ' + it.level + ' → ' + it.after + '.</b>';
+  else if (it.after < it.level) note += ' Niveau ' + it.level + ' → ' + it.after + '.';
+  else if (it.after === ORAL_MAX && oralVerdict.ok) note += ' Niveau maximum tenu.';
 
   return head + [
     '<div class="flash">',
@@ -2179,10 +2268,19 @@ view.addEventListener("click", function (e) {
     if (t.dataset.act === "oral-dunno") {
       oralVerdict = { ok: false, kind: "dunno", typed: "" };
     } else {
-      oralVerdict = it.task === "write" ? checkAnswer(raw, it.de) : checkFR(raw, it.fr);
+      oralVerdict = checkOral(raw, it, it.level);
       oralVerdict.typed = raw.trim();
     }
     it.ok = oralVerdict.ok;
+
+    // Niveau à l'oreille : +1 si c'est juste, −1 sinon, comme pour les cartes.
+    it.after = oralVerdict.ok
+      ? Math.min(ORAL_MAX, it.level + 1)
+      : Math.max(1, it.level - 1);
+    if (!S.oral) S.oral = {};
+    S.oral[it.key] = it.after;
+    persist();
+
     // Seuls les mots du vocabulaire ont une fiche ; les phrases n'en ont pas.
     // Comme l'entraînement, l'oral nourrit le journal sans toucher au calendrier.
     if (it.id && S.cards[it.id]) grade(it.id, oralVerdict.ok, false);
@@ -2791,6 +2889,58 @@ function runTests() {
   ok("traduction : la ponctuation est ignorée", checkFR("bonjour !", "Bonjour").ok);
   ok("traduction : un autre mot est refusé", !checkFR("maison", "le mot").ok);
   ok("traduction : une réponse vide est refusée", !checkFR("   ", "le mot").ok);
+  /* Signalé par Exsangue : « la soeur » était compté faux. Le vocabulaire écrit
+     « sœur » avec la ligature, un seul caractère, alors qu'on tape o puis e. */
+  ok("traduction : la ligature œ s'écrit aussi oe", checkFR("la soeur", "la sœur").ok);
+  ok("traduction : et la vraie ligature marche toujours", checkFR("la sœur", "la sœur").ok);
+  ok("traduction : idem dans une phrase entière",
+     checkFR("comment s'appelle ta soeur", "Comment s'appelle ta sœur ?").ok);
+  ok("traduction : la ligature æ aussi", checkFR("un noeud", "un nœud").ok);
+
+  /* Aucun contenu ne doit contenir une ligature sans que la comparaison la gère. */
+  COURSE.forEach(function (l, i) {
+    const textes = l.vocab.map(function (v) { return v.f; })
+      .concat(l.examples.map(function (e) { return e.f; }));
+    ok("jour " + (i + 1) + " : chaque traduction se retrouve en la retapant au clavier",
+       textes.every(function (f) { return checkFR(normFR(f), f).ok; }));
+  });
+
+  /* --- Niveaux à l'oreille --- */
+  eq("oral : au niveau 1, on traduit", oralTask(1), "translate");
+  eq("oral : au niveau 3, on écrit en allemand", oralTask(3), "write");
+  eq("oral : au niveau 5 aussi", oralTask(5), "write");
+  ok("oral : le niveau 2 mélange les deux consignes",
+     (function () {
+       let w = false, t = false;
+       for (let k = 0; k < 60; k++) {
+         if (oralTask(2) === "write") w = true; else t = true;
+       }
+       return w && t;
+     })());
+
+  eq("distance : deux mots identiques sont à 0", editDistance("hallo", "hallo", 2), 0);
+  eq("distance : une lettre changée vaut 1", editDistance("hallo", "hallu", 2), 1);
+  eq("distance : au-delà du plafond, on ne calcule plus", editDistance("hallo", "guten tag", 2), 3);
+
+  const itFR = { task: "translate", de: "die Schwester", fr: "la sœur" };
+  ok("oral niveau 1 : une faute de frappe est pardonnée",
+     checkOral("la soeurr", itFR, 1).ok);
+  eq("oral niveau 1 : et c'est dit comme tel", checkOral("la soeurr", itFR, 1).kind, "typo");
+  ok("oral niveau 3 : la même faute ne passe plus",
+     !checkOral("la soeurr", { task: "translate", de: "x", fr: "la sœur" }, 3).ok);
+
+  const itDE = { task: "write", de: "das Wort", fr: "le mot" };
+  ok("oral niveau 3 : l'article reste facultatif", checkOral("Wort", itDE, 3).ok);
+  ok("oral niveau 4 : l'article devient obligatoire", !checkOral("Wort", itDE, 4).ok);
+  eq("oral niveau 4 : et on explique pourquoi", checkOral("Wort", itDE, 4).kind, "need-article");
+  ok("oral niveau 4 : avec l'article, c'est bon", checkOral("das Wort", itDE, 4).ok);
+
+  const itU = { task: "write", de: "Tschüss", fr: "salut" };
+  ok("oral niveau 3 : ue remplace ü", checkOral("Tschuess", itU, 3).ok);
+  ok("oral niveau 5 : le vrai tréma est exigé", !checkOral("Tschuess", itU, 5).ok);
+  eq("oral niveau 5 : et c'est nommé", checkOral("Tschuess", itU, 5).kind, "strict");
+  ok("oral niveau 5 : la forme exacte passe", checkOral("Tschüss", itU, 5).ok);
+  ok("oral niveau 5 : la casse reste libre", checkOral("tschüss", itU, 5).ok);
 
   /* Sans voix installée, le mode doit se justifier au lieu d'être muet. */
   const keepVoice = TTS.voice;
@@ -2850,16 +3000,50 @@ function runTests() {
        }
        return false;
      })());
-  ok("oral : les deux consignes sortent l'une et l'autre",
+  ok("oral : tout part au niveau 1, donc en traduction",
+     oralItems(ORAL_SIZE).every(function (x) { return x.level === 1 && x.task === "translate"; }));
+
+  /* Une fois monté, le même contenu se demande en allemand. */
+  S = fresh(); S.day = 1; seed(1);
+  // Tout le vivier, pas seulement un tirage : oralItems en choisit 8 au hasard.
+  COURSE[0].vocab.forEach(function (_, i) { S.oral["v:1:" + i] = 3; });
+  COURSE[0].examples.forEach(function (_, i) { S.oral["p:1:" + i] = 3; });
+  ok("oral : à partir du niveau 3, tout se demande en allemand",
+     oralItems(ORAL_SIZE).every(function (x) { return x.level === 3 && x.task === "write"; }));
+
+  /* Le niveau monte, descend, et se garde d'une séance à l'autre. */
+  S = fresh(); S.day = 1; seed(1);
+  go("oral");
+  const k0 = oral[0].key;
+  eq("oral : un contenu neuf démarre au niveau 1", oral[0].level, 1);
+  document.getElementById("answer").value = oral[0].fr;
+  view.querySelector('[data-act="oral-check"]').click();
+  eq("oral : une réussite fait monter d'un niveau", S.oral[k0], 2);
+  ok("oral : la montée est annoncée à l'écran", view.innerHTML.indexOf("Niveau 1 &rarr; 2") !== -1 ||
+     view.innerHTML.indexOf("Niveau 1 → 2") !== -1);
+  view.querySelector('[data-act="oral-next"]').click();
+
+  S = fresh(); S.day = 1; seed(1);
+  go("oral");
+  const k1 = oral[0].key;
+  S.oral[k1] = 4; oral[0].level = 4; oral[0].task = "write";
+  oralVerdict = null; show(renderOral());
+  view.querySelector('[data-act="oral-dunno"]').click();
+  eq("oral : un échec fait redescendre d'un niveau", S.oral[k1], 3);
+
+  S = fresh(); S.day = 1; seed(1);
+  go("oral");
+  const k2 = oral[0].key;
+  S.oral[k2] = 1; oral[0].level = 1;
+  oralVerdict = null; show(renderOral());
+  view.querySelector('[data-act="oral-dunno"]').click();
+  eq("oral : le niveau ne descend jamais sous 1", S.oral[k2], 1);
+
+  ok("oral : le niveau est affiché pendant l'exercice",
      (function () {
-       let w = false, t = false;
-       for (let k = 0; k < 30; k++) {
-         oralItems(ORAL_SIZE).forEach(function (x) {
-           if (x.task === "write") w = true;
-           if (x.task === "translate") t = true;
-         });
-       }
-       return w && t;
+       S = fresh(); S.day = 1; seed(1);
+       go("oral");
+       return view.innerHTML.indexOf("niveau 1/" + ORAL_MAX) !== -1;
      })());
 
   TTS.voice = keepVoice;
