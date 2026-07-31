@@ -36,6 +36,27 @@ Compter 10 à 15 minutes. La série en haut à droite compte les jours d'affilé
 Rien ne t'oblige à t'arrêter : si tu as le temps, enchaîne sur le jour suivant ou lance un
 entraînement. Et si tu sautes un jour, rien n'est perdu — seule la série repart de 1.
 
+### Comment un mot progresse
+
+Chaque mot a un niveau, de 1 à 5. Bonne réponse : **+1**. Réponse ratée : **−1**, jamais la
+chute complète — perdre quinze jours de travail sur un mot hésitant décourage plus que ça
+n'apprend.
+
+| Niveau | Prochaine révision | Ce qu'on te demande |
+|---|---|---|
+| 1 | le jour même | reconnaître |
+| 2 | le jour même | reconnaître |
+| 3 | le lendemain | **écrire** |
+| 4 | dans 4 jours | **écrire** |
+| 5 | dans 16 jours | **écrire** |
+
+Les niveaux 1 et 2 se franchissent **dans la même séance** : un mot nouveau repasse deux
+fois, monte au niveau 3, et t'est alors demandé **à écrire le jour même**. Autrement dit un
+mot découvert aujourd'hui est déjà écrit aujourd'hui — c'est là qu'il rentre vraiment.
+
+Compte donc une trentaine de cartes le premier jour d'une leçon (une dizaine de mots, trois
+passages chacun). Les jours suivants sont beaucoup plus courts.
+
 ### Écrire les mots
 
 Tant qu'un mot est neuf (niveaux 1 et 2), la carte te le montre en allemand et tu te testes

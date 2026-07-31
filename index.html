@@ -1247,7 +1247,11 @@ const TOTAL_PLANNED = 30; // objectif du cours complet
    2. L'ÉTAT
    =============================================================== */
 const KEY = "deutsch-taeglich-v1";
-const INTERVALS = { 1: 0, 2: 2, 3: 4, 4: 8, 5: 16 }; // méthode Leitner, en jours
+/* Espacement des révisions, en jours.
+   Les niveaux 1 et 2 valent 0 : ce sont des étapes d'apprentissage, elles se
+   franchissent dans la même séance. Le vrai espacement commence au niveau 3 —
+   celui où le mot ne se reconnaît plus mais s'écrit. */
+const INTERVALS = { 1: 0, 2: 0, 3: 1, 4: 4, 5: 16 };
 
 let storageOK = true;
 let S = load();
@@ -1364,9 +1368,10 @@ function grade(id, ok, schedule) {
   if (ok) c.hit = (c.hit || 0) + 1;
   else    c.miss = (c.miss || 0) + 1;
   if (schedule !== false) {
-    // Bonne réponse : on monte d'un cran, la carte revient plus tard.
-    // Ratée : retour à la case 1, donc due aujourd'hui (INTERVALS[1] vaut 0).
-    c.box = ok ? Math.min(5, c.box + 1) : 1;
+    // Bonne réponse : un cran de plus. Ratée : un cran de moins, jamais la
+    // chute complète — perdre quinze jours de travail sur un mot hésitant
+    // décourage plus que ça n'apprend.
+    c.box = ok ? Math.min(5, c.box + 1) : Math.max(1, c.box - 1);
     c.due = shift(today(), INTERVALS[c.box]);
   }
   persist();
@@ -1716,8 +1721,11 @@ function checkAnswer(typed, expected) {
    - l'entraînement libre, qui n'y touche pas — pour pouvoir travailler
      plus un jour où on a le temps, sans dérégler l'espacement. */
 let deck = [], pos = 0, revealed = false, training = false, deckCap = 0, verdict = null;
+let passes = {};   // combien de fois chaque mot est déjà passé dans CETTE séance
 
 const PRACTICE_SIZE = 10;
+/* Un même mot ne repasse pas indéfiniment dans une séance, même en le ratant. */
+const MAX_PASSES = 5;
 /* À partir de ce niveau, le mot ne se reconnaît plus : il s'écrit.
    En dessous, il vient d'être vu — le redemander de mémoire serait punitif. */
 const WRITE_FROM_BOX = 3;
@@ -1728,9 +1736,10 @@ function startDeck(cards, isTraining) {
   revealed = false;
   verdict = null;
   training = isTraining;
-  // Chaque mot raté réinjecte deux cartes : sans plafond, une mauvaise
-  // session n'aurait pas de fin.
-  deckCap = cards.length * 2 + 6;
+  passes = {};
+  // Les mots repassent dans la séance — pour monter de niveau, ou parce
+  // qu'ils ont été ratés. Sans plafond, une mauvaise séance n'aurait pas de fin.
+  deckCap = cards.length * 4 + 8;
   return renderCard();
 }
 function cardsView()    { return startDeck(dueCards(), false); }
@@ -1743,7 +1752,7 @@ function renderCard() {
     let msg;
     if (n === 0) msg = 'Aucun mot à réviser pour l\'instant. Fais une leçon pour en apprendre de nouveaux.';
     else if (training) msg = 'Entraînement : le calendrier de révision n\'a pas bougé, mais tes erreurs sont notées.';
-    else msg = 'Les mots sus reviendront plus tard, les ratés dès demain.';
+    else msg = 'Les mots sus s\'espacent, les mots hésitants redescendent d\'un niveau.';
 
     return [
       backBar('Accueil'),
@@ -1757,6 +1766,7 @@ function renderCard() {
 
   const c = deck[pos];
   const st = S.cards[c.id];
+  const left = deck.length - pos - 1;
   const tag = training
     ? (st.miss ? 'entraînement &#183; raté ' + st.miss + ' fois' : 'entraînement')
     : 'niveau ' + st.box + '/5';
@@ -1765,7 +1775,10 @@ function renderCard() {
     backBar('Accueil'),
     '<div class="stack">',
       '<div class="stack-s">',
-        '<span class="label">Carte ' + (pos + 1) + ' sur ' + deck.length + ' &#183; jour ' + c.day + ' &#183; ' + tag + '</span>',
+        // Pas de total : il grandit en cours de route, puisqu'un mot qui monte
+        // de niveau repasse dans la séance. « Encore N » ne ment jamais.
+        '<span class="label">' + (left > 0 ? 'Encore ' + left : 'Dernière carte') +
+          ' &#183; jour ' + c.day + ' &#183; ' + tag + '</span>',
         '<div class="meter">' + deck.map(function (_, i) { return '<i class="' + (i < pos ? 'on' : '') + '"></i>'; }).join("") + '</div>',
       '</div>',
 
@@ -1836,11 +1849,22 @@ function writeBody(c) {
 function advanceCard(ok) {
   const cur = deck[pos];
   grade(cur.id, ok, !training);
-  if (!ok && deck.length < deckCap) {
+
+  passes[cur.id] = (passes[cur.id] || 0) + 1;
+  const room = deck.length < deckCap && passes[cur.id] < MAX_PASSES;
+
+  if (room && !ok) {
     deck.push(cur);                       // le mot raté repasse en fin de paquet
     const easy = pickEasy(cur.id);        // accompagné d'un mot déjà su, pour ne pas
     if (easy) deck.push(easy);            // terminer en boucle sur ses seules erreurs
+  } else if (room && !training && S.cards[cur.id].box <= WRITE_FROM_BOX) {
+    // Étapes d'apprentissage : le mot repasse dans la même séance pour monter
+    // d'un cran. Le seuil est « <= » et non « < » : un mot qui vient d'atteindre
+    // le niveau où il s'écrit doit être écrit AU MOINS UNE FOIS le jour même,
+    // sinon le monter n'aurait rien appris.
+    deck.push(cur);
   }
+
   pos++; revealed = false; verdict = null;
   show(renderCard());
 }
@@ -2149,18 +2173,30 @@ function runTests() {
 
   grade(id, true);
   eq("bonne réponse : passe au niveau 2", S.cards[id].box, 2);
-  eq("bonne réponse : revient dans 2 jours", S.cards[id].due, shift(today(), 2));
+  eq("niveau 2 : encore une étape d'apprentissage, donc le même jour", S.cards[id].due, today());
+  eq("elle reste donc dans le paquet du jour", dueCards().length, COURSE[0].vocab.length);
+
+  grade(id, true);
+  eq("bonne réponse : niveau 3, celui où le mot s'écrit", S.cards[id].box, 3);
+  eq("niveau 3 : le vrai espacement commence, révision demain", S.cards[id].due, shift(today(), 1));
   eq("une carte repoussée sort du paquet du jour", dueCards().length, COURSE[0].vocab.length - 1);
 
-  grade(id, true); grade(id, true); grade(id, true);
+  grade(id, true);
+  eq("niveau 4 : dans 4 jours", S.cards[id].due, shift(today(), 4));
+  grade(id, true);
   eq("quatre bonnes réponses : niveau 5", S.cards[id].box, 5);
   eq("niveau 5 : revient dans 16 jours", S.cards[id].due, shift(today(), 16));
   grade(id, true);
   eq("le niveau ne dépasse jamais 5", S.cards[id].box, 5);
 
   grade(id, false);
-  eq("carte ratée : retombe au niveau 1", S.cards[id].box, 1);
-  eq("carte ratée : à revoir aujourd'hui", S.cards[id].due, today());
+  eq("carte ratée : un seul niveau perdu, pas la chute complète", S.cards[id].box, 4);
+  eq("carte ratée : et l'espacement du niveau 4", S.cards[id].due, shift(today(), 4));
+  grade(id, false); grade(id, false);
+  eq("carte ratée trois fois : elle redescend niveau par niveau", S.cards[id].box, 2);
+  eq("redescendue en étape d'apprentissage : à revoir aujourd'hui", S.cards[id].due, today());
+  grade(id, false);
+  eq("le niveau ne descend jamais sous 1", S.cards[id].box, 1);
 
   /* --- D. La série --- */
   S = fresh();
@@ -2341,7 +2377,7 @@ function runTests() {
   const sizeBefore = deck.length;
   view.querySelector('[data-grade="0"]').click();
   eq("cartes : une carte ratée est remise dans le paquet", deck.length, sizeBefore + 1);
-  eq("cartes : et elle retombe au niveau 1", S.cards[firstId].box, 1);
+  eq("cartes : au niveau 1, elle ne peut pas descendre plus bas", S.cards[firstId].box, 1);
 
   /* --- L. Le journal des erreurs --- */
   S = fresh(); S.day = 1; seed(1);
@@ -2497,7 +2533,7 @@ function runTests() {
   ok("saisie : et c'est compté comme raté", !!view.querySelector(".why.bad"));
   view.querySelector('[data-act="card-next"]').click();
   eq("saisie : l'erreur est notée au journal", S.cards[wid2].miss, 1);
-  eq("saisie : le mot retombe au niveau 1", S.cards[wid2].box, 1);
+  eq("saisie : le mot redescend d'un niveau", S.cards[wid2].box, WRITE_FROM_BOX - 1);
 
   const wid3 = soloCard(WRITE_FROM_BOX);
   go("cards");
@@ -2506,7 +2542,7 @@ function runTests() {
   ok("saisie : une mauvaise réponse est refusée", !!view.querySelector(".why.bad"));
   ok("saisie : ce qu'on a écrit est rappelé", view.innerHTML.indexOf("Tu as écrit") !== -1);
   view.querySelector('[data-act="card-next"]').click();
-  eq("saisie : le mot rate et retombe", S.cards[wid3].box, 1);
+  eq("saisie : une mauvaise réponse fait redescendre d'un niveau", S.cards[wid3].box, WRITE_FROM_BOX - 1);
 
   /* En dessous du seuil, on garde la reconnaissance. */
   const wid4 = soloCard(WRITE_FROM_BOX - 1);
@@ -2514,6 +2550,57 @@ function runTests() {
   ok("saisie : un mot pas encore acquis ne demande pas d'écrire", !view.querySelector("#answer"));
   ok("saisie : il garde le bouton « Révéler »", !!view.querySelector('[data-act="reveal"]'));
   eq("saisie : et c'est l'allemand qui est montré", view.querySelector(".flash .front").textContent, cardById(wid4).d);
+
+  /* --- R. Monter au niveau 3 dans la même séance --- */
+  S = fresh(); S.day = 1; seed(1);
+  const climbId = Object.keys(S.cards)[0];
+  Object.keys(S.cards).forEach(function (k) {
+    if (k !== climbId) S.cards[k].due = shift(today(), 5);   // un seul mot en jeu
+  });
+  go("cards");
+  eq("montée : on démarre avec un seul mot, au niveau 1", S.cards[climbId].box, 1);
+
+  /* Trois bonnes réponses d'affilée sans quitter l'écran. */
+  let seenWrite = false;
+  for (let k = 0; k < 6 && pos < deck.length; k++) {
+    if (view.querySelector("#answer")) {
+      seenWrite = true;
+      document.getElementById("answer").value = cardById(climbId).d;
+      view.querySelector('[data-act="check-word"]').click();
+      view.querySelector('[data-act="card-next"]').click();
+    } else {
+      view.querySelector('[data-act="reveal"]').click();
+      view.querySelector('[data-grade="1"]').click();
+    }
+  }
+  ok("montée : le mot est repassé dans la séance au lieu de disparaître", seenWrite,
+     "niveau atteint : " + S.cards[climbId].box);
+  ok("montée : il a dépassé le niveau où l'on écrit", S.cards[climbId].box > WRITE_FROM_BOX,
+     "niveau " + S.cards[climbId].box);
+  ok("montée : et tout ça le jour même", S.cards[climbId].due > today());
+
+  /* Un mot déjà acquis, lui, ne repasse pas : il sort de la séance. */
+  S = fresh(); S.day = 1; seed(1);
+  const doneId = Object.keys(S.cards)[0];
+  Object.keys(S.cards).forEach(function (k) {
+    if (k !== doneId) S.cards[k].due = shift(today(), 5);
+  });
+  S.cards[doneId].box = WRITE_FROM_BOX;
+  go("cards");
+  eq("montée : un mot au niveau 3 est seul dans le paquet", deck.length, 1);
+  document.getElementById("answer").value = cardById(doneId).d;
+  view.querySelector('[data-act="check-word"]').click();
+  view.querySelector('[data-act="card-next"]').click();
+  eq("montée : réussi, il quitte la séance sans repasser", deck.length, 1);
+  ok("montée : la séance est terminée", pos >= deck.length);
+
+  /* L'entraînement libre ne fait pas monter, donc ne doit pas boucler. */
+  S = fresh(); S.day = 1; seed(1);
+  go("practice");
+  const beforeTraining = deck.length;
+  view.querySelector('[data-act="reveal"]').click();
+  view.querySelector('[data-grade="1"]').click();
+  eq("entraînement : une bonne réponse ne réinjecte pas le mot", deck.length, beforeTraining);
 
   /* --- P. Robustesse --- */
   ok("sécurité : le HTML des contenus est échappé", esc("<b>&</b>") === "&lt;b&gt;&amp;&lt;/b&gt;");

@@ -44,6 +44,18 @@ Rangés par lot, pas par ordre d'importance : le lot 1 est le plus rentable à l
       travaille les vraies fautes.
 - [x] Auto-test : **279 vérifications**.
 
+## Rythme de progression ✅ revu le 01/08/2026
+
+- [x] **Monter au niveau 3 dans la même journée.** Les niveaux 1 et 2 ont un intervalle de
+      0 jour : ce sont des étapes d'apprentissage, le mot repasse dans la séance jusqu'à
+      être **écrit le jour même**. Nouveaux intervalles : 0 / 0 / 1 / 4 / 16 jours.
+- [x] **Un mot raté perd un niveau au lieu de tout perdre** (`max(1, box - 1)`).
+- [x] Garde-fous : `MAX_PASSES` (un mot ne repasse pas plus de 5 fois par séance) et
+      `deckCap`, sinon une mauvaise séance n'aurait pas de fin.
+- [x] Le compteur « carte 3 sur 10 » devenait faux (le total grandit en séance) →
+      remplacé par « Encore N ».
+- [x] Auto-test : **328 vérifications**.
+
 ## Lot 3 — à discuter avant d'attaquer
 
 - [ ] **Éviter les suites logiques.** un-deux-trois, les jours de la semaine… ne doivent pas
