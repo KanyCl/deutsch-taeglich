@@ -2063,11 +2063,17 @@ function checkOral(typed, it, level) {
   }
 
   if (level >= ORAL_MAX) {
-    // Dernier niveau : la forme exacte. Seule la casse reste libre — le
-    // téléphone met une majuscule tout seul, ce n'est pas une faute de l'élève.
-    const got  = String(typed).trim().replace(/\s+/g, " ").toLowerCase();
-    const want = String(it.de).trim().replace(/\s+/g, " ").toLowerCase();
-    return got === want ? { ok: true, kind: "exact" } : { ok: false, kind: "strict" };
+    // Dernier niveau : les tréma et le ß sont exigés, plus de ae ni de ss.
+    // Restent libres deux choses qui NE S'ENTENDENT PAS et qu'il serait donc
+    // absurde de sanctionner dans un exercice d'écoute : la ponctuation, et
+    // la casse — que le téléphone impose de toute façon tout seul.
+    const bare = function (s) {
+      return String(s).toLowerCase()
+        .replace(/[.,!?;:'’"()\[\]-]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    };
+    return bare(typed) === bare(it.de) ? { ok: true, kind: "exact" } : { ok: false, kind: "strict" };
   }
 
   const v = checkAnswer(typed, it.de);
@@ -2941,6 +2947,31 @@ function runTests() {
   eq("oral niveau 5 : et c'est nommé", checkOral("Tschuess", itU, 5).kind, "strict");
   ok("oral niveau 5 : la forme exacte passe", checkOral("Tschüss", itU, 5).ok);
   ok("oral niveau 5 : la casse reste libre", checkOral("tschüss", itU, 5).ok);
+
+  /* Signalé par Exsangue : un point oublié comptait faux. La ponctuation ne
+     s'entend pas — la sanctionner dans un exercice d'écoute n'a aucun sens. */
+  const itPh = { task: "write", de: "Guten Tag!", fr: "Bonjour" };
+  ok("oral : un point final oublié ne compte pas faux (niveau 3)",
+     checkOral("Guten Tag", itPh, 3).ok);
+  ok("oral : ni au niveau 4", checkOral("Guten Tag", itPh, 4).ok);
+  ok("oral : ni même au niveau 5, le plus strict",
+     checkOral("Guten Tag", itPh, 5).ok);
+  ok("oral : la ponctuation en trop ne gêne pas non plus",
+     checkOral("Guten Tag !!", itPh, 5).ok);
+  ok("oral : mais au niveau 5 le tréma reste exigé",
+     !checkOral("Tschuess", itU, 5).ok);
+  ok("traduction : un point oublié en français non plus",
+     checkFR("Comment s'appelle ta soeur", "Comment s'appelle ta sœur ?").ok);
+
+  /* Toute phrase du cours doit être acceptée quand on la retape sans sa
+     ponctuation finale — c'est exactement ce qu'on fait sous la dictée. */
+  COURSE.forEach(function (l, i) {
+    ok("jour " + (i + 1) + " : chaque phrase passe même sans sa ponctuation",
+       l.examples.every(function (e) {
+         const nu = String(e.d).replace(/[.!?]+\s*$/, "");
+         return checkOral(nu, { task: "write", de: e.d, fr: e.f }, ORAL_MAX).ok;
+       }));
+  });
 
   /* Sans voix installée, le mode doit se justifier au lieu d'être muet. */
   const keepVoice = TTS.voice;
