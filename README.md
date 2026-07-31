@@ -104,6 +104,9 @@ La correction est tolérante sur la forme et stricte sur le mot :
 - la **casse** est ignorée (le téléphone met des majuscules tout seul de toute façon)
 - `ae` vaut `ä`, `oe` vaut `ö`, `ue` vaut `ü`, `ss` vaut `ß` — pratique sans clavier allemand
 - **l'article oublié passe**, avec un rappel de la forme complète
+- ce qui est **entre parenthèses n'est jamais à taper** : pour
+  `sprechen (du sprichst)`, écrire `sprechen` suffit. La parenthèse est une note qui te
+  montre l'irrégularité du verbe, pas une question qu'on te pose
 - **le mauvais article compte comme une erreur** : le genre est ce qui s'apprend le plus mal
   tout seul, autant le travailler
 

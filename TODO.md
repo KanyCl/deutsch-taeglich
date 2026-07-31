@@ -75,7 +75,15 @@ Rangés par lot, pas par ordre d'importance : le lot 1 est le plus rentable à l
 - [x] **Bug corrigé : « la soeur » comptait faux.** Le contenu écrit `sœur` avec la
       ligature (un seul caractère) ; on tape `o` puis `e`. `normFR` les rapproche
       maintenant. Une vérification retape chaque traduction des 12 jours au clavier.
-- [x] Auto-test : **396 vérifications**.
+- [x] **Bug corrigé : un point oublié comptait faux** au niveau 5. La ponctuation ne
+      s'entend pas, elle n'est plus jamais exigée.
+- [x] **Bug corrigé : « sprechen » refusé** parce que le contenu dit
+      `sprechen (du sprichst)`. Les parenthèses sont des notes pédagogiques, jamais des
+      réponses à taper — 13 verbes concernés. Les deux écritures passent désormais.
+- [x] Trois garanties posées sur **tout le cours**, pas seulement sur les cas signalés :
+      chaque traduction retapée au clavier, chaque phrase sans sa ponctuation, chaque mot
+      sans sa note entre parenthèses.
+- [x] Auto-test : **430 vérifications**.
 
 ## Lot 3 — à discuter avant d'attaquer
 

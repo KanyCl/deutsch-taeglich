@@ -1710,15 +1710,27 @@ function splitArticle(norm) {
   return { art: null, rest: norm };
 }
 
+/* Ce qui est entre parenthèses dans le vocabulaire est une NOTE — la forme
+   irrégulière d'un verbe, « sprechen (du sprichst) » — pas une partie de la
+   réponse. On ne l'a jamais demandée, on ne peut pas l'exiger. Les deux
+   formes sont acceptées : « sprechen » comme « sprechen du sprichst ». */
+function deCore(s) {
+  return normDE(String(s).replace(/\([^)]*\)/g, " "));
+}
+
 /* Renvoie { ok, kind }. Le genre compte : oublier l'article passe, en
    mettre un faux non — c'est justement ce qui s'apprend mal tout seul. */
 function checkAnswer(typed, expected) {
-  const t = normDE(typed), e = normDE(expected);
+  const t = normDE(typed);
   if (!t) return { ok: false, kind: "empty" };
-  if (t === e) return { ok: true, kind: "exact" };
 
-  const ts = splitArticle(t), es = splitArticle(e);
-  if (ts.rest === es.rest) {
+  const targets = [normDE(expected), deCore(expected)];
+  if (targets.indexOf(t) !== -1) return { ok: true, kind: "exact" };
+
+  const ts = splitArticle(t);
+  for (let i = 0; i < targets.length; i++) {
+    const es = splitArticle(targets[i]);
+    if (ts.rest !== es.rest) continue;
     if (es.art && !ts.art) return { ok: true, kind: "no-article" };
     if (es.art && ts.art)  return { ok: false, kind: "bad-article" };
     return { ok: true, kind: "exact" };
@@ -2073,7 +2085,12 @@ function checkOral(typed, it, level) {
         .replace(/\s+/g, " ")
         .trim();
     };
-    return bare(typed) === bare(it.de) ? { ok: true, kind: "exact" } : { ok: false, kind: "strict" };
+    // Avec ou sans la note entre parenthèses : elle n'a jamais été demandée.
+    const sansNote = bare(String(it.de).replace(/\([^)]*\)/g, " "));
+    const got = bare(typed);
+    return (got === bare(it.de) || got === sansNote)
+      ? { ok: true, kind: "exact" }
+      : { ok: false, kind: "strict" };
   }
 
   const v = checkAnswer(typed, it.de);
@@ -2780,6 +2797,27 @@ function runTests() {
   ok("saisie : le bon genre passe", checkAnswer("das Wort", "das Wort").ok);
   ok("saisie : un autre mot est une erreur", !checkAnswer("Haus", "das Wort").ok);
   ok("saisie : une réponse vide est une erreur", !checkAnswer("   ", "Hallo").ok);
+
+  /* Signalé par Exsangue : « sprechen » était refusé parce que le vocabulaire
+     dit « sprechen (du sprichst) ». La parenthèse est une note, pas la réponse. */
+  ok("saisie : la note entre parenthèses n'est pas à taper",
+     checkAnswer("sprechen", "sprechen (du sprichst)").ok);
+  ok("saisie : mais la taper en entier passe aussi",
+     checkAnswer("sprechen du sprichst", "sprechen (du sprichst)").ok);
+  ok("saisie : parenthèses comprises également",
+     checkAnswer("sprechen (du sprichst)", "sprechen (du sprichst)").ok);
+  ok("saisie : un autre verbe reste faux",
+     !checkAnswer("laufen", "sprechen (du sprichst)").ok);
+
+  /* Garantie sur tout le cours, à tous les niveaux : le mot seul suffit. */
+  COURSE.forEach(function (l, i) {
+    ok("jour " + (i + 1) + " : chaque mot s'écrit sans sa note entre parenthèses",
+       l.vocab.every(function (v) {
+         const seul = String(v.d).replace(/\([^)]*\)/g, " ").replace(/\s+/g, " ").trim();
+         return checkAnswer(seul, v.d).ok &&
+                checkOral(seul, { task: "write", de: v.d, fr: v.f }, ORAL_MAX).ok;
+       }));
+  });
   eq("saisie : la réponse vide est signalée à part", checkAnswer("", "Hallo").kind, "empty");
 
   /* Un seul mot dû, monté au niveau 3 : il doit passer en mode écriture. */
