@@ -5,11 +5,22 @@ Niveau A1 — 12 jours écrits sur 30 prévus.
 
 ## Utiliser l'app
 
-**Sur le téléphone** — ouvrir l'adresse publiée, puis dans le menu du navigateur :
-*Ajouter à l'écran d'accueil*. Elle s'ouvre ensuite comme une vraie app, avec son icône.
-L'adresse est privée : il faut être connecté au compte Claude qui l'a publiée.
+**L'adresse :** https://kanycl.github.io/deutsch-taeglich/
 
-**Sur l'ordinateur** — double-cliquer sur `index.html`.
+**Sur le téléphone** — ouvrir cette adresse, puis dans le menu de partage du navigateur :
+*Ajouter à l'écran d'accueil*. Elle s'ouvre ensuite comme une vraie app, plein écran,
+avec son icône.
+
+> **iPhone — une seule porte d'entrée.** Une fois l'app ajoutée à l'écran d'accueil, iOS
+> lui donne une mémoire **séparée** de celle de Safari. Passe toujours par l'icône, sinon
+> tu te retrouveras avec deux progressions différentes sans comprendre pourquoi.
+
+**Sur l'ordinateur** — double-cliquer sur `index.html`, ou ouvrir la même adresse.
+Attention : le fichier local et le site en ligne ont chacun leur progression.
+
+L'adresse est publique — n'importe qui la connaissant peut ouvrir l'app. Il n'y a rien de
+sensible dedans : **ta progression ne quitte jamais ton appareil**, elle n'est envoyée
+à aucun serveur.
 
 ## Chaque jour
 

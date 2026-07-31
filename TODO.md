@@ -17,11 +17,14 @@ Rangés par lot, pas par ordre d'importance : le lot 1 est le plus rentable à l
       lieu d'être écrit en dur.
 - [x] Auto-test passé de 240 à **256 vérifications**, dont le mélange lui-même.
 
-## Lot 1 bis — bloquant, remonté après coup
+## Lot 1 bis — bloquant, remonté après coup ✅ corrigé le 31/07/2026
 
-- [ ] **La progression ne survit pas sur iPhone** — retour à 0 leçon. À diagnostiquer :
-      selon la façon d'ouvrir l'app (adresse publiée vs fichier local), iOS peut refuser
-      le stockage local. L'app affiche alors un avertissement (`index.html:1399`).
+- [x] **La progression ne survivait pas sur iPhone.** iOS refuse le stockage local à une
+      page affichée dans le cadre d'un autre site. L'app est devenue une page autonome
+      hébergée à sa propre adresse : https://kanycl.github.io/deutsch-taeglich/
+      Zéro ligne de logique modifiée.
+- [ ] **À confirmer par Exsangue** : ouvrir la nouvelle adresse sur l'iPhone, l'ajouter à
+      l'écran d'accueil, faire une leçon, fermer, rouvrir → la progression doit tenir.
 
 ## Lot 2 — le système de révision
 

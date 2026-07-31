@@ -30,7 +30,8 @@ Une « série » (streak) compte les jours consécutifs de travail.
 | Un seul fichier `index.html` | Zéro build, zéro dépendance, zéro `npm install`. Le fichier s'ouvre tel quel et se publie tel quel. |
 | Contenu écrit à la main dans `COURSE` | Pas de base de données ni d'API à maintenir. Ajouter un jour = ajouter un objet au tableau. |
 | Progression dans `localStorage` | Suffisant pour un usage mono-appareil. Sauvegarde/restauration JSON pour ne rien perdre. |
-| Pas de `<!doctype>` ni de `<html>` dans le fichier | Le format Artifact enveloppe le fichier lui-même. En ajouter produirait du HTML imbriqué. |
+| ~~Pas de `<!doctype>` ni de `<html>` dans le fichier~~ — **abandonné le 31/07/2026** | Valait tant que l'app était publiée en Artifact, où le format enveloppe le fichier. Mais ce mode d'affichage (dans un cadre sur claude.ai) empêchait iOS de sauvegarder la progression. Le fichier est donc une page HTML complète, hébergée seule. |
+| Hébergement sur GitHub Pages | Gratuit, adresse propre (indispensable pour le stockage iOS), et le dépôt git sert aussi d'historique. Dépôt public : c'est la contrepartie du gratuit, sans conséquence ici. |
 | **Leçons en étapes plutôt qu'en prose** (v2) | Retour utilisateur direct : « des leçons plus simplifiées que juste devoir lire sans forcément comprendre ». Un mur de texte se survole ; une mini-question obligatoire ne se survole pas. |
 | **Mot à mot systématique** (v2) | Un débutant lit une phrase allemande sans savoir quel mot porte quel sens. L'alignement mot par mot rend la mécanique visible. |
 | **Audio par `SpeechSynthesis`** (v2) | Zéro fichier à héberger, zéro poids. Les boutons restent masqués si aucune voix `de-*` n'existe sur l'appareil — mieux vaut rien qu'un bouton muet. |
@@ -57,9 +58,12 @@ Deux pièges du harnais, à ne pas re-découvrir :
   Voir `TODO.md` — issu d'un usage réel, 9 retours dont 3 traités.
 - ✅ Vérifiée : 256 tests au vert, écrans relus en clair et sombre à 390 px.
 - ✅ Confirmée utilisable par l'utilisateur (ouverture locale sur le PC).
-- ❌ **Inutilisable sur iPhone : la progression repart à zéro.** Cause probable : la page
-  publiée tourne dans un cadre inséré dans claude.ai, et iOS refuse le stockage local
-  dans ce cas. Le fichier ouvert depuis sa propre adresse n'aurait pas le problème.
+- 🔄 **Progression perdue sur iPhone — corrigé, reste à confirmer par l'usage.**
+  Cause : la page publiée tournait dans un cadre inséré dans claude.ai, et iOS refuse
+  le stockage local à une page affichée dans le cadre d'un autre site (protection
+  anti-pistage). Correctif : le fichier est devenu une page autonome, hébergée à sa
+  propre adresse sur GitHub Pages → https://kanycl.github.io/deutsch-taeglich/
+  Aucune ligne de logique changée : c'était un problème d'hébergement, pas de code.
 - ⛔ **Un dialogue avec une IA est impossible dans la page publiée.** Vérifié le 31/07/2026 :
   une page publiée ne dispose que de `downloads` (proposer un fichier à enregistrer) et
   `mcp` (appeler les connecteurs du lecteur). Aucun accès à un modèle. Un vrai dialogue
