@@ -6,9 +6,30 @@ Une application web personnelle pour apprendre l'allemand un peu chaque jour.
 Usage strictement privé (Exsangue, un seul utilisateur). Pas de compte, pas de serveur,
 pas de publication sur un store.
 
-Inspirée dans sa **structure** du livre *Apprendre l'allemand en 30 jours*
-(Werner Dubois & Álvaro García Noble) — progression jour par jour. Le livre est possédé
-en **papier** : le contenu de l'app est rédigé indépendamment, il n'en reproduit pas le texte.
+Adossée au livre papier d'Exsangue : **Werner Dubois & Alvaro Garcia Noble, © 2025,
+tous droits réservés**, 280 pages.
+
+⚠️ **Le titre « Apprendre l'allemand en 30 jours » noté ici jusqu'au 01/08/2026 était faux.**
+Photos du livre reçues le 01/08/2026 : il n'y a aucune notion de « jour ». Structure réelle :
+
+```
+6 niveaux : A1 (p.3-56) · A2 (61-106) · B1 (111-173) · B2 (178-220) · C1 (225-240) · C2 (245-264)
+└── chaque niveau est découpé en UNITÉS
+    └── chaque unité contient : un dialogue, des règles de grammaire,
+        des listes de vocabulaire, des exercices
+└── un test de niveau à la fin de chaque niveau
+```
+
+Le « 30 étapes prévues » affiché par l'app est donc une invention à corriger : il faut
+s'aligner sur le nombre réel d'unités du niveau A1.
+
+**Photos** dans `~/../livre/lecons/` (42 fichiers, tout le niveau A1) — **hors du dépôt git**,
+qui est public. Elles ne doivent jamais y entrer.
+
+**Usage du livre** : on s'en sert comme *plan* — ordre des unités, points de grammaire,
+listes de vocabulaire. Ce sont des faits, non protégeables. Les textes, dialogues et
+exercices du livre ne sont **pas** recopiés : l'app est publiée publiquement, et son
+contenu est rédigé indépendamment.
 
 ## Comment ça marche
 

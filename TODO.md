@@ -105,7 +105,22 @@ par étape, 4,2 écrans, 2 mini-questions. Le squelette était bon, rempli au di
       les 4 formes présentes dans chacune. Chaque exercice n'emploie que du vocabulaire
       déjà rencontré aux étapes précédentes.
 
-- [ ] **REPRENDRE ICI — Phase 3b : les phrases d'exemple.** Seule l'étape 1 est à la
+## Le livre est arrivé — 01/08/2026, 3h du matin
+
+42 photos couvrant **tout le niveau A1**, dans `~/../livre/lecons/` (hors dépôt git).
+
+- [x] Lisibilité vérifiée sur 4 photos : parfaite, y compris les pages penchées.
+- [x] **Découverte : la structure notée jusqu'ici était fausse.** Le livre n'a pas de
+      « jours ». Il fait 280 pages, 6 niveaux A1→C2, chaque niveau découpé en **unités**
+      (dialogue + grammaire + vocabulaire + exercices), avec un test en fin de niveau.
+      Le niveau A1 va des pages 3 à 56. Vu « Unité 4 — Niveau A1 » en page 10.
+- [ ] **À FAIRE EN PREMIER : lire les 42 photos et dresser le plan réel du niveau A1** —
+      combien d'unités, quel point de grammaire dans chacune, quelles listes de vocabulaire.
+- [ ] Réaligner les étapes de l'app sur ces unités. Le « 30 étapes prévues » actuel est
+      une invention ; le vrai nombre sortira du plan ci-dessus.
+- [ ] Vérifier si le découpage en 4 chapitres tient, ou s'il doit suivre les unités du livre.
+
+- [ ] **Phase 3b : les phrases d'exemple.** Seule l'étape 1 est à la
       cible avec 12 phrases ; **les étapes 2 à 12 n'en ont que 3 chacune**. Le
       récapitulatif en tire 5 : avec 3 en réservoir, il les montre toutes et ne
       diversifie rien. Cible : ~12 phrases par étape, dont des reformulations
