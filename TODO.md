@@ -727,6 +727,33 @@ ici : une vérification de l'oral, 400 lignes plus bas, a lâché parce que la r
 recopiait des réglages incomplets (`SEANCES[undefined]`). La restauration passe désormais
 par `PREFS_DEFAUT`.
 
+## Trois défauts vus sur une capture, pas par un test ✅ 02/08/2026
+
+Exsangue a demandé confirmation que le choix de forme était bien dans les réglages. En
+photographiant l'écran entier pour le lui montrer, trois défauts sont apparus.
+
+- [x] **`&#183;` s'affichait en clair** dans « Courte &#183; 5 ». `segment()` échappe le
+      texte de ses boutons : le code du caractère y devient du texte visible. Remplacé
+      par le vrai caractère `·`. ⚠️ **Aucun test ne pouvait le voir** — un test qui
+      compare du texte à la même chaîne fautive est d'accord avec lui-même. Ajouté une
+      vérification du **rendu** : aucun écran ne doit contenir `&#` ni `&amp;` visible.
+- [x] **La pastille « Bauhaus » disparaissait une fois choisie** : sa couleur est celle
+      du bouton actif. La rangée des couleurs ne prend donc plus l'aplat d'accent — le
+      choix s'y marque par un trait épais et le gras, ce qui reste lisible sans dépendre
+      de la couleur.
+- [x] **Un test instable démasqué.** « Les phrases longues arrivent » portait sur UN
+      tirage, alors que la séance tire 8 éléments parmi ~22 : rien ne garantissait qu'un
+      tirage donné contienne une phrase longue. Il a lâché deux fois sur une dizaine de
+      passages sans que rien ne change autour, et j'ai d'abord cru à une cause voisine.
+      Vingt tirages désormais, comme la vérification jumelle. **Un test qui crie au loup
+      une fois sur dix est pire que pas de test** : on finit par ignorer ses échecs.
+      Vérifié par 8 passages consécutifs au vert.
+
+Leçon à garder : **regarder l'écran reste indispensable**. L'auto-test dit que l'app
+fonctionne, il ne dit pas qu'elle est lisible.
+
+- [x] Auto-test : **2369 vérifications**.
+
 ## Lot 3 — à discuter avant d'attaquer
 
 - [ ] **Éviter les suites logiques.** un-deux-trois, les jours de la semaine… ne doivent pas

@@ -772,8 +772,19 @@ body.has-tts .say { display: inline-flex; }
   border-radius: 50%;
   border: 2px solid var(--ink);
   display: inline-block;
+  flex: 0 0 auto;
 }
-.segb.on .pas { border-color: var(--accent-ink); }
+/* La rangée des couleurs ne prend PAS le fond d'accent quand elle est
+   retenue : la pastille « Bauhaus » est justement de cette couleur, elle
+   disparaissait dans le bouton. Le choix se marque donc par un trait épais
+   et le gras — ce qui reste lisible sans dépendre de la couleur, comme
+   partout ailleurs dans cet écran. */
+.segb.pastille.on {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--ink);
+  border-width: 3px;
+}
 .pas-bauhaus { background: #1D4E89; }
 .pas-indigo  { background: #3D3A8C; }
 .pas-prune   { background: #6A4C93; }
@@ -7699,10 +7710,14 @@ function reglagesView() {
       bloc('La longueur d\'une séance',
         'Vaut pour les exercices et pour l\'oral. Les cartes, elles, suivent ' +
         'le calendrier de révision : c\'est lui qui décide, pas toi.',
+        /* Le point médian s'écrit ICI en vrai caractère, pas en `&#183;` :
+           `segment` échappe le texte des boutons, donc le code se serait
+           affiché tel quel. Vu sur une capture, pas par un test — un test
+           qui vérifie du texte le compare à la même chaîne fautive. */
         segment("seance", [
-          { id: "courte",  nom: "Courte &#183; 5" },
-          { id: "normale", nom: "Normale &#183; 8" },
-          { id: "longue",  nom: "Longue &#183; 12" }
+          { id: "courte",  nom: "Courte · 5" },
+          { id: "normale", nom: "Normale · 8" },
+          { id: "longue",  nom: "Longue · 12" }
         ], p.seance)),
 
       '<button class="btn wide" data-act="prefs-reset">Revenir aux réglages d\'origine</button>',
@@ -8719,6 +8734,20 @@ function runTests() {
   // exactement un doit être marqué comme retenu.
   S = fresh(); S.day = 1; seed(1); applyPrefs();
   go("reglages");
+  /* Un code de caractère HTML ne doit JAMAIS se lire à l'écran. `segment`
+     échappe le texte de ses boutons : y écrire `&#183;` affichait le code en
+     clair au lieu du point médian. Défaut vu sur une capture, pas par un
+     test — un test qui compare du texte à la même chaîne fautive est
+     d'accord avec lui-même. On vérifie donc le RENDU, sur tous les écrans
+     qui s'ouvrent sans état particulier. */
+  ["home", "reglages"].forEach(function (ecran) {
+    go(ecran);
+    ok("écran « " + ecran + " » : aucun code de caractère HTML visible",
+       view.textContent.indexOf("&#") === -1 && view.textContent.indexOf("&amp;") === -1,
+       view.textContent.slice(Math.max(0, view.textContent.indexOf("&#") - 20), view.textContent.indexOf("&#") + 20));
+  });
+
+  go("reglages");
   ["voix", "sonAuto", "theme", "texte", "couleur", "forme", "seance"].forEach(function (cle) {
     const boutons = view.querySelectorAll('[data-pref="' + cle + '"]');
     ok("réglages : « " + cle + " » propose au moins deux choix", boutons.length >= 2);
@@ -9197,14 +9226,30 @@ function runTests() {
          return true;
        })());
 
-    /* Le plafond monte : une fois des phrases acquises, les longues arrivent. */
+    /* Le plafond monte : une fois des phrases acquises, les longues arrivent.
+
+       ⚠️ Cette vérification portait sur UN SEUL tirage, et elle a lâché deux
+       fois sur une dizaine de passages sans que rien ait changé autour.
+       C'est normal : la séance tire 8 éléments parmi ~22, et rien ne garantit
+       qu'un tirage donné contienne une phrase longue. Le test était donc juste
+       sur le fond mais instable sur la forme — et un test qui crie au loup
+       une fois sur dix finit par être ignoré, ce qui est pire que pas de test.
+
+       On énonce désormais ce qu'on veut vraiment dire : les phrases longues
+       DEVIENNENT possibles. Vingt tirages, comme la vérification voisine.
+       Si le plafond ne montait pas, aucun des vingt n'en contiendrait. */
     S = fresh(); S.day = 2; seed(1);
     const l = COURSE[1];
     l.vocab.forEach(function (v, i) { S.oral["v:2:" + i] = 3; });
     l.examples.forEach(function (e, i) { S.oral["p:2:" + i] = 3; });
-    items = oralItems(ORAL_SIZE);
     ok("oral : une fois l'étape travaillée, les phrases longues arrivent",
-       Math.max.apply(null, items.map(function (x) { return mots(x.de); })) > 3);
+       (function () {
+         for (let k = 0; k < 20; k++) {
+           const s = oralItems(ORAL_SIZE);
+           if (s.some(function (x) { return mots(x.de) > 3; })) return true;
+         }
+         return false;
+       })());
 
     /* Et une séance n'est jamais vide, même si tout dépasse le plafond. */
     S = fresh(); S.day = 2; seed(1);
