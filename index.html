@@ -674,7 +674,16 @@ const COURSE = [
   examples: [
     { d: "Guten Tag! Ich heiße Anna.", f: "Bonjour ! Je m'appelle Anna." },
     { d: "Wie heißen Sie?", f: "Comment vous appelez-vous ? (poli)" },
-    { d: "Wie geht es dir? — Danke, gut!", f: "Comment vas-tu ? — Merci, bien !" }
+    { d: "Wie geht es dir? — Danke, gut!", f: "Comment vas-tu ? — Merci, bien !" },
+    { d: "Hallo! Ich bin Thomas.", f: "Salut ! Je suis Thomas." },
+    { d: "Guten Morgen, Frau Schmidt.", f: "Bonjour, Madame Schmidt." },
+    { d: "Wie heißt du? — Ich heiße Lena.", f: "Comment t'appelles-tu ? — Je m'appelle Lena." },
+    { d: "Sind Sie Herr Weber?", f: "Êtes-vous Monsieur Weber ?" },
+    { d: "Er heißt Max und er ist Student.", f: "Il s'appelle Max et il est étudiant." },
+    { d: "Wir sind aus Berlin.", f: "Nous sommes de Berlin." },
+    { d: "Guten Abend! Bis morgen!", f: "Bonsoir ! À demain !" },
+    { d: "Danke schön! — Bitte schön!", f: "Merci beaucoup ! — Je vous en prie !" },
+    { d: "Tschüss, bis bald!", f: "Salut, à bientôt !" }
   ],
   vocab: [
     { d: "Guten Tag", f: "bonjour (la journée)", p: "GOU-tenn TAAK" },
@@ -715,7 +724,49 @@ const COURSE = [
     { t: "trad", f: "Comment ça va ?", a: "Wie geht's?",
       why: "Contraction de <b>Wie geht es?</b>. On écrit aussi <b>Wie geht es dir?</b>." },
     { t: "trad", f: "Au revoir !", a: "Auf Wiedersehen!",
-      why: "La formule polie. Entre proches, <b>Tschüss!</b>." }
+      why: "La formule polie. Entre proches, <b>Tschüss!</b>." },
+
+    { t: "order", f: "Je suis étudiant.", a: "Ich bin Student",
+      why: "Sujet, verbe, attribut. Aucun article devant le métier." },
+    { t: "order", f: "Il s'appelle Thomas.", a: "Er heißt Thomas",
+      why: "<b>er</b> prend la terminaison <b>-t</b> : heiß<b>t</b>." },
+    { t: "order", f: "Comment allez-vous ?", a: "Wie geht es Ihnen",
+      why: "La forme polie complète. <b>Ihnen</b> avec majuscule, comme <b>Sie</b>." },
+    { t: "order", f: "Nous sommes de Berlin.", a: "Wir sind aus Berlin",
+      why: "<b>wir</b> prend <b>sind</b>, et <b>aus</b> dit l'origine." },
+    { t: "order", f: "Tu es Anna ?", a: "Bist du Anna",
+      why: "Sans mot en W-, la question se fait en mettant le verbe en tête." },
+
+    { t: "gap", f: "Nous sommes étudiants.", s: "Wir ___ Studenten.", a: "sind",
+      why: "<b>wir</b> et <b>sie</b> (pluriel) partagent <b>sind</b>." },
+    { t: "gap", f: "Vous êtes Monsieur Schmidt ?", s: "___ Sie Herr Schmidt?", a: "Sind",
+      why: "Le <b>Sie</b> poli prend <b>sind</b>, comme le pluriel." },
+    { t: "gap", f: "Je m'appelle Thomas.", s: "Ich ___ Thomas.", a: "heiße",
+      why: "Avec <b>ich</b>, la terminaison est <b>-e</b>." },
+    { t: "gap", f: "Bonjour (le matin) !", s: "Guten ___!", a: "Morgen",
+      why: "<b>Guten Morgen</b> le matin, <b>Guten Tag</b> le reste de la journée." },
+    { t: "gap", f: "Bonsoir !", s: "Guten ___!", a: "Abend",
+      why: "<b>der Abend</b>, le soir. La formule suit le même moule." },
+
+    { t: "trans", inst: "Mets à la troisième personne (er).", from: "Ich heiße Anna.", a: "Er heißt Anna.",
+      why: "<b>ich heiße</b> devient <b>er heißt</b> : la terminaison passe de -e à -t." },
+    { t: "trans", inst: "Passe au pluriel (wir).", from: "Ich bin Student.", a: "Wir sind Studenten.",
+      why: "Le verbe ET le nom changent : <b>sind</b>, et <b>Studenten</b> au pluriel." },
+    { t: "trans", inst: "Transforme en question.", from: "Du bist Anna.", a: "Bist du Anna?",
+      why: "Sans mot interrogatif, on inverse simplement le verbe et le sujet." },
+    { t: "trans", inst: "Passe du vouvoiement au tutoiement.", from: "Wie heißen Sie?", a: "Wie heißt du?",
+      why: "<b>Sie heißen</b> devient <b>du heißt</b>." },
+
+    { t: "trad", f: "Je m'appelle Thomas et je suis étudiant.", a: "Ich heiße Thomas und ich bin Student.",
+      why: "<b>und</b> relie deux phrases sans rien déplacer." },
+    { t: "trad", f: "Salut ! Comment ça va ?", a: "Hallo! Wie geht's?",
+      why: "<b>Hallo</b> entre proches, à toute heure." },
+    { t: "trad", f: "Bonsoir, Madame Schmidt.", a: "Guten Abend, Frau Schmidt.",
+      why: "<b>Frau</b> s'emploie pour toutes les femmes adultes, mariées ou non." },
+    { t: "trad", f: "Il est de Berlin.", a: "Er ist aus Berlin.",
+      why: "<b>aus</b> + ville pour dire d'où l'on vient." },
+    { t: "trad", f: "Comment t'appelles-tu ?", a: "Wie heißt du?",
+      why: "Mot en W- en place 1, verbe en place 2, sujet derrière." }
   ]
 },
 
@@ -1335,7 +1386,10 @@ let S = load();
 function fresh() {
   // qmiss : nombre de fois où chaque question de quiz a été ratée, clé "jour:index".
   // oral  : niveau atteint à l'oreille, clé "v:jour:index" (mot) ou "p:jour:index" (phrase).
-  return { day: 1, done: [], cards: {}, streak: 0, last: null, scores: {}, qmiss: {}, oral: {} };
+  // dseen : nombre de fois où chaque exercice a été servi, clé "jour:index".
+  //         C'est lui qui garantit qu'on ne revoit pas les mêmes en boucle.
+  return { day: 1, done: [], cards: {}, streak: 0, last: null,
+           scores: {}, qmiss: {}, oral: {}, dseen: {} };
 }
 function load() {
   try {
@@ -1639,9 +1693,10 @@ function home() {
         '</button>',
         '<button class="mode" data-go="drills"' + (nbDrills ? '' : ' disabled') + '>',
           '<div class="txt"><strong>Les exercices</strong><span>' +
-            (nbDrills ? 'Ordre des mots, trous, transformations, traductions'
+            (nbDrills ? Math.min(DRILL_SESSION, nbDrills) + ' tirés parmi ' + nbDrills +
+                        ' — différents à chaque fois'
                       : 'Pas encore d\'exercices pour cette étape') + '</span></div>',
-          '<span class="chip">' + nbDrills + '</span>',
+          '<span class="chip">' + Math.min(DRILL_SESSION, nbDrills) + '</span>',
         '</button>',
         '<button class="mode" data-go="quiz">',
           '<div class="txt"><strong>Le quiz</strong><span>' + (doneToday ? 'Refaire le test de cette étape' : 'Valide cette étape et débloque la suite') + '</span></div>',
@@ -1756,12 +1811,20 @@ function renderStep() {
   ].join("");
 }
 
+const RECAP_EXAMPLES = 5;   // combien de phrases montrer, tirées parmi toutes
+
 /* Fin de la leçon : les phrases, puis les mots, puis le quiz. */
 function renderRecap() {
   const l = COURSE[S.day - 1];
   touchStreak();
 
-  const ex = l.examples.map(function (e) {
+  // Un tirage, pas la liste entière : en revenant sur la leçon on doit tomber
+  // sur d'autres phrases, pas relire mot pour mot les mêmes.
+  const choisies = shuffleIdx(l.examples.length)
+    .slice(0, Math.min(RECAP_EXAMPLES, l.examples.length))
+    .map(function (i) { return l.examples[i]; });
+
+  const ex = choisies.map(function (e) {
     return '<div class="ex"><div class="top-line"><span class="d">' + esc(e.d) + '</span>' + sayBtn(e.d) + '</div>' +
            '<div class="f">' + esc(e.f) + '</div></div>';
   }).join("");
@@ -2340,11 +2403,39 @@ function renderOral() {
 
    Ils vivent dans `drills`, au niveau de l'étape. Une étape sans `drills`
    n'affiche simplement pas le mode. */
+const DRILL_SESSION = 8;   // combien on en sert par séance, quel que soit le réservoir
+
 let drills = [], di = 0, drillVerdict = null, orderPool = [], orderPicked = [];
 
-function drillsView() {
+/* Le réservoir est plus grand qu'une séance, et on sert d'abord ce qui a été
+   le MOINS VU. Mélanger seulement, comme au début, redonnait mot pour mot les
+   mêmes exercices dans un autre ordre — c'est exactement ce qu'on veut éviter.
+   À nombre de passages égal, on tire au hasard : deux séances de suite ne
+   donnent donc pas la même liste. */
+function drawDrills(n) {
   const src = (COURSE[S.day - 1] || {}).drills || [];
-  drills = shuffleIdx(src.length).map(function (i) { return src[i]; });
+  if (!src.length) return [];
+
+  const idx = shuffleIdx(src.length);                       // départage aléatoire
+  idx.sort(function (a, b) {
+    return drillSeen(a) - drillSeen(b);
+  });
+
+  return idx.slice(0, Math.min(n, src.length)).map(function (i) {
+    return Object.assign({ key: S.day + ":" + i }, src[i]);
+  });
+}
+function drillSeen(i) {
+  return (S.dseen && S.dseen[S.day + ":" + i]) || 0;
+}
+
+function drillsView() {
+  drills = drawDrills(DRILL_SESSION);
+  // On note tout de suite ce qui est servi : même si la séance est abandonnée,
+  // la prochaine proposera autre chose.
+  if (!S.dseen) S.dseen = {};
+  drills.forEach(function (d) { S.dseen[d.key] = (S.dseen[d.key] || 0) + 1; });
+  persist();
   di = 0;
   setupDrill();
   return renderDrill();
@@ -2815,6 +2906,11 @@ function runTests() {
   S.last = shift(today(), -3); touchStreak();
   eq("série : après une coupure, elle repart à 1", S.streak, 1);
 
+  /* Les clés des exercices qu'un tirage servirait, sans rien enregistrer. */
+  function drawDrillsKeys() {
+    return drawDrills(DRILL_SESSION).map(function (d) { return d.key; }).sort();
+  }
+
   /* Lit l'ordre des boutons de réponse actuellement à l'écran, par index d'origine. */
   function optOrder(attr) {
     return Array.prototype.map.call(view.querySelectorAll(".opts .opt"), function (b) {
@@ -2847,6 +2943,19 @@ function runTests() {
   ok("leçon : le récapitulatif s'affiche à la fin", !!view.querySelector(".voc"));
   eq("récapitulatif : tout le vocabulaire est listé", view.querySelectorAll(".voc li").length, COURSE[0].vocab.length);
   ok("récapitulatif : la prononciation est affichée", view.querySelectorAll(".voc .p").length === COURSE[0].vocab.length);
+  eq("récapitulatif : les phrases sont un tirage, pas la liste entière",
+     view.querySelectorAll(".ex").length,
+     Math.min(RECAP_EXAMPLES, COURSE[0].examples.length));
+  ok("récapitulatif : les phrases changent d'une relecture à l'autre",
+     (function () {
+       const vues = {};
+       for (let k = 0; k < 40; k++) {
+         show(renderRecap());
+         vues[Array.prototype.map.call(view.querySelectorAll(".ex .d"),
+           function (n) { return n.textContent; }).join("|")] = true;
+       }
+       return Object.keys(vues).length > 1;
+     })());
 
   /* --- F. Le quiz, de bout en bout --- */
   const l1 = COURSE[0];
@@ -3450,12 +3559,43 @@ function runTests() {
 
   S = fresh(); S.day = 1; seed(1);
   go("drills");
-  eq("exercices : tous ceux de l'étape sont proposés", drills.length, COURSE[0].drills.length);
-  ok("exercices : l'ordre change d'une série à l'autre",
+  eq("exercices : une séance en sert un nombre fixe", drills.length,
+     Math.min(DRILL_SESSION, COURSE[0].drills.length));
+  ok("exercices : le réservoir est plus grand qu'une séance",
+     COURSE[0].drills.length > DRILL_SESSION,
+     COURSE[0].drills.length + " exercices pour " + DRILL_SESSION + " servis");
+
+  /* Le point signalé par Exsangue : en refaisant la leçon, les exercices
+     étaient mot pour mot les mêmes, seulement dans un autre ordre. */
+  S = fresh(); S.day = 1; seed(1);
+  const serie1 = drawDrillsKeys();
+  drillsView();
+  const serie2 = drawDrillsKeys();
+  ok("exercices : deux séances de suite ne servent pas la même liste",
+     serie1.join(",") !== serie2.join(","),
+     "1re : " + serie1.length + " · 2e : " + serie2.length);
+
+  /* Et surtout : tout le réservoir finit par passer, rien n'est oublié. */
+  S = fresh(); S.day = 1; seed(1);
+  const total = COURSE[0].drills.length;
+  const tours = Math.ceil(total / DRILL_SESSION);
+  const vus = {};
+  for (let k = 0; k < tours; k++) {
+    drillsView();
+    drills.forEach(function (d) { vus[d.key] = true; });
+  }
+  eq("exercices : en " + tours + " séances, tout le réservoir a été servi",
+     Object.keys(vus).length, total);
+
+  ok("exercices : les moins vus passent en premier",
      (function () {
-       const premiers = {};
-       for (let k = 0; k < 40; k++) { drillsView(); premiers[drills[0].a] = true; }
-       return Object.keys(premiers).length > 1;
+       S = fresh(); S.day = 1; seed(1);
+       drillsView();
+       const dejaVus = drills.map(function (d) { return d.key; });
+       drillsView();
+       // Aucun des exercices de la 1re séance ne doit revenir tant qu'il
+       // reste des exercices jamais servis.
+       return drills.every(function (d) { return dejaVus.indexOf(d.key) === -1; });
      })());
 
   /* Remettre les mots dans l'ordre, en cliquant vraiment. */

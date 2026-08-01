@@ -95,11 +95,16 @@ par étape, 4,2 écrans, 2 mini-questions. Le squelette était bon, rempli au di
       Accueil regroupé par chapitre. Tout l'affichage passe de « jour » à « étape ».
 - [x] **Phase 2 — quatre formes d'exercices** (`drills`) : remettre les mots dans l'ordre,
       compléter un trou, transformer une phrase, traduire. Nouveau mode sur l'accueil.
-- [x] Auto-test : **466 vérifications**.
+- [x] **Tirage, et non simple mélange** (v3.1). La v3.0 rebattait les mêmes exercices ;
+      Exsangue l'a vu tout de suite. On sert 8 exercices parmi 29 et 5 phrases parmi 12,
+      en commençant par les moins vus (`S.dseen`). Rien ne revient tant qu'il reste du
+      jamais-vu.
+- [x] Auto-test : **471 vérifications**.
 - [ ] **Phase 3 — le contenu, en volume.** C'est le gros du travail et ce qui manque
-      vraiment. Seule l'étape 1 a ses 10 exercices pour l'instant (pilote, à valider par
-      Exsangue avant de dérouler). Cible par étape : 8 écrans, 10-12 phrases d'exemple
-      dont des reformulations, 10-12 exercices variés.
+      vraiment. Seule l'**étape 1** est à la cible (29 exercices, 12 phrases) — pilote à
+      valider par Exsangue avant de dérouler.
+      **Cible par étape : ~25 exercices et ~12 phrases minimum**, sinon le tirage n'a rien
+      à tirer. Les étapes 2 à 12 n'ont encore aucun exercice.
 - [ ] Les étapes 13 à 30 restent à écrire.
 
 ## Lot 3 — à discuter avant d'attaquer

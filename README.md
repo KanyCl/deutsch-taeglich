@@ -122,6 +122,13 @@ Le mode qui casse la répétition du QCM. Quatre formes, tirées dans le désord
 Chaque réponse est suivie de son explication. Une étape sans exercices écrits le dit
 au lieu d'ouvrir un écran vide.
 
+**Tu ne refais jamais la même série.** Le réservoir est plus grand qu'une séance : l'étape 1
+compte 29 exercices, on t'en sert 8. Et ce ne sont pas 8 au hasard — ce sont **ceux que tu
+as le moins vus**. Il faut donc quatre passages pour faire le tour, sans jamais retomber sur
+les mêmes tant qu'il reste du neuf.
+
+Les phrases d'exemple en fin de leçon suivent la même règle : 5 tirées parmi 12.
+
 ### Écrire les mots
 
 Au niveau 1, la carte te montre le mot en allemand et tu te testes dans ta tête.
