@@ -106,6 +106,15 @@ en thème clair et sombre. Aucune dépendance : ni Node, ni Playwright, ni droit
 
 Les écrans sont aussi accessibles par l'URL (`#lesson`, `#cards`, `#quiz`).
 
+`verifier.ps1` contrôle une autre chose, que l'auto-test ne peut pas voir : **l'exactitude
+de l'allemand**. Il croise chaque article et chaque mot du cours avec le socle de
+`reference/` (99 898 noms, 8 047 verbes, 50 000 mots classés par fréquence). L'auto-test
+dit que l'app *fonctionne* ; `verifier.ps1` dit qu'elle enseigne le *vrai*. À relancer
+après tout ajout de contenu — un genre faux s'apprend et se garde des années.
+
+Ce qu'il ne juge pas, et ne jugera jamais : la clarté d'une explication, le naturel d'une
+phrase, l'ordre des leçons. Ça reste du jugement.
+
 Deux pièges du harnais, à ne pas re-découvrir :
 - Chrome sans fenêtre plafonne à 500 px de large minimum → les captures passent par un
   cadre de 390 px, sinon la page est mise en page en 500 px puis rognée.

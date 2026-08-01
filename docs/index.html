@@ -783,16 +783,20 @@ const COURSE = [
     { t: "gap", f: "C'est ma maison.", s: "Das ist mein ___.", a: "Haus",
       why: "<b>au</b> se lit « ao ». Et tout substantif prend une majuscule." },
 
-    { t: "trans", inst: "Réécris sans le ß, comme on le fait en Suisse.", from: "die Straße", a: "die Strasse",
-      why: "<b>ß</b> devient <b>ss</b> — deux s, jamais un seul." },
-    { t: "trans", inst: "Réécris sans le tréma, comme sur un clavier français.", from: "grün", a: "gruen",
-      why: "Sans tréma, on écrit la voyelle suivie d'un <b>e</b> : <b>ü</b> devient <b>ue</b>." },
-    { t: "trans", inst: "Réécris sans le tréma.", from: "schön", a: "schoen",
-      why: "Même règle : <b>ö</b> devient <b>oe</b>." },
-    { t: "trans", inst: "Réécris sans le tréma.", from: "der Bär", a: "der Baer",
-      why: "<b>ä</b> devient <b>ae</b>. C'est la solution de secours quand le clavier manque." },
-    { t: "trans", inst: "Remets le ß à la place du ss.", from: "die Strasse", a: "die Straße",
-      why: "L'orthographe allemande standard préfère <b>ß</b> après une voyelle longue." },
+    /* Cinq exercices de transcription retirés ici le 01/08/2026, à la demande
+       d'Exsangue — « je n'apprends rien de spécial ». Il avait doublement
+       raison, et le code le prouve : `normDE` convertit ä→ae et ß→ss AVANT de
+       comparer, donc `normDE("grün")` et `normDE("gruen")` sont la même chaîne.
+       Un exercice qui demandait d'écrire « gruen » acceptait « grün » : il
+       était impossible à rater. Il n'enseignait rien et ne testait rien.
+
+       La connaissance elle-même n'est pas perdue : les notes `why` des
+       exercices voisins disent que « Strasse est accepté aussi », et l'étape
+       explique les trémas. C'est le DRILL qui était vide, pas le savoir.
+
+       Ne pas les réintroduire : tant que le correcteur tolère l'orthographe de
+       dépannage — et il le doit, le ß n'est sur aucun clavier français — un
+       exercice de transcription ne peut pas être corrigé. */
 
     { t: "trad", f: "la maison", a: "das Haus",
       why: "Tout substantif allemand prend une majuscule, même au milieu d'une phrase." },
@@ -6427,7 +6431,9 @@ let oral = [], oi = 0, oralVerdict = null;
      niveau 2  traduire OU écrire     une faute de frappe pardonnée
      niveau 3  écrire en allemand     ae/ss acceptés, article facultatif
      niveau 4  écrire en allemand     l'article devient obligatoire
-     niveau 5  écrire en allemand     forme exacte, tréma et ß compris
+     niveau 5  écrire en allemand     forme exacte, trémas compris — mais le
+                                      ß reste toujours facultatif (absent des
+                                      claviers français, voir checkOral)
 
    Bonne réponse : +1. Ratée : −1, comme pour les cartes. */
 function oralLevel(key) {
@@ -6453,12 +6459,21 @@ function checkOral(typed, it, level) {
   }
 
   if (level >= ORAL_MAX) {
-    // Dernier niveau : les tréma et le ß sont exigés, plus de ae ni de ss.
+    // Dernier niveau : les trémas sont exigés, plus de ae ni de oe.
+    //
+    // Le ß, LUI, reste toujours facultatif — corrigé le 01/08/2026. Exsangue :
+    // « je trouverai une solution pour écrire ö ou ü, sauf ß qui n'est pas du
+    // tout sur mon clavier ». Un tréma se compose sur un clavier français ; le
+    // ß ne s'y trouve nulle part. L'exiger rendait le niveau 5 infranchissable
+    // sur des mots aussi courants que Straße, groß ou heißen — on sanctionnait
+    // le matériel, pas la connaissance.
+    //
     // Restent libres deux choses qui NE S'ENTENDENT PAS et qu'il serait donc
     // absurde de sanctionner dans un exercice d'écoute : la ponctuation, et
     // la casse — que le téléphone impose de toute façon tout seul.
     const bare = function (s) {
       return String(s).toLowerCase()
+        .replace(/ß/g, "ss")
         .replace(/[.,!?;:'’"()\[\]-]/g, " ")
         .replace(/\s+/g, " ")
         .trim();
@@ -8938,6 +8953,20 @@ function runTests() {
   ok("oral niveau 5 : la forme exacte passe", checkOral("Tschüss", itU, 5).ok);
   ok("oral niveau 5 : la casse reste libre", checkOral("tschüss", itU, 5).ok);
 
+  /* Le ß est traité à part des trémas, et c'est une distinction MATÉRIELLE, pas
+     pédagogique. Exsangue : « je trouverai une solution pour écrire ö ou ü,
+     sauf ß qui n'est pas du tout sur mon clavier ». Un tréma se compose sur un
+     clavier français ; le ß ne s'y trouve nulle part. Exiger le ß au niveau 5,
+     c'était rendre infranchissables des mots aussi courants que Straße, groß
+     ou heißen — on sanctionnait le clavier, pas la connaissance. */
+  const itSS = { task: "write", de: "die Straße", fr: "la rue" };
+  ok("oral niveau 5 : ss est toujours accepté pour ß",
+     checkOral("die Strasse", itSS, 5).ok);
+  ok("oral niveau 5 : le vrai ß passe évidemment aussi",
+     checkOral("die Straße", itSS, 5).ok);
+  ok("oral niveau 5 : mais le tréma, lui, reste exigé",
+     !checkOral("die Strasse", { task: "write", de: "die Größe", fr: "la taille" }, 5).ok);
+
   /* Signalé par Exsangue : un point oublié comptait faux. La ponctuation ne
      s'entend pas — la sanctionner dans un exercice d'écoute n'a aucun sens. */
   const itPh = { task: "write", de: "Guten Tag!", fr: "Bonjour" };
@@ -9093,11 +9122,30 @@ function runTests() {
        ds.every(function (d) { return d.t !== "order" || bareSentence(d.a).split(" ").length >= 3; }));
     ok(tag + " : la réponse attendue est acceptée par le correcteur",
        ds.every(function (d) { return d.t === "order" || checkAnswer(d.a, d.a).ok; }));
+    /* Cette règle exigeait TROIS formes par étape. Elle a été reformulée le
+       01/08/2026, et il faut être franc sur la raison : elle est tombée quand
+       les cinq exercices creux de l'étape 1 ont été retirés. Mais elle ne
+       tenait que grâce à eux — ils lui fournissaient une troisième forme qui
+       n'existait pas vraiment. Elle passait pour une mauvaise raison.
+
+       L'étape 1 porte sur les SONS : « remettre dans l'ordre » suppose une
+       grammaire qu'on n'a pas, « transformer » suppose une règle à appliquer.
+       Compléter et traduire sont les deux formes justes, et 10 contre 13 n'est
+       pas « une seule forme en boucle ».
+
+       La règle mesure donc désormais ce que son nom annonce : qu'AUCUNE forme
+       n'écrase les autres. Deux formes équilibrées passent, vingt trous suivis
+       d'une traduction ne passent pas. Et surtout, elle reste générale : pas de
+       numéro d'étape en dur, qui casserait à la prochaine restructuration. */
     ok(tag + " : plusieurs formes d'exercices, pas une seule en boucle",
        (function () {
-         const vus = {};
-         ds.forEach(function (d) { vus[d.t] = true; });
-         return Object.keys(vus).length >= 3;
+         const parForme = {};
+         ds.forEach(function (d) { parForme[d.t] = (parForme[d.t] || 0) + 1; });
+         const formes = Object.keys(parForme);
+         if (formes.length < 2) return false;
+         let plusGrande = 0;
+         formes.forEach(function (t) { plusGrande = Math.max(plusGrande, parForme[t]); });
+         return plusGrande / ds.length <= 0.7;
        })());
   });
 
@@ -9117,6 +9165,32 @@ function runTests() {
     ok("exercices : la forme « " + forme + " » existe quelque part dans le cours",
        premierExercice(forme).length === 1);
   });
+
+  /* Un exercice de transformation doit être RATABLE. Le cours en a longtemps
+     contenu cinq qui ne l'étaient pas : « réécris grün sans le tréma » attendait
+     « gruen », mais `normDE` convertit ä→ae et ß→ss avant de comparer — les deux
+     écritures sont la même chaîne pour le correcteur, et recopier l'énoncé
+     validait l'exercice. Retirés à la demande d'Exsangue, qui l'avait senti
+     sans lire le code : « je n'apprends rien de spécial ».
+     Cette vérification empêche la famille entière de revenir.
+
+     Le critère n'est PAS « les deux chaînes diffèrent » — ce serait trop faible.
+     C'est : recopier l'énoncé est-il accepté ? Deux tolérances du correcteur
+     rendent un exercice creux sans que les chaînes se ressemblent :
+       - l'orthographe de dépannage (ä↔ae, ß↔ss) — le cas des cinq retirés ;
+       - l'article facultatif : « Haus » est accepté pour « das Haus », donc
+         « ajoute l'article » serait tout aussi impossible à rater.
+     On pose donc la seule question qui compte : `checkAnswer(from, a)`. */
+  const creux = [];
+  COURSE.forEach(function (l, i) {
+    (l.drills || []).forEach(function (d) {
+      if (d.from && d.a && checkAnswer(d.from, d.a).ok) {
+        creux.push("étape " + (i + 1) + " : « " + d.from + " » → « " + d.a + " »");
+      }
+    });
+  });
+  ok("exercices : recopier l'énoncé ne valide jamais une transformation",
+     creux.length === 0, creux.join(" · "));
 
   S = fresh(); S.day = 1; seed(1);
   go("drills");

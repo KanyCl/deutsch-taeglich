@@ -410,9 +410,23 @@ là où on la cherche. Un mot déjà présent dans la liste ne reçoit rien : à
 on ne lirait plus les indices utiles. Vérifié sur l'unité 4 : **6 indices sur 7 questions**,
 seule « Plage » n'en a pas puisque *am Strand* est bien dans la liste.
 
+## ✅ LE NIVEAU A1 EST COMPLET — 01/08/2026
+
+**Les 35 étapes sont écrites**, de l'alphabet à l'aéroport. Vérifié par comptage :
+aucun numéro manquant entre 1 et 35. Auto-test : **2307 vérifications** avec le livre,
+**1582** sans, tout au vert. En ligne sur https://kanycl.github.io/deutsch-taeglich/
+
+Deux corrections du garde-fou de publication au passage :
+- il guettait des **mots** comme *Tagesgericht* ou *Vorfahren*, et bloquait des mots
+  allemands ordinaires que les étapes emploient légitimement. Un garde-fou qui crie à
+  tort finit par être contourné : il vérifie désormais la **signature** du tableau `BOOK`
+  (le champ `pages` renseigné), pas un lexique.
+- il échouait ensuite **sur son propre remplacement**, le stub écrivant un champ `pages`
+  vide. La règle exige maintenant au moins un caractère entre les guillemets.
+
 ## 🗺️ LA SUITE, dans cet ordre — choisi par Exsangue le 01/08/2026
 
-1. **Finir les 10 étapes restantes** → le niveau A1 complet, 35 étapes.
+1. ~~Finir les 10 étapes restantes~~ ✅ **fait**.
 2. **Le design.** Lui montrer deux ou trois directions visuelles sous forme de page
    qu'il ouvre sur son iPhone, puis appliquer celle qu'il choisit.
 3. **Le multilingue.** Séparer le moteur du contenu : tout ce qui fait tourner l'app
@@ -495,9 +509,91 @@ rédigé indépendamment et peut être publié tel quel.
       les dialogues et les listes doivent être exacts.
       Correspondance page → photo : les 42 fichiers de `C:\Shared\atelier\livre\lecons\`
       sont dans l'ordre des pages, du titre (p.1) à la conclusion (p.279-280).
-- [ ] Hébergement privé pour l'iPhone (GitHub Pages ne sert que les dépôts publics).
-      Piste retenue : Cloudflare Pages + Access, gratuit, protégé par un code.
-      Demande la création d'un compte — à faire avec Exsangue.
+- [x] ~~Hébergement privé pour l'iPhone~~ — **sans objet, et à ne pas ressortir.** Le
+      besoin venait du livre, qui obligeait le dépôt à rester privé. `sans-livre.ps1`
+      publie désormais une version sans livre : le dépôt est public, GitHub Pages suffit.
+      ⚠️ Cloudflare Access demandait **d'enregistrer une carte bancaire** — Exsangue a
+      refusé, et il a eu raison de se méfier d'un « gratuit » qui réclame une carte.
+
+## Le contenu A1 relu contre le socle de référence ✅ 01/08/2026
+
+Question d'Exsangue : est-ce que ça vaut le coup de repasser sur les 35 étapes avec le
+skill `/allemand` ? **Oui, mais pour une chose précise** — ce qui est mécaniquement vrai
+ou faux : les genres, les mots inventés, la fréquence. La clarté et l'ordre des leçons
+restent du jugement, aucun fichier ne les tranche.
+
+Fait en une passe automatique plutôt qu'en relecture — voir **`verifier.ps1`**, à relancer
+à chaque ajout de contenu :
+
+```
+articles du vocabulaire     140 verifies    0 faute
+articles dans les phrases   150 verifies    0 faute
+mots absents du socle         0
+frequence                   312 mots        83 % dans les 5 000 plus courants
+```
+
+**Aucune faute dans le contenu.** Les 8 mots au-delà du rang 15 000 (*Reisepass*,
+*Bordkarte*, *Haltestelle*…) sont gardés volontairement : la liste de fréquence vient de
+sous-titres de films, où le vocabulaire d'aéroport est rare sans être inutile.
+
+Trois pièges du fichier de référence, trouvés en écrivant le contrôle — **à ne pas
+re-découvrir** :
+
+- **Cinq colonnes de genre**, pas une. Un nom à genre unique remplit `genus` ; un nom à
+  plusieurs genres la laisse **vide** et remplit `genus 1`…`genus 4`
+  (`Monat,Substantiv,,m,n` = *der* Monat, *das* Monat en Autriche). Et un même mot occupe
+  **plusieurs lignes**. Ne lire que la première colonne de la première ligne donnait
+  « Foto = masculin » et signalait *das Foto* comme une faute. Le bon calcul est l'**union**
+  des genres — au passage, l'index passe de 90 875 à **99 898 noms** : les lignes à
+  genres multiples étaient purement perdues.
+- **`$table.Keys` ment.** La liste de fréquence contient le mot `keys` (rang 26692,
+  emprunt à l'anglais), qui masque la propriété du tableau PowerShell. Utiliser
+  `.psbase.Keys`.
+- **Les options de QCM sont fausses exprès.** *das Aufzug*, *den Frau* sont des pièges
+  avec `a: 0` sur la bonne réponse. Les contrôler revient à signaler les pièges comme des
+  erreurs — `verifier.ps1` les retire avant analyse.
+
+Trois familles sont exclues du contrôle, et c'est voulu : les **pluriels** (toujours
+« die », le socle n'indexe que le singulier), les **noms adjectivaux** (*der/die
+Verwandte* — le genre suit la personne, pas le mot), et les **questions ouvertes**.
+Un contrôle qui crie à tort finit par être ignoré.
+
+## Les exercices de transcription supprimés ✅ 01/08/2026
+
+Retour d'Exsangue : « les exercices où tu me demandes de remplacer ü ou ö par
+l'équivalent, je n'aime pas, je n'apprends rien de spécial — je trouverai une solution
+pour écrire ö ou ü, sauf ß qui n'est pas du tout sur mon clavier ».
+
+Il avait raison deux fois, et **le code le prouvait** : `normDE` convertit `ä→ae` et
+`ß→ss` **avant** de comparer. Donc `normDE("grün")` et `normDE("gruen")` sont la même
+chaîne. Les cinq exercices « réécris sans le tréma » de l'étape 1 étaient **impossibles
+à rater** : recopier l'énoncé les validait. Ils n'enseignaient rien et ne testaient rien.
+
+- [x] **Les cinq exercices retirés**, ceux sur le ß compris. Le savoir n'est pas perdu :
+      les notes des exercices voisins disent que *Strasse* est accepté, et l'étape
+      explique les trémas. C'est le *drill* qui était vide, pas la connaissance.
+- [x] **Le ß n'est plus jamais exigé, à aucun niveau.** Distinction **matérielle**, pas
+      pédagogique : un tréma se compose sur un clavier français, le ß ne s'y trouve
+      nulle part. L'oral niveau 5 l'exigeait — il rendait infranchissables *Straße*,
+      *groß*, *heißen*. Les trémas, eux, **restent exigés au niveau 5** : Exsangue a dit
+      qu'il trouverait une solution, et c'est une vraie lettre allemande.
+- [x] **Garde-fou pour que la famille ne revienne pas.** Le critère n'est pas « les deux
+      chaînes diffèrent » — trop faible. C'est **`checkAnswer(from, a)`** : recopier
+      l'énoncé est-il accepté ? Deux tolérances rendent un exercice creux sans que les
+      chaînes se ressemblent — l'orthographe de dépannage, et **l'article facultatif**
+      (« Haus » passe pour « das Haus », donc « ajoute l'article » serait tout aussi
+      impossible à rater — piège évité de justesse en écrivant le remplacement).
+- [x] **Une règle du harnais reformulée, et il faut être franc sur la raison.** Elle
+      exigeait 3 formes d'exercices par étape ; elle est tombée en retirant les cinq.
+      Mais elle ne tenait **que grâce à eux** — ils lui fournissaient une 3ᵉ forme qui
+      n'existait pas. L'étape 1 porte sur les sons : « remettre dans l'ordre » suppose
+      une grammaire qu'on n'a pas, « transformer » suppose une règle à appliquer.
+      Compléter (10) et traduire (13) sont les deux formes justes. La règle mesure
+      désormais ce que son nom annonce — **qu'aucune forme n'écrase les autres** (70 %
+      maximum) — et reste générale, sans numéro d'étape en dur.
+- [x] Vérifié : le livre ne contient **aucun** exercice de ce type, seulement des
+      explications sur l'Umlaut et le ß. Rien n'y a été touché.
+- [x] Auto-test : **2311 vérifications**.
 
 ## Lot 3 — à discuter avant d'attaquer
 
