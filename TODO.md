@@ -85,6 +85,23 @@ Rangés par lot, pas par ordre d'importance : le lot 1 est le plus rentable à l
       sans sa note entre parenthèses.
 - [x] Auto-test : **430 vérifications**.
 
+## Restructuration ✅ phases 1 et 2 faites le 01/08/2026
+
+Retour d'Exsangue : « j'ai fait les 12 jours en 30 minutes ». Mesuré : 3 phrases d'exemple
+par étape, 4,2 écrans, 2 mini-questions. Le squelette était bon, rempli au dixième.
+
+- [x] **Phase 1 — structure Niveau / Chapitre / Étape.** 4 chapitres de 3 étapes,
+      regroupement d'étapes consécutives pour ne pas casser la progression linéaire.
+      Accueil regroupé par chapitre. Tout l'affichage passe de « jour » à « étape ».
+- [x] **Phase 2 — quatre formes d'exercices** (`drills`) : remettre les mots dans l'ordre,
+      compléter un trou, transformer une phrase, traduire. Nouveau mode sur l'accueil.
+- [x] Auto-test : **466 vérifications**.
+- [ ] **Phase 3 — le contenu, en volume.** C'est le gros du travail et ce qui manque
+      vraiment. Seule l'étape 1 a ses 10 exercices pour l'instant (pilote, à valider par
+      Exsangue avant de dérouler). Cible par étape : 8 écrans, 10-12 phrases d'exemple
+      dont des reformulations, 10-12 exercices variés.
+- [ ] Les étapes 13 à 30 restent à écrire.
+
 ## Lot 3 — à discuter avant d'attaquer
 
 - [ ] **Éviter les suites logiques.** un-deux-trois, les jours de la semaine… ne doivent pas

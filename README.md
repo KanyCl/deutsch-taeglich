@@ -1,7 +1,7 @@
 # Deutsch Täglich
 
 L'allemand un peu chaque jour. Application web personnelle, sans compte ni serveur.
-Niveau A1 — 12 jours écrits sur 30 prévus.
+Niveau A1 — 4 chapitres, 12 étapes écrites sur 30 prévues.
 
 ## Utiliser l'app
 
@@ -22,19 +22,34 @@ L'adresse est publique — n'importe qui la connaissant peut ouvrir l'app. Il n'
 sensible dedans : **ta progression ne quitte jamais ton appareil**, elle n'est envoyée
 à aucun serveur.
 
-## Chaque jour
+## Chaque étape
 
 | Mode | Ce que ça fait |
 |---|---|
 | **La leçon** | 4 à 5 étapes courtes. Une idée par écran, et des mini-questions qui bloquent le passage à la suite tant qu'on n'a pas répondu |
 | **Les cartes** | Révision espacée : les mots ratés reviennent vite, les mots sus s'espacent. Dès le second passage, le mot ne se reconnaît plus — **il s'écrit** |
-| **Le quiz** | 5 questions. 3/5 valident le jour et débloquent le suivant |
+| **Le quiz** | 5 questions. 3/5 valident l'étape et débloquent la suivante |
 | **L'entraînement** | Quand rien n'est à réviser, ou pour en faire plus. Reprend tes mots les plus ratés **sans toucher au calendrier** de révision |
 | **L'oral** | Aucun texte à l'écran : tu écoutes, puis tu **écris ce que tu entends** ou tu le **traduis** |
+| **Les exercices** | Quatre formes qui alternent : remettre les mots dans l'ordre, compléter un trou, transformer une phrase, traduire |
 
-Compter 10 à 15 minutes. La série en haut à droite compte les jours d'affilée.
+## Comment le cours est rangé
 
-Rien ne t'oblige à t'arrêter : si tu as le temps, enchaîne sur le jour suivant ou lance un
+```
+Niveau A1
+└── Chapitre 1 — Les premiers mots
+    ├── Étape 1  Se présenter
+    ├── Étape 2  Der, die, das
+    └── Étape 3  Le présent des verbes
+```
+
+Une **étape** est une séance de travail, pas une journée : rien ne t'oblige à en faire une
+par jour, ni à t'arrêter après une seule. Les écrans qui composent une leçon n'ont pas de
+nom, ils sont simplement numérotés.
+
+Compter 10 à 15 minutes par étape. La série en haut à droite compte les jours d'affilée.
+
+Rien ne t'oblige à t'arrêter : si tu as le temps, enchaîne sur l'étape suivante ou lance un
 entraînement. Et si tu sautes un jour, rien n'est perdu — seule la série repart de 1.
 
 ### Comment un mot progresse
@@ -55,8 +70,8 @@ Le niveau 1 est la seule vue « gratuite » — et le mot t'a déjà été prés
 avant d'arriver ici. **Dès le second passage, tu l'écris**, et ce second passage a lieu dans
 la même séance. Autrement dit : un mot découvert aujourd'hui est écrit aujourd'hui.
 
-Compte une vingtaine de cartes le premier jour d'une leçon (une dizaine de mots, deux
-passages chacun). Les jours suivants sont plus courts.
+Compte une vingtaine de cartes la première séance sur une étape (une dizaine de mots, deux
+passages chacun). Les séances suivantes sont plus courtes.
 
 ### L'oral
 
@@ -78,7 +93,7 @@ l'oreille n'est pas la même compétence que restituer à l'écrit. La difficult
 Bonne réponse : **+1**. Ratée : **−1**. Le niveau atteint est affiché pendant l'exercice et
 le changement t'est annoncé après chaque réponse.
 
-Le tirage mélange les mots du jour **et les phrases entières de la leçon** : c'est à
+Le tirage mélange les mots de l'étape **et les phrases entières de la leçon** : c'est à
 l'oreille que les phrases servent le plus.
 
 Aux niveaux 1 et 2, la correction du français est volontairement très lâche — on vérifie
@@ -92,6 +107,20 @@ le journal de tes erreurs.
 > **Il faut une voix allemande sur l'appareil.** Sans elle, rien ne peut être prononcé et
 > l'écran te le dit. Sur iPhone : *Réglages → Accessibilité → Contenu énoncé → Voix →
 > Allemand*.
+
+### Les exercices
+
+Le mode qui casse la répétition du QCM. Quatre formes, tirées dans le désordre :
+
+| Forme | Ce que tu fais | Ce que ça travaille |
+|---|---|---|
+| **Remettre dans l'ordre** | tu touches des étiquettes de mots pour reconstruire la phrase | l'ordre des mots allemand — verbe en 2ᵉ position, infinitif rejeté à la fin |
+| **Compléter un trou** | tu tapes le mot manquant | terminaisons, articles, cas |
+| **Transformer** | affirmative → négative, tutoiement → vouvoiement… | la mécanique plutôt que la mémoire |
+| **Traduire** | phrase entière, français → allemand | tout à la fois |
+
+Chaque réponse est suivie de son explication. Une étape sans exercices écrits le dit
+au lieu d'ouvrir un écran vide.
 
 ### Écrire les mots
 
@@ -157,7 +186,7 @@ Les 240 vérifications couvrent le calcul des dates, la répétition espacée, l
 un parcours de leçon complet (y compris le blocage tant qu'on n'a pas répondu), un
 parcours de quiz complet, les écrans, et **l'intégrité du contenu**.
 
-C'est cette dernière partie qui rapporte le plus : elle a déjà attrapé, au jour 8, une
+C'est cette dernière partie qui rapporte le plus : elle a déjà attrapé, à l'étape 8, une
 mini-question dont deux réponses proposées étaient identiques.
 
 ### Deux pièges du harnais, notés pour plus tard

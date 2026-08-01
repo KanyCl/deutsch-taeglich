@@ -460,6 +460,37 @@ body.has-tts .say { display: inline-flex; }
 }
 .answer:focus { outline: none; border-color: var(--accent); }
 
+/* Remettre les mots dans l'ordre : les étiquettes qu'on assemble.
+   La zone du haut est la phrase en construction, celle du bas la réserve. */
+.build {
+  min-height: 3.25rem;
+  display: flex; flex-wrap: wrap; gap: .375rem; align-items: flex-start;
+  padding: .625rem;
+  border: 2px dashed var(--line);
+  border-radius: var(--edge);
+  background: var(--surface);
+}
+.build:empty::after {
+  content: "Touche les mots dans le bon ordre";
+  color: var(--ink-3); font-size: .8125rem;
+}
+.chips { display: flex; flex-wrap: wrap; gap: .375rem; margin-top: .75rem; }
+.chip-w {
+  font-family: var(--de); font-size: 1rem; font-weight: 600;
+  padding: .5rem .75rem;
+  border: 1px solid var(--line);
+  border-radius: .375rem;
+  background: var(--surface);
+  color: var(--ink);
+}
+.chip-w:hover { border-color: var(--accent); color: var(--accent); }
+.build .chip-w { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+/* Un bloc par chapitre sur l'accueil : le titre, puis ses pastilles. */
+.chapitre { margin-top: .75rem; }
+.chapitre:first-child { margin-top: 0; }
+.chapitre .line { margin-top: .375rem; }
+
 .pair { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
 .btn {
   border: 1px solid var(--line);
@@ -663,6 +694,28 @@ const COURSE = [
     { q: "Tu quittes ton patron. Tu dis…", o: ["Auf Wiedersehen", "Tschüss", "Guten Tag", "Hallo"], a: 0, why: "<b>Auf Wiedersehen</b> est la formule polie. <b>Tschüss</b> se garde pour les proches." },
     { q: "Le « Sie » de politesse s'écrit…", o: ["toujours avec une majuscule", "en minuscule", "en majuscules entières", "avec un accent"], a: 0, why: "La majuscule est le seul signe qui distingue <b>Sie</b> (vous) de <b>sie</b> (elle / ils)." },
     { q: "« Wie geht's? » veut dire…", o: ["Comment ça va ?", "Où vas-tu ?", "Quel âge as-tu ?", "Comment t'appelles-tu ?"], a: 0, why: "C'est la contraction de <b>Wie geht es?</b> — littéralement « comment ça marche ? »." }
+  ],
+  drills: [
+    { t: "order", f: "Je m'appelle Anna.", a: "Ich heiße Anna",
+      why: "Sujet, verbe, reste. La charpente de base." },
+    { t: "order", f: "Comment t'appelles-tu ?", a: "Wie heißt du",
+      why: "Le mot en W- prend la place 1, le verbe la place 2, et le sujet passe derrière." },
+    { t: "gap", f: "Je suis étudiant.", s: "Ich ___ Student.", a: "bin",
+      why: "<b>sein</b> est irrégulier : ich <b>bin</b>, du <b>bist</b>, er <b>ist</b>." },
+    { t: "gap", f: "Tu es Anna.", s: "Du ___ Anna.", a: "bist",
+      why: "Avec <b>du</b>, c'est toujours <b>bist</b>." },
+    { t: "gap", f: "Il est étudiant.", s: "Er ___ Student.", a: "ist",
+      why: "<b>er / sie / es</b> partagent la même forme : <b>ist</b>." },
+    { t: "trans", inst: "Passe du tutoiement au vouvoiement.", from: "Wie heißt du?", a: "Wie heißen Sie?",
+      why: "<b>Sie</b> prend la forme de l'infinitif — <b>heißen</b> — et garde sa majuscule." },
+    { t: "trans", inst: "Mets à la deuxième personne (du).", from: "Ich bin Student.", a: "Du bist Student.",
+      why: "<b>ich bin</b> devient <b>du bist</b>. Le nom, lui, ne bouge pas." },
+    { t: "trad", f: "Bonjour ! Je m'appelle Anna.", a: "Guten Tag! Ich heiße Anna.",
+      why: "Deux phrases courtes, chacune sujet puis verbe." },
+    { t: "trad", f: "Comment ça va ?", a: "Wie geht's?",
+      why: "Contraction de <b>Wie geht es?</b>. On écrit aussi <b>Wie geht es dir?</b>." },
+    { t: "trad", f: "Au revoir !", a: "Auf Wiedersehen!",
+      why: "La formule polie. Entre proches, <b>Tschüss!</b>." }
   ]
 },
 
@@ -1241,7 +1294,30 @@ const COURSE = [
 
 ];
 
-const TOTAL_PLANNED = 30; // objectif du cours complet
+const TOTAL_PLANNED = 30; // objectif du cours complet, en étapes
+
+/* Niveau > Chapitre > Étape.
+   Les chapitres regroupent des étapes CONSÉCUTIVES : la progression
+   pédagogique est linéaire (on ne peut pas voir l'accusatif avant le
+   présent), regrouper par thème obligerait à la casser.
+   Le mot « étape » désigne ici une séance de travail. Les écrans qui la
+   composent n'ont pas de nom : ils sont simplement numérotés. */
+const LEVEL = "A1";
+const CHAPTERS = [
+  { n: 1, title: "Les premiers mots",   steps: [1, 2, 3] },
+  { n: 2, title: "Compter et posséder", steps: [4, 5, 6] },
+  { n: 3, title: "Demander et décrire", steps: [7, 8, 9] },
+  { n: 4, title: "Organiser sa vie",    steps: [10, 11, 12] }
+];
+
+/* Le chapitre auquel appartient une étape, et son rang à l'intérieur. */
+function chapterOf(stepNo) {
+  for (let i = 0; i < CHAPTERS.length; i++) {
+    const pos = CHAPTERS[i].steps.indexOf(stepNo);
+    if (pos !== -1) return { chapter: CHAPTERS[i], rank: pos + 1 };
+  }
+  return null;
+}
 
 /* ===============================================================
    2. L'ÉTAT
@@ -1483,8 +1559,8 @@ function shuffleIdx(n) {
   return a;
 }
 
-/* Un jour est atteignable s'il est déjà fait, ou s'il suit immédiatement
-   les jours validés. Sert aux pastilles de l'accueil et aux boutons de leçon. */
+/* Une étape est atteignable si elle est déjà faite, ou si elle suit
+   immédiatement les étapes validées. Sert aux pastilles de l'accueil. */
 function reachable(n) {
   return n >= 1 && n <= COURSE.length &&
          (S.done.indexOf(n) !== -1 || n <= Math.max(1, S.done.length + 1));
@@ -1497,13 +1573,29 @@ function home() {
   const lesson = COURSE[S.day - 1];
   const due = dueCards().length;
   const doneToday = S.done.indexOf(S.day) !== -1;
+  const place = chapterOf(S.day);
+  const nbDrills = (lesson.drills || []).length;
 
+  // Une ligne de pastilles par chapitre, avec son titre : on voit d'un coup
+  // d'œil où l'on en est DANS le chapitre, pas seulement dans le cours.
   let stations = "";
-  for (let n = 1; n <= COURSE.length; n++) {
-    const cls = S.done.indexOf(n) !== -1 ? "done" : (n === S.day ? "now" : "soon");
-    stations += '<button class="station ' + cls + '" data-day="' + n + '" aria-label="Jour ' + n + '">' +
-                '<span class="dot"></span><span class="n">' + n + '</span></button>';
-  }
+  CHAPTERS.forEach(function (ch) {
+    const dispo = ch.steps.filter(function (n) { return n <= COURSE.length; });
+    if (!dispo.length) return;
+    const faits = dispo.filter(function (n) { return S.done.indexOf(n) !== -1; }).length;
+    stations +=
+      '<div class="chapitre">' +
+        '<span class="label">Chapitre ' + ch.n + ' &#183; ' + esc(ch.title) +
+          ' &#183; ' + faits + '/' + dispo.length + '</span>' +
+        '<div class="line">' +
+          dispo.map(function (n) {
+            const cls = S.done.indexOf(n) !== -1 ? "done" : (n === S.day ? "now" : "soon");
+            return '<button class="station ' + cls + '" data-day="' + n + '" aria-label="Étape ' + n + '">' +
+                   '<span class="dot"></span><span class="n">' + n + '</span></button>';
+          }).join("") +
+        '</div>' +
+      '</div>';
+  });
 
   const finished = S.done.length >= COURSE.length;
 
@@ -1511,14 +1603,16 @@ function home() {
     '<div class="stack">',
 
       '<div class="stack-s">',
-        '<span class="label">Progression &#183; ' + S.done.length + ' / ' + COURSE.length + ' jours &#183; ' + TOTAL_PLANNED + ' prévus</span>',
-        '<div class="line">' + stations + '</div>',
+        '<span class="label">Niveau ' + LEVEL + ' &#183; ' + S.done.length + ' / ' + COURSE.length +
+          ' étapes &#183; ' + TOTAL_PLANNED + ' prévues</span>',
+        stations,
       '</div>',
 
       '<div class="plate">',
         '<div class="num"><b>' + S.day + '</b></div>',
         '<div>',
-          '<span class="label">' + (doneToday ? 'Jour terminé' : 'Jour en cours') + '</span>',
+          '<span class="label">' + (doneToday ? 'Étape terminée' : 'Étape en cours') +
+            (place ? ' &#183; chapitre ' + place.chapter.n : '') + '</span>',
           '<h2>' + esc(lesson.title) + '</h2>',
           '<p class="de">' + esc(lesson.de) + '</p>',
         '</div>',
@@ -1526,7 +1620,7 @@ function home() {
 
       '<div class="modes">',
         '<button class="mode" data-go="lesson">',
-          '<div class="txt"><strong>La leçon</strong><span>' + lesson.steps.length + ' étapes courtes, ' + lesson.vocab.length + ' mots</span></div>',
+          '<div class="txt"><strong>La leçon</strong><span>' + lesson.steps.length + ' écrans, ' + lesson.vocab.length + ' mots</span></div>',
           '<span class="chip">' + lesson.steps.length + '</span>',
         '</button>',
         // Rien à réviser n'est plus un cul-de-sac : on bascule sur l'entraînement
@@ -1543,18 +1637,24 @@ function home() {
           '<div class="txt"><strong>L\'oral</strong><span>Écoute seule — écris ou traduis ce qui est dit</span></div>',
           '<span class="chip">' + ORAL_SIZE + '</span>',
         '</button>',
+        '<button class="mode" data-go="drills"' + (nbDrills ? '' : ' disabled') + '>',
+          '<div class="txt"><strong>Les exercices</strong><span>' +
+            (nbDrills ? 'Ordre des mots, trous, transformations, traductions'
+                      : 'Pas encore d\'exercices pour cette étape') + '</span></div>',
+          '<span class="chip">' + nbDrills + '</span>',
+        '</button>',
         '<button class="mode" data-go="quiz">',
-          '<div class="txt"><strong>Le quiz</strong><span>' + (doneToday ? 'Refaire le test du jour ' + S.day : 'Valide le jour ' + S.day + ' et débloque la suite') + '</span></div>',
+          '<div class="txt"><strong>Le quiz</strong><span>' + (doneToday ? 'Refaire le test de cette étape' : 'Valide cette étape et débloque la suite') + '</span></div>',
           '<span class="chip' + (doneToday ? ' ok' : '') + '">' + (S.scores[S.day] != null ? S.scores[S.day] + '/' + lesson.quiz.length : lesson.quiz.length) + '</span>',
         '</button>',
       '</div>',
 
       // Le jour est fini mais l'envie est là : on ne renvoie pas à demain.
       (doneToday && reachable(S.day + 1)
-        ? '<button class="btn primary wide" data-lesson="' + (S.day + 1) + '">Enchaîner sur le jour ' + (S.day + 1) + '</button>'
+        ? '<button class="btn primary wide" data-lesson="' + (S.day + 1) + '">Enchaîner sur l\'étape ' + (S.day + 1) + '</button>'
         : ''),
 
-      finished ? '<div class="card"><span class="label">Fin de la série</span><p class="msg" style="margin:.5rem 0 0">Tu as terminé les ' + COURSE.length + ' jours écrits. Demande-moi la suite — le contenu s\'ajoute dans un seul fichier.</p></div>' : '',
+      finished ? '<div class="card"><span class="label">Fin de la série</span><p class="msg" style="margin:.5rem 0 0">Tu as terminé les ' + COURSE.length + ' étapes écrites. Demande-moi la suite — le contenu s\'ajoute dans un seul fichier.</p></div>' : '',
 
       !storageOK ? '<p class="warn">Ton navigateur bloque le stockage local : la progression ne sera pas conservée après fermeture. Essaie hors navigation privée.</p>' : '',
 
@@ -1596,6 +1696,7 @@ function lessonView() {
 
 function renderStep() {
   const l = COURSE[S.day - 1];
+  const place = chapterOf(S.day);
   if (stepIdx >= l.steps.length) return renderRecap();
 
   const st = l.steps[stepIdx];
@@ -1640,7 +1741,10 @@ function renderStep() {
     backBar('Accueil'),
     '<div class="stack">',
       '<div class="stack-s">',
-        '<span class="label">Jour ' + S.day + ' &#183; ' + esc(l.title) + ' &#183; étape ' + (stepIdx + 1) + ' sur ' + l.steps.length + '</span>',
+        // Chapitre, rang de l'étape dans le chapitre, puis position dans la leçon.
+        // Les écrans internes n'ont pas de nom : ils sont seulement numérotés.
+        '<span class="label">' + (place ? 'Chapitre ' + place.chapter.n + ' &#183; étape ' + place.rank + ' &#183; ' : '') +
+          esc(l.title) + ' &#183; ' + (stepIdx + 1) + ' sur ' + l.steps.length + '</span>',
         '<div class="meter">' + l.steps.map(function (_, i) {
           return '<i class="' + (i <= stepIdx ? 'on' : '') + '"></i>';
         }).join("") + '</div>',
@@ -1681,7 +1785,7 @@ function renderRecap() {
         '<button class="btn" data-act="step-restart">Revoir</button>',
         '<button class="btn primary" data-go="quiz">Passer au quiz</button>',
       '</div>',
-      S.day > 1 ? '<button class="btn wide" data-lesson="' + (S.day - 1) + '">Revenir au jour ' + (S.day - 1) + '</button>' : '',
+      S.day > 1 ? '<button class="btn wide" data-lesson="' + (S.day - 1) + '">Revenir à l\'étape ' + (S.day - 1) + '</button>' : '',
     '</div>'
   ].join("");
 }
@@ -1856,7 +1960,7 @@ function renderCard() {
         // Pas de total : il grandit en cours de route, puisqu'un mot qui monte
         // de niveau repasse dans la séance. « Encore N » ne ment jamais.
         '<span class="label">' + (left > 0 ? 'Encore ' + left : 'Dernière carte') +
-          ' &#183; jour ' + c.day + ' &#183; ' + tag + '</span>',
+          ' &#183; étape ' + c.day + ' &#183; ' + tag + '</span>',
         '<div class="meter">' + deck.map(function (_, i) { return '<i class="' + (i < pos ? 'on' : '') + '"></i>'; }).join("") + '</div>',
       '</div>',
 
@@ -1988,17 +2092,17 @@ function renderQuestion() {
       '<div class="stack">',
         '<div class="score"><b>' + qScore + '/' + l.quiz.length + '</b><span>' +
           (passed
-            ? (d < COURSE.length ? 'Jour validé. Le jour ' + (d + 1) + ' est débloqué.' : 'Jour validé.')
+            ? (d < COURSE.length ? 'Étape validée. L\'étape ' + (d + 1) + ' est débloquée.' : 'Étape validée.')
             : 'Il faut ' + need + ' bonnes réponses sur ' + l.quiz.length + ' pour valider. Relis la leçon et retente.') +
         '</span></div>',
         // On repart du jour TESTÉ (d), pas du jour courant : la validation
         // vient peut-être de faire passer S.day au suivant.
         nextOK
           ? '<div class="pair">' +
-              '<button class="btn" data-lesson="' + d + '">Revoir le jour ' + d + '</button>' +
+              '<button class="btn" data-lesson="' + d + '">Revoir l\'étape ' + d + '</button>' +
               '<button class="btn primary" data-lesson="' + (d + 1) + '">Leçon suivante</button>' +
             '</div>'
-          : '<button class="btn wide" data-lesson="' + d + '">Revoir le jour ' + d + '</button>',
+          : '<button class="btn wide" data-lesson="' + d + '">Revoir l\'étape ' + d + '</button>',
         '<button class="btn' + (nextOK ? '' : ' primary') + ' wide" data-go="home">Accueil</button>',
       '</div>'
     ].join("");
@@ -2020,7 +2124,7 @@ function renderQuestion() {
     backBar('Accueil'),
     '<div class="stack">',
       '<div class="stack-s">',
-        '<span class="label">Quiz &#183; jour ' + S.day + ' &#183; question ' + (qi + 1) + ' sur ' + l.quiz.length + '</span>',
+        '<span class="label">Quiz &#183; étape ' + S.day + ' &#183; question ' + (qi + 1) + ' sur ' + l.quiz.length + '</span>',
         '<div class="meter">' + l.quiz.map(function (_, i) {
           return '<i class="' + (i < qi || (answered && i === qi) ? (qLog[i] === l.quiz[qOrder[i]].a ? 'on' : 'err') : '') + '"></i>';
         }).join("") + '</div>',
@@ -2225,18 +2329,163 @@ function renderOral() {
   ].join("");
 }
 
+/* ---------- Les exercices ----------
+   Quatre formes, pour ne pas servir le même QCM indéfiniment :
+
+     order  remettre les mots dans l'ordre  — l'ordre des mots allemand, qui
+                                              ne s'apprend que comme ça
+     gap    compléter un trou               — terminaisons, articles, cas
+     trans  transformer une phrase          — négation, question : la mécanique
+     trad   traduire une phrase entière     — tout à la fois
+
+   Ils vivent dans `drills`, au niveau de l'étape. Une étape sans `drills`
+   n'affiche simplement pas le mode. */
+let drills = [], di = 0, drillVerdict = null, orderPool = [], orderPicked = [];
+
+function drillsView() {
+  const src = (COURSE[S.day - 1] || {}).drills || [];
+  drills = shuffleIdx(src.length).map(function (i) { return src[i]; });
+  di = 0;
+  setupDrill();
+  return renderDrill();
+}
+
+/* Prépare l'exercice courant. Pour « remettre dans l'ordre », les étiquettes
+   sont tirées une fois ici : les remélanger à chaque redessin les ferait
+   sauter sous le doigt. */
+function setupDrill() {
+  drillVerdict = null;
+  orderPicked = [];
+  orderPool = [];
+  const d = drills[di];
+  if (d && d.t === "order") {
+    const mots = bareSentence(d.a).split(" ");
+    orderPool = shuffleIdx(mots.length).map(function (i) { return mots[i]; });
+  }
+}
+
+/* La phrase sans sa ponctuation : ce sont les mots qu'on assemble. */
+function bareSentence(s) {
+  return String(s).replace(/[.,!?;:]/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function drillAnswer(d) {
+  return orderPicked.map(function (i) { return orderPool[i]; }).join(" ");
+}
+
+function checkDrill(d, typed) {
+  if (d.t === "order") {
+    const got = normDE(drillAnswer(d));
+    if (!got) return { ok: false, kind: "empty" };
+    return got === normDE(bareSentence(d.a))
+      ? { ok: true, kind: "exact" }
+      : { ok: false, kind: "wrong" };
+  }
+  return checkAnswer(typed, d.a);
+}
+
+function renderDrill() {
+  if (!drills.length) {
+    return [
+      backBar('Accueil'),
+      '<div class="stack">',
+        '<div class="card"><span class="label">Les exercices</span>',
+          '<p class="msg" style="margin:.5rem 0 0">Cette étape n\'a pas encore d\'exercices écrits.</p></div>',
+        '<button class="btn primary wide" data-go="home">Retour à l\'accueil</button>',
+      '</div>'
+    ].join("");
+  }
+
+  if (di >= drills.length) {
+    touchStreak();
+    const bons = drills.filter(function (x) { return x.ok; }).length;
+    return [
+      backBar('Accueil'),
+      '<div class="stack">',
+        '<div class="score"><b>' + bons + '/' + drills.length + '</b><span>exercices réussis.</span></div>',
+        '<button class="btn wide" data-go="drills">Recommencer</button>',
+        '<button class="btn primary wide" data-go="home">Retour à l\'accueil</button>',
+      '</div>'
+    ].join("");
+  }
+
+  const d = drills[di];
+  const consignes = {
+    order: "Remets les mots dans l'ordre.",
+    gap:   "Complète la phrase.",
+    trans: d.inst || "Transforme la phrase.",
+    trad:  "Traduis en allemand."
+  };
+
+  const head = [
+    backBar('Accueil'),
+    '<div class="stack">',
+      '<div class="stack-s">',
+        '<span class="label">Exercice ' + (di + 1) + ' sur ' + drills.length + '</span>',
+        '<div class="meter">' + drills.map(function (_, i) {
+          return '<i class="' + (i < di ? (drills[i].ok ? 'on' : 'err') : '') + '"></i>';
+        }).join("") + '</div>',
+      '</div>',
+      '<div class="card">',
+        '<h3 class="sec">' + esc(consignes[d.t] || "") + '</h3>',
+        d.f     ? '<p class="q" style="margin-top:.75rem">' + esc(d.f) + '</p>' : '',
+        d.from  ? '<p class="de" style="margin-top:.5rem">' + esc(d.from) + '</p>' : '',
+        d.s     ? '<p class="de" style="margin-top:.5rem">' + esc(d.s) + '</p>' : '',
+      '</div>'
+  ].join("");
+
+  if (!drillVerdict) {
+    const saisie = d.t === "order"
+      ? [
+          '<div class="build">' +
+            orderPicked.map(function (p, k) {
+              return '<button class="chip-w" data-unchip="' + k + '">' + esc(orderPool[p]) + '</button>';
+            }).join("") +
+          '</div>',
+          '<div class="chips">' +
+            orderPool.map(function (w, i) {
+              return orderPicked.indexOf(i) !== -1 ? '' :
+                '<button class="chip-w" data-chip="' + i + '">' + esc(w) + '</button>';
+            }).join("") +
+          '</div>'
+        ].join("")
+      : '<input class="answer" id="answer" type="text" enterkeyhint="done"' +
+        ' autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"' +
+        ' aria-label="Ta réponse">';
+
+    return head + saisie + [
+      '<div class="pair">',
+        '<button class="btn" data-act="drill-skip">Je ne sais pas</button>',
+        '<button class="btn primary" data-act="drill-check">Vérifier</button>',
+      '</div>',
+    '</div>'
+    ].join("");
+  }
+
+  return head + [
+    '<div class="flash">',
+      '<div class="sol">' + esc(d.a) + '</div>',
+      drillVerdict.typed ? '<div class="tip">Tu as écrit : ' + esc(drillVerdict.typed) + '</div>' : '',
+    '</div>',
+    '<div class="why ' + (drillVerdict.ok ? "good" : "bad") + '">' +
+      (drillVerdict.ok ? "Exact. " : "") + (d.why || "") + '</div>',
+    '<button class="btn primary wide" data-act="drill-next">Continuer</button>',
+  '</div>'
+  ].join("");
+}
+
 /* ===============================================================
    5. NAVIGATION — un seul écouteur pour toute l'app
    =============================================================== */
 const ROUTES = {
   home: home, lesson: lessonView, cards: cardsView,
-  practice: practiceView, oral: oralView, quiz: quizView
+  practice: practiceView, oral: oralView, drills: drillsView, quiz: quizView
 };
 
 function go(name) { show(ROUTES[name]()); }
 
 view.addEventListener("click", function (e) {
-  const t = e.target.closest("[data-go],[data-act],[data-pick],[data-grade],[data-day],[data-lesson],[data-say],[data-scheck]");
+  const t = e.target.closest("[data-go],[data-act],[data-pick],[data-grade],[data-day],[data-lesson],[data-say],[data-scheck],[data-chip],[data-unchip]");
   if (!t) return;
 
   if (t.hasAttribute("data-say")) { speak(t.getAttribute("data-say")); return; }
@@ -2311,6 +2560,25 @@ view.addEventListener("click", function (e) {
     return;
   }
   if (t.dataset.act === "oral-next") { oi++; oralVerdict = null; show(renderOral()); return; }
+
+  /* --- les exercices --- */
+  if (t.dataset.chip)   { orderPicked.push(Number(t.dataset.chip)); show(renderDrill()); return; }
+  if (t.dataset.unchip) { orderPicked.splice(Number(t.dataset.unchip), 1); show(renderDrill()); return; }
+  if (t.dataset.act === "drill-check" || t.dataset.act === "drill-skip") {
+    const d = drills[di];
+    const inp = document.getElementById("answer");
+    const raw = inp ? inp.value : "";
+    if (t.dataset.act === "drill-skip") {
+      drillVerdict = { ok: false, kind: "dunno", typed: "" };
+    } else {
+      drillVerdict = checkDrill(d, raw);
+      drillVerdict.typed = d.t === "order" ? drillAnswer(d) : raw.trim();
+    }
+    d.ok = drillVerdict.ok;
+    show(renderDrill());
+    return;
+  }
+  if (t.dataset.act === "drill-next") { di++; setupDrill(); show(renderDrill()); return; }
 
   if (t.hasAttribute("data-pick")) {
     if (answered) return;
@@ -2456,6 +2724,44 @@ function runTests() {
        l.quiz.every(function (q) { return new Set(q.o).size === q.o.length; }));
     ok(tag + " : chaque question est expliquée", l.quiz.every(function (q) { return !!q.why; }));
   });
+
+  /* --- A bis. La structure Niveau / Chapitre / Étape --- */
+  ok("structure : chaque étape écrite appartient à un chapitre",
+     (function () {
+       for (let n = 1; n <= COURSE.length; n++) if (!chapterOf(n)) return false;
+       return true;
+     })());
+  ok("structure : aucune étape n'est rangée dans deux chapitres",
+     (function () {
+       const vus = {};
+       for (let i = 0; i < CHAPTERS.length; i++) {
+         for (let j = 0; j < CHAPTERS[i].steps.length; j++) {
+           const n = CHAPTERS[i].steps[j];
+           if (vus[n]) return false;
+           vus[n] = true;
+         }
+       }
+       return true;
+     })());
+  ok("structure : les chapitres regroupent des étapes consécutives",
+     CHAPTERS.every(function (ch) {
+       return ch.steps.every(function (n, i) { return i === 0 || n === ch.steps[i - 1] + 1; });
+     }));
+  ok("structure : chaque chapitre a un titre", CHAPTERS.every(function (ch) { return !!ch.title; }));
+  eq("structure : l'étape 1 ouvre le chapitre 1", chapterOf(1).chapter.n, 1);
+  eq("structure : et elle y est en première position", chapterOf(1).rank, 1);
+  eq("structure : l'étape 4 ouvre le chapitre 2", chapterOf(4).chapter.n, 2);
+  eq("structure : elle y est aussi en première position", chapterOf(4).rank, 1);
+  eq("structure : l'étape 6 ferme le chapitre 2", chapterOf(6).rank, 3);
+
+  S = fresh(); S.day = 1; seed(1);
+  go("home");
+  eq("accueil : un bloc par chapitre", view.querySelectorAll(".chapitre").length, CHAPTERS.length);
+  eq("accueil : une pastille par étape écrite", view.querySelectorAll(".station").length, COURSE.length);
+  ok("accueil : le niveau est annoncé", view.innerHTML.indexOf("Niveau " + LEVEL) !== -1);
+  ok("accueil : le mot « jour » a disparu de l'écran",
+     view.innerHTML.toLowerCase().indexOf(">jour") === -1 &&
+     view.innerHTML.indexOf(" jours ") === -1);
 
   /* --- B. Calcul des dates --- */
   eq("date : +2 jours franchit le mois", shift("2026-07-30", 2), "2026-08-01");
@@ -2664,7 +2970,7 @@ function runTests() {
   S = fresh(); S.day = 1; seed(1);
   go("home");
   eq("accueil : une station par jour du cours", view.querySelectorAll(".station").length, COURSE.length);
-  eq("accueil : les quatre modes sont présents", view.querySelectorAll(".mode").length, 4);
+  eq("accueil : les cinq modes sont présents", view.querySelectorAll(".mode").length, 5);
   eq("accueil : la plaque affiche le bon numéro", view.querySelector(".plate .num b").textContent, "1");
 
   go("cards");
@@ -3116,6 +3422,130 @@ function runTests() {
      })());
 
   TTS.voice = keepVoice;
+
+  /* --- T. Les exercices --- */
+  COURSE.forEach(function (l, i) {
+    const ds = l.drills || [];
+    if (!ds.length) return;
+    const tag = "étape " + (i + 1);
+    ok(tag + " : chaque exercice a un type connu",
+       ds.every(function (d) { return ["order", "gap", "trans", "trad"].indexOf(d.t) !== -1; }));
+    ok(tag + " : chaque exercice a une réponse et une explication",
+       ds.every(function (d) { return !!d.a && !!d.why; }));
+    ok(tag + " : chaque exercice pose sa question",
+       ds.every(function (d) { return !!(d.f || d.s || d.from); }));
+    ok(tag + " : les trous ont bien un trou",
+       ds.every(function (d) { return d.t !== "gap" || String(d.s).indexOf("___") !== -1; }));
+    ok(tag + " : les remises en ordre ont au moins trois mots",
+       ds.every(function (d) { return d.t !== "order" || bareSentence(d.a).split(" ").length >= 3; }));
+    ok(tag + " : la réponse attendue est acceptée par le correcteur",
+       ds.every(function (d) { return d.t === "order" || checkAnswer(d.a, d.a).ok; }));
+    ok(tag + " : plusieurs formes d'exercices, pas une seule en boucle",
+       (function () {
+         const vus = {};
+         ds.forEach(function (d) { vus[d.t] = true; });
+         return Object.keys(vus).length >= 3;
+       })());
+  });
+
+  S = fresh(); S.day = 1; seed(1);
+  go("drills");
+  eq("exercices : tous ceux de l'étape sont proposés", drills.length, COURSE[0].drills.length);
+  ok("exercices : l'ordre change d'une série à l'autre",
+     (function () {
+       const premiers = {};
+       for (let k = 0; k < 40; k++) { drillsView(); premiers[drills[0].a] = true; }
+       return Object.keys(premiers).length > 1;
+     })());
+
+  /* Remettre les mots dans l'ordre, en cliquant vraiment. */
+  S = fresh(); S.day = 1; seed(1);
+  go("drills");
+  drills = COURSE[0].drills.filter(function (d) { return d.t === "order"; }).slice(0, 1);
+  di = 0; setupDrill(); show(renderDrill());
+  const attendu = bareSentence(drills[0].a).split(" ");
+  eq("ordre : une étiquette par mot", view.querySelectorAll(".chips .chip-w").length, attendu.length);
+  ok("ordre : la zone de construction est vide au départ",
+     view.querySelectorAll(".build .chip-w").length === 0);
+
+  // On clique les etiquettes dans le bon ordre, en cherchant le mot voulu.
+  for (let k = 0; k < attendu.length; k++) {
+    const libres = view.querySelectorAll(".chips .chip-w");
+    let cible = null;
+    for (let z = 0; z < libres.length; z++) {
+      if (libres[z].textContent === attendu[k]) { cible = libres[z]; break; }
+    }
+    if (!cible) { ok("ordre : le mot « " + attendu[k] + " » est disponible", false); break; }
+    cible.click();
+  }
+  eq("ordre : tous les mots sont posés", view.querySelectorAll(".build .chip-w").length, attendu.length);
+  view.querySelector('[data-act="drill-check"]').click();
+  ok("ordre : la phrase reconstituée est acceptée", !!view.querySelector(".why.good"));
+
+  /* Le mauvais ordre doit être refusé — c'est tout l'intérêt. */
+  S = fresh(); S.day = 1; seed(1);
+  go("drills");
+  drills = COURSE[0].drills.filter(function (d) { return d.t === "order"; }).slice(0, 1);
+  di = 0; setupDrill(); show(renderDrill());
+  // On pose systématiquement la DERNIÈRE étiquette libre : la phrase sort à l'envers.
+  const nbMots = bareSentence(drills[0].a).split(" ").length;
+  for (let k = 0; k < nbMots; k++) {
+    const libres = view.querySelectorAll(".chips .chip-w");
+    libres[libres.length - 1].click();
+  }
+  // Le tirage étant aléatoire, cet ordre-là PEUT tomber juste. On vérifie donc
+  // l'invariant qui compte : le verdict correspond à ce qui a été construit.
+  const construit = normDE(drillAnswer(drills[0]));
+  const vise = normDE(bareSentence(drills[0].a));
+  view.querySelector('[data-act="drill-check"]').click();
+  ok("ordre : le verdict suit exactement la phrase construite",
+     construit === vise ? !!view.querySelector(".why.good") : !!view.querySelector(".why.bad"),
+     construit === vise ? "ordre juste" : "ordre faux, refusé");
+
+  /* Retirer une étiquette posée. */
+  S = fresh(); S.day = 1; seed(1);
+  go("drills");
+  drills = COURSE[0].drills.filter(function (d) { return d.t === "order"; }).slice(0, 1);
+  di = 0; setupDrill(); show(renderDrill());
+  view.querySelector(".chips .chip-w").click();
+  eq("ordre : une étiquette cliquée rejoint la phrase", view.querySelectorAll(".build .chip-w").length, 1);
+  view.querySelector(".build .chip-w").click();
+  eq("ordre : et on peut la reprendre", view.querySelectorAll(".build .chip-w").length, 0);
+
+  /* Les exercices au clavier. */
+  S = fresh(); S.day = 1; seed(1);
+  go("drills");
+  drills = COURSE[0].drills.filter(function (d) { return d.t === "gap"; }).slice(0, 1);
+  di = 0; setupDrill(); show(renderDrill());
+  ok("trou : un champ de saisie est proposé", !!view.querySelector("#answer"));
+  ok("trou : l'énoncé montre le trou", view.innerHTML.indexOf("___") !== -1);
+  document.getElementById("answer").value = drills[0].a;
+  view.querySelector('[data-act="drill-check"]').click();
+  ok("trou : la bonne réponse est acceptée", !!view.querySelector(".why.good"));
+  view.querySelector('[data-act="drill-next"]').click();
+  ok("exercices : on arrive au décompte final", !!view.querySelector(".score"));
+
+  S = fresh(); S.day = 1; seed(1);
+  go("drills");
+  drills = COURSE[0].drills.filter(function (d) { return d.t === "trad"; }).slice(0, 1);
+  di = 0; setupDrill(); show(renderDrill());
+  document.getElementById("answer").value = "n'importe quoi";
+  view.querySelector('[data-act="drill-check"]').click();
+  ok("traduction : une mauvaise réponse est refusée", !!view.querySelector(".why.bad"));
+  ok("traduction : la solution est montrée", !!view.querySelector(".flash .sol"));
+
+  /* Une étape sans exercices ne doit pas offrir un écran vide. */
+  S = fresh(); S.day = 1; seed(1);
+  const sansDrills = (function () {
+    for (let n = 1; n <= COURSE.length; n++) if (!(COURSE[n - 1].drills || []).length) return n;
+    return 0;
+  })();
+  if (sansDrills) {
+    S.day = sansDrills;
+    go("drills");
+    ok("exercices : une étape sans exercices l'annonce clairement",
+       view.innerHTML.indexOf("pas encore d'exercices") !== -1);
+  }
 
   /* --- P. Robustesse --- */
   ok("sécurité : le HTML des contenus est échappé", esc("<b>&</b>") === "&lt;b&gt;&amp;&lt;/b&gt;");
