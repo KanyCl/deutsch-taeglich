@@ -9,27 +9,38 @@ pas de publication sur un store.
 Adossée au livre papier d'Exsangue : **Werner Dubois & Alvaro Garcia Noble, © 2025,
 tous droits réservés**, 280 pages.
 
-⚠️ **Le titre « Apprendre l'allemand en 30 jours » noté ici jusqu'au 01/08/2026 était faux.**
-Photos du livre reçues le 01/08/2026 : il n'y a aucune notion de « jour ». Structure réelle :
+Le livre s'intitule bien **« Apprendre l'Allemand en 30 Jours »** — mais ces « 30 jours »
+sont un argument de couverture : **le sommaire ne mentionne aucun jour**. Sous-titre exact :
+« 7 livres en 1 : cours complet de A1 à C2 avec 162 leçons à partir de zéro ».
+Structure réelle, relevée sur les 42 photos le 01/08/2026 :
 
 ```
 6 niveaux : A1 (p.3-56) · A2 (61-106) · B1 (111-173) · B2 (178-220) · C1 (225-240) · C2 (245-264)
-└── chaque niveau est découpé en UNITÉS
+└── chaque niveau est découpé en UNITÉS, renumérotées à partir de 1 à chaque niveau
     └── chaque unité contient : un dialogue, des règles de grammaire,
         des listes de vocabulaire, des exercices
 └── un test de niveau à la fin de chaque niveau
 ```
 
-Le « 30 étapes prévues » affiché par l'app est donc une invention à corriger : il faut
-s'aligner sur le nombre réel d'unités du niveau A1.
+**Le niveau A1 compte 35 unités** (numérotées 0 à 34), de 1 à 3 pages chacune, plus un
+test de fin de niveau en 22 exercices (p.57-60). Le relevé complet — chaque unité, ses
+pages, sa grammaire, son vocabulaire — est dans **`PLAN-A1.md`**, avec la correspondance
+vers les 12 étapes déjà écrites.
+
+Le « 30 étapes prévues » de l'app venait donc du titre commercial, pas du contenu.
+Corrigé le 01/08/2026 : `TOTAL_PLANNED` vaut **35**.
 
 **Photos** dans `~/../livre/lecons/` (42 fichiers, tout le niveau A1) — **hors du dépôt git**,
 qui est public. Elles ne doivent jamais y entrer.
 
-**Usage du livre** : on s'en sert comme *plan* — ordre des unités, points de grammaire,
-listes de vocabulaire. Ce sont des faits, non protégeables. Les textes, dialogues et
-exercices du livre ne sont **pas** recopiés : l'app est publiée publiquement, et son
-contenu est rédigé indépendamment.
+**Usage du livre — changé le 01/08/2026.** L'app est la **copie de travail personnelle**
+d'Exsangue sur son propre livre : dépôt privé, aucune diffusion. On transcrit donc le
+livre **fidèlement** — dialogues, exercices, listes de vocabulaire, règles — unité par
+unité, en y ajoutant des exercices supplémentaires.
+
+⚠️ Cela ne tient que tant que l'app reste privée. Si elle devait être republiée un jour,
+tout le contenu repris du livre devrait en sortir d'abord. La consigne d'avant
+(« rédiger un contenu indépendant ») valait précisément parce que l'app était publique.
 
 ## Comment ça marche
 
@@ -68,6 +79,9 @@ l'entraînement et le compteur de « mots fragiles » sur l'accueil.
 | **Leçons en étapes plutôt qu'en prose** (v2) | Retour utilisateur direct : « des leçons plus simplifiées que juste devoir lire sans forcément comprendre ». Un mur de texte se survole ; une mini-question obligatoire ne se survole pas. |
 | **Mot à mot systématique** (v2) | Un débutant lit une phrase allemande sans savoir quel mot porte quel sens. L'alignement mot par mot rend la mécanique visible. |
 | **Niveau > Chapitre > Étape** (v3.0) | Demandé après usage : « j'ai fait les 12 jours en 30 minutes ». Appeler « jour » une séance de 2 min 30 était un mensonge sur le contrat. Les chapitres regroupent des étapes **consécutives** : la progression est linéaire (l'accusatif suppose le présent), regrouper par thème la casserait. Les écrans d'une leçon perdent leur nom — « étape » étant pris — et sont seulement numérotés. |
+| **Le dépôt est passé en PRIVÉ, et l'app transcrit le livre** (01/08/2026) | Exsangue veut le livre **retranscrit** : mêmes dialogues, mêmes exercices, tout pareil en numérique. Impossible tant que l'app était publiée — le livre est sous copyright (© 2025), et un site public n'est plus une copie personnelle mais une rediffusion. Le dépôt GitHub est donc passé en privé (`gh repo edit --visibility private`), ce qui a coupé GitHub Pages : `kanycl.github.io/deutsch-taeglich` renvoie désormais 404, vérifié. L'app redevient ce qu'elle était censée être — la copie de travail d'Exsangue sur son propre livre. **Conséquence : reste à trouver un hébergement privé pour l'iPhone** (piste : Cloudflare Pages + Access, gratuit, protégé par code). **Et règle nouvelle : on transcrit le livre fidèlement**, ce qui annule la consigne précédente d'écrire un contenu indépendant. |
+| **Le livre est un plan, pas une autorité** (01/08/2026) | Deux endroits où l'app s'en écarte sciemment, l'app étant publiée et devant enseigner un allemand juste. **1.** Le livre range l'âge du côté de *haben* (unité 7) — vrai en français, en italien et en espagnol, **faux en allemand**, qui dit *ich bin 25 Jahre alt*. L'étape 8 en fait un point d'attention explicite plutôt que de le recopier. **2.** L'âge figurait dans l'ancienne étape des nombres ; il relève de *sein*/*haben*, donc de l'unité 7 — déplacé à l'étape 8. Règle générale : on suit l'**ordre** et le **découpage** du livre, pas ses erreurs de langue. |
+| **L'app suit le livre unité par unité** (décidé le 01/08/2026) | Choix d'Exsangue, une fois le plan réel connu : étape N = unité N−1, pour pouvoir ouvrir le livre et l'app à la même page. Conséquence acceptée : l'ordre des 12 étapes déjà écrites est démonté — le présent des verbes réguliers passe de la 3ᵉ à la 11ᵉ place, la famille de la 12ᵉ à la 16ᵉ. Conséquence **découverte après coup**, plus lourde : la progression étant linéaire (valider l'étape N ouvre la N+1), on ne peut pas laisser de trous. Les 19 unités absentes doivent donc être écrites **dans l'ordre du livre**, en commençant par l'unité 0 — on ne peut pas se contenter de renuméroter ce qui existe. |
 | **Le champ interne reste `day`** (v3.0) | 116 occurrences, aucune valeur pour l'utilisateur. Seul l'affichage passe à « étape ». À renommer un jour, quand ce sera le sujet du moment plutôt qu'une diversion. |
 | **Réservoir plus grand que la séance** (v3.1) | Signalé après usage : « si je recommence la leçon, les exercices et les exemples sont mot pour mot les mêmes ». La v3.0 ne faisait que **mélanger** — l'ordre changeait, le contenu non. Il faut un vrai **tirage** : 8 exercices servis parmi 29, 5 phrases parmi 12. Le tri se fait par nombre de passages (`S.dseen`), à égalité au hasard : rien ne revient tant qu'il reste du jamais-vu, et tout finit par passer. Corollaire : chaque étape a besoin d'un réservoir d'au moins 3-4 séances, sinon le tirage ne diversifie rien. |
 | **Quatre formes d'exercices** (v3.0) | Demandé : « plus d'exercices, plus de phrases différentes, pas toujours les mêmes choses en boucle ». `order` est la plus importante : l'ordre des mots allemand ne s'apprend pas autrement, et rien ne le travaillait. Les exercices vivent dans `drills` au niveau de l'étape ; une étape sans `drills` masque le mode au lieu d'ouvrir un écran vide. |

@@ -1,3 +1,22 @@
+# ---------------------------------------------------------------------------
+# CE QUI NE DOIT JAMAIS PARTIR SUR LE DEPOT PUBLIC
+# ---------------------------------------------------------------------------
+#
+# index.html est le fichier de travail : il contient le livre transcrit
+# (Werner Dubois et Alvaro Garcia Noble, 2025). Il n'a sa place que sur le
+# disque d'Exsangue, qui possede le livre.
+#
+# Ce qui est publie, c'est docs\ : la meme app SANS le livre, produite par
+# .\sans-livre.ps1. Elle contient tout le reste — les 25 etapes, le code, les
+# tests — soit l'essentiel du travail. Le seul morceau non sauvegarde ici est
+# la transcription du livre, qui se refait depuis les photos.
+#
+# La barre oblique de tete est essentielle : « index.html » sans elle masquait
+# aussi docs/index.html, et le site serait parti sans page d'accueil.
+/index.html
+/public/
+/deploy/
+
 # Captures d'ecran : regenerees a la demande par .\test.ps1 -Shots
 captures/
 

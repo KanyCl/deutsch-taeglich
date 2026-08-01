@@ -113,12 +113,121 @@ par étape, 4,2 écrans, 2 mini-questions. Le squelette était bon, rempli au di
 - [x] **Découverte : la structure notée jusqu'ici était fausse.** Le livre n'a pas de
       « jours ». Il fait 280 pages, 6 niveaux A1→C2, chaque niveau découpé en **unités**
       (dialogue + grammaire + vocabulaire + exercices), avec un test en fin de niveau.
-      Le niveau A1 va des pages 3 à 56. Vu « Unité 4 — Niveau A1 » en page 10.
-- [ ] **À FAIRE EN PREMIER : lire les 42 photos et dresser le plan réel du niveau A1** —
-      combien d'unités, quel point de grammaire dans chacune, quelles listes de vocabulaire.
-- [ ] Réaligner les étapes de l'app sur ces unités. Le « 30 étapes prévues » actuel est
-      une invention ; le vrai nombre sortira du plan ci-dessus.
-- [ ] Vérifier si le découpage en 4 chapitres tient, ou s'il doit suivre les unités du livre.
+      Le niveau A1 va des pages 3 à 56.
+
+## Le plan du niveau A1 ✅ établi le 01/08/2026
+
+- [x] **Les 42 photos sont lues.** Couverture vérifiée page par page : **3 à 60, sans trou**
+      (le niveau A1 entier plus son test de fin de niveau). Relevé complet dans
+      **`PLAN-A1.md`** — les 35 unités, leurs pages, leur grammaire, leur vocabulaire.
+- [x] **Le niveau A1 compte 35 unités**, numérotées 0 à 34. Une unité fait 1 à 3 pages.
+      La numérotation redémarre à 1 au niveau A2 (p.61).
+- [x] **`TOTAL_PLANNED` corrigé : 30 → 35.** Le 30 venait du titre commercial du livre
+      (« Apprendre l'Allemand en 30 Jours ») — le sommaire, lui, ne parle jamais de jours.
+      Auto-test toujours au vert : **547 vérifications**.
+- [x] **Correspondance établie** entre les 12 étapes écrites et les unités du livre
+      (tableau dans `PLAN-A1.md`). Les 12 étapes couvrent 13 unités ; il en reste
+      **19 non couvertes** — dont l'alphabet, les salutations, le pluriel, l'ordre des
+      mots, les prépositions, les réfléchis, et tout le vocabulaire de situation
+      (restaurant, hôtel, transports, aéroport).
+- [x] **Tranché par Exsangue le 01/08/2026 : l'app suit le livre unité par unité.**
+      Étape N = unité N−1. L'ordre actuel des 12 étapes est donc démonté.
+
+## La restructuration — l'ordre du livre
+
+⚠️ **Conséquence découverte en préparant le travail, à ne pas re-découvrir :** on ne peut
+pas se contenter de renuméroter les 12 étapes existantes. La progression est **linéaire**
+(valider l'étape N ouvre la N+1) : une étape vide bloque tout ce qui suit. Or renuméroter
+les 12 étapes vers leurs positions du livre laisse des trous partout — à commencer par
+l'étape 1, qui n'existerait pas. **Il faut donc écrire les unités manquantes dans l'ordre
+du livre**, en avançant par un préfixe toujours complet.
+
+**Décision d'Exsangue, 01/08/2026 : les 12 anciennes étapes sont supprimées.** L'app ne
+contient plus que ce qui vient du livre. Elles restent dans l'historique git — commit
+`8883587` « Les exercices des douze étapes » — et servent de **matière première** : quand
+une unité recouvre un sujet déjà écrit, on y repuise au lieu de repartir de zéro.
+Les 16 unités concernées sont marquées « ex-étape N » dans la colonne Source.
+
+Ordre de travail, chaque ligne laissant l'app jouable jusque-là :
+
+| Étape | Unité | Source | État |
+|---|---|---|---|
+| 1 | 0 · L'alphabet et les sons | écrite le 01/08/2026 | ✅ |
+| 2 | 1 · Langues et nationalités | écrite le 01/08/2026 | ✅ |
+| 3 | 2 · Se présenter | écrite — ex-étape 1 reprise, salutations et table de *sein* retirées | ✅ |
+| 4 | 3 · Les salutations | écrite — vocabulaire de l'ex-étape 1 + *bis…*, *Gute Nacht* | ✅ |
+| 5 | 4 · Les substantifs, le genre | écrite — ex-étape 2 + les terminaisons du livre | ✅ |
+| 6 | 5 · Le pluriel | écrite — contenu neuf | ✅ |
+| 7 | 6 · Les nombres | écrite — ex-étape 4 + jusqu'à 10 000 + les ordinaux | ✅ |
+| 8 | 7 · Sein et haben, à quoi ils servent | écrite — ex-étapes 1 et 5, + l'âge | ✅ |
+| 9 | 8 · Sein et haben au présent | écrite — tables des ex-étapes 1 et 5 | ✅ |
+| 10 | 9 · Les couleurs | écrite — ex-étape 8 (partie couleurs) | ✅ |
+| 11 | 10 · Les verbes réguliers | ex-étape 3 | ⬜ |
+| 12 | 11 · Les verbes irréguliers | ex-étape 9 | ⬜ |
+| 13 | 12 · Les déclinaisons, les 4 cas | ex-étape 6 (accusatif) + datif et génitif à écrire | ⬜ |
+| 14 | 13 · Les animaux | à écrire | ⬜ |
+| 15 | 14 · Es gibt / da ist | à écrire | ⬜ |
+| 16 | 15 · La famille | ex-étape 12 | ⬜ |
+| 17 | 16 · Les adjectifs | ex-étape 8 (partie adjectifs) | ⬜ |
+| 18 | 17 · Vie quotidienne | à écrire | ⬜ |
+| 19 | 18 · L'heure | ex-étape 10 (partie heure) | ⬜ |
+| 20 | 19 · Les adverbes | à écrire | ⬜ |
+| 21 | 20 · Poser des questions | ex-étape 7 | ⬜ |
+| 22 | 21 · Le calendrier | ex-étape 10 (partie jours) | ⬜ |
+| 23 | 22 · La nourriture | à écrire | ⬜ |
+| 24 | 23 · L'ordre des mots | à écrire | ⬜ |
+| 25 | 24 · Les verbes modaux | ex-étape 11 | ⬜ |
+| 26 | 25 · Les boissons | à écrire | ⬜ |
+| 27 | 26 · Ça me plaît | à écrire | ⬜ |
+| 28 | 27 · Au restaurant | à écrire | ⬜ |
+| 29 | 28 · Es gibt, reprise | à écrire (ou fusionner avec l'étape 15) | ⬜ |
+| 30 | 29 · Les transports | à écrire | ⬜ |
+| 31 | 30 · La négation | ex-étape 5 (partie négation) | ⬜ |
+| 32 | 31 · Les pronoms réfléchis | à écrire | ⬜ |
+| 33 | 32 · Les prépositions | à écrire | ⬜ |
+| 34 | 33 · À l'hôtel | à écrire | ⬜ |
+| 35 | 34 · À l'aéroport | à écrire | ⬜ |
+
+### Avancement au 01/08/2026
+
+- [x] **Étapes 1 et 2 écrites** (unités 0 et 1) : leçon en 5 écrans, 12 phrases d'exemple,
+      10 mots de vocabulaire, 5 questions de quiz, 28 exercices chacune.
+- [x] **Les 12 anciennes étapes supprimées** à la demande d'Exsangue : l'app ne suit plus
+      que le livre. Récupérables dans l'historique git (`8883587`) au fur et à mesure.
+- [x] Chapitres réduits à un seul, « Lire et situer » (étapes 1-2). Il s'allongera avec
+      le cours : on ne déclare que ce qui existe.
+- [x] **Corrigé : trois vérifications nommaient « l'étape 4 » et « l'étape 6 » en dur.**
+      Elles cassaient à chaque changement de structure au lieu de signaler un vrai défaut.
+      Remplacées par des règles générales : chaque chapitre reprend où le précédent
+      s'arrête, le dernier finit sur la dernière étape écrite.
+- [x] **Corrigé : cinq vérifications visaient `COURSE[0]` en dur** pour tester les formes
+      d'exercices. L'étape 1 portant sur les sons, elle n'a pas d'exercice « remettre dans
+      l'ordre » — il n'y a pas encore de phrase à ordonner — et l'auto-test plantait
+      (`Cannot read properties of undefined`). Elles visent désormais **la première étape
+      qui contient la forme testée**. Une nouvelle vérification s'assure que chacune des
+      quatre formes existe quelque part dans le cours.
+- [x] Auto-test : **297 vérifications**, toutes au vert. (Le nombre baisse de 609 à 297
+      parce que l'essentiel des vérifications portait sur le contenu des 12 étapes
+      supprimées — ce n'est pas une perte de couverture, mais moins de contenu à couvrir.)
+- [x] Écran d'accueil relu en capture : « 0 / 2 étapes · 35 prévues », les 5 modes en place.
+
+- [x] **Étapes 3 à 6 écrites** (unités 2 à 5), même densité que les deux premières.
+      Auto-test : **401 vérifications**. Chapitres : « Lire et situer » (1-2),
+      « Aborder les gens » (3-4), « Nommer les choses » (5-6).
+- [x] Défaut attrapé par l'auto-test à l'étape 6 : un exercice de remise en ordre à deux
+      mots seulement (« Viele Kinder »), donc infaisable — il n'y a qu'un ordre possible.
+      Rallongé en « Viele Kinder sind hier ».
+
+- [x] **Étapes 7 à 10 écrites** (unités 6 à 9). Auto-test : **505 vérifications**.
+      Chapitre 4 « Être et avoir » (8-10) ajouté.
+- [x] **Deux endroits où l'app ne recopie volontairement pas le livre**, notés dans
+      `context.md` : l'âge (le livre le range sous *haben*, l'allemand dit *ich bin …
+      Jahre alt*) et l'âge retiré de l'unité 6, où il n'a rien à faire.
+
+- [ ] **Reprendre ici : l'étape 11 (unité 10, les verbes réguliers).** Repartir de
+      l'ex-étape 3 dans git (`git show 8883587:index.html`) : terminaisons
+      -e / -st / -t / -en / -t / -en, sur *spielen*, *lernen*, *kaufen*.
+- [ ] Revoir le découpage en chapitres au fur et à mesure : il devra couvrir 35 étapes.
 
 - [ ] **Phase 3b : les phrases d'exemple.** Seule l'étape 1 est à la
       cible avec 12 phrases ; **les étapes 2 à 12 n'en ont que 3 chacune**. Le
@@ -127,6 +236,250 @@ par étape, 4,2 écrans, 2 mini-questions. Le squelette était bon, rempli au di
       (même idée tournée autrement).
 - [ ] Les étapes 13 à 30 restent à écrire.
 - [ ] Les étapes 13 à 30 restent à écrire.
+
+## L'onglet « Le livre » — ouvert le 01/08/2026
+
+Demande d'Exsangue : garder l'app telle quelle — « la partie oral est vraiment
+intéressante dans l'état actuel » — et **ajouter à côté un onglet séparé** contenant le
+livre lui-même : ses leçons, ses dialogues, ses exercices, et son test final.
+
+- [x] **Dépôt repassé en PRIVÉ.** Condition non négociable : le livre est sous copyright
+      (© 2025). Il n'a sa place dans l'app que parce qu'elle est la copie de travail
+      personnelle d'Exsangue sur son propre exemplaire. Vérifié : l'adresse publique
+      renvoie 404. ⚠️ **Si l'app est republiée un jour, `BOOK` et `BOOK_TEST` doivent en
+      sortir d'abord** — c'est exactement pourquoi le livre vit dans ses propres tableaux
+      et son propre onglet : la frontière doit rester nette.
+- [x] **Trois écrans** : le sommaire des unités, une unité, le test de fin de niveau.
+- [x] ⚠️ **Conception corrigée le 01/08/2026, après retour d'Exsangue.** La première
+      version était volontairement passive — on lisait, rien n'était corrigé, au motif
+      que la correction était le métier du reste de l'app. Exsangue l'a arrêtée net :
+      « j'aimerais pouvoir répondre aux questions du livre et que tu me corriges ».
+      Il avait raison : **un exercice qu'on ne peut pas faire n'est plus un exercice.**
+      Les questions du livre sont désormais **corrigées**, avec le *même* moteur que le
+      reste de l'app (`checkAnswer` pour l'allemand, `checkFR` pour le français) — pas un
+      second correcteur, qui finirait par diverger du premier.
+- [x] Deux sortes de questions : `a` (réponse attendue → correction) et `model` (question
+      ouverte type « décrivez votre famille » → réponse possible à comparer). Prétendre
+      corriger une question ouverte serait mentir sur ce que l'app sait faire.
+- [x] **Toutes les réponses du test de fin de niveau écrites** — 22 exercices, 45 questions.
+- [x] Défaut attrapé par l'auto-test : les boutons du livre manquaient dans la liste des
+      éléments cliquables. La correction marchait, mais **rien ne se passait au clic**.
+      Le test ne l'avait pas vu parce qu'il appelait la fonction directement au lieu de
+      cliquer — corrigé lui aussi, il clique désormais pour de vrai.
+- [x] Dialogue réplique par réplique, chacune écoutable, **traduction cachée** derrière un
+      bouton — pour ne pas la lire avant d'avoir essayé.
+- [x] **Unité 0** (l'alphabet, p.3) et **unité 1** (les langues et nationalités, p.4)
+      transcrites, dialogue et exercices compris.
+- [x] **Test de fin de niveau** transcrit en entier : les 22 exercices, p.57-60.
+- [x] Auto-test : **632 vérifications**, dont 14 pour le seul onglet.
+
+- [x] **Deux boutons au lieu d'un**, demandés par Exsangue le 01/08/2026 :
+      **Envoyer** dit juste ou faux **sans dévoiler**, pour qu'on puisse réessayer ;
+      **Voir la réponse** dévoile. Les confondre, c'est supprimer le deuxième essai —
+      or c'est souvent au deuxième essai qu'on apprend.
+- [x] **Un indice qui n'en dit pas trop** quand c'est faux : « il manque un mot »,
+      « un mot de trop », « tout près, regarde l'orthographe », « pas encore ».
+      Sa raison d'être : « peut-être j'ai oublié juste un mot ou mal orthographié ».
+- [x] Défaut attrapé au passage : j'avais **redéfini `editDistance`**, qui existait déjà
+      dans l'app avec un plafond. La mienne l'écrasait et **cassait le mode oral** —
+      l'auto-test l'a vu tout de suite. Supprimée, on réutilise l'existante.
+- [x] **Unité 2** (se présenter, p.5-6) transcrite : dialogue Max/Sophie/Klaus, les deux
+      parties de la leçon, les deux exercices avec leurs réponses.
+
+- [x] **Unités 3, 4 et 5 transcrites** (salutations · les substantifs et le genre ·
+      le pluriel et les 4 cas). Dialogues Alice/Bob/Dylan et Raul/Lorenzo complets,
+      grammaire du livre, exercices avec leurs réponses. Auto-test : **766**.
+
+- [x] **Le livre nourrit l'app** (`enrichirDepuisLivre`). Demandé par Exsangue : le
+      vocabulaire et les phrases de l'unité N descendent dans l'étape N+1, donc dans les
+      **cartes**, **l'oral** et le **récapitulatif** d'un coup — les trois puisent au même
+      endroit. Deux règles de tri : une ligne de tableau à **3 colonnes** devient une
+      carte (la 3ᵉ est la prononciation), une ligne à 2 reste de la référence — l'alphabet
+      et la liste des pays n'ont pas à être récités ; et une réplique de plus de 55
+      caractères ne part pas en dictée. Déduplication par mot, sinon on réviserait deux
+      fois la même carte.
+- [x] **Unités 6 à 9 transcrites** (nombres cardinaux et ordinaux · sein et haben ·
+      leur conjugaison · les couleurs). Auto-test : **809**.
+
+- [x] **La touche Entrée fait tout**, demandé par Exsangue : elle valide, puis elle
+      enchaîne. Elle marche dans les cartes, l'oral, les exercices **et** les questions du
+      livre. L'ancien gestionnaire ne savait que valider, et seulement dans deux modes.
+      Deux détails qui comptent : l'écouteur est sur `document` et non sur `view`, sinon
+      la touche n'atteint plus rien une fois le champ disparu de l'écran ; et on **valide
+      avant d'enchaîner**, sinon deux appuis rapides sautent une carte.
+      Auto-test : **813**, dont quatre qui envoient une vraie touche.
+
+- [x] **Unités 10 à 16 transcrites** (verbes réguliers · irréguliers · déclinaisons ·
+      animaux · es gibt · famille · adjectifs). Auto-test : **1056**.
+- [x] Coquille du livre non recopiée : le tableau des articles p.25 donne *die – einen*
+      au féminin accusatif. Au féminin, l'accusatif est identique au nominatif :
+      *die – eine*. Noté aussi dans `context.md`.
+- [x] Défaut attrapé chez moi : j'avais mis des balises `<b>` dans des énoncés, or ils
+      sont échappés à l'affichage — elles se seraient vues en clair. Une vérification
+      passe désormais sur **tous** les énoncés du livre.
+
+⚠️ **À SAVOIR — décalage entre le livre et les étapes.** `enrichirDepuisLivre` verse le
+vocabulaire de l'unité N dans l'étape N+1. Or `COURSE` s'arrête à l'étape 10 (unité 9) :
+**les unités 10 et au-delà n'ont pas encore d'étape**, donc leur vocabulaire ne descend
+ni dans les cartes, ni dans l'oral. Elles se lisent et se travaillent dans l'onglet du
+livre, mais ne se révisent pas encore. Le décalage se résorbera en écrivant les étapes
+11 à 35 — rien à changer dans le code, la couture est déjà là et prendra effet toute
+seule dès que l'étape existera.
+
+- [x] **Unités 17 à 20 transcrites** (vie quotidienne · l'heure · les adverbes ·
+      les phrases interrogatives). Auto-test : **1096**.
+
+- [x] **Unités 21 à 24 transcrites** (calendrier · nourriture · phrase affirmative ·
+      verbes modaux). Auto-test : **1172**.
+
+- [x] **Unités 25 à 28 transcrites** (boissons · das mag ich · restaurant · es gibt).
+      Auto-test : **1210**.
+
+- [x] **Unités 29 à 34 transcrites** (transports · négation · pronoms réfléchis ·
+      prépositions · hôtel · aéroport).
+
+## ✅ LE LIVRE EST COMPLET — 01/08/2026
+
+**Les 35 unités du niveau A1 sont transcrites**, de l'unité 0 (l'alphabet) à l'unité 34
+(l'aéroport), plus le test de fin de niveau. Vérifié par comptage : aucun numéro manquant
+entre 0 et 34. Auto-test : **1288 vérifications**, tout au vert.
+
+Chaque unité contient son dialogue (écoutable réplique par réplique, traduction cachée),
+ses listes de vocabulaire avec prononciation, sa grammaire, et ses exercices corrigés.
+      ⚠️ Ne pas oublier la **3ᵉ colonne de prononciation** sur les lignes de vocabulaire :
+      sans elle le mot ne descend pas dans les cartes.
+## Le suivi du livre ✅ 01/08/2026
+
+- [x] Demandé par Exsangue : voir qu'une unité est faite, et si elle l'a été sans faute.
+      Le sommaire affiche `x / 35 unités terminées`, un ✓ et une étiquette par unité
+      (`à lire` · `3 / 11` · **`sans faute`** · **`2 fautes`**). Bilan en bas de chaque
+      unité + bouton **Refaire cette unité**.
+- [x] Règles posées : **c'est la première réponse qui compte** (sinon « sans faute » ne
+      voudrait rien dire, il suffirait d'insister) · **révéler = faute** (c'est le sens du
+      bouton) · **champ vide = rien** (on n'a rien tenté) · **questions ouvertes hors du
+      compte** (on ne peut pas juger « décrivez votre famille »).
+- [x] Enregistré dans `S.bookq`, donc conservé à la fermeture et inclus dans la sauvegarde.
+
+## Trois demandes d'Exsangue ✅ 01/08/2026, après usage
+
+- [x] **Plus aucune carte passive.** « Je n'ai pas l'impression d'apprendre sur les
+      niveaux 1, j'apprends beaucoup en écrivant par moi-même. » Il a raison, et c'est un
+      défaut connu du principe même de la carte à retourner : « Révéler / Je savais »
+      mesure la **reconnaissance**, pas le rappel — on croit savoir parce qu'on reconnaît.
+      Désormais **on écrit à tous les niveaux** : au niveau 1 la traduction française
+      (`checkFR`, indulgent), au-dessus l'allemand (`checkAnswer`, strict sur le genre).
+      `revealBody` et l'action `reveal` supprimées. La flèche gauche vaut maintenant
+      « Je ne sais pas » — elle visait « Raté », qui n'existe plus — et reste sans effet
+      dans un champ de saisie, sinon on ne pourrait plus corriger une faute de frappe.
+- [x] **Le son se lance à l'affichage**, mais **jamais quand il donnerait la réponse** :
+      au niveau 1 le mot allemand est déjà à l'écran, donc on le prononce ; au-dessus
+      c'est lui qu'il faut écrire, donc on attend la réponse. Trois vérifications.
+- [x] **Le sommaire du livre est replié** en six groupes qui ont un sens (« Premiers pas »,
+      « Nombres et verbes »…), avec `<details>` natif — accessible au clavier, rien à
+      coder. Le groupe de l'unité en cours s'ouvre tout seul.
+- [x] **Parcours guidé** : leçon → exercices → cartes → oral → quiz. Le quiz ferme la
+      marche parce que c'est lui qui débloque l'étape suivante ; le retirer laisserait la
+      porte fermée au bout d'un enchaînement pourtant complet. Une étape sans exercices
+      écrits est **sautée** au lieu d'ouvrir un écran vide. Le retour à l'accueil reste
+      partout : **on guide, on n'enferme pas**.
+- [x] Auto-test : **1639 vérifications**.
+
+## À faire quand Exsangue le dira — indice « où chercher »
+
+Signalé par Exsangue le 01/08/2026 : à l'unité 4, l'exercice 2 demande de traduire
+« chez moi », « fiancée », « samedi soir »… mais **la liste de vocabulaire ne contient
+que 6 mots pour 7 demandés**. Les réponses sont dans le **dialogue**
+(*bei mir zuhause*, *meiner Freundin*, *Samstagabend*…), jamais dans la liste.
+
+Le livre attend donc qu'on relise le dialogue pour y pêcher les mots — méthode
+défendable, mais **il ne le dit nulle part**, et sa liste laisse croire qu'elle est
+complète. Ce n'est pas un défaut de compréhension d'Exsangue.
+
+**Décision retenue** : ajouter un indice « cherche dans le dialogue » sous les items
+d'exercice dont la réponse ne figure pas dans les listes de vocabulaire de l'unité.
+On répare le panneau manquant sans réécrire le livre.
+Écarté : compléter les listes de vocabulaire — ce ne serait plus son livre.
+
+✅ **Fait le 01/08/2026.** L'indice est **calculé, pas écrit à la main** : pour chaque
+question, on compare la réponse au contenu des listes de vocabulaire puis à celui du
+dialogue (`indiceOu`, `motsDeLUnite`). Écrit à la main sur 35 unités, il finirait faux
+quelque part ; calculé, il reste juste même si une unité change.
+
+On ne signale **que** le cas gênant — la réponse existe dans l'unité, mais ailleurs que
+là où on la cherche. Un mot déjà présent dans la liste ne reçoit rien : à force de bruit,
+on ne lirait plus les indices utiles. Vérifié sur l'unité 4 : **6 indices sur 7 questions**,
+seule « Plage » n'en a pas puisque *am Strand* est bien dans la liste.
+
+## 🎯 L'OBJECTIF, fixé par Exsangue le 01/08/2026
+
+**Finir les 35 étapes, puis supprimer l'onglet du livre.**
+
+Ce n'est pas qu'une question de ménage. Les tableaux `BOOK` et `BOOK_TEST` sont la seule
+chose qui oblige le dépôt à rester privé — donc la seule chose qui prive Exsangue de
+l'app sur son iPhone, puisque GitHub Pages ne sert que les dépôts publics et qu'il a
+refusé d'enregistrer une carte bancaire pour Cloudflare.
+
+Une fois les étapes complètes, le livre a joué son rôle de plan : on retire les deux
+tableaux, le dépôt repasse en public, et l'iPhone remarche. Tout le reste de l'app est
+rédigé indépendamment et peut être publié tel quel.
+
+## Les étapes 11 à 35 — en cours
+
+- [x] **Étapes 11 et 12 écrites** (verbes réguliers · verbes qui changent). Vérifié : le
+      vocabulaire des unités 10 et 11 descend bien dans leurs cartes et leur oral — le
+      décalage se résorbe tout seul, sans rien rebrancher. Auto-test : **1383**.
+- [x] Constaté au passage : **toutes les unités n'ont pas de dialogue** (10 et 11 sont des
+      pages de tableaux). Une étape en face d'une telle unité garde ses propres phrases —
+      c'est voulu, et une vérification le dit maintenant explicitement.
+
+- [x] **Lecture continue des dialogues**, demandée par Exsangue : bouton « Écouter tout le
+      dialogue », réplique surlignée et amenée à l'écran, bouton qui devient « Arrêter ».
+      On enchaîne sur l'événement `onend` de chaque réplique, pas sur un minuteur — la
+      durée dépend de la voix de l'appareil. Pause de 400 ms entre deux répliques, sans
+      quoi les voix se collent. `onerror` relance aussi, pour qu'une réplique ratée
+      n'arrête pas tout. **Changer d'écran coupe la lecture** (sinon elle continue par
+      dessus l'écran suivant, sans bouton pour l'arrêter), et écouter une réplique seule
+      l'interrompt aussi.
+- [x] **Étapes 13, 14 et 15 écrites** (les quatre cas · les animaux · il y a).
+      Auto-test : **1500**.
+
+- [x] **Étapes 16, 17 et 18 écrites** (la famille · décrire les choses · ma journée).
+      Auto-test : **1611**. Chapitre 7 « Décrire et raconter » ajouté.
+
+- [x] **Étapes 19, 20 et 21 écrites** (l'heure · les adverbes · poser des questions).
+      Chapitre 8 « Le temps et la question ». Auto-test : **1757**.
+
+- [x] **Étapes 22, 23 et 24 écrites** (le calendrier · à table · l'ordre des mots).
+      Chapitre 9 « Dates, repas, charpente ». Auto-test : **1868**.
+
+- [x] **L'oral monte en difficulté**, signalé par Exsangue : « Ja, aber ich habe auch
+      italienische Vorfahren » en dictée, trop dur pour son niveau. Le défaut venait du
+      tirage, qui mélangeait mots isolés et phrases entières au hasard. La longueur est
+      désormais **plafonnée en nombre de mots** — trois au départ, **un de plus par phrase
+      déjà sortie du niveau 1**. Mesuré en mots et non en caractères : c'est le nombre de
+      mots qui décide de la charge à l'oreille. Une séance n'est jamais vide (repli sur
+      les plus courtes). Un ancien test affirmait que les phrases sortaient dès la
+      première séance — c'était exactement le défaut : réécrit.
+- [x] **Étape 25 écrite** (les verbes modaux). Auto-test : **1909**.
+
+- [ ] **Reprendre ici : étape 26** (unité 25, les boissons), puis 27 à 35.
+      Ordre des restantes : 25 les modaux · 26 les boissons · 27 ça me plaît ·
+      28 le restaurant · 29 es gibt (reprise) · 30 les transports · 31 la négation ·
+      32 les réfléchis · 33 les prépositions · 34 l'hôtel · 35 l'aéroport.
+      Matière première pour certaines dans git `8883587` : accusatif (ex-étape 6), famille
+      (ex-12), adjectifs (ex-8), heure et jours (ex-10), questions (ex-7), modaux (ex-11),
+      négation (ex-5).
+      Une unité = `{ n, pages, title, intro?, dialogue?, sections[], exercises[] }`.
+      Les items d'exercice prennent soit `a` (réponse attendue → corrigée), soit `model`
+      (question ouverte → réponse possible). `fr: true` sur un item dont la réponse est
+      en français, pour que `checkFR` prenne le relais de `checkAnswer`.
+      **Relire la photo de la page à chaque unité** plutôt que de se fier à la mémoire :
+      les dialogues et les listes doivent être exacts.
+      Correspondance page → photo : les 42 fichiers de `C:\Shared\atelier\livre\lecons\`
+      sont dans l'ordre des pages, du titre (p.1) à la conclusion (p.279-280).
+- [ ] Hébergement privé pour l'iPhone (GitHub Pages ne sert que les dépôts publics).
+      Piste retenue : Cloudflare Pages + Access, gratuit, protégé par un code.
+      Demande la création d'un compte — à faire avec Exsangue.
 
 ## Lot 3 — à discuter avant d'attaquer
 
