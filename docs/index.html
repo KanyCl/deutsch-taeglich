@@ -218,6 +218,29 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 .streak[hidden] { display: none; }
 
+/* ---------- Le rouage ----------
+   En haut à droite de TOUTES les pages : l'en-tête est hors de la zone
+   redessinée, donc il ne dépend d'aucun écran. */
+.topright { display: flex; align-items: center; gap: .5rem; }
+.gear {
+  background: none;
+  border: 0;
+  padding: .25rem;
+  display: inline-flex;
+  color: var(--ink-2);
+  /* La cible tactile fait 44 px de côté, minimum recommandé sur téléphone :
+     l'icône, elle, reste petite. Un bouton visuellement discret ne doit pas
+     être difficile à toucher. */
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  margin-right: -.25rem;
+}
+.gear svg { width: 1.375rem; height: 1.375rem; fill: currentColor; }
+.gear:hover { color: var(--accent); }
+.gear.on { color: var(--accent); }
+
 .back {
   background: none;
   border: 0;
@@ -370,12 +393,24 @@ button { font: inherit; color: inherit; cursor: pointer; }
   display: grid;
   gap: .5rem;
   grid-template-columns: 1fr 1fr;
+}
+
+/* La disposition en RECTANGLES : « la leçon » ouvre et « le quiz » ferme,
+   tous deux pleine largeur ; « les cartes » tient deux rangées, parce que
+   c'est le mode quotidien. Ici la taille encode la charge. */
+.modes-home.carre {
   grid-template-areas:
     "lecon  lecon"
     "cartes oral"
     "cartes exos"
     "quiz   quiz";
 }
+.modes-home.carre .mode[data-go="lesson"]   { grid-area: lecon; }
+.modes-home.carre .mode[data-go="cards"],
+.modes-home.carre .mode[data-go="practice"] { grid-area: cartes; }
+.modes-home.carre .mode[data-go="oral"]     { grid-area: oral; }
+.modes-home.carre .mode[data-go="drills"]   { grid-area: exos; }
+.modes-home.carre .mode[data-go="quiz"]     { grid-area: quiz; }
 .modes-home .mode {
   border: 0;
   border-left: 0;
@@ -401,12 +436,47 @@ button { font: inherit; color: inherit; cursor: pointer; }
    elle garde le contraste franc du Bauhaus. Une première version forçait ce
    bloc en gris (`--surface-2`) : il redevenait un rectangle indistinct,
    c'est-à-dire précisément le défaut que cette grille corrige. */
-.modes-home .mode[data-go="lesson"]   { grid-area: lecon;  background: var(--accent);   color: var(--accent-ink); }
+/* Les couleurs sont COMMUNES aux deux formes : seule la disposition change.
+   Les mêler à la grille obligerait à tout redéclarer pour les cercles, et
+   les deux jeux finiraient par diverger. */
+.modes-home .mode[data-go="lesson"]   { background: var(--accent);   color: var(--accent-ink); }
 .modes-home .mode[data-go="cards"],
-.modes-home .mode[data-go="practice"] { grid-area: cartes; background: var(--amber-bg); color: var(--amber-ink); }
-.modes-home .mode[data-go="oral"]     { grid-area: oral;   background: var(--ink);      color: var(--paper); }
-.modes-home .mode[data-go="drills"]   { grid-area: exos;   background: var(--surface);  color: var(--ink); border: 2px solid var(--ink); }
-.modes-home .mode[data-go="quiz"]     { grid-area: quiz;   background: var(--accent);   color: var(--accent-ink); }
+.modes-home .mode[data-go="practice"] { background: var(--amber-bg); color: var(--amber-ink); }
+.modes-home .mode[data-go="oral"]     { background: var(--ink);      color: var(--paper); }
+.modes-home .mode[data-go="drills"]   { background: var(--surface);  color: var(--ink); border: 2px solid var(--ink); }
+.modes-home .mode[data-go="quiz"]     { background: var(--accent);   color: var(--accent-ink); }
+
+/* ---------- La disposition en CERCLES ----------
+   Le cercle est l'une des trois formes primaires du Bauhaus, avec le carré
+   et le triangle : la demande est donc dans l'esprit de la direction.
+
+   Deux choses se perdent en passant au rond, et c'est assumé :
+     - le SOUS-TITRE (« 8 tirés parmi 28 ») ne tient pas dans un disque sans
+       casser les mots n'importe où. Il est retiré, pas rétréci — du texte
+       illisible ne vaut pas mieux que pas de texte.
+     - la TAILLE ne dit plus la charge. Cinq disques inégaux à cette échelle
+       se lisent mal ; le compte, lui, reste affiché sur chacun.
+   C'est le prix du cercle, et c'est pourquoi les deux formes coexistent. */
+.modes-home.rond { gap: .625rem; }
+.modes-home.rond .mode {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: .25rem;
+  padding: 1rem .75rem;
+  min-height: 0;
+}
+.modes-home.rond .mode .txt span { display: none; }
+.modes-home.rond .mode .txt strong { font-size: .9375rem; }
+/* Le quiz ferme le parcours : seul sur sa rangée, centré, comme un point
+   d'arrivée. Un cinquième disque collé à gauche donnerait une grille bancale. */
+.modes-home.rond .mode[data-go="quiz"] {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: calc(50% - .3125rem);
+}
 
 /* La pastille est CERCLÉE de la couleur du texte, jamais remplie d'une teinte
    fixe. `currentColor` la rend lisible sur n'importe quel fond et dans les
@@ -846,7 +916,18 @@ body.has-tts .say { display: inline-flex; }
 <div class="app">
   <header class="top">
     <h1 class="wordmark">Deutsch Täglich <small>A1</small></h1>
-    <span class="streak" id="streak" hidden></span>
+    <div class="topright">
+      <span class="streak" id="streak" hidden></span>
+      <!-- Rouage dessiné et non le caractère ⚙ : sur iPhone ce dernier
+           s'affiche en emoji couleur, qui jurerait avec le reste et ne
+           suivrait pas le thème. Le SVG prend la couleur du texte. -->
+      <button class="gear" id="gear" type="button" aria-label="Réglages et progression">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="12" cy="12" r="3.2"/>
+          <path d="M12 1.6l1.7 2.6 3-.7.6 3 2.8 1.2-1.3 2.8 1.3 2.8-2.8 1.2-.6 3-3-.7L12 22.4l-1.7-2.6-3 .7-.6-3-2.8-1.2 1.3-2.8-1.3-2.8 2.8-1.2.6-3 3 .7z"/>
+        </svg>
+      </button>
+    </div>
   </header>
   <main id="view"></main>
 </div>
@@ -5501,6 +5582,7 @@ const TEXTE   = { normal: 1, grand: 1.15, enorme: 1.3 };
 const SEANCES = { courte: 5, normale: 8, longue: 12 };
 const COULEURS = ["bauhaus", "indigo", "prune", "encre"];
 const THEMES   = ["auto", "light", "dark"];
+const FORMES   = ["carre", "rond"];
 
 const PREFS_DEFAUT = {
   voix: "posee",       // vitesse de la voix allemande
@@ -5508,6 +5590,7 @@ const PREFS_DEFAUT = {
   texte: "normal",     // taille de TOUT le texte (l'échelle est en rem)
   seance: "normale",   // combien d'exercices et de phrases par séance
   couleur: "bauhaus",  // la couleur des cases de l'accueil
+  forme: "carre",      // cases rectangulaires ou disques
   sonAuto: true        // le mot se prononce-t-il tout seul à l'affichage
 };
 
@@ -5556,6 +5639,7 @@ function sane(s) {
   if (!SEANCES[p.seance]) p.seance = PREFS_DEFAUT.seance;
   if (COULEURS.indexOf(p.couleur) === -1) p.couleur = PREFS_DEFAUT.couleur;
   if (THEMES.indexOf(p.theme) === -1) p.theme = PREFS_DEFAUT.theme;
+  if (FORMES.indexOf(p.forme) === -1) p.forme = PREFS_DEFAUT.forme;
   p.sonAuto = p.sonAuto !== false;
   s.prefs = p;
   return s;
@@ -6025,7 +6109,7 @@ function home() {
       // `modes-home` distingue cette grille de la liste des unités du livre,
       // qui réutilise la classe `.mode`. Sans ce marqueur, colorier les cinq
       // modes colorierait aussi les 35 unités.
-      '<div class="modes modes-home">',
+      '<div class="modes modes-home ' + (S.prefs.forme === "rond" ? "rond" : "carre") + '">',
         '<button class="mode" data-go="lesson">',
           '<div class="txt"><strong>La leçon</strong><span>' + lesson.steps.length + ' écrans, ' + lesson.vocab.length + ' mots</span></div>',
           '<span class="chip">' + lesson.steps.length + '</span>',
@@ -6076,18 +6160,11 @@ function home() {
 
       !storageOK ? '<p class="warn">Ton navigateur bloque le stockage local : la progression ne sera pas conservée après fermeture. Essaie hors navigation privée.</p>' : '',
 
-      '<div class="stack-s">',
-        '<h3 class="sec">Ma progression</h3>',
-        '<p class="msg">' + Object.keys(S.cards).length + ' mots en circulation &#183; ' + learnedCount() + ' bien ancrés &#183; ' +
-          shakyCount() + ' fragiles &#183; série de ' + S.streak + ' jour' + (S.streak > 1 ? 's' : '') + '</p>',
-        '<div class="tools">',
-          '<button class="tool" data-go="reglages">Réglages</button>',
-          '<button class="tool" data-act="export">Sauvegarder</button>',
-          '<button class="tool" data-act="import">Restaurer</button>',
-          '<button class="tool danger" data-act="reset">Tout effacer</button>',
-        '</div>',
-        '<p class="msg" id="toolmsg"></p>',
-      '</div>',
+      /* « Ma progression » et ses quatre outils vivaient ici, en bas de
+         l'accueil. Déplacés dans le rouage le 01/08/2026 à la demande
+         d'Exsangue : ils occupaient un tiers de l'écran pour des actions
+         qu'on fait une fois par mois, et ils repoussaient les cinq modes —
+         c'est-à-dire ce pour quoi on ouvre l'app. */
 
     '</div>'
   ].join("");
@@ -7552,6 +7629,18 @@ function reglagesView() {
           'Ces choix partent dans la sauvegarde avec ta progression.</p>',
       '</div>',
 
+      /* Le chiffre avant les préférences : quand on ouvre le rouage, c'est
+         souvent pour savoir où l'on en est, pas pour changer une couleur. */
+      bloc('Ma progression', '',
+        '<p class="msg">' + Object.keys(S.cards).length + ' mots en circulation &#183; ' +
+          learnedCount() + ' bien ancrés &#183; ' + shakyCount() + ' fragiles &#183; ' +
+          'série de ' + S.streak + ' jour' + (S.streak > 1 ? 's' : '') + '</p>' +
+        '<div class="tools">' +
+          '<button class="tool" data-act="export">Sauvegarder</button>' +
+          '<button class="tool" data-act="import">Restaurer</button>' +
+          '<button class="tool danger" data-act="reset">Tout effacer</button>' +
+        '</div>'),
+
       bloc('La voix',
         'La vitesse à laquelle l\'allemand est prononcé. ' +
         '<b>Lente</b> pour distinguer chaque son, <b>vive</b> quand tu ' +
@@ -7599,6 +7688,14 @@ function reglagesView() {
                  '<i class="pas pas-' + c + '"></i>' + noms[c] + '</button>';
         }).join("") + '</div>'),
 
+      bloc('La forme des cases',
+        'En cercles, le sous-titre de chaque case disparaît — il ne tient pas ' +
+        'dans un disque sans couper les mots n\'importe où. Le compte, lui, reste.',
+        segment("forme", [
+          { id: "carre", nom: "Rectangles" },
+          { id: "rond",  nom: "Cercles" }
+        ], p.forme)),
+
       bloc('La longueur d\'une séance',
         'Vaut pour les exercices et pour l\'oral. Les cartes, elles, suivent ' +
         'le calendrier de révision : c\'est lui qui décide, pas toi.',
@@ -7622,7 +7719,32 @@ const ROUTES = {
   reglages: reglagesView
 };
 
-function go(name) { show(ROUTES[name]()); }
+/* L'écran affiché. Sert au rouage, qui doit savoir s'il ouvre les réglages
+   ou s'il en revient — sans quoi il serait sans effet une fois dessus. */
+let ecranCourant = "home";
+
+function go(name) {
+  ecranCourant = name;
+  const g = document.getElementById("gear");
+  if (g) {
+    g.classList.toggle("on", name === "reglages");
+    g.setAttribute("aria-label", name === "reglages"
+      ? "Fermer les réglages" : "Réglages et progression");
+  }
+  show(ROUTES[name]());
+}
+
+/* Le rouage vit dans l'en-tête, hors de la zone redessinée : il ne peut donc
+   pas passer par la délégation posée sur `view`. Son propre écouteur, une
+   fois pour toutes — l'élément, lui, ne disparaît jamais.
+   C'est un va-et-vient : appuyer dessus alors qu'on y est déjà ramène à
+   l'accueil, sinon le bouton semblerait cassé. */
+const gearBtn = document.getElementById("gear");
+if (gearBtn) {
+  gearBtn.addEventListener("click", function () {
+    go(ecranCourant === "reglages" ? "home" : "reglages");
+  });
+}
 
 view.addEventListener("click", function (e) {
   const t = e.target.closest("[data-go],[data-act],[data-pick],[data-grade],[data-day],[data-lesson],[data-say],[data-scheck],[data-chip],[data-unchip],[data-unit],[data-reveal],[data-check],[data-model],[data-send],[data-reset],[data-play],[data-pref]");
@@ -8597,7 +8719,7 @@ function runTests() {
   // exactement un doit être marqué comme retenu.
   S = fresh(); S.day = 1; seed(1); applyPrefs();
   go("reglages");
-  ["voix", "sonAuto", "theme", "texte", "couleur", "seance"].forEach(function (cle) {
+  ["voix", "sonAuto", "theme", "texte", "couleur", "forme", "seance"].forEach(function (cle) {
     const boutons = view.querySelectorAll('[data-pref="' + cle + '"]');
     ok("réglages : « " + cle + " » propose au moins deux choix", boutons.length >= 2);
     eq("réglages : « " + cle + " » en marque exactement un",
@@ -8629,7 +8751,69 @@ function runTests() {
   ok("réglages : mais ne touche pas à la progression", !!S.cards["temoin"]);
   delete S.cards["temoin"];
 
-  S.prefs = prefsAvant; applyPrefs();
+  /* ---------- Le rouage ----------
+     Demandé par Exsangue : « rajoute tout ce qui est en bas dans un petit
+     rouage en haut à droite ». Le bloc « Ma progression » et ses outils
+     occupaient un tiers de l'accueil pour des actions faites une fois par
+     mois, et repoussaient les cinq modes plus bas. */
+  const rouage = document.getElementById("gear");
+  ok("rouage : il existe", !!rouage);
+  /* Il vit dans l'en-tête, HORS de la zone redessinée : c'est ce qui lui
+     permet d'être sur toutes les pages, et ce qui l'oblige à avoir son
+     propre écouteur au lieu de la délégation posée sur `view`. */
+  ok("rouage : il est hors de la zone redessinée", !view.contains(rouage));
+  ok("rouage : il porte un nom lisible à voix haute", !!rouage.getAttribute("aria-label"));
+
+  go("home");
+  ok("accueil : les outils ne l'encombrent plus", !view.querySelector('[data-act="export"]'));
+  ok("accueil : ni le bloc de progression", view.textContent.indexOf("mots en circulation") === -1);
+
+  rouage.click();
+  eq("rouage : un appui ouvre les réglages", ecranCourant, "reglages");
+  ok("rouage : la progression y est passée", view.textContent.indexOf("mots en circulation") !== -1);
+  ok("rouage : les outils aussi", !!view.querySelector('[data-act="export"]'));
+  ok("rouage : et « tout effacer » également", !!view.querySelector('[data-act="reset"]'));
+  ok("rouage : il se marque comme actif", rouage.classList.contains("on"));
+
+  /* Va-et-vient : sans ça, appuyer sur le rouage alors qu'on y est déjà ne
+     ferait rien et le bouton semblerait cassé. */
+  rouage.click();
+  eq("rouage : un second appui ramène à l'accueil", ecranCourant, "home");
+  ok("rouage : et il n'est plus marqué actif", !rouage.classList.contains("on"));
+
+  /* ---------- La forme des cases ----------
+     Demandée par Exsangue : « peut-on essayer des cercles pour oral, leçon,
+     etc. au lieu de rectangles ? ». Faite réglable plutôt que tranchée : il
+     essaie sur son téléphone et garde ce qu'il préfère. */
+  eq("formes : une forme inconnue retombe sur le défaut",
+     sane(Object.assign(fresh(), { prefs: { forme: "triangle" } })).prefs.forme, PREFS_DEFAUT.forme);
+
+  S.prefs.forme = "carre"; go("home");
+  ok("formes : en rectangles, la grille est nommée « carre »",
+     !!view.querySelector(".modes-home.carre"));
+  ok("formes : et le sous-titre d'un mode est bien là",
+     view.textContent.indexOf("Révision espacée") !== -1);
+
+  S.prefs.forme = "rond"; go("home");
+  ok("formes : en cercles, la grille est nommée « rond »",
+     !!view.querySelector(".modes-home.rond"));
+  ok("formes : et il n'y a pas les deux à la fois",
+     !view.querySelector(".modes-home.carre"));
+  /* Les cinq modes doivent survivre au changement de forme : c'est la
+     disposition qui change, pas le contenu. */
+  eq("formes : les cinq modes sont toujours là",
+     view.querySelectorAll(".modes-home .mode").length, 5);
+  ok("formes : les comptes restent affichés", !!view.querySelector(".modes-home .chip"));
+  S.prefs.forme = PREFS_DEFAUT.forme; go("home");
+
+  /* Remettre les réglages tels qu'ils étaient AVANT ce bloc. `applyPrefs`
+     écrit dans ORAL_SIZE et DRILL_SESSION, qui sont globales : les laisser
+     déréglées fausse tous les tests suivants, et l'échec apparaît très loin
+     d'ici — c'est arrivé, sur une vérification de l'oral.
+     Le passage par PREFS_DEFAUT n'est pas décoratif : si l'état d'où l'on
+     vient n'avait pas de réglages, `prefsAvant` est vide et `SEANCES[undefined]`
+     rendrait la longueur de séance indéfinie. */
+  S.prefs = Object.assign({}, PREFS_DEFAUT, prefsAvant); applyPrefs();
 
   S = fresh(); S.day = 1; seed(1);
   go("home");

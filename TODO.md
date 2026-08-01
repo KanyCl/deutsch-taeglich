@@ -683,6 +683,50 @@ Défaut préexistant corrigé au passage : **`importData` n'appelait pas `sane()
 que `load()` le fait. Une sauvegarde restaurée n'était donc pas bornée — une progression
 venue d'un cours plus long ouvrait une étape inexistante.
 
+## Le rouage et la forme des cases ✅ 01/08/2026
+
+**Le rouage.** Demandé par Exsangue : « rajoute tout ce qui est en bas dans un petit
+rouage en haut à droite ». Le bloc « Ma progression » et ses quatre outils occupaient un
+tiers de l'accueil pour des actions faites une fois par mois, et repoussaient les cinq
+modes — c'est-à-dire ce pour quoi on ouvre l'app.
+
+- [x] Tout est passé dans l'écran des réglages, la progression **en premier** : quand on
+      ouvre le rouage, c'est souvent pour savoir où l'on en est.
+- [x] Le rouage vit dans l'**en-tête**, hors de la zone redessinée — il est donc sur
+      toutes les pages, et il lui faut son **propre écouteur** : la délégation de clic
+      est posée sur `view`, qui ne le contient pas.
+- [x] C'est un **va-et-vient** : appuyer dessus alors qu'on y est déjà ramène à
+      l'accueil, sinon le bouton semblerait cassé.
+- [x] Rouage **dessiné en SVG**, pas le caractère ⚙ : sur iPhone celui-ci s'affiche en
+      emoji couleur, qui jurerait et ne suivrait pas le thème. Cible tactile de 44 px
+      alors que l'icône en fait 22 — un bouton discret ne doit pas être dur à toucher.
+
+**La forme des cases.** Demandé par Exsangue : « peut-on essayer des cercles pour oral,
+leçon, etc. au lieu de rectangles ? » — fait **réglable** plutôt que tranché, pour qu'il
+essaie sur son téléphone. Le cercle est d'ailleurs l'une des trois formes primaires du
+Bauhaus, avec le carré et le triangle : la demande est dans l'esprit de la direction.
+
+Deux choses se perdent en cercles, et c'est écrit dans le réglage :
+
+- le **sous-titre** (« 8 tirés parmi 28 ») ne tient pas dans un disque sans couper les
+  mots n'importe où. Il est retiré, pas rétréci — du texte illisible ne vaut pas mieux
+  que pas de texte ;
+- la **taille ne dit plus la charge**. Cinq disques inégaux à cette échelle se lisent
+  mal ; le compte reste affiché sur chacun. Et l'accueil descend nettement plus bas.
+
+⚠️ Les **couleurs sont communes aux deux formes**, seule la disposition change. Les mêler
+à la grille obligerait à tout redéclarer pour les cercles, et les deux jeux finiraient
+par diverger.
+
+- [x] Auto-test : **2367 vérifications**.
+
+⚠️ **Piège rencontré, à ne pas re-découvrir : `applyPrefs` écrit dans `ORAL_SIZE` et
+`DRILL_SESSION`, qui sont globales.** Un bloc de tests qui les dérègle sans les remettre
+fausse tous les tests suivants — et l'échec apparaît très loin de sa cause. C'est arrivé
+ici : une vérification de l'oral, 400 lignes plus bas, a lâché parce que la restauration
+recopiait des réglages incomplets (`SEANCES[undefined]`). La restauration passe désormais
+par `PREFS_DEFAUT`.
+
 ## Lot 3 — à discuter avant d'attaquer
 
 - [ ] **Éviter les suites logiques.** un-deux-trois, les jours de la semaine… ne doivent pas
