@@ -822,6 +822,41 @@ const COURSE = [
     { q: "Au pluriel, l'article défini est…", o: ["die", "der", "das", "dem"], a: 0, why: "Tous les pluriels prennent <b>die</b>, quel que soit le genre au singulier." },
     { q: "Complète : ___ Frau ist hier.", o: ["Die", "Der", "Das", "Den"], a: 0, why: "<b>Frau</b> est féminin → <b>die</b>." },
     { q: "Pourquoi apprendre « der Tisch » plutôt que « Tisch » ?", o: ["parce que le genre ne se devine pas", "parce que c'est plus poli", "parce que der veut dire « le »", "ce n'est pas nécessaire"], a: 0, why: "Rien dans le mot n'indique son genre : il s'apprend avec lui, ou il s'oublie." }
+  ],
+  drills: [
+    { t: "gap", f: "l'homme", s: "___ Mann", a: "der", why: "Masculin." },
+    { t: "gap", f: "la femme", s: "___ Frau", a: "die", why: "Féminin." },
+    { t: "gap", f: "l'enfant", s: "___ Kind", a: "das", why: "Neutre — comme <b>das Mädchen</b>, le sens ne commande pas le genre." },
+    { t: "gap", f: "la table", s: "___ Tisch", a: "der", why: "Masculin en allemand, féminin en français : aucune correspondance." },
+    { t: "gap", f: "la porte", s: "___ Tür", a: "die", why: "Féminin." },
+    { t: "gap", f: "le livre", s: "___ Buch", a: "das", why: "Neutre." },
+    { t: "gap", f: "le jour", s: "___ Tag", a: "der", why: "Masculin, comme tous les moments de la journée." },
+    { t: "gap", f: "la nuit", s: "___ Nacht", a: "die", why: "Féminin — l'exception parmi les moments de la journée." },
+    { t: "gap", f: "la maison", s: "___ Haus", a: "das", why: "Neutre." },
+    { t: "gap", f: "la ville", s: "___ Stadt", a: "die", why: "Féminin." },
+    { t: "gap", f: "C'est un livre.", s: "Das ist ___ Buch.", a: "ein", why: "Neutre → <b>ein</b>, comme le masculin." },
+    { t: "gap", f: "C'est une femme.", s: "Das ist ___ Frau.", a: "eine", why: "Féminin → <b>eine</b>, avec un -e." },
+    { t: "gap", f: "C'est un homme.", s: "Das ist ___ Mann.", a: "ein", why: "Masculin → <b>ein</b>." },
+    { t: "gap", f: "C'est une ville.", s: "Das ist ___ Stadt.", a: "eine", why: "Féminin → <b>eine</b>." },
+    { t: "gap", f: "Les maisons (pluriel).", s: "___ Häuser", a: "die", why: "Au pluriel, tout prend <b>die</b>, quel que soit le genre au singulier." },
+
+    { t: "trans", inst: "Passe de l'article défini à l'indéfini.", from: "Das ist der Tisch.", a: "Das ist ein Tisch.", why: "<b>der</b> → <b>ein</b> au masculin." },
+    { t: "trans", inst: "Passe de l'article défini à l'indéfini.", from: "Das ist die Tür.", a: "Das ist eine Tür.", why: "<b>die</b> → <b>eine</b> au féminin." },
+    { t: "trans", inst: "Passe de l'article défini à l'indéfini.", from: "Das ist das Haus.", a: "Das ist ein Haus.", why: "Le neutre prend <b>ein</b>, comme le masculin." },
+    { t: "trans", inst: "Passe de l'indéfini au défini.", from: "Das ist eine Stadt.", a: "Das ist die Stadt.", why: "<b>eine</b> → <b>die</b>." },
+    { t: "trans", inst: "Passe de l'indéfini au défini.", from: "Das ist ein Kind.", a: "Das ist das Kind.", why: "<b>ein</b> → <b>das</b> pour un neutre : c'est là qu'il faut connaître le genre." },
+
+    { t: "order", f: "C'est un livre.", a: "Das ist ein Buch", why: "<b>Das ist</b> introduit, l'article suit son nom." },
+    { t: "order", f: "C'est la femme.", a: "Das ist die Frau", why: "Même charpente, article défini." },
+    { t: "order", f: "La maison est grande.", a: "Das Haus ist groß", why: "Sujet, verbe, attribut." },
+    { t: "order", f: "La ville est grande.", a: "Die Stadt ist groß", why: "<b>Stadt</b> est féminin : <b>die</b>." },
+    { t: "order", f: "C'est un homme.", a: "Das ist ein Mann", why: "Masculin indéfini." },
+
+    { t: "trad", f: "C'est la maison.", a: "Das ist das Haus.", why: "Deux <b>das</b> de suite : le premier veut dire « ça », le second est l'article." },
+    { t: "trad", f: "C'est une porte.", a: "Das ist eine Tür.", why: "Féminin → <b>eine</b>." },
+    { t: "trad", f: "C'est le jour.", a: "Das ist der Tag.", why: "Masculin." },
+    { t: "trad", f: "C'est un enfant.", a: "Das ist ein Kind.", why: "Neutre → <b>ein</b>." },
+    { t: "trad", f: "La nuit est longue.", a: "Die Nacht ist lang.", why: "<b>Nacht</b> est féminin." }
   ]
 },
 
@@ -873,6 +908,41 @@ const COURSE = [
     { q: "Quelle terminaison pour wir ?", o: ["-en", "-t", "-st", "-e"], a: 0, why: "<b>wir</b> et <b>sie/Sie</b> reprennent la forme de l'infinitif." },
     { q: "« Ich lerne » peut se traduire par…", o: ["j'apprends ET je suis en train d'apprendre", "j'apprendrai", "j'ai appris", "apprends !"], a: 0, why: "L'allemand n'a qu'un seul présent, il couvre les deux sens du français." },
     { q: "Quel verbe demande un e d'appui ?", o: ["arbeiten", "spielen", "kaufen", "hören"], a: 0, why: "Son radical <b>arbeit-</b> finit par t → du arbeit<b>e</b>st." }
+  ],
+  drills: [
+    { t: "gap", f: "J'achète le livre.", s: "Ich ___ das Buch.", a: "kaufe", why: "Avec <b>ich</b>, terminaison <b>-e</b>." },
+    { t: "gap", f: "Tu achètes le livre.", s: "Du ___ das Buch.", a: "kaufst", why: "Avec <b>du</b>, terminaison <b>-st</b>." },
+    { t: "gap", f: "Il achète le livre.", s: "Er ___ das Buch.", a: "kauft", why: "Avec <b>er / sie / es</b>, terminaison <b>-t</b>." },
+    { t: "gap", f: "Nous achetons le livre.", s: "Wir ___ das Buch.", a: "kaufen", why: "<b>wir</b> reprend l'infinitif : <b>-en</b>." },
+    { t: "gap", f: "Vous achetez le livre. (ihr)", s: "Ihr ___ das Buch.", a: "kauft", why: "<b>ihr</b> prend <b>-t</b>, comme <b>er</b>." },
+    { t: "gap", f: "J'habite à Berlin.", s: "Ich ___ in Berlin.", a: "wohne", why: "Terminaison <b>-e</b>." },
+    { t: "gap", f: "Tu apprends l'allemand.", s: "Du ___ Deutsch.", a: "lernst", why: "Terminaison <b>-st</b>." },
+    { t: "gap", f: "Elle joue.", s: "Sie ___.", a: "spielt", why: "Terminaison <b>-t</b>." },
+    { t: "gap", f: "Tu travailles à Berlin.", s: "Du ___ in Berlin.", a: "arbeitest", why: "Le radical finit par <b>-t</b> : un <b>e</b> d'appui s'intercale — <b>arbeit-e-st</b>." },
+    { t: "gap", f: "Il travaille à Berlin.", s: "Er ___ in Berlin.", a: "arbeitet", why: "Même e d'appui : <b>arbeit-e-t</b>, sinon deux t se suivraient." },
+    { t: "gap", f: "Nous venons de Berlin.", s: "Wir ___ aus Berlin.", a: "kommen", why: "<b>wir</b> → <b>-en</b>." },
+    { t: "gap", f: "J'ai besoin du livre.", s: "Ich ___ das Buch.", a: "brauche", why: "Terminaison <b>-e</b>." },
+    { t: "gap", f: "Tu dis merci.", s: "Du ___ danke.", a: "sagst", why: "Terminaison <b>-st</b>." },
+
+    { t: "trans", inst: "Mets à la deuxième personne (du).", from: "Ich lerne Deutsch.", a: "Du lernst Deutsch.", why: "<b>-e</b> devient <b>-st</b>." },
+    { t: "trans", inst: "Mets à la troisième personne (er).", from: "Ich wohne in Berlin.", a: "Er wohnt in Berlin.", why: "<b>-e</b> devient <b>-t</b>." },
+    { t: "trans", inst: "Mets au pluriel (wir).", from: "Ich spiele.", a: "Wir spielen.", why: "<b>wir</b> reprend la forme de l'infinitif." },
+    { t: "trans", inst: "Mets à la deuxième personne (du).", from: "Ich arbeite.", a: "Du arbeitest.", why: "Attention au <b>e</b> d'appui : <b>arbeitest</b>, pas « arbeitst »." },
+    { t: "trans", inst: "Mets à la troisième personne (sie).", from: "Ich höre.", a: "Sie hört.", why: "Terminaison <b>-t</b>." },
+    { t: "trans", inst: "Mets à la première personne (ich).", from: "Du kaufst das Haus.", a: "Ich kaufe das Haus.", why: "<b>-st</b> devient <b>-e</b>." },
+
+    { t: "order", f: "J'habite à Berlin.", a: "Ich wohne in Berlin", why: "Sujet, verbe, complément." },
+    { t: "order", f: "Tu apprends l'allemand.", a: "Du lernst Deutsch", why: "Le verbe reste en deuxième position." },
+    { t: "order", f: "Il achète le livre.", a: "Er kauft das Buch", why: "L'article accompagne toujours son nom." },
+    { t: "order", f: "Nous achetons la maison.", a: "Wir kaufen das Haus", why: "<b>wir</b> prend <b>-en</b>." },
+    { t: "order", f: "Vous travaillez à Berlin.", a: "Ihr arbeitet in Berlin", why: "<b>ihr</b> prend <b>-t</b>, plus le e d'appui." },
+
+    { t: "trad", f: "J'apprends l'allemand.", a: "Ich lerne Deutsch.", why: "Le verbe s'accorde avec <b>ich</b> : <b>-e</b>." },
+    { t: "trad", f: "Il travaille à Berlin.", a: "Er arbeitet in Berlin.", why: "N'oublie pas le <b>e</b> d'appui." },
+    { t: "trad", f: "Tu dis merci.", a: "Du sagst danke.", why: "<b>-st</b> pour <b>du</b>." },
+    { t: "trad", f: "Nous avons besoin du livre.", a: "Wir brauchen das Buch.", why: "<b>brauchen</b> se construit sans préposition, contrairement au français." },
+    { t: "trad", f: "Elle écoute.", a: "Sie hört.", why: "<b>-t</b> pour <b>sie</b> au singulier." },
+    { t: "trad", f: "Ils viennent de Berlin.", a: "Sie kommen aus Berlin.", why: "Au pluriel, <b>sie</b> prend <b>-en</b> : la terminaison seule les distingue." }
   ]
 },
 
@@ -924,6 +994,39 @@ const COURSE = [
     { q: "Que signifie « Ich bin vierzig Jahre alt » ?", o: ["J'ai quarante ans", "J'ai quatorze ans", "J'ai quatre ans", "Je suis là depuis quarante ans"], a: 0, why: "<b>vierzig</b> = 40, <b>vierzehn</b> = 14." },
     { q: "Un Allemand dicte « siebenundsechzig ». C'est…", o: ["67", "76", "66", "77"], a: 0, why: "On entend l'unité en premier, mais on écrit <b>67</b>." },
     { q: "Comment demander l'âge de quelqu'un qu'on tutoie ?", o: ["Wie alt bist du?", "Wie heißt du?", "Wo bist du?", "Wie geht's dir?"], a: 0, why: "Littéralement « comment vieux es-tu ? » — <b>alt</b> signifie vieux." }
+  ],
+  drills: [
+    { t: "gap", f: "3", s: "___", a: "drei", why: "Trois." },
+    { t: "gap", f: "7", s: "___", a: "sieben", why: "Sept — le seul de 1 à 10 à faire deux syllabes." },
+    { t: "gap", f: "9", s: "___", a: "neun", why: "Neuf. Ne pas confondre avec <b>neu</b>, « nouveau »." },
+    { t: "gap", f: "5", s: "___", a: "fünf", why: "Cinq." },
+    { t: "gap", f: "8", s: "___", a: "acht", why: "Huit. On le retrouve dans <b>achtzehn</b>, dix-huit." },
+    { t: "gap", f: "21", s: "___", a: "einundzwanzig", why: "L'unité d'abord, puis <b>und</b>, puis la dizaine : « un-et-vingt »." },
+    { t: "gap", f: "34", s: "___", a: "vierunddreißig", why: "« quatre-et-trente ». L'ordre est inversé par rapport au français." },
+    { t: "gap", f: "67", s: "___", a: "siebenundsechzig", why: "« sept-et-soixante » — on entend l'unité en premier." },
+    { t: "gap", f: "J'ai vingt ans.", s: "Ich bin zwanzig ___ alt.", a: "Jahre", why: "L'allemand dit « je SUIS vingt ans vieux », pas « j'ai »." },
+    { t: "gap", f: "Quel âge as-tu ?", s: "___ alt bist du?", a: "Wie", why: "<b>Wie alt</b> — littéralement « comment vieux »." },
+    { t: "gap", f: "Il a dix ans.", s: "Er ___ zehn Jahre alt.", a: "ist", why: "Avec <b>sein</b>, pas <b>haben</b> : c'est le piège pour un francophone." },
+    { t: "gap", f: "Ça coûte quinze euros.", s: "Das kostet ___ Euro.", a: "fünfzehn", why: "De 13 à 19, on colle l'unité devant <b>-zehn</b>." },
+
+    { t: "trans", inst: "Passe du tutoiement au vouvoiement.", from: "Wie alt bist du?", a: "Wie alt sind Sie?", why: "<b>Sie</b> prend <b>sind</b>." },
+    { t: "trans", inst: "Mets à la première personne (ich).", from: "Er ist zehn Jahre alt.", a: "Ich bin zehn Jahre alt.", why: "<b>ist</b> devient <b>bin</b>." },
+    { t: "trans", inst: "Écris le nombre en toutes lettres.", from: "Ich bin 12 Jahre alt.", a: "Ich bin zwölf Jahre alt.", why: "<b>zwölf</b> — une forme à part, comme <b>elf</b> pour 11." },
+    { t: "trans", inst: "Écris le nombre en toutes lettres.", from: "Ich bin 45 Jahre alt.", a: "Ich bin fünfundvierzig Jahre alt.", why: "Unité, <b>und</b>, dizaine — en un seul mot." },
+    { t: "trans", inst: "Transforme en question.", from: "Du bist zwanzig Jahre alt.", a: "Bist du zwanzig Jahre alt?", why: "Sans mot interrogatif, le verbe passe en tête." },
+
+    { t: "order", f: "Quel âge as-tu ?", a: "Wie alt bist du", why: "Mot en W- en place 1, verbe en place 2." },
+    { t: "order", f: "J'ai huit ans.", a: "Ich bin acht Jahre alt", why: "<b>alt</b> ferme la phrase." },
+    { t: "order", f: "Ça coûte vingt euros.", a: "Das kostet zwanzig Euro", why: "<b>Euro</b> reste au singulier après un nombre." },
+    { t: "order", f: "Elle a trente ans.", a: "Sie ist dreißig Jahre alt", why: "<b>dreißig</b> s'écrit avec ß, contrairement aux autres dizaines." },
+    { t: "order", f: "Quel âge avez-vous ?", a: "Wie alt sind Sie", why: "Forme polie, <b>Sie</b> avec majuscule." },
+
+    { t: "trad", f: "J'ai vingt ans.", a: "Ich bin zwanzig Jahre alt.", why: "L'allemand emploie <b>sein</b>, pas <b>haben</b>." },
+    { t: "trad", f: "Quel âge as-tu ?", a: "Wie alt bist du?", why: "Le piège classique : on ne demande pas « combien d'années »." },
+    { t: "trad", f: "Il a deux enfants.", a: "Er hat zwei Kinder.", why: "Là, en revanche, <b>haben</b> : on possède vraiment." },
+    { t: "trad", f: "Ça coûte vingt-cinq euros.", a: "Das kostet fünfundzwanzig Euro.", why: "« cinq-et-vingt » en un mot." },
+    { t: "trad", f: "Nous sommes quatre.", a: "Wir sind vier.", why: "Rien à ajouter : le nombre suffit." },
+    { t: "trad", f: "J'ai trois livres.", a: "Ich habe drei Bücher.", why: "<b>Bücher</b> — pluriel irrégulier avec tréma." }
   ]
 },
 
@@ -980,6 +1083,39 @@ const COURSE = [
     { q: "Complète : Ich komme heute ___. (je ne viens pas aujourd'hui)", o: ["nicht", "kein", "keine", "nichts"], a: 0, why: "Pas de nom à nier → <b>nicht</b>, en fin de phrase." },
     { q: "« Ich habe Hunger » veut dire…", o: ["J'ai faim", "J'ai soif", "Je mange", "Je suis fatigué"], a: 0, why: "Littéralement « j'ai la faim ». Pour la soif : <b>Ich habe Durst</b>." },
     { q: "Devant un nom féminin, on emploie…", o: ["keine", "kein", "keinen", "nicht"], a: 0, why: "<b>kein</b> se décline comme ein : kein Mann, <b>keine</b> Frau." }
+  ],
+  drills: [
+    { t: "gap", f: "J'ai le temps.", s: "Ich ___ Zeit.", a: "habe", why: "<b>haben</b> : ich <b>habe</b>." },
+    { t: "gap", f: "Tu as le temps.", s: "Du ___ Zeit.", a: "hast", why: "Irrégulier : <b>hast</b>, pas « habst »." },
+    { t: "gap", f: "Il a faim.", s: "Er ___ Hunger.", a: "hat", why: "Irrégulier : <b>hat</b>, sans le b." },
+    { t: "gap", f: "Nous avons soif.", s: "Wir ___ Durst.", a: "haben", why: "Au pluriel, le <b>b</b> revient." },
+    { t: "gap", f: "Je n'ai pas de voiture.", s: "Ich habe ___ Auto.", a: "kein", why: "Devant un nom neutre : <b>kein</b>." },
+    { t: "gap", f: "Je n'ai pas le temps.", s: "Ich habe ___ Zeit.", a: "keine", why: "<b>Zeit</b> est féminin → <b>keine</b>." },
+    { t: "gap", f: "Il n'a pas de chien.", s: "Er hat ___ Hund.", a: "keinen", why: "Masculin à l'accusatif → <b>keinen</b>." },
+    { t: "gap", f: "Ce n'est pas bien.", s: "Das ist ___ gut.", a: "nicht", why: "Devant un adjectif, c'est <b>nicht</b> — jamais <b>kein</b>." },
+    { t: "gap", f: "Je ne travaille pas.", s: "Ich arbeite ___.", a: "nicht", why: "Pour nier un verbe : <b>nicht</b>, placé après." },
+    { t: "gap", f: "Elle n'a pas d'argent.", s: "Sie hat ___ Geld.", a: "kein", why: "<b>Geld</b> est neutre → <b>kein</b>." },
+    { t: "gap", f: "Nous n'avons pas de chat.", s: "Wir haben ___ Katze.", a: "keine", why: "<b>Katze</b> est féminin → <b>keine</b>." },
+
+    { t: "trans", inst: "Mets à la forme négative.", from: "Ich habe Zeit.", a: "Ich habe keine Zeit.", why: "On nie un NOM → <b>kein</b>, accordé au genre." },
+    { t: "trans", inst: "Mets à la forme négative.", from: "Das ist gut.", a: "Das ist nicht gut.", why: "On nie un ADJECTIF → <b>nicht</b>." },
+    { t: "trans", inst: "Mets à la forme négative.", from: "Er hat einen Hund.", a: "Er hat keinen Hund.", why: "<b>einen</b> devient <b>keinen</b> : c'est le même mot avec k- devant." },
+    { t: "trans", inst: "Mets à la forme négative.", from: "Ich arbeite heute.", a: "Ich arbeite heute nicht.", why: "<b>nicht</b> se place en fin de phrase pour nier le verbe." },
+    { t: "trans", inst: "Mets à la deuxième personne (du).", from: "Ich habe Hunger.", a: "Du hast Hunger.", why: "<b>habe</b> devient <b>hast</b>." },
+    { t: "trans", inst: "Mets au pluriel (wir).", from: "Ich habe kein Geld.", a: "Wir haben kein Geld.", why: "Le verbe change, la négation non." },
+
+    { t: "order", f: "Je n'ai pas le temps.", a: "Ich habe keine Zeit", why: "La négation accompagne le nom qu'elle nie." },
+    { t: "order", f: "Nous avons faim.", a: "Wir haben Hunger", why: "Pas d'article : la faim n'est pas comptable." },
+    { t: "order", f: "Il n'a pas de voiture.", a: "Er hat kein Auto", why: "<b>Auto</b> est neutre." },
+    { t: "order", f: "Ce n'est pas bien.", a: "Das ist nicht gut", why: "<b>nicht</b> précède l'adjectif." },
+    { t: "order", f: "As-tu le temps ?", a: "Hast du Zeit", why: "Verbe en tête pour une question sans mot en W-." },
+
+    { t: "trad", f: "J'ai un chien.", a: "Ich habe einen Hund.", why: "Masculin complément d'objet → <b>einen</b>." },
+    { t: "trad", f: "Je n'ai pas de chien.", a: "Ich habe keinen Hund.", why: "<b>einen</b> → <b>keinen</b>." },
+    { t: "trad", f: "Nous n'avons pas d'argent.", a: "Wir haben kein Geld.", why: "Neutre → <b>kein</b>." },
+    { t: "trad", f: "Elle n'est pas là.", a: "Sie ist nicht da.", why: "On nie autre chose qu'un nom → <b>nicht</b>." },
+    { t: "trad", f: "As-tu soif ?", a: "Hast du Durst?", why: "<b>Durst</b> s'emploie sans article." },
+    { t: "trad", f: "Nous avons faim, mais nous n'avons pas de pain.", a: "Wir haben Hunger, aber wir haben kein Brot.", why: "<b>aber</b> relie sans rien déplacer." }
   ]
 },
 
@@ -1031,6 +1167,38 @@ const COURSE = [
     { q: "« Il achète une pomme » : Er kauft ___ Apfel.", o: ["einen", "ein", "eine", "einem"], a: 0, why: "der Apfel est masculin et COD → <b>einen</b>." },
     { q: "Complète : Ich trinke ___ Milch.", o: ["die", "der", "den", "dem"], a: 0, why: "Milch est féminin : <b>die</b> ne bouge pas." },
     { q: "Dans « Der Hund sieht die Katze », qui voit qui ?", o: ["le chien voit le chat", "le chat voit le chien", "les deux se voient", "impossible à dire"], a: 0, why: "<b>Der</b> Hund a la forme du sujet. C'est l'article qui indique le rôle, pas l'ordre des mots." }
+  ],
+  drills: [
+    { t: "gap", f: "Je vois l'homme.", s: "Ich sehe ___ Mann.", a: "den", why: "Masculin complément d'objet : <b>der</b> devient <b>den</b>." },
+    { t: "gap", f: "Je vois la femme.", s: "Ich sehe ___ Frau.", a: "die", why: "Le féminin ne bouge pas à l'accusatif." },
+    { t: "gap", f: "Je vois l'enfant.", s: "Ich sehe ___ Kind.", a: "das", why: "Le neutre ne bouge pas non plus." },
+    { t: "gap", f: "Je cherche la table.", s: "Ich suche ___ Tisch.", a: "den", why: "<b>Tisch</b> est masculin → <b>den</b>." },
+    { t: "gap", f: "Je bois le café.", s: "Ich trinke ___ Kaffee.", a: "den", why: "<b>Kaffee</b> est masculin → <b>den</b>." },
+    { t: "gap", f: "Je bois le lait.", s: "Ich trinke ___ Milch.", a: "die", why: "<b>Milch</b> est féminin : rien ne change." },
+    { t: "gap", f: "Je mange le pain.", s: "Ich esse ___ Brot.", a: "das", why: "<b>Brot</b> est neutre : rien ne change." },
+    { t: "gap", f: "Je mange une pomme.", s: "Ich esse ___ Apfel.", a: "einen", why: "<b>ein</b> devient <b>einen</b> au masculin complément." },
+    { t: "gap", f: "Il cherche un livre.", s: "Er sucht ___ Buch.", a: "ein", why: "Neutre : <b>ein</b> reste <b>ein</b>." },
+    { t: "gap", f: "Elle lit un livre.", s: "Sie liest ___ Buch.", a: "ein", why: "Neutre, invariable." },
+    { t: "gap", f: "Le chien voit le chat.", s: "Der Hund sieht ___ Katze.", a: "die", why: "<b>Katze</b> est féminin : la forme ne change pas, mais le rôle si." },
+
+    { t: "trans", inst: "Mets le complément au masculin (der Hund).", from: "Ich sehe die Katze.", a: "Ich sehe den Hund.", why: "Seul le masculin change de forme : <b>den</b>." },
+    { t: "trans", inst: "Remplace l'article défini par un indéfini.", from: "Ich suche den Tisch.", a: "Ich suche einen Tisch.", why: "<b>den</b> → <b>einen</b>." },
+    { t: "trans", inst: "Remplace l'article défini par un indéfini.", from: "Ich trinke das Wasser.", a: "Ich trinke ein Wasser.", why: "Neutre : <b>das</b> → <b>ein</b>, sans terminaison." },
+    { t: "trans", inst: "Inverse les rôles : que le chat voie le chien.", from: "Der Hund sieht die Katze.", a: "Die Katze sieht den Hund.", why: "C'est l'ARTICLE qui dit qui fait l'action, pas la place dans la phrase." },
+    { t: "trans", inst: "Mets à la deuxième personne (du).", from: "Ich sehe den Mann.", a: "Du siehst den Mann.", why: "<b>sehen</b> change de voyelle : <b>du siehst</b>." },
+
+    { t: "order", f: "Je vois l'homme.", a: "Ich sehe den Mann", why: "Sujet, verbe, complément à l'accusatif." },
+    { t: "order", f: "Nous buvons le lait.", a: "Wir trinken die Milch", why: "Féminin : forme inchangée." },
+    { t: "order", f: "Il mange une pomme.", a: "Er isst einen Apfel", why: "<b>essen</b> change de voyelle : <b>er isst</b>." },
+    { t: "order", f: "J'ai besoin du livre.", a: "Ich brauche das Buch", why: "Neutre invariable." },
+    { t: "order", f: "Le chien voit le chat.", a: "Der Hund sieht die Katze", why: "<b>Der</b> marque le sujet." },
+
+    { t: "trad", f: "Je vois le chien.", a: "Ich sehe den Hund.", why: "Masculin complément → <b>den</b>." },
+    { t: "trad", f: "Je cherche un livre.", a: "Ich suche ein Buch.", why: "Neutre → <b>ein</b>." },
+    { t: "trad", f: "Elle boit l'eau.", a: "Sie trinkt das Wasser.", why: "<b>Wasser</b> est neutre." },
+    { t: "trad", f: "Nous mangeons le pain.", a: "Wir essen das Brot.", why: "Neutre, invariable." },
+    { t: "trad", f: "Tu cherches la porte.", a: "Du suchst die Tür.", why: "Féminin, invariable." },
+    { t: "trad", f: "Il achète une voiture.", a: "Er kauft ein Auto.", why: "<b>Auto</b> est neutre → <b>ein</b>." }
   ]
 },
 
@@ -1083,6 +1251,38 @@ const COURSE = [
     { q: "Comment transformer « Du hast Zeit » en question ?", o: ["Hast du Zeit?", "Du hast Zeit?", "Ist du hast Zeit?", "Was du hast Zeit?"], a: 0, why: "Simple inversion : l'allemand n'a pas d'« est-ce que »." },
     { q: "« Wann » signifie…", o: ["quand", "où", "qui", "comment"], a: 0, why: "<b>wann</b> = quand. À ne pas confondre avec <b>wo</b> ni <b>wer</b>." },
     { q: "« Wer ist das? » veut dire…", o: ["Qui est-ce ?", "Où est-ce ?", "Qu'est-ce que c'est ?", "Comment est-ce ?"], a: 0, why: "Faux ami redoutable : l'allemand <b>wer</b> veut dire qui." }
+  ],
+  drills: [
+    { t: "gap", f: "D'où viens-tu ?", s: "___ kommst du?", a: "Woher", why: "<b>woher</b> pour l'origine — « d'où »." },
+    { t: "gap", f: "Où habites-tu ?", s: "___ wohnst du?", a: "Wo", why: "<b>wo</b> pour la position — sans mouvement." },
+    { t: "gap", f: "Où vas-tu ?", s: "___ gehst du?", a: "Wohin", why: "<b>wohin</b> pour la destination — avec mouvement." },
+    { t: "gap", f: "Qui est-ce ?", s: "___ ist das?", a: "Wer", why: "<b>wer</b> = qui. Ne pas le lire comme le français « où »." },
+    { t: "gap", f: "Qu'est-ce que c'est ?", s: "___ ist das?", a: "Was", why: "<b>was</b> = quoi." },
+    { t: "gap", f: "Quand viens-tu ?", s: "___ kommst du?", a: "Wann", why: "<b>wann</b> = quand." },
+    { t: "gap", f: "Pourquoi apprends-tu l'allemand ?", s: "___ lernst du Deutsch?", a: "Warum", why: "<b>warum</b> = pourquoi." },
+    { t: "gap", f: "Combien ça coûte ?", s: "___ kostet das?", a: "Wie viel", why: "<b>wie viel</b> en deux mots pour une quantité." },
+    { t: "gap", f: "Comment vas-tu ?", s: "___ geht es dir?", a: "Wie", why: "<b>wie</b> = comment." },
+    { t: "gap", f: "As-tu le temps ?", s: "___ du Zeit?", a: "Hast", why: "Sans mot en W-, le verbe prend la place 1." },
+    { t: "gap", f: "Je viens de France.", s: "Ich komme ___ Frankreich.", a: "aus", why: "<b>aus</b> + pays pour l'origine." },
+
+    { t: "trans", inst: "Transforme en question fermée (oui / non).", from: "Du hast Zeit.", a: "Hast du Zeit?", why: "Le verbe passe en tête, le sujet le suit." },
+    { t: "trans", inst: "Transforme en question fermée (oui / non).", from: "Er wohnt in Berlin.", a: "Wohnt er in Berlin?", why: "Même inversion." },
+    { t: "trans", inst: "Pose la question sur le lieu (wo).", from: "Ich wohne in Berlin.", a: "Wo wohnst du?", why: "Le mot en W- prend la place 1, le verbe reste en 2." },
+    { t: "trans", inst: "Pose la question sur l'origine (woher).", from: "Ich komme aus Berlin.", a: "Woher kommst du?", why: "<b>woher</b> pour d'où l'on vient." },
+    { t: "trans", inst: "Passe du tutoiement au vouvoiement.", from: "Woher kommst du?", a: "Woher kommen Sie?", why: "<b>Sie</b> prend la forme de l'infinitif." },
+
+    { t: "order", f: "D'où viens-tu ?", a: "Woher kommst du", why: "Place 1 le mot en W-, place 2 le verbe, puis le sujet." },
+    { t: "order", f: "Pourquoi apprends-tu l'allemand ?", a: "Warum lernst du Deutsch", why: "Même charpente, complément à la fin." },
+    { t: "order", f: "Que fais-tu ?", a: "Was machst du", why: "<b>was</b> occupe la place 1." },
+    { t: "order", f: "Où habite l'homme ?", a: "Wo wohnt der Mann", why: "Le sujet passe après le verbe." },
+    { t: "order", f: "Quand viens-tu ?", a: "Wann kommst du", why: "La règle du verbe en deuxième position ne souffre aucune exception." },
+
+    { t: "trad", f: "Qui est-ce ?", a: "Wer ist das?", why: "<b>wer</b> = qui, pas « où »." },
+    { t: "trad", f: "Que fais-tu ?", a: "Was machst du?", why: "<b>was</b> en place 1." },
+    { t: "trad", f: "Où habites-tu ?", a: "Wo wohnst du?", why: "<b>wo</b> sans mouvement." },
+    { t: "trad", f: "Pourquoi apprends-tu l'allemand ?", a: "Warum lernst du Deutsch?", why: "Le verbe garde sa deuxième position." },
+    { t: "trad", f: "As-tu le temps ?", a: "Hast du Zeit?", why: "Question fermée : verbe en tête." },
+    { t: "trad", f: "Combien ça coûte ?", a: "Wie viel kostet das?", why: "<b>wie viel</b> en deux mots." }
   ]
 },
 
@@ -1134,6 +1334,38 @@ const COURSE = [
     { q: "« sehr » veut dire…", o: ["très", "un peu", "presque", "trop"], a: 0, why: "<b>sehr gut</b> = très bien. Pour « un peu » : <b>ein bisschen</b>." },
     { q: "Comment dire « la voiture n'est pas verte » ?", o: ["Das Auto ist nicht grün", "Das Auto ist kein grün", "Das Auto nicht ist grün", "Das Auto ist grün nicht"], a: 0, why: "On nie un adjectif, pas un nom → <b>nicht</b>, placé avant l'adjectif." },
     { q: "Pourquoi éviter pour l'instant « ein rotes Auto » ?", o: ["devant le nom, l'adjectif prend une terminaison", "cette phrase est fausse", "rot ne s'emploie pas avec Auto", "il faut le pluriel"], a: 0, why: "Devant le nom, les adjectifs se déclinent — un chapitre bien plus lourd, à garder pour plus tard." }
+  ],
+  drills: [
+    { t: "gap", f: "La maison est grande.", s: "Das Haus ist ___.", a: "groß", why: "Après <b>sein</b>, l'adjectif ne prend aucune terminaison." },
+    { t: "gap", f: "La ville est belle.", s: "Die Stadt ist ___.", a: "schön", why: "Invariable, quel que soit le genre du sujet." },
+    { t: "gap", f: "Le livre est vieux.", s: "Das Buch ist ___.", a: "alt", why: "Toujours invariable après le verbe." },
+    { t: "gap", f: "La voiture est neuve.", s: "Das Auto ist ___.", a: "neu", why: "<b>neu</b> — à ne pas confondre avec <b>neun</b>, neuf le nombre." },
+    { t: "gap", f: "La pomme est rouge.", s: "Der Apfel ist ___.", a: "rot", why: "Les couleurs suivent la même règle." },
+    { t: "gap", f: "La porte est bleue.", s: "Die Tür ist ___.", a: "blau", why: "Aucun accord, même au féminin." },
+    { t: "gap", f: "Le chien est petit.", s: "Der Hund ist ___.", a: "klein", why: "Invariable." },
+    { t: "gap", f: "La maison est très vieille.", s: "Das Haus ist ___ alt.", a: "sehr", why: "<b>sehr</b> se place devant l'adjectif." },
+    { t: "gap", f: "Ce n'est pas bien.", s: "Das ist ___ gut.", a: "nicht", why: "<b>nicht</b> devant un adjectif." },
+    { t: "gap", f: "Le café est mauvais.", s: "Der Kaffee ist ___.", a: "schlecht", why: "L'opposé de <b>gut</b>." },
+    { t: "gap", f: "L'arbre est vert.", s: "Der Baum ist ___.", a: "grün", why: "Invariable, comme toutes les couleurs après <b>sein</b>." },
+
+    { t: "trans", inst: "Ajoute « très ».", from: "Die Stadt ist groß.", a: "Die Stadt ist sehr groß.", why: "<b>sehr</b> se glisse juste devant l'adjectif." },
+    { t: "trans", inst: "Mets à la forme négative.", from: "Das Auto ist neu.", a: "Das Auto ist nicht neu.", why: "On nie un adjectif → <b>nicht</b>." },
+    { t: "trans", inst: "Change le sujet pour « die Frau ».", from: "Der Mann ist alt.", a: "Die Frau ist alt.", why: "L'adjectif ne bouge pas : c'est tout l'intérêt de cette position." },
+    { t: "trans", inst: "Mets au pluriel (die Häuser sind).", from: "Das Haus ist groß.", a: "Die Häuser sind groß.", why: "Même au pluriel, l'adjectif reste nu." },
+    { t: "trans", inst: "Transforme en question.", from: "Das Buch ist neu.", a: "Ist das Buch neu?", why: "Verbe en tête." },
+
+    { t: "order", f: "La maison est très vieille.", a: "Das Haus ist sehr alt", why: "<b>sehr</b> précède l'adjectif, qui ferme la phrase." },
+    { t: "order", f: "La ville est belle.", a: "Die Stadt ist schön", why: "Sujet, verbe, attribut." },
+    { t: "order", f: "Ma voiture n'est pas neuve.", a: "Mein Auto ist nicht neu", why: "<b>nicht</b> se glisse devant l'adjectif." },
+    { t: "order", f: "Le chien est petit.", a: "Der Hund ist klein", why: "Aucune terminaison sur l'adjectif." },
+    { t: "order", f: "La pomme est rouge.", a: "Der Apfel ist rot", why: "<b>Apfel</b> est masculin." },
+
+    { t: "trad", f: "La maison est grande.", a: "Das Haus ist groß.", why: "Invariable après <b>sein</b>." },
+    { t: "trad", f: "Le livre est très vieux.", a: "Das Buch ist sehr alt.", why: "<b>sehr</b> devant l'adjectif." },
+    { t: "trad", f: "La voiture n'est pas neuve.", a: "Das Auto ist nicht neu.", why: "<b>nicht</b> pour nier un adjectif." },
+    { t: "trad", f: "La ville est belle, mais très grande.", a: "Die Stadt ist schön, aber sehr groß.", why: "<b>aber</b> relie sans rien déplacer." },
+    { t: "trad", f: "Le café est bon.", a: "Der Kaffee ist gut.", why: "<b>Kaffee</b> est masculin." },
+    { t: "trad", f: "La porte est verte.", a: "Die Tür ist grün.", why: "Aucun accord, même au féminin." }
   ]
 },
 
@@ -1186,6 +1418,40 @@ const COURSE = [
     { q: "Complète : Er ___ ein Buch. (lesen)", o: ["liest", "lest", "lesst", "liesen"], a: 0, why: "lesen fait <b>e → ie</b> : du liest, er liest." },
     { q: "« Nous allons à Berlin » (en voiture) :", o: ["Wir fahren nach Berlin", "Wir fährt nach Berlin", "Wir fährst nach Berlin", "Wir fahrt nach Berlin"], a: 0, why: "<b>wir</b> ne change jamais de voyelle : forme de l'infinitif." },
     { q: "« Il prend le bus » :", o: ["Er nimmt den Bus", "Er nehmt den Bus", "Er nimmst den Bus", "Er nehme den Bus"], a: 0, why: "nehmen est le plus irrégulier du lot : <b>er nimmt</b>." }
+  ],
+  drills: [
+    { t: "gap", f: "Tu parles allemand.", s: "Du ___ Deutsch.", a: "sprichst", why: "<b>e</b> devient <b>i</b> : spr<b>i</b>chst." },
+    { t: "gap", f: "Il parle allemand.", s: "Er ___ Deutsch.", a: "spricht", why: "Même changement à la troisième personne." },
+    { t: "gap", f: "Je parle allemand.", s: "Ich ___ Deutsch.", a: "spreche", why: "Avec <b>ich</b>, la voyelle NE change PAS." },
+    { t: "gap", f: "Nous parlons allemand.", s: "Wir ___ Deutsch.", a: "sprechen", why: "Le pluriel reste régulier." },
+    { t: "gap", f: "Tu manges une pomme.", s: "Du ___ einen Apfel.", a: "isst", why: "<b>essen</b> → du <b>isst</b>." },
+    { t: "gap", f: "Il lit un livre.", s: "Er ___ ein Buch.", a: "liest", why: "<b>e</b> devient <b>ie</b> : l<b>ie</b>st." },
+    { t: "gap", f: "Tu vas à Berlin (en voiture).", s: "Du ___ nach Berlin.", a: "fährst", why: "<b>a</b> prend un tréma : f<b>ä</b>hrst." },
+    { t: "gap", f: "Il dort.", s: "Er ___.", a: "schläft", why: "<b>a</b> → <b>ä</b>." },
+    { t: "gap", f: "Tu prends le livre.", s: "Du ___ das Buch.", a: "nimmst", why: "Le plus irrégulier : <b>nehmen</b> → du <b>nimmst</b>." },
+    { t: "gap", f: "Il prend le livre.", s: "Er ___ das Buch.", a: "nimmt", why: "<b>er nimmt</b>, avec deux m." },
+    { t: "gap", f: "Tu donnes le livre.", s: "Du ___ das Buch.", a: "gibst", why: "<b>geben</b> → du <b>gibst</b>." },
+    { t: "gap", f: "Il aide la femme.", s: "Er ___ der Frau.", a: "hilft", why: "<b>e</b> → <b>i</b> : h<b>i</b>lft." },
+
+    { t: "trans", inst: "Mets à la deuxième personne (du).", from: "Ich spreche Deutsch.", a: "Du sprichst Deutsch.", why: "La voyelle change dès qu'on quitte <b>ich</b>." },
+    { t: "trans", inst: "Mets à la troisième personne (er).", from: "Ich lese ein Buch.", a: "Er liest ein Buch.", why: "<b>e</b> → <b>ie</b>." },
+    { t: "trans", inst: "Mets à la deuxième personne (du).", from: "Ich fahre nach Berlin.", a: "Du fährst nach Berlin.", why: "<b>a</b> → <b>ä</b>." },
+    { t: "trans", inst: "Mets au pluriel (wir).", from: "Er nimmt den Bus.", a: "Wir nehmen den Bus.", why: "Au pluriel, la voyelle d'origine revient." },
+    { t: "trans", inst: "Mets à la première personne (ich).", from: "Du isst einen Apfel.", a: "Ich esse einen Apfel.", why: "<b>ich</b> ne change jamais de voyelle." },
+    { t: "trans", inst: "Transforme en question.", from: "Du sprichst Deutsch.", a: "Sprichst du Deutsch?", why: "Verbe en tête, forme conjuguée inchangée." },
+
+    { t: "order", f: "Parles-tu allemand ?", a: "Sprichst du Deutsch", why: "Question fermée : verbe en place 1." },
+    { t: "order", f: "Il lit un livre.", a: "Er liest ein Buch", why: "<b>lesen</b> → <b>liest</b>." },
+    { t: "order", f: "Nous allons à Berlin.", a: "Wir fahren nach Berlin", why: "Au pluriel, pas de tréma." },
+    { t: "order", f: "Tu prends le pain.", a: "Du nimmst das Brot", why: "<b>nimmst</b>, forme très éloignée de l'infinitif." },
+    { t: "order", f: "Elle dort beaucoup.", a: "Sie schläft viel", why: "<b>a</b> → <b>ä</b> au singulier." },
+
+    { t: "trad", f: "Parles-tu allemand ?", a: "Sprichst du Deutsch?", why: "Le changement de voyelle touche <b>du</b> et <b>er/sie/es</b>." },
+    { t: "trad", f: "Il lit un livre.", a: "Er liest ein Buch.", why: "<b>e</b> → <b>ie</b>." },
+    { t: "trad", f: "Nous allons à Berlin.", a: "Wir fahren nach Berlin.", why: "Le pluriel est régulier." },
+    { t: "trad", f: "Je mange du pain.", a: "Ich esse Brot.", why: "Avec <b>ich</b>, la voyelle reste." },
+    { t: "trad", f: "Il prend le bus.", a: "Er nimmt den Bus.", why: "<b>Bus</b> est masculin → <b>den</b> à l'accusatif." },
+    { t: "trad", f: "Tu m'aides.", a: "Du hilfst mir.", why: "<b>helfen</b> → <b>hilfst</b>." }
   ]
 },
 
@@ -1237,6 +1503,38 @@ const COURSE = [
     { q: "Quel mot signifie « hier » ?", o: ["gestern", "heute", "morgen", "früh"], a: 0, why: "<b>gestern</b> = hier, <b>heute</b> = aujourd'hui." },
     { q: "Comment dire « à huit heures » ?", o: ["um acht Uhr", "am acht Uhr", "in acht Uhr", "acht Uhr an"], a: 0, why: "<b>um</b> sert pour l'heure précise, <b>am</b> pour les jours." },
     { q: "Les jours de la semaine sont…", o: ["tous masculins (der)", "tous neutres (das)", "tous féminins (die)", "de genres variés"], a: 0, why: "der Montag, der Dienstag… tous <b>der</b>. Une exception bienvenue à la règle du hasard." }
+  ],
+  drills: [
+    { t: "gap", f: "lundi", s: "___ Montag", a: "der", why: "Tous les jours de la semaine sont masculins." },
+    { t: "gap", f: "la semaine", s: "___ Woche", a: "die", why: "<b>Woche</b> est féminin." },
+    { t: "gap", f: "le week-end", s: "___ Wochenende", a: "das", why: "<b>Wochenende</b> est neutre." },
+    { t: "gap", f: "Le lundi, je travaille.", s: "___ Montag arbeite ich.", a: "Am", why: "<b>am</b> pour un jour — contraction de <b>an dem</b>." },
+    { t: "gap", f: "Le week-end, je joue.", s: "___ Wochenende spiele ich.", a: "Am", why: "<b>am Wochenende</b>, comme pour un jour." },
+    { t: "gap", f: "À neuf heures.", s: "___ neun Uhr", a: "um", why: "<b>um</b> pour une heure précise, <b>am</b> pour un jour." },
+    { t: "gap", f: "Aujourd'hui je ne travaille pas.", s: "___ arbeite ich nicht.", a: "Heute", why: "Le complément en tête pousse le sujet derrière le verbe." },
+    { t: "gap", f: "Demain je viens.", s: "___ komme ich.", a: "Morgen", why: "Attention : <b>morgen</b> en minuscule veut dire demain, <b>der Morgen</b> le matin." },
+    { t: "gap", f: "Hier j'ai travaillé.", s: "___ habe ich gearbeitet.", a: "Gestern", why: "<b>gestern</b> = hier." },
+    { t: "gap", f: "Que fais-tu le week-end ?", s: "Was machst du ___ Wochenende?", a: "am", why: "<b>am</b> reste, même en fin de phrase." },
+    { t: "gap", f: "Le cours commence à neuf heures.", s: "Der Kurs beginnt ___ neun Uhr.", a: "um", why: "Une heure précise → <b>um</b>." },
+
+    { t: "trans", inst: "Commence la phrase par « Heute ».", from: "Ich arbeite heute nicht.", a: "Heute arbeite ich nicht.", why: "Le verbe RESTE en deuxième position : le sujet passe derrière." },
+    { t: "trans", inst: "Commence la phrase par « Am Montag ».", from: "Ich spiele am Montag.", a: "Am Montag spiele ich.", why: "Même mécanique : place 1 occupée, sujet repoussé." },
+    { t: "trans", inst: "Commence la phrase par « Morgen ».", from: "Ich komme morgen.", a: "Morgen komme ich.", why: "L'inversion est obligatoire, pas stylistique." },
+    { t: "trans", inst: "Transforme en question sur le moment (wann).", from: "Ich komme am Montag.", a: "Wann kommst du?", why: "<b>wann</b> prend la place 1." },
+    { t: "trans", inst: "Mets à la deuxième personne (du).", from: "Ich arbeite am Wochenende.", a: "Du arbeitest am Wochenende.", why: "N'oublie pas le <b>e</b> d'appui." },
+
+    { t: "order", f: "Que fais-tu le week-end ?", a: "Was machst du am Wochenende", why: "<b>was</b> en place 1, verbe en place 2." },
+    { t: "order", f: "Aujourd'hui je ne travaille pas.", a: "Heute arbeite ich nicht", why: "Complément en tête, donc sujet après le verbe." },
+    { t: "order", f: "Le cours commence à neuf heures.", a: "Der Kurs beginnt um neun Uhr", why: "<b>um</b> pour l'heure." },
+    { t: "order", f: "Le lundi je travaille.", a: "Am Montag arbeite ich", why: "L'inversion suit l'occupation de la place 1." },
+    { t: "order", f: "Demain je viens à Berlin.", a: "Morgen komme ich nach Berlin", why: "Même règle, complément de lieu à la fin." },
+
+    { t: "trad", f: "Que fais-tu le week-end ?", a: "Was machst du am Wochenende?", why: "<b>am</b> devant <b>Wochenende</b>." },
+    { t: "trad", f: "Aujourd'hui je ne travaille pas.", a: "Heute arbeite ich nicht.", why: "Inversion obligatoire après un complément en tête." },
+    { t: "trad", f: "Le cours commence à neuf heures.", a: "Der Kurs beginnt um neun Uhr.", why: "<b>um</b> pour une heure." },
+    { t: "trad", f: "Demain je viens.", a: "Morgen komme ich.", why: "Le sujet passe après le verbe." },
+    { t: "trad", f: "Le mardi je joue.", a: "Am Dienstag spiele ich.", why: "<b>am</b> + jour, puis inversion." },
+    { t: "trad", f: "La semaine est longue.", a: "Die Woche ist lang.", why: "<b>Woche</b> est féminin." }
   ]
 },
 
@@ -1289,6 +1587,40 @@ const COURSE = [
     { q: "« Ich will » veut dire…", o: ["je veux", "je vais", "je peux", "je dois"], a: 0, why: "Faux ami avec l'anglais : <b>wollen</b> = vouloir." },
     { q: "Complète : Wir ___ heute arbeiten. (devoir)", o: ["müssen", "muss", "musst", "müsst"], a: 0, why: "Avec <b>wir</b>, on reprend la forme de l'infinitif : <b>müssen</b>." },
     { q: "Quelle particularité ont ces verbes au singulier ?", o: ["ich et er ont la même forme", "ils n'ont pas de forme pour du", "ils sont réguliers", "ils changent de voyelle"], a: 0, why: "<b>ich kann</b> et <b>er kann</b> : identiques. Aucun verbe normal ne fait ça." }
+  ],
+  drills: [
+    { t: "gap", f: "Je peux nager.", s: "Ich ___ schwimmen.", a: "kann", why: "<b>können</b> → ich <b>kann</b>, sans terminaison." },
+    { t: "gap", f: "Il peut nager.", s: "Er ___ schwimmen.", a: "kann", why: "Même forme que <b>ich</b> — la particularité de ces verbes." },
+    { t: "gap", f: "Tu peux nager.", s: "Du ___ schwimmen.", a: "kannst", why: "Seul <b>du</b> ajoute <b>-st</b>." },
+    { t: "gap", f: "Nous pouvons nager.", s: "Wir ___ schwimmen.", a: "können", why: "Au pluriel, la forme redevient régulière." },
+    { t: "gap", f: "Je veux chanter.", s: "Ich ___ singen.", a: "will", why: "<b>wollen</b> → ich <b>will</b>. Faux ami : rien à voir avec l'anglais." },
+    { t: "gap", f: "Il veut cuisiner.", s: "Er ___ kochen.", a: "will", why: "Identique à <b>ich</b>." },
+    { t: "gap", f: "Je dois travailler.", s: "Ich ___ arbeiten.", a: "muss", why: "<b>müssen</b> → ich <b>muss</b>, sans tréma." },
+    { t: "gap", f: "Tu dois travailler.", s: "Du ___ arbeiten.", a: "musst", why: "<b>musst</b> avec deux s." },
+    { t: "gap", f: "Je dois travailler aujourd'hui.", s: "Ich muss heute ___.", a: "arbeiten", why: "L'infinitif est rejeté tout à la fin." },
+    { t: "gap", f: "Nous voulons aller à Berlin.", s: "Wir wollen nach Berlin ___.", a: "fahren", why: "L'infinitif ferme la phrase, après le complément." },
+    { t: "gap", f: "Peux-tu m'aider ?", s: "Kannst du mir ___?", a: "helfen", why: "Même en question, l'infinitif reste à la fin." },
+    { t: "gap", f: "Je danse volontiers.", s: "Ich tanze ___.", a: "gern", why: "<b>gern</b> exprime le goût, sans verbe supplémentaire." },
+
+    { t: "trans", inst: "Ajoute « können » (je peux).", from: "Ich schwimme.", a: "Ich kann schwimmen.", why: "Le verbe conjugué devient <b>kann</b>, l'autre passe à l'infinitif en fin." },
+    { t: "trans", inst: "Ajoute « müssen » (je dois).", from: "Ich arbeite heute.", a: "Ich muss heute arbeiten.", why: "L'infinitif saute par-dessus <b>heute</b> pour finir la phrase." },
+    { t: "trans", inst: "Ajoute « wollen » (nous voulons).", from: "Wir fahren nach Berlin.", a: "Wir wollen nach Berlin fahren.", why: "Le complément reste au milieu, l'infinitif ferme." },
+    { t: "trans", inst: "Transforme en question.", from: "Du kannst mir helfen.", a: "Kannst du mir helfen?", why: "Le verbe conjugué passe en tête, l'infinitif ne bouge pas." },
+    { t: "trans", inst: "Mets à la deuxième personne (du).", from: "Ich will singen.", a: "Du willst singen.", why: "<b>will</b> devient <b>willst</b>." },
+    { t: "trans", inst: "Mets au pluriel (wir).", from: "Ich kann tanzen.", a: "Wir können tanzen.", why: "Le pluriel redevient régulier." },
+
+    { t: "order", f: "Je dois travailler aujourd'hui.", a: "Ich muss heute arbeiten", why: "L'infinitif est rejeté à la fin, après le complément de temps." },
+    { t: "order", f: "Nous voulons aller à Berlin.", a: "Wir wollen nach Berlin fahren", why: "Même structure : conjugué en 2, infinitif tout à la fin." },
+    { t: "order", f: "Peux-tu m'aider ?", a: "Kannst du mir helfen", why: "Question : conjugué en tête, infinitif à la fin." },
+    { t: "order", f: "Je veux chanter et danser.", a: "Ich will singen und tanzen", why: "Deux infinitifs peuvent se suivre à la fin." },
+    { t: "order", f: "Il peut peut-être cuisiner.", a: "Er kann vielleicht kochen", why: "<b>vielleicht</b> se glisse au milieu, l'infinitif reste dernier." },
+
+    { t: "trad", f: "Je peux nager.", a: "Ich kann schwimmen.", why: "<b>kann</b> conjugué, <b>schwimmen</b> à l'infinitif." },
+    { t: "trad", f: "Je dois travailler aujourd'hui.", a: "Ich muss heute arbeiten.", why: "L'infinitif ferme la phrase." },
+    { t: "trad", f: "Peux-tu m'aider ?", a: "Kannst du mir helfen?", why: "Le verbe conjugué prend la place 1 dans une question fermée." },
+    { t: "trad", f: "Nous voulons aller à Berlin.", a: "Wir wollen nach Berlin fahren.", why: "Complément au milieu, infinitif à la fin." },
+    { t: "trad", f: "Elle veut comprendre.", a: "Sie will verstehen.", why: "<b>will</b> est la même forme que pour <b>ich</b>." },
+    { t: "trad", f: "Je chante volontiers.", a: "Ich singe gern.", why: "<b>gern</b> après le verbe, sans infinitif." }
   ]
 },
 
@@ -1340,6 +1672,39 @@ const COURSE = [
     { q: "« mein » se comporte comme…", o: ["ein", "der", "das", "nicht"], a: 0, why: "mein, dein et kein suivent tous le modèle de <b>ein</b>." },
     { q: "Comment dire « c'est mon père » ?", o: ["Das ist mein Vater", "Das ist meine Vater", "Der ist mein Vater", "Das sind mein Vater"], a: 0, why: "<b>Das ist</b> est invariable ; Vater est masculin → <b>mein</b>." },
     { q: "« das Mädchen » est…", o: ["neutre, et veut dire jeune fille", "féminin, et veut dire jeune fille", "neutre, et veut dire garçon", "féminin, et veut dire fille de quelqu'un"], a: 0, why: "Neutre malgré le sens — c'est l'exemple le plus cité de l'écart entre genre et sens." }
+  ],
+  drills: [
+    { t: "gap", f: "mon père", s: "___ Vater", a: "mein", why: "<b>Vater</b> est masculin → <b>mein</b>, sans -e." },
+    { t: "gap", f: "ma mère", s: "___ Mutter", a: "meine", why: "<b>Mutter</b> est féminin → <b>meine</b>." },
+    { t: "gap", f: "mon frère", s: "___ Bruder", a: "mein", why: "Masculin." },
+    { t: "gap", f: "ma sœur", s: "___ Schwester", a: "meine", why: "Féminin → <b>meine</b>." },
+    { t: "gap", f: "ma famille", s: "___ Familie", a: "meine", why: "<b>Familie</b> est féminin." },
+    { t: "gap", f: "ton père", s: "___ Vater", a: "dein", why: "<b>dein</b> se décline exactement comme <b>mein</b>." },
+    { t: "gap", f: "ta sœur", s: "___ Schwester", a: "deine", why: "Féminin → <b>deine</b>." },
+    { t: "gap", f: "ton enfant", s: "___ Kind", a: "dein", why: "Neutre → <b>dein</b>, comme le masculin." },
+    { t: "gap", f: "Comment s'appelle ta sœur ?", s: "Wie heißt ___ Schwester?", a: "deine", why: "Féminin → <b>deine</b>." },
+    { t: "gap", f: "Mon frère habite à Berlin.", s: "___ Bruder wohnt in Berlin.", a: "Mein", why: "Masculin → <b>mein</b>." },
+    { t: "gap", f: "C'est ma famille.", s: "Das ist ___ Familie.", a: "meine", why: "Féminin → <b>meine</b>." },
+    { t: "gap", f: "Je vois mon père.", s: "Ich sehe ___ Vater.", a: "meinen", why: "Masculin complément d'objet : <b>mein</b> devient <b>meinen</b>, comme <b>ein</b> → <b>einen</b>." },
+
+    { t: "trans", inst: "Remplace « mein » par « dein ».", from: "Das ist mein Bruder.", a: "Das ist dein Bruder.", why: "Les deux se déclinent pareil." },
+    { t: "trans", inst: "Remplace « mein » par « dein ».", from: "Das ist meine Mutter.", a: "Das ist deine Mutter.", why: "Le -e du féminin reste." },
+    { t: "trans", inst: "Change « Vater » en « Mutter ».", from: "Das ist mein Vater.", a: "Das ist meine Mutter.", why: "Le genre du nom commande la terminaison du possessif." },
+    { t: "trans", inst: "Pose la question sur le nom (wie).", from: "Deine Schwester heißt Anna.", a: "Wie heißt deine Schwester?", why: "<b>wie</b> en place 1, verbe en place 2." },
+    { t: "trans", inst: "Mets le possessif au complément d'objet.", from: "Mein Vater ist hier.", a: "Ich sehe meinen Vater.", why: "Sujet <b>mein</b>, complément <b>meinen</b> au masculin." },
+
+    { t: "order", f: "C'est ma famille.", a: "Das ist meine Familie", why: "<b>Familie</b> est féminin." },
+    { t: "order", f: "Mon frère habite à Berlin.", a: "Mein Bruder wohnt in Berlin", why: "Sujet, verbe, complément." },
+    { t: "order", f: "Comment s'appelle ta sœur ?", a: "Wie heißt deine Schwester", why: "Mot en W- en tête, verbe juste après." },
+    { t: "order", f: "Ma mère est très gentille.", a: "Meine Mutter ist sehr nett", why: "Adjectif nu après <b>sein</b>." },
+    { t: "order", f: "Mon ami s'appelle Max.", a: "Mein Freund heißt Max", why: "<b>Freund</b> est masculin." },
+
+    { t: "trad", f: "C'est ma famille.", a: "Das ist meine Familie.", why: "Féminin → <b>meine</b>." },
+    { t: "trad", f: "Mon frère habite à Berlin.", a: "Mein Bruder wohnt in Berlin.", why: "Masculin → <b>mein</b>." },
+    { t: "trad", f: "Comment s'appelle ta sœur ?", a: "Wie heißt deine Schwester?", why: "<b>Schwester</b> est féminin." },
+    { t: "trad", f: "Mon père est vieux.", a: "Mein Vater ist alt.", why: "Adjectif invariable après <b>sein</b>." },
+    { t: "trad", f: "Ta fille s'appelle Anna.", a: "Deine Tochter heißt Anna.", why: "<b>Tochter</b> est féminin → <b>deine</b>." },
+    { t: "trad", f: "Je vois mon frère.", a: "Ich sehe meinen Bruder.", why: "Masculin complément → <b>meinen</b>." }
   ]
 }
 

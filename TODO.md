@@ -100,11 +100,17 @@ par étape, 4,2 écrans, 2 mini-questions. Le squelette était bon, rempli au di
       en commençant par les moins vus (`S.dseen`). Rien ne revient tant qu'il reste du
       jamais-vu.
 - [x] Auto-test : **471 vérifications**.
-- [ ] **Phase 3 — le contenu, en volume.** C'est le gros du travail et ce qui manque
-      vraiment. Seule l'**étape 1** est à la cible (29 exercices, 12 phrases) — pilote à
-      valider par Exsangue avant de dérouler.
-      **Cible par étape : ~25 exercices et ~12 phrases minimum**, sinon le tirage n'a rien
-      à tirer. Les étapes 2 à 12 n'ont encore aucun exercice.
+- [x] **Phase 3a — les exercices des 12 étapes.** Densité validée par Exsangue sur le
+      pilote, puis déroulée partout. **339 exercices** au total, 27 à 30 par étape,
+      les 4 formes présentes dans chacune. Chaque exercice n'emploie que du vocabulaire
+      déjà rencontré aux étapes précédentes.
+
+- [ ] **REPRENDRE ICI — Phase 3b : les phrases d'exemple.** Seule l'étape 1 est à la
+      cible avec 12 phrases ; **les étapes 2 à 12 n'en ont que 3 chacune**. Le
+      récapitulatif en tire 5 : avec 3 en réservoir, il les montre toutes et ne
+      diversifie rien. Cible : ~12 phrases par étape, dont des reformulations
+      (même idée tournée autrement).
+- [ ] Les étapes 13 à 30 restent à écrire.
 - [ ] Les étapes 13 à 30 restent à écrire.
 
 ## Lot 3 — à discuter avant d'attaquer

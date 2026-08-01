@@ -102,7 +102,14 @@ Deux pièges du harnais, à ne pas re-découvrir :
 - ⬜ Piste écartée pour l'instant : l'adjectif épithète décliné (*ein rotes Auto*),
   volontairement contourné au jour 8 — trop lourd à ce stade.
 
-## Le contenu des jours 1 à 12
+## Où reprendre
+
+Les **exercices** sont écrits pour les 12 étapes (339 au total, 27 à 30 chacune).
+Il reste les **phrases d'exemple** : seule l'étape 1 a son réservoir de 12, les étapes
+2 à 12 en ont 3. Le récapitulatif en tire 5 — avec 3 disponibles, il n'y a rien à tirer.
+Voir `TODO.md`, section « REPRENDRE ICI ».
+
+## Le contenu des étapes 1 à 12
 
 1. Se présenter — pronoms, verbe *sein*
 2. Der / die / das — genres, majuscule des noms, ein/eine
