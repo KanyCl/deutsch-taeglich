@@ -595,6 +595,52 @@ chaîne. Les cinq exercices « réécris sans le tréma » de l'étape 1 étaien
       explications sur l'Umlaut et le ß. Rien n'y a été touché.
 - [x] Auto-test : **2311 vérifications**.
 
+## Le design ✅ 01/08/2026 — direction « Ordnung » (Bauhaus)
+
+Trois directions maquettées sur les vrais écrans et montrées à Exsangue sur son iPhone
+(A · Verkehr signalétique · B · Das Heft le cahier · C · Ordnung Bauhaus).
+**Il a choisi C.**
+
+- [x] **Palette** : primaires franches sur papier `#F4F3EF`, encre `#111`, bleu `#1D4E89`,
+      ambre `#F4A300`. `--edge` passe à **0** : au Bauhaus l'angle est droit.
+- [x] **Typographie** : `--display` = **Futura**, présente sur iPhone — là où l'app sert
+      vraiment. Century Gothic prend le relais sous Windows. **Aucun téléchargement de
+      police** : une police chargée depuis le web s'affiche d'abord en secours, et ce
+      clignotement se voit à chaque ouverture.
+- [x] **L'accueil devient une grille**, ce qui règle le défaut principal : les cinq modes
+      étaient cinq rectangles interchangeables. Chacun a maintenant sa couleur et sa
+      taille. « Les cartes » occupe deux rangées — la taille encode la charge. Le bleu
+      encadre le parcours : « la leçon » l'ouvre, « le quiz » le ferme.
+
+⚠️ **Trois pièges rencontrés, à ne pas re-découvrir :**
+
+- **Le placement passe par `data-go`, jamais par `:nth-child`.** Le deuxième bouton
+  bascule entre `cards` et `practice` selon qu'il reste des mots à réviser, et un mode
+  peut être absent : une grille positionnelle se décalerait en silence.
+- **`.mode` sert AUSSI aux 35 unités du livre** (ligne ~9205). Sans le marqueur
+  `modes-home`, colorier les cinq modes coloriait aussi tout le sommaire du livre.
+- **Aucune règle de couleur propre au thème sombre**, et c'est voulu : les jetons
+  s'inversent déjà, donc le bloc encre de « l'oral » devient un aplat *clair* sur fond
+  sombre — la vraie inversion, qui garde le contraste franc. Une première version le
+  forçait en gris : il redevenait un rectangle indistinct, soit exactement le défaut
+  qu'on corrigeait.
+
+Deux écarts assumés par rapport à la maquette :
+
+- **Pas de bloc rouge sur l'accueil.** La maquette en donnait un à « l'oral » ; écarté.
+  Le rouge appartient à l'ERREUR. Sur l'accueil on navigue, dans un exercice on est
+  corrigé — si les deux emploient le même rouge, le rouge ne veut plus rien dire.
+- **Les pastilles sont cerclées en `currentColor`**, pas remplies d'une teinte fixe.
+  La première version posait du blanc à 20 % : invisible dès qu'un bloc devenait clair
+  en thème sombre.
+
+Régression corrigée dans la foulée : le nouveau fond (`#F4F3EF`) étant bien plus clair
+que le gris qu'il remplace, les panneaux blancs à liseré gris ne s'en détachaient plus.
+`.flash`, `.card` et `.opt` prennent un trait franc de 2 px — le Bauhaus dessine ses
+limites, autant les dessiner pour de bon.
+
+- [x] Auto-test : **2311 vérifications**, dans les deux thèmes.
+
 ## Lot 3 — à discuter avant d'attaquer
 
 - [ ] **Éviter les suites logiques.** un-deux-trois, les jours de la semaine… ne doivent pas

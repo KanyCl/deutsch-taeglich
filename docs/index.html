@@ -22,50 +22,67 @@
 
 <style>
 /* ---------------------------------------------------------------
-   TOKENS — inspirés de la signalétique allemande (DIN / U-Bahn)
+   TOKENS — direction « Ordnung », choisie par Exsangue le 01/08/2026
+   parmi trois maquettes. Référence : l'école de design allemande —
+   primaires franches, géométrie nette, grille asymétrique.
+
    Les composants ne lisent JAMAIS une couleur en dur : uniquement
    ces variables. C'est ce qui permet aux deux thèmes de marcher.
+
+   ⚠️ RÈGLE À NE PAS ENFREINDRE : le rouge appartient à l'ERREUR.
+   La maquette donnait un bloc rouge au mode « oral » ; c'est écarté
+   ici. Sur l'accueil on navigue, dans un exercice on est corrigé —
+   si les deux emploient le même rouge, le rouge ne veut plus rien
+   dire. L'accueil se contente donc d'encre, de jaune, de bleu et de
+   blanc. Le rouge n'apparaît qu'au moment d'une faute.
 ----------------------------------------------------------------*/
 :root {
-  --paper:      #EDEEF0;
+  --paper:      #F4F3EF;
   --surface:    #FFFFFF;
-  --surface-2:  #E4E6EA;
-  --ink:        #16181D;
-  --ink-2:      #4A505B;
-  --ink-3:      #7A828F;
-  --line:       #CFD3DA;
-  --accent:     #0B4FA8;
+  --surface-2:  #E8E6DF;
+  --ink:        #111111;
+  --ink-2:      #444444;
+  --ink-3:      #6E6E6A;
+  --line:       #D6D3CA;
+  --accent:     #1D4E89;
   --accent-ink: #FFFFFF;
-  --accent-soft:rgba(11, 79, 168, .12);
-  --amber:      #B8860B;
-  --amber-bg:   #F2B705;
-  --amber-ink:  #16181D;
+  --accent-soft:rgba(29, 78, 137, .12);
+  --amber:      #8A5D00;
+  --amber-bg:   #F4A300;
+  --amber-ink:  #111111;
   --good:       #1B7F4F;
   --good-soft:  rgba(27, 127, 79, .12);
-  --bad:        #C6362A;
-  --bad-soft:   rgba(198, 54, 42, .12);
+  --bad:        #C1121F;
+  --bad-soft:   rgba(193, 18, 31, .12);
 
   --ui: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* Futura est la police du Bauhaus, et elle est présente sur iPhone —
+     c'est là que l'app est vraiment utilisée. Sous Windows elle n'existe
+     pas : Century Gothic prend le relais, même squelette géométrique.
+     Aucun téléchargement : une police chargée depuis le web s'affiche
+     d'abord en secours, et ce clignotement se voit à chaque ouverture. */
+  --display: Futura, "Century Gothic", "Trebuchet MS", var(--ui);
   --de: Georgia, "Noto Serif", "Times New Roman", serif;
 
-  --edge: 2px;
+  /* Bauhaus : l'angle est droit. Les seuls cercles sont voulus (pastilles). */
+  --edge: 0px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper:      #0E1116;
-    --surface:    #171B22;
-    --surface-2:  #1F242D;
-    --ink:        #E9ECF1;
-    --ink-2:      #A8B0BC;
-    --ink-3:      #79828F;
-    --line:       #2A303A;
-    --accent:     #5A9CEA;
-    --accent-ink: #0E1116;
-    --accent-soft:rgba(90, 156, 234, .16);
-    --amber:      #F5C531;
-    --amber-bg:   #F5C531;
-    --amber-ink:  #16181D;
+    --paper:      #121212;
+    --surface:    #1D1D1D;
+    --surface-2:  #262625;
+    --ink:        #F2F2F0;
+    --ink-2:      #B0B0AE;
+    --ink-3:      #85857F;
+    --line:       #33332F;
+    --accent:     #5E9BDC;
+    --accent-ink: #101010;
+    --accent-soft:rgba(94, 155, 220, .16);
+    --amber:      #F2B23C;
+    --amber-bg:   #F2A81E;
+    --amber-ink:  #121212;
     --good:       #3FBE84;
     --good-soft:  rgba(63, 190, 132, .16);
     --bad:        #F0705F;
@@ -75,20 +92,20 @@
 
 /* Le sélecteur du viewer doit gagner dans LES DEUX sens. */
 :root[data-theme="dark"] {
-  --paper:#0E1116; --surface:#171B22; --surface-2:#1F242D;
-  --ink:#E9ECF1; --ink-2:#A8B0BC; --ink-3:#79828F; --line:#2A303A;
-  --accent:#5A9CEA; --accent-ink:#0E1116; --accent-soft:rgba(90,156,234,.16);
-  --amber:#F5C531; --amber-bg:#F5C531; --amber-ink:#16181D;
+  --paper:#121212; --surface:#1D1D1D; --surface-2:#262625;
+  --ink:#F2F2F0; --ink-2:#B0B0AE; --ink-3:#85857F; --line:#33332F;
+  --accent:#5E9BDC; --accent-ink:#101010; --accent-soft:rgba(94,155,220,.16);
+  --amber:#F2B23C; --amber-bg:#F2A81E; --amber-ink:#121212;
   --good:#3FBE84; --good-soft:rgba(63,190,132,.16);
   --bad:#F0705F;  --bad-soft:rgba(240,112,95,.16);
 }
 :root[data-theme="light"] {
-  --paper:#EDEEF0; --surface:#FFFFFF; --surface-2:#E4E6EA;
-  --ink:#16181D; --ink-2:#4A505B; --ink-3:#7A828F; --line:#CFD3DA;
-  --accent:#0B4FA8; --accent-ink:#FFFFFF; --accent-soft:rgba(11,79,168,.12);
-  --amber:#B8860B; --amber-bg:#F2B705; --amber-ink:#16181D;
+  --paper:#F4F3EF; --surface:#FFFFFF; --surface-2:#E8E6DF;
+  --ink:#111111; --ink-2:#444444; --ink-3:#6E6E6A; --line:#D6D3CA;
+  --accent:#1D4E89; --accent-ink:#FFFFFF; --accent-soft:rgba(29,78,137,.12);
+  --amber:#8A5D00; --amber-bg:#F4A300; --amber-ink:#111111;
   --good:#1B7F4F; --good-soft:rgba(27,127,79,.12);
-  --bad:#C6362A;  --bad-soft:rgba(198,54,42,.12);
+  --bad:#C1121F;  --bad-soft:rgba(193,18,31,.12);
 }
 
 * { box-sizing: border-box; }
@@ -140,9 +157,11 @@ button { font: inherit; color: inherit; cursor: pointer; }
   padding-bottom: .625rem;
 }
 .wordmark {
+  font-family: var(--display);
   font-size: 1.0625rem;
-  font-weight: 800;
-  letter-spacing: -.01em;
+  font-weight: 600;
+  letter-spacing: .02em;
+  text-transform: uppercase;
   margin: 0;
   display: flex;
   align-items: baseline;
@@ -241,25 +260,32 @@ button { font: inherit; color: inherit; cursor: pointer; }
   border-radius: var(--edge);
   padding: 1rem;
 }
+/* Le cercle est la seule forme ronde de l'interface, et c'est délibéré :
+   au Bauhaus le cercle, le carré et le triangle sont les trois formes
+   primaires. Ici le cercle marque l'étape en cours — un point sur un
+   parcours, cohérent avec les stations de la ligne de progression. */
 .plate .num {
   width: 4.25rem; height: 4.25rem;
-  background: var(--accent);
-  color: var(--accent-ink);
+  background: var(--amber-bg);
+  color: var(--amber-ink);
+  border-radius: 50%;
   display: grid;
   place-items: center;
   line-height: 1;
 }
 .plate .num b {
-  font-size: 2.375rem;
-  font-weight: 800;
-  letter-spacing: -.04em;
+  font-family: var(--display);
+  font-size: 2.125rem;
+  font-weight: 600;
+  letter-spacing: -.01em;
   font-variant-numeric: tabular-nums;
 }
 .plate h2 {
+  font-family: var(--display);
   margin: .25rem 0 0;
   font-size: 1.375rem;
-  font-weight: 800;
-  letter-spacing: -.02em;
+  font-weight: 600;
+  letter-spacing: 0;
   text-wrap: balance;
 }
 .plate .de {
@@ -290,9 +316,84 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .mode .txt { flex: 1; min-width: 0; }
 .mode .txt strong {
   display: block;
+  font-family: var(--display);
   font-size: 1rem;
-  font-weight: 800;
-  letter-spacing: -.01em;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+/* ---------- L'accueil : cinq blocs, pas cinq lignes ----------
+   Le défaut que cette grille corrige : les cinq modes étaient cinq rectangles
+   interchangeables, et rien ne distinguait « la leçon » (on lit) de « l'oral »
+   (on écoute). Ici chaque activité a sa couleur et sa taille.
+
+   La taille encode la charge : « les cartes » occupe deux rangées parce que
+   c'est le mode quotidien, celui qui porte le nombre de mots en attente.
+   « La leçon » ouvre, « le quiz » ferme — tous deux pleine largeur, parce
+   qu'ils sont les deux bouts du parcours.
+
+   Le placement passe par data-go et JAMAIS par :nth-child : le deuxième
+   bouton bascule entre `cards` et `practice` selon qu'il reste des mots à
+   réviser, et un mode peut être absent. Une grille positionnelle se
+   décalerait silencieusement. */
+.modes-home {
+  display: grid;
+  gap: .5rem;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    "lecon  lecon"
+    "cartes oral"
+    "cartes exos"
+    "quiz   quiz";
+}
+.modes-home .mode {
+  border: 0;
+  border-left: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: .375rem;
+  min-height: 4.25rem;
+  padding: .75rem .875rem;
+}
+.modes-home .mode:hover:not(:disabled) { filter: brightness(1.06); background: inherit; }
+.modes-home .mode .txt { flex: initial; }
+.modes-home .mode .txt span { color: inherit; opacity: .8; }
+
+/* Le bleu encadre le parcours : « la leçon » l'ouvre, « le quiz » le ferme.
+   Ce n'est pas une répétition par manque d'idée — ce sont les deux bouts du
+   même chemin, et les deux seuls blocs pleine largeur.
+
+   Aucune règle propre au thème sombre ici, et c'est voulu : les jetons
+   s'inversent déjà. En sombre `--ink` devient presque blanc et `--paper`
+   presque noir, donc le bloc encre de « l'oral » devient un aplat CLAIR sur
+   fond sombre. C'est la vraie inversion d'un aplat noir sur fond clair, et
+   elle garde le contraste franc du Bauhaus. Une première version forçait ce
+   bloc en gris (`--surface-2`) : il redevenait un rectangle indistinct,
+   c'est-à-dire précisément le défaut que cette grille corrige. */
+.modes-home .mode[data-go="lesson"]   { grid-area: lecon;  background: var(--accent);   color: var(--accent-ink); }
+.modes-home .mode[data-go="cards"],
+.modes-home .mode[data-go="practice"] { grid-area: cartes; background: var(--amber-bg); color: var(--amber-ink); }
+.modes-home .mode[data-go="oral"]     { grid-area: oral;   background: var(--ink);      color: var(--paper); }
+.modes-home .mode[data-go="drills"]   { grid-area: exos;   background: var(--surface);  color: var(--ink); border: 2px solid var(--ink); }
+.modes-home .mode[data-go="quiz"]     { grid-area: quiz;   background: var(--accent);   color: var(--accent-ink); }
+
+/* La pastille est CERCLÉE de la couleur du texte, jamais remplie d'une teinte
+   fixe. `currentColor` la rend lisible sur n'importe quel fond et dans les
+   deux thèmes sans une seule règle en plus — une version précédente posait du
+   blanc à 20 %, qui disparaissait dès que le bloc devenait clair en sombre. */
+.modes-home .chip {
+  background: none;
+  color: inherit;
+  border: 2px solid currentColor;
+}
+/* Seule exception : le compte de mots en retard, qui doit sauter aux yeux.
+   Les deux couleurs sont sûres dans les deux thèmes — le bloc « cartes » est
+   ambre au clair comme au sombre, et son texte y est toujours quasi noir. */
+.modes-home .mode[data-go="cards"] .chip.hot {
+  background: var(--amber-ink);
+  color: var(--amber-bg);
+  border-color: var(--amber-ink);
 }
 .mode .txt span {
   display: block;
@@ -315,9 +416,13 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .chip.ok   { background: var(--good-soft); color: var(--good); }
 
 /* ---------- Blocs de contenu ---------- */
+/* Le trait est FRANC, et c'est une nécessité, pas un goût. Le fond « Ordnung »
+   (#F4F3EF) est bien plus clair que le gris qu'il remplace : un panneau blanc
+   posé dessus avec un liseré gris clair ne se détachait plus du tout. Le
+   Bauhaus dessine ses limites — on les dessine donc pour de bon. */
 .card {
   background: var(--surface);
-  border: 1px solid var(--line);
+  border: 2px solid var(--ink);
   border-radius: var(--edge);
   padding: 1rem;
 }
@@ -422,7 +527,7 @@ body.has-tts .say { display: inline-flex; }
 /* ---------- Flashcards ---------- */
 .flash {
   background: var(--surface);
-  border: 1px solid var(--line);
+  border: 2px solid var(--ink);
   border-radius: var(--edge);
   min-height: 14rem;
   display: flex;
@@ -523,7 +628,7 @@ body.has-tts .say { display: inline-flex; }
   width: 100%;
   text-align: left;
   background: var(--surface);
-  border: 1px solid var(--line);
+  border: 2px solid var(--ink);
   border-radius: var(--edge);
   padding: .75rem .875rem;
   font-size: .9375rem;
@@ -5755,7 +5860,10 @@ function home() {
         '</div>',
       '</div>',
 
-      '<div class="modes">',
+      // `modes-home` distingue cette grille de la liste des unités du livre,
+      // qui réutilise la classe `.mode`. Sans ce marqueur, colorier les cinq
+      // modes colorierait aussi les 35 unités.
+      '<div class="modes modes-home">',
         '<button class="mode" data-go="lesson">',
           '<div class="txt"><strong>La leçon</strong><span>' + lesson.steps.length + ' écrans, ' + lesson.vocab.length + ' mots</span></div>',
           '<span class="chip">' + lesson.steps.length + '</span>',
