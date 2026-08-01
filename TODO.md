@@ -641,6 +641,48 @@ limites, autant les dessiner pour de bon.
 
 - [x] Auto-test : **2311 vérifications**, dans les deux thèmes.
 
+## Les réglages ✅ 01/08/2026
+
+Demandé par Exsangue après avoir vu le design : « peut-être rajouter des paramètres pour
+modifier les préférences ». Six réglages, choisis par lui : **la voix · le son au
+démarrage · le thème · la taille du texte · la couleur des cases · la longueur d'une
+séance**. Accessible depuis « Ma progression » sur l'accueil, ou par `#reglages`.
+
+- [x] **Aucun bouton « Enregistrer ».** Le changement prend effet au clic et se voit
+      tout de suite. Un écran qu'il faut valider oblige à deviner ce qu'on obtiendra.
+- [x] **Toutes les valeurs possibles sont déclarées en un seul endroit** (`VOIX`,
+      `TEXTE`, `SEANCES`, `COULEURS`, `THEMES`). L'écran, la validation d'une sauvegarde
+      et l'auto-test lisent les mêmes tables — une liste recopiée finit par diverger.
+- [x] **`sane()` valide aussi les réglages.** Toute valeur inconnue retombe sur son
+      défaut sans emporter les autres : une sauvegarde venue d'une version différente ne
+      peut pas rendre l'app illisible.
+- [x] **La taille du texte agit sur la RACINE** (`--zoom` sur `html`), pas sur le corps :
+      l'app étant dimensionnée en rem, les marges et les boutons grandissent avec les
+      lettres. Agrandir le seul corps donnerait de grosses lettres dans des boutons
+      restés petits.
+- [x] **La couleur ne touche que l'accent.** L'ambre reste l'ambre : il ne décore pas,
+      il signale ce qui attend. Et aucune des quatre teintes n'est verte ni rouge — ces
+      deux-là appartiennent au juste et au faux.
+- [x] Auto-test : **2346 vérifications**, dont 34 pour les seuls réglages.
+
+⚠️ **Trois pièges rencontrés, à ne pas re-découvrir :**
+
+- **Zone morte temporelle.** Les tables de réglages ont d'abord été déclarées *après*
+  `let S = load()`, qui les lit via `sane()`. Résultat : échec avant le premier
+  affichage, **écran blanc sans message**. Elles doivent rester au-dessus.
+- **`data-theme` n'est pas notre canal privé.** `applyPrefs` le retirait sans condition
+  quand le thème est « automatique » — or le harnais de capture l'injecte de l'extérieur
+  pour photographier le sombre. Toutes les captures sombres sont devenues identiques aux
+  claires. On ne retire désormais que ce que l'app a posé (`data-theme-par="app"`).
+  C'est l'égalité des tailles de fichier qui a trahi le défaut, pas un test.
+- **Couper le son automatique rend l'oral muet** jusqu'à l'appui sur « Réécouter ».
+  C'est assumé et écrit dans le réglage : le bouton reste, on ne se retrouve pas devant
+  un écran sans issue.
+
+Défaut préexistant corrigé au passage : **`importData` n'appelait pas `sane()`**, alors
+que `load()` le fait. Une sauvegarde restaurée n'était donc pas bornée — une progression
+venue d'un cours plus long ouvrait une étape inexistante.
+
 ## Lot 3 — à discuter avant d'attaquer
 
 - [ ] **Éviter les suites logiques.** un-deux-trois, les jours de la semaine… ne doivent pas

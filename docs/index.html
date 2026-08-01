@@ -108,14 +108,44 @@
   --bad:#C1121F;  --bad-soft:rgba(193,18,31,.12);
 }
 
+/* ---------- Les palettes de l'accueil ----------
+   Réglage « la couleur des cases », demandé par Exsangue le 01/08/2026.
+   Seule la teinte d'accent change : l'ambre reste l'ambre partout, parce
+   qu'il ne décore pas — il signale ce qui attend (mots en retard, série en
+   cours). Une couleur qui veut dire quelque chose ne se choisit pas.
+
+   Aucune de ces teintes n'est verte ni rouge, et ce n'est pas un hasard :
+   ces deux-là appartiennent au juste et au faux. */
+:root[data-couleur="indigo"] { --accent:#3D3A8C; --accent-ink:#FFFFFF; --accent-soft:rgba(61,58,140,.12); }
+:root[data-couleur="prune"]  { --accent:#6A4C93; --accent-ink:#FFFFFF; --accent-soft:rgba(106,76,147,.12); }
+:root[data-couleur="encre"]  { --accent:#111111; --accent-ink:#F4F3EF; --accent-soft:rgba(17,17,17,.10); }
+
+/* En sombre, l'accent doit s'éclaircir : la même teinte foncée deviendrait
+   illisible sur fond noir. `:not([data-theme="light"])` évite d'écraser un
+   thème clair explicitement forcé alors que le téléphone est en sombre. */
+@media (prefers-color-scheme: dark) {
+  :root[data-couleur="indigo"]:not([data-theme="light"]) { --accent:#8B87E0; --accent-ink:#101010; --accent-soft:rgba(139,135,224,.16); }
+  :root[data-couleur="prune"]:not([data-theme="light"])  { --accent:#B08BE0; --accent-ink:#101010; --accent-soft:rgba(176,139,224,.16); }
+  :root[data-couleur="encre"]:not([data-theme="light"])  { --accent:#F2F2F0; --accent-ink:#121212; --accent-soft:rgba(242,242,240,.14); }
+}
+:root[data-theme="dark"][data-couleur="indigo"] { --accent:#8B87E0; --accent-ink:#101010; --accent-soft:rgba(139,135,224,.16); }
+:root[data-theme="dark"][data-couleur="prune"]  { --accent:#B08BE0; --accent-ink:#101010; --accent-soft:rgba(176,139,224,.16); }
+:root[data-theme="dark"][data-couleur="encre"]  { --accent:#F2F2F0; --accent-ink:#121212; --accent-soft:rgba(242,242,240,.14); }
+
 * { box-sizing: border-box; }
+
+/* L'échelle du texte agit sur la RACINE : toute l'app étant dimensionnée en
+   rem, les marges, les boutons et les traits grandissent avec les lettres.
+   Agrandir le seul corps donnerait de grosses lettres dans des boutons
+   restés petits — et des mots qui débordent. */
+html { font-size: calc(100% * var(--zoom, 1)); }
 
 body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
   font-family: var(--ui);
-  font-size: 16px;
+  font-size: 1rem;
   line-height: 1.5;
   -webkit-text-size-adjust: 100%;
 
@@ -638,6 +668,47 @@ body.has-tts .say { display: inline-flex; }
 .opt:disabled { cursor: default; }
 .opt.right { border-color: var(--good); background: var(--good-soft); font-weight: 700; }
 .opt.wrong { border-color: var(--bad);  background: var(--bad-soft); }
+/* ---------- Les réglages : rangées de choix ----------
+   Des boutons et non un <select> : sur iPhone un menu déroulant ouvre un
+   sélecteur plein écran, alors qu'ici on veut voir toutes les possibilités
+   ET l'effet du choix sans quitter la page. */
+.seg { display: flex; flex-wrap: wrap; gap: .375rem; }
+.segb {
+  flex: 1 1 auto;
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: var(--edge);
+  padding: .5rem .625rem;
+  font-size: .8125rem;
+  font-weight: 600;
+  color: var(--ink-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .375rem;
+}
+.segb:hover:not(.on) { border-color: var(--ink-3); }
+/* Le choix retenu ne se distingue PAS par la seule couleur : il prend aussi
+   le trait épais et le texte gras. Une différence uniquement colorée
+   disparaît pour qui distingue mal les teintes. */
+.segb.on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 800;
+}
+.pas {
+  width: .875rem; height: .875rem;
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  display: inline-block;
+}
+.segb.on .pas { border-color: var(--accent-ink); }
+.pas-bauhaus { background: #1D4E89; }
+.pas-indigo  { background: #3D3A8C; }
+.pas-prune   { background: #6A4C93; }
+.pas-encre   { background: #111111; }
+
 .why {
   font-size: .875rem;
   color: var(--ink-2);
@@ -5415,6 +5486,31 @@ const KEY = "deutsch-taeglich-v2";
    celui où le mot ne se reconnaît plus mais s'écrit. */
 const INTERVALS = { 1: 0, 2: 0, 3: 1, 4: 4, 5: 16 };
 
+/* ---------- Les préférences ----------
+   Demandées par Exsangue le 01/08/2026, après avoir choisi le design.
+   Chaque valeur possible est déclarée ICI, en un seul endroit : l'écran des
+   réglages, la validation d'une sauvegarde et l'auto-test lisent tous ces
+   mêmes tables. Une liste recopiée à trois endroits finit par diverger.
+
+   ⚠️ Ces tables doivent rester AVANT `let S = load()`. `load` appelle `sane`,
+   qui les lit : déclarées plus bas, elles sont encore dans leur zone morte et
+   le chargement échoue avant le premier affichage — écran blanc, sans message.
+   C'est exactement ce qui est arrivé en écrivant ce bloc. */
+const VOIX    = { lente: 0.6, posee: 0.85, normale: 1, vive: 1.2 };
+const TEXTE   = { normal: 1, grand: 1.15, enorme: 1.3 };
+const SEANCES = { courte: 5, normale: 8, longue: 12 };
+const COULEURS = ["bauhaus", "indigo", "prune", "encre"];
+const THEMES   = ["auto", "light", "dark"];
+
+const PREFS_DEFAUT = {
+  voix: "posee",       // vitesse de la voix allemande
+  theme: "auto",       // auto = on suit le réglage du téléphone
+  texte: "normal",     // taille de TOUT le texte (l'échelle est en rem)
+  seance: "normale",   // combien d'exercices et de phrases par séance
+  couleur: "bauhaus",  // la couleur des cases de l'accueil
+  sonAuto: true        // le mot se prononce-t-il tout seul à l'affichage
+};
+
 let storageOK = true;
 let S = load();
 
@@ -5425,8 +5521,10 @@ function fresh() {
   //         C'est lui qui garantit qu'on ne revoit pas les mêmes en boucle.
   // unit  : la dernière unité du livre ouverte dans l'onglet « Le livre ».
   // bookq : le PREMIER verdict de chaque question du livre, 1 juste / 0 faux.
+  // prefs : les réglages, voir PREFS_DEFAUT.
   return { day: 1, done: [], cards: {}, streak: 0, last: null,
-           scores: {}, qmiss: {}, oral: {}, dseen: {}, unit: 0, bookq: {} };
+           scores: {}, qmiss: {}, oral: {}, dseen: {}, unit: 0, bookq: {},
+           prefs: Object.assign({}, PREFS_DEFAUT) };
 }
 function load() {
   try {
@@ -5446,7 +5544,58 @@ function sane(s) {
   const max = COURSE.length;
   if (!(s.day >= 1 && s.day <= max)) s.day = Math.min(Math.max(1, s.day | 0 || 1), max);
   s.done = (Array.isArray(s.done) ? s.done : []).filter(function (n) { return n >= 1 && n <= max; });
+
+  /* Les réglages subissent le même traitement que l'étape : une sauvegarde
+     peut venir d'une version qui n'avait pas encore ce réglage, ou en proposer
+     un qui n'existe plus. Toute valeur inconnue retombe sur son défaut plutôt
+     que de se propager — un `texte: "gigantesque"` rendrait l'app illisible
+     sans qu'on sache d'où ça vient. */
+  const p = Object.assign({}, PREFS_DEFAUT, s.prefs && typeof s.prefs === "object" ? s.prefs : {});
+  if (!VOIX[p.voix])   p.voix = PREFS_DEFAUT.voix;
+  if (!TEXTE[p.texte]) p.texte = PREFS_DEFAUT.texte;
+  if (!SEANCES[p.seance]) p.seance = PREFS_DEFAUT.seance;
+  if (COULEURS.indexOf(p.couleur) === -1) p.couleur = PREFS_DEFAUT.couleur;
+  if (THEMES.indexOf(p.theme) === -1) p.theme = PREFS_DEFAUT.theme;
+  p.sonAuto = p.sonAuto !== false;
+  s.prefs = p;
   return s;
+}
+
+/* Rend les réglages effectifs. Appelée au démarrage et à chaque changement.
+   Tout passe par la racine du document : les composants n'ont donc RIEN à
+   savoir des préférences, ils continuent de lire leurs jetons habituels. */
+function applyPrefs() {
+  const p = S.prefs;
+  const root = document.documentElement;
+
+  /* « auto » = pas d'attribut du tout, on laisse la media query du téléphone
+     décider. Poser data-theme="auto" gagnerait sur elle et figerait le clair.
+
+     ⚠️ Mais on ne retire QUE ce qu'on a posé soi-même. `data-theme` n'est pas
+     notre canal privé : le harnais de capture l'injecte avant l'affichage pour
+     photographier le thème sombre, et un hôte peut faire de même. La première
+     version retirait l'attribut sans condition — elle a rendu toutes les
+     captures sombres identiques aux claires, ce qui l'a trahie. */
+  if (p.theme === "auto") {
+    if (root.getAttribute("data-theme-par") === "app") {
+      root.removeAttribute("data-theme");
+      root.removeAttribute("data-theme-par");
+    }
+  } else {
+    root.setAttribute("data-theme", p.theme);
+    root.setAttribute("data-theme-par", "app");
+  }
+
+  root.setAttribute("data-couleur", p.couleur);
+
+  // L'échelle du texte agit sur la RACINE, pas sur le corps : toute l'app est
+  // dimensionnée en rem, donc les marges et les boutons grandissent avec les
+  // lettres. Agrandir le seul corps donnerait de grosses lettres dans des
+  // boutons restés petits.
+  root.style.setProperty("--zoom", TEXTE[p.texte]);
+
+  DRILL_SESSION = SEANCES[p.seance];
+  ORAL_SIZE = SEANCES[p.seance];
 }
 function persist() {
   try { localStorage.setItem(KEY, JSON.stringify(S)); }
@@ -5594,9 +5743,17 @@ function speak(text) {
     const u = new SpeechSynthesisUtterance(text);
     u.voice = TTS.voice;
     u.lang = TTS.voice.lang;
-    u.rate = 0.85;
+    u.rate = debit();
     window.speechSynthesis.speak(u);
   } catch (e) {}
+}
+
+/* La vitesse de la voix, réglable depuis le 01/08/2026. Elle était figée à
+   0,85 à deux endroits — la lecture d'un mot et celle d'un dialogue — et les
+   deux auraient fini par diverger. Une seule source.
+   La valeur de repli sert au cas où l'état ne serait pas encore chargé. */
+function debit() {
+  return (S && S.prefs && VOIX[S.prefs.voix]) || VOIX.posee;
 }
 
 /* ---------------------------------------------------------------
@@ -5656,7 +5813,7 @@ function playDialogue(lignes) {
       const u = new SpeechSynthesisUtterance(lignes[idx]);
       u.voice = TTS.voice;
       u.lang = TTS.voice.lang;
-      u.rate = 0.85;
+      u.rate = debit();
       u.onend   = function () { if (!etat.stop) setTimeout(suivant, 400); };
       u.onerror = function () { if (!etat.stop) setTimeout(suivant, 400); };
       window.speechSynthesis.speak(u);
@@ -5698,8 +5855,13 @@ function show(html) {
   window.scrollTo(0, 0);
   // L'oral : la phrase est prononcée dès l'affichage. Avant le focus, sinon
   // l'ouverture du clavier peut couper le début.
+  // Le réglage « son automatique » se joue ICI, au seul endroit qui déclenche
+  // une lecture spontanée. Coupé, plus rien ne parle sans qu'on le demande —
+  // y compris à l'oral, où l'écran reste alors muet jusqu'à l'appui sur
+  // « Réécouter ». C'est assumé et dit dans les réglages : le mode garde son
+  // bouton, on ne se retrouve pas devant un écran sans issue.
   const auto = view.querySelector("[data-autosay]");
-  if (auto) speak(auto.getAttribute("data-autosay"));
+  if (auto && S.prefs.sonAuto) speak(auto.getAttribute("data-autosay"));
   // Carte à écrire : le clavier s'ouvre tout de suite, ça évite un appui.
   const field = view.querySelector("#answer");
   if (field) { try { field.focus(); } catch (e) {} }
@@ -5919,6 +6081,7 @@ function home() {
         '<p class="msg">' + Object.keys(S.cards).length + ' mots en circulation &#183; ' + learnedCount() + ' bien ancrés &#183; ' +
           shakyCount() + ' fragiles &#183; série de ' + S.streak + ' jour' + (S.streak > 1 ? 's' : '') + '</p>',
         '<div class="tools">',
+          '<button class="tool" data-go="reglages">Réglages</button>',
           '<button class="tool" data-act="export">Sauvegarder</button>',
           '<button class="tool" data-act="import">Restaurer</button>',
           '<button class="tool danger" data-act="reset">Tout effacer</button>',
@@ -6527,7 +6690,9 @@ function renderQuestion() {
    on écrit. Deux consignes tirées au sort — réécrire ce qui est dit, ou le
    traduire. Les phrases entières de la leçon viennent s'ajouter aux mots :
    c'est à l'oreille qu'elles servent le plus. */
-const ORAL_SIZE = 8;
+// `let` et non `const` : la longueur d'une séance est un réglage, posé par
+// applyPrefs au démarrage et à chaque changement.
+let ORAL_SIZE = 8;
 const ORAL_MAX = 5;
 let oral = [], oi = 0, oralVerdict = null;
 
@@ -6766,7 +6931,7 @@ function renderOral() {
 
    Ils vivent dans `drills`, au niveau de l'étape. Une étape sans `drills`
    n'affiche simplement pas le mode. */
-const DRILL_SESSION = 8;   // combien on en sert par séance, quel que soit le réservoir
+let DRILL_SESSION = 8;   // combien on en sert par séance — réglable, voir applyPrefs
 
 let drills = [], di = 0, drillVerdict = null, orderPool = [], orderPicked = [];
 
@@ -7349,17 +7514,134 @@ function bookTestView() {
   ].join("");
 }
 
+/* ---------- Les réglages ----------
+   Demandés par Exsangue le 01/08/2026 : « peut-être rajouter des paramètres
+   pour modifier les préférences ». Six réglages, tous appliqués sur-le-champ
+   et conservés dans la sauvegarde.
+
+   Aucun bouton « Enregistrer » : le changement prend effet au clic et se
+   voit tout de suite. Un écran de réglages qu'il faut valider oblige à
+   deviner ce qu'on obtiendra, alors qu'ici il suffit de regarder. */
+function segment(cle, valeurs, actuel) {
+  return '<div class="seg">' + valeurs.map(function (v) {
+    return '<button class="segb' + (v.id === actuel ? ' on' : '') + '"' +
+           ' data-pref="' + cle + '" data-val="' + v.id + '"' +
+           (v.id === actuel ? ' aria-pressed="true"' : ' aria-pressed="false"') + '>' +
+           esc(v.nom) + '</button>';
+  }).join("") + '</div>';
+}
+
+function reglagesView() {
+  const p = S.prefs;
+  const bloc = function (titre, aide, corps) {
+    return '<div class="stack-s">' +
+             '<h3 class="sec">' + titre + '</h3>' +
+             (aide ? '<p class="msg">' + aide + '</p>' : '') +
+             corps +
+           '</div>';
+  };
+
+  return [
+    backBar('Accueil'),
+    '<div class="stack">',
+
+      '<div class="stack-s">',
+        '<span class="label">Réglages</span>',
+        '<h2>À ton goût</h2>',
+        '<p class="msg">Tout se change ici et s\'applique tout de suite. ' +
+          'Ces choix partent dans la sauvegarde avec ta progression.</p>',
+      '</div>',
+
+      bloc('La voix',
+        'La vitesse à laquelle l\'allemand est prononcé. ' +
+        '<b>Lente</b> pour distinguer chaque son, <b>vive</b> quand tu ' +
+        'commences à comprendre sans effort.',
+        segment("voix", [
+          { id: "lente",   nom: "Lente" },
+          { id: "posee",   nom: "Posée" },
+          { id: "normale", nom: "Normale" },
+          { id: "vive",    nom: "Vive" }
+        ], p.voix)),
+
+      bloc('Le son au démarrage',
+        'Coupé, plus rien ne se prononce sans que tu le demandes. ' +
+        'À l\'oral, l\'écran reste alors muet jusqu\'à ce que tu appuies sur ' +
+        '<b>Réécouter</b> — le bouton est toujours là.',
+        segment("sonAuto", [
+          { id: "oui", nom: "Le mot se dit tout seul" },
+          { id: "non", nom: "Seulement si je demande" }
+        ], p.sonAuto ? "oui" : "non")),
+
+      bloc('Le thème',
+        '<b>Automatique</b> suit le réglage de ton téléphone.',
+        segment("theme", [
+          { id: "auto",  nom: "Automatique" },
+          { id: "light", nom: "Clair" },
+          { id: "dark",  nom: "Sombre" }
+        ], p.theme)),
+
+      bloc('La taille du texte',
+        'Tout grandit ensemble — les mots, les boutons, les marges.',
+        segment("texte", [
+          { id: "normal", nom: "Normal" },
+          { id: "grand",  nom: "Grand" },
+          { id: "enorme", nom: "Très grand" }
+        ], p.texte)),
+
+      bloc('La couleur des cases',
+        'L\'ambre ne change pas : il signale ce qui t\'attend, et une couleur ' +
+        'qui veut dire quelque chose ne se choisit pas.',
+        '<div class="seg">' + COULEURS.map(function (c) {
+          const noms = { bauhaus: "Bauhaus", indigo: "Indigo", prune: "Prune", encre: "Encre" };
+          return '<button class="segb pastille' + (c === p.couleur ? ' on' : '') + '"' +
+                 ' data-pref="couleur" data-val="' + c + '"' +
+                 ' aria-pressed="' + (c === p.couleur) + '">' +
+                 '<i class="pas pas-' + c + '"></i>' + noms[c] + '</button>';
+        }).join("") + '</div>'),
+
+      bloc('La longueur d\'une séance',
+        'Vaut pour les exercices et pour l\'oral. Les cartes, elles, suivent ' +
+        'le calendrier de révision : c\'est lui qui décide, pas toi.',
+        segment("seance", [
+          { id: "courte",  nom: "Courte &#183; 5" },
+          { id: "normale", nom: "Normale &#183; 8" },
+          { id: "longue",  nom: "Longue &#183; 12" }
+        ], p.seance)),
+
+      '<button class="btn wide" data-act="prefs-reset">Revenir aux réglages d\'origine</button>',
+      '<p class="msg" id="toolmsg"></p>',
+
+    '</div>'
+  ].join("");
+}
+
 const ROUTES = {
   home: home, lesson: lessonView, cards: cardsView,
   practice: practiceView, oral: oralView, drills: drillsView, quiz: quizView,
-  book: bookView, unit: unitView, booktest: bookTestView
+  book: bookView, unit: unitView, booktest: bookTestView,
+  reglages: reglagesView
 };
 
 function go(name) { show(ROUTES[name]()); }
 
 view.addEventListener("click", function (e) {
-  const t = e.target.closest("[data-go],[data-act],[data-pick],[data-grade],[data-day],[data-lesson],[data-say],[data-scheck],[data-chip],[data-unchip],[data-unit],[data-reveal],[data-check],[data-model],[data-send],[data-reset],[data-play]");
+  const t = e.target.closest("[data-go],[data-act],[data-pick],[data-grade],[data-day],[data-lesson],[data-say],[data-scheck],[data-chip],[data-unchip],[data-unit],[data-reveal],[data-check],[data-model],[data-send],[data-reset],[data-play],[data-pref]");
   if (!t) return;
+
+  /* Un réglage : on l'enregistre, on l'applique, on redessine l'écran pour
+     que le bouton retenu change d'aspect. Pas de bouton « Enregistrer » —
+     l'effet se voit immédiatement, c'est ce qui permet de choisir.
+     `sonAuto` est le seul booléen : les rangées ne savent manier que des
+     chaînes, on traduit ici plutôt que d'inventer un second mécanisme. */
+  if (t.dataset.pref) {
+    const cle = t.dataset.pref, val = t.dataset.val;
+    S.prefs[cle] = (cle === "sonAuto") ? (val === "oui") : val;
+    sane(S);
+    persist();
+    applyPrefs();
+    go("reglages");
+    return;
+  }
 
   // Écouter une réplique seule doit interrompre la lecture continue :
   // sinon deux voix se superposent et on ne comprend plus rien.
@@ -7528,9 +7810,20 @@ view.addEventListener("click", function (e) {
 
   if (t.dataset.act === "export") { exportData(); return; }
   if (t.dataset.act === "import") { importData(); return; }
+  /* Remettre les réglages d'origine ne touche PAS à la progression : ce sont
+     deux choses sans rapport, et confondre les deux ferait de ce bouton un
+     piège. « Tout effacer », lui, est ailleurs et demande confirmation. */
+  if (t.dataset.act === "prefs-reset") {
+    S.prefs = Object.assign({}, PREFS_DEFAUT);
+    persist();
+    applyPrefs();
+    go("reglages");
+    toolMsg("Réglages d'origine rétablis. Ta progression n'a pas bougé.");
+    return;
+  }
   if (t.dataset.act === "reset") {
     if (window.confirm("Effacer toute ta progression ? C'est définitif.")) {
-      S = fresh(); persist(); paintStreak(); go("home");
+      S = fresh(); persist(); paintStreak(); applyPrefs(); go("home");
     }
     return;
   }
@@ -7628,8 +7921,12 @@ function importData() {
       try {
         const p = JSON.parse(r.result);
         if (typeof p !== "object" || !p.cards) throw new Error("format");
-        S = Object.assign(fresh(), p);
-        persist(); paintStreak(); go("home");
+        // `sane` manquait ici, alors que `load` l'appelle : une sauvegarde
+        // restaurée n'était donc pas bornée, et une progression venue d'un
+        // cours plus long ouvrait une étape inexistante. C'est aussi elle qui
+        // valide les réglages du fichier.
+        S = sane(Object.assign(fresh(), p));
+        persist(); paintStreak(); applyPrefs(); go("home");
         toolMsg("Progression restaurée.");
       } catch (e) { toolMsg("Ce fichier n'est pas une sauvegarde valide."); }
     };
@@ -8236,6 +8533,103 @@ function runTests() {
      sane(Object.assign(fresh(), { day: 2, done: [1] })).day === 2);
   ok("sauvegarde : un contenu abîmé ne plante pas",
      sane(Object.assign(fresh(), { day: null, done: "n'importe quoi" })).day === 1);
+
+  /* ---------- Les réglages ----------
+     Demandés par Exsangue le 01/08/2026. Ce qu'on vérifie ici n'est pas
+     l'apparence — c'est qu'un réglage SURVIT et qu'il AGIT. Un écran de
+     réglages joli dont les valeurs ne changent rien serait pire que rien. */
+
+  // La validation d'abord : une sauvegarde peut venir d'ailleurs.
+  eq("réglages : une vitesse inconnue retombe sur le défaut",
+     sane(Object.assign(fresh(), { prefs: { voix: "supersonique" } })).prefs.voix, PREFS_DEFAUT.voix);
+  eq("réglages : une taille de texte inconnue aussi",
+     sane(Object.assign(fresh(), { prefs: { texte: "gigantesque" } })).prefs.texte, PREFS_DEFAUT.texte);
+  eq("réglages : une couleur inconnue aussi",
+     sane(Object.assign(fresh(), { prefs: { couleur: "fuchsia" } })).prefs.couleur, PREFS_DEFAUT.couleur);
+  eq("réglages : une valeur valide est conservée",
+     sane(Object.assign(fresh(), { prefs: { voix: "vive" } })).prefs.voix, "vive");
+  ok("réglages : une sauvegarde sans réglages du tout en reçoit",
+     !!sane(Object.assign(fresh(), { prefs: undefined })).prefs.theme);
+  eq("réglages : les autres réglages ne sont pas emportés par un seul mauvais",
+     sane(Object.assign(fresh(), { prefs: { voix: "n'importe quoi", couleur: "prune" } })).prefs.couleur, "prune");
+
+  // Puis l'effet réel sur le document et sur les constantes de séance.
+  const prefsAvant = Object.assign({}, S.prefs);
+
+  S.prefs.theme = "dark"; applyPrefs();
+  eq("réglages : le thème sombre est posé sur la racine",
+     document.documentElement.getAttribute("data-theme"), "dark");
+  /* « auto » doit RETIRER l'attribut et non le poser à "auto" : posé, il
+     gagnerait sur la media query du téléphone et figerait le thème clair. */
+  S.prefs.theme = "auto"; applyPrefs();
+  ok("réglages : automatique retire l'attribut au lieu de le figer",
+     !document.documentElement.hasAttribute("data-theme"));
+
+  /* Mais il ne retire que ce que l'app a posé. Le harnais de capture injecte
+     data-theme de l'extérieur pour photographier le thème sombre ; l'effacer
+     rendait toutes les captures sombres identiques aux claires. */
+  document.documentElement.setAttribute("data-theme", "dark");   // comme un hôte
+  S.prefs.theme = "auto"; applyPrefs();
+  eq("réglages : un thème imposé de l'extérieur survit à « automatique »",
+     document.documentElement.getAttribute("data-theme"), "dark");
+  document.documentElement.removeAttribute("data-theme");
+
+  S.prefs.couleur = "prune"; applyPrefs();
+  eq("réglages : la couleur est posée sur la racine",
+     document.documentElement.getAttribute("data-couleur"), "prune");
+
+  S.prefs.texte = "enorme"; applyPrefs();
+  eq("réglages : la taille du texte agit sur la racine",
+     document.documentElement.style.getPropertyValue("--zoom"), String(TEXTE.enorme));
+
+  S.prefs.seance = "courte"; applyPrefs();
+  eq("réglages : une séance courte raccourcit les exercices", DRILL_SESSION, SEANCES.courte);
+  eq("réglages : et l'oral aussi", ORAL_SIZE, SEANCES.courte);
+  S.prefs.seance = "longue"; applyPrefs();
+  eq("réglages : une séance longue les rallonge", DRILL_SESSION, SEANCES.longue);
+
+  S.prefs.voix = "lente";
+  eq("réglages : la voix lit sa vitesse dans les réglages", debit(), VOIX.lente);
+  S.prefs.voix = "vive";
+  eq("réglages : et elle suit quand on la change", debit(), VOIX.vive);
+
+  // L'écran lui-même : chaque réglage doit offrir un choix cliquable, et
+  // exactement un doit être marqué comme retenu.
+  S = fresh(); S.day = 1; seed(1); applyPrefs();
+  go("reglages");
+  ["voix", "sonAuto", "theme", "texte", "couleur", "seance"].forEach(function (cle) {
+    const boutons = view.querySelectorAll('[data-pref="' + cle + '"]');
+    ok("réglages : « " + cle + " » propose au moins deux choix", boutons.length >= 2);
+    eq("réglages : « " + cle + " » en marque exactement un",
+       view.querySelectorAll('[data-pref="' + cle + '"].on').length, 1);
+  });
+
+  /* Le clic doit faire les trois choses d'un coup : enregistrer, appliquer,
+     et redessiner pour que le bouton retenu change. Une version qui oublie
+     le redessin donne l'impression que rien ne s'est passé. */
+  view.querySelector('[data-pref="couleur"][data-val="indigo"]').click();
+  eq("réglages : un clic change la préférence", S.prefs.couleur, "indigo");
+  eq("réglages : et l'applique aussitôt",
+     document.documentElement.getAttribute("data-couleur"), "indigo");
+  eq("réglages : et le bouton retenu suit",
+     view.querySelector('[data-pref="couleur"].on').getAttribute("data-val"), "indigo");
+
+  view.querySelector('[data-pref="sonAuto"][data-val="non"]').click();
+  eq("réglages : le son automatique se coupe", S.prefs.sonAuto, false);
+  view.querySelector('[data-pref="sonAuto"][data-val="oui"]').click();
+  eq("réglages : et se rallume", S.prefs.sonAuto, true);
+
+  /* Remettre les réglages d'origine ne doit PAS toucher à la progression :
+     les confondre ferait de ce bouton un piège. */
+  S.prefs.couleur = "prune"; S.day = 1; S.done = [];
+  S.cards["temoin"] = { box: 3, due: null, hit: 2, miss: 1 };
+  go("reglages");
+  view.querySelector('[data-act="prefs-reset"]').click();
+  eq("réglages : la remise à zéro rétablit les défauts", S.prefs.couleur, PREFS_DEFAUT.couleur);
+  ok("réglages : mais ne touche pas à la progression", !!S.cards["temoin"]);
+  delete S.cards["temoin"];
+
+  S.prefs = prefsAvant; applyPrefs();
 
   S = fresh(); S.day = 1; seed(1);
   go("home");
@@ -9486,6 +9880,10 @@ function report() {
    #lesson etc. → ouvre directement un écran (pratique pour tester)
    sinon        → l'accueil                                        */
 initTTS();
+// Avant tout affichage : le thème, l'échelle du texte et la couleur doivent
+// être posés sur la racine sinon le premier écran clignote dans les réglages
+// d'origine avant de prendre les tiens.
+applyPrefs();
 seed(S.day);
 paintStreak();
 
