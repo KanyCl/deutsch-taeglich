@@ -59,13 +59,40 @@ $public = $html.Substring(0, $debut) + $remplacement + $html.Substring($finLigne
 
 # Garde-fou : si un morceau du livre subsiste, on ne publie pas. Mieux vaut un
 # echec bruyant qu'une mise en ligne silencieuse de ce qui ne doit pas sortir.
-$temoins = @("Vorfahren", "Kaffeehaus", "Tagesgericht", "Steppenwolf", "LIVRE-DEBUT")
+#
+# Les temoins sont STRUCTURELS et non lexicaux. Une premiere version guettait
+# des mots comme "Tagesgericht" ou "Vorfahren" : elle bloquait des mots
+# allemands parfaitement ordinaires que les etapes emploient legitimement.
+# Un garde-fou qui crie a tort finit par etre contourne.
+#
+# Ce qu'on cherche ici, c'est la SIGNATURE du tableau BOOK : chacune de ses
+# entrees porte un champ "pages:", qu'on ne trouve nulle part ailleurs.
+$temoins = @(
+  @{ quoi = "LIVRE-DEBUT"; sens = "le repere de decoupage" },
+  @{ quoi = "Kaffeehaus";  sens = "un dialogue du livre" },
+  @{ quoi = "Steppenwolf"; sens = "un dialogue du livre" }
+)
 foreach ($t in $temoins) {
-  if ($public.Contains($t)) {
-    Write-Output "ECHEC : '$t' est encore present apres le decoupage."
+  if ($public.Contains($t.quoi)) {
+    Write-Output ("ECHEC : '" + $t.quoi + "' subsiste apres le decoupage (" + $t.sens + ").")
     Write-Output "Le livre n'est pas completement sorti. Publication annulee."
     exit 1
   }
+}
+
+# Une entree du tableau BOOK porte un champ "pages" RENSEIGNE. Le stub qu'on
+# injecte, lui, ecrit pages: "" — chercher la chaine nue le faisait echouer sur
+# son propre remplacement. On exige donc au moins un caractere entre guillemets.
+if ([regex]::IsMatch($public, 'pages: "[^"]')) {
+  Write-Output "ECHEC : une entree du tableau BOOK subsiste (champ pages renseigne)."
+  Write-Output "Le livre n'est pas completement sorti. Publication annulee."
+  exit 1
+}
+
+if (-not $public.Contains("const BOOK = [];")) {
+  Write-Output "ECHEC : le tableau BOOK n'a pas ete remplace par un tableau vide."
+  Write-Output "Publication annulee."
+  exit 1
 }
 
 if (Test-Path $dst) { Remove-Item $dst -Recurse -Force }

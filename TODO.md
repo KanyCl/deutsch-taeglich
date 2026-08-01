@@ -410,6 +410,24 @@ là où on la cherche. Un mot déjà présent dans la liste ne reçoit rien : à
 on ne lirait plus les indices utiles. Vérifié sur l'unité 4 : **6 indices sur 7 questions**,
 seule « Plage » n'en a pas puisque *am Strand* est bien dans la liste.
 
+## 🗺️ LA SUITE, dans cet ordre — choisi par Exsangue le 01/08/2026
+
+1. **Finir les 10 étapes restantes** → le niveau A1 complet, 35 étapes.
+2. **Le design.** Lui montrer deux ou trois directions visuelles sous forme de page
+   qu'il ouvre sur son iPhone, puis appliquer celle qu'il choisit.
+3. **Le multilingue.** Séparer le moteur du contenu : tout ce qui fait tourner l'app
+   (cartes, espacement, oral, exercices, quiz, clavier) est déjà indépendant de
+   l'allemand ; seul le contenu ne l'est pas. Deux pièges connus d'avance :
+   **la progression devra être séparée par langue** (sinon l'étape 3 d'espagnol
+   écraserait celle d'allemand), et **le correcteur est écrit pour l'allemand** —
+   il tolère `ss` pour `ß`, `ae` pour `ä` ; chaque langue aura ses règles.
+   Volontairement en dernier : refactoriser pendant que le contenu bouge encore
+   reviendrait à viser une cible mouvante.
+
+À noter : **« Claude design » n'existe pas** comme outil à brancher dans l'app. Ce qui
+existe, c'est la conception faite ici, avec la possibilité de **montrer** des maquettes
+plutôt que de les décrire.
+
 ## 🎯 L'OBJECTIF, fixé par Exsangue le 01/08/2026
 
 **Finir les 35 étapes, puis supprimer l'onglet du livre.**

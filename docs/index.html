@@ -3955,6 +3955,1268 @@ const COURSE = [
     { t: "trad", f: "Je dois me lever tôt.", a: "Ich muss früh aufstehen.",
       why: "Nécessité, et infinitif en fin." }
   ]
+},
+
+/* ------------------------------- ÉTAPE 26 -----------------------------
+   Unité 25 du livre (p.43) — les boissons.
+   Une liste de vingt-quatre mots dans le livre. On y ajoute ce qui manque
+   pour s'en servir : commander, et surtout le contenant — « ein Glas
+   Wein » et non « ein Wein ». C'est ce qui distingue une commande qui
+   passe d'une commande qu'on fait répéter. */
+{
+  day: 26, title: "Les boissons", de: "Was möchtest du trinken?",
+  steps: [
+    {
+      idea: "Demander ce que quelqu'un veut boire.",
+      detail: "<b>Was möchtest du trinken?</b> — la forme polie de l'étape 25 appliquée à la table. <b>trinken</b> est un verbe régulier : rien de nouveau à conjuguer.",
+      gloss: { de: ["Was", "möchtest", "du", "trinken"], fr: ["Que", "voudrais", "tu", "boire"] }
+    },
+    {
+      idea: "Pour répondre : Ich nehme… ou Ich hätte gerne…",
+      detail: "<b>Ich nehme einen Kaffee</b> — je prends un café. Attention à l'accusatif : <b>Kaffee</b> est masculin, donc <b>einen</b>. C'est la faute la plus visible au comptoir.",
+      table: [["Ich nehme einen Kaffee.", "masculin → einen"], ["Ich nehme eine Cola.", "féminin → eine"], ["Ich nehme ein Bier.", "neutre → ein"]],
+      check: { q: "« Je prends un jus » se dit…", o: ["Ich nehme einen Saft", "Ich nehme ein Saft", "Ich nehme eine Saft"], a: 0, why: "<b>der Saft</b> est masculin, et c'est un complément → <b>einen</b>." }
+    },
+    {
+      idea: "Les boissons chaudes, presque toutes reconnaissables.",
+      detail: "<b>der Kaffee</b>, <b>der Tee</b>, <b>die heiße Schokolade</b>. Le seul à retenir vraiment est <b>der Kräutertee</b> — la tisane, mot à mot « thé aux herbes ».",
+      table: [["der Kaffee", "le café"], ["der Tee", "le thé"], ["der Kräutertee", "la tisane"], ["die heiße Schokolade", "le chocolat chaud"]]
+    },
+    {
+      idea: "L'eau se demande en trois versions — et il faut choisir.",
+      detail: "En Allemagne, demander « de l'eau » ne suffit pas : on te demandera laquelle. <b>stilles Wasser</b> pour l'eau plate, <b>Sprudelwasser</b> pour la gazeuse, <b>Leitungswasser</b> pour celle du robinet — rarement servie au restaurant, et pas toujours de bon cœur.",
+      table: [["stilles Wasser", "eau plate"], ["Sprudelwasser", "eau gazeuse"], ["Leitungswasser", "eau du robinet"]],
+      check: { q: "Tu veux de l'eau plate. Tu demandes…", o: ["stilles Wasser", "Sprudelwasser", "Leitungswasser"], a: 0, why: "<b>still</b> veut dire calme, tranquille — d'où l'eau sans bulles." }
+    },
+    {
+      idea: "Et le mot qui change tout : le contenant.",
+      detail: "On ne commande pas « un vin » mais <b>un verre de vin</b> : <b>ein Glas Wein</b>. Pas de <b>von</b>, pas d'article entre les deux — les deux mots se suivent. Pareil pour <b>eine Tasse Kaffee</b>, une tasse de café.",
+      gloss: { de: ["ein", "Glas", "Wein"], fr: ["un", "verre", "de vin"] },
+      check: { q: "« Un verre de vin » se dit…", o: ["ein Glas Wein", "ein Glas von Wein", "ein Glas des Weins"], a: 0, why: "Les deux mots se suivent, sans rien entre eux." }
+    }
+  ],
+  examples: [
+    { d: "Was möchtest du trinken?", f: "Que voudrais-tu boire ?" },
+    { d: "Ich nehme einen Kaffee, bitte.", f: "Je prends un café, s'il vous plaît." },
+    { d: "Ich nehme einen Orangensaft.", f: "Je prends un jus d'orange." },
+    { d: "Ich hätte gerne ein Glas Wein.", f: "J'aimerais un verre de vin." },
+    { d: "Eine Tasse Kaffee, bitte.", f: "Une tasse de café, s'il vous plaît." },
+    { d: "Ich trinke morgens Kaffee.", f: "Le matin, je bois du café." },
+    { d: "Möchten Sie stilles Wasser?", f: "Voulez-vous de l'eau plate ?" },
+    { d: "Ich habe Durst.", f: "J'ai soif." },
+    { d: "Das Bier vom Fass ist gut.", f: "La bière pression est bonne." },
+    { d: "Sie trinkt nachmittags lieber Tee.", f: "L'après-midi, elle préfère le thé." },
+    { d: "Die Milch ist kalt.", f: "Le lait est froid." },
+    { d: "Ein Glas Sprudelwasser, bitte.", f: "Un verre d'eau gazeuse, s'il vous plaît." }
+  ],
+  vocab: [
+    { d: "das Getränk", f: "la boisson", p: "das gue-TRÈNNK" },
+    { d: "der Saft", f: "le jus", p: "dèr ZAFT" },
+    { d: "der Tee", f: "le thé", p: "dèr TÉÉ" },
+    { d: "das Wasser", f: "l'eau", p: "das VA-seur" },
+    { d: "das Bier", f: "la bière", p: "das BIIR" },
+    { d: "der Wein", f: "le vin", p: "dèr VAÏN" },
+    { d: "die Milch", f: "le lait", p: "dii MILCH" },
+    { d: "das Glas", f: "le verre", p: "das GLAASS" },
+    { d: "die Tasse", f: "la tasse", p: "dii TA-se" },
+    { d: "Durst haben", f: "avoir soif", p: "DOURST HAA-benn" }
+  ],
+  quiz: [
+    { q: "« Je prends un café » se dit…", o: ["Ich nehme einen Kaffee", "Ich nehme ein Kaffee", "Ich nehme eine Kaffee", "Ich nehme der Kaffee"], a: 0, why: "<b>Kaffee</b> est masculin et complément → <b>einen</b>." },
+    { q: "« Un verre de vin » se dit…", o: ["ein Glas Wein", "ein Glas von Wein", "ein Glas des Weins", "ein Wein Glas"], a: 0, why: "Contenant puis contenu, rien entre les deux." },
+    { q: "L'eau plate se demande…", o: ["stilles Wasser", "Sprudelwasser", "Leitungswasser", "kaltes Wasser"], a: 0, why: "<b>still</b> = calme, sans bulles." },
+    { q: "<b>der Kräutertee</b>, c'est…", o: ["la tisane", "le thé glacé", "le café", "le cidre"], a: 0, why: "Mot à mot « thé aux herbes »." },
+    { q: "« J'ai soif » se dit…", o: ["Ich habe Durst", "Ich bin Durst", "Ich habe einen Durst", "Ich trinke Durst"], a: 0, why: "Sensation → <b>haben</b>, et sans article." }
+  ],
+  drills: [
+    { t: "gap", f: "Je prends un café.", s: "Ich nehme ___ Kaffee.", a: "einen", why: "Masculin complément → <b>einen</b>." },
+    { t: "gap", f: "Je prends une bière.", s: "Ich nehme ___ Bier.", a: "ein", why: "<b>Bier</b> est neutre." },
+    { t: "gap", f: "Je prends un tasse de café.", s: "Ich nehme ___ Tasse Kaffee.", a: "eine", why: "<b>Tasse</b> est féminin." },
+    { t: "gap", f: "un verre de vin", s: "ein ___ Wein", a: "Glas", why: "Le contenant devant, sans rien entre." },
+    { t: "gap", f: "de l'eau plate", s: "___ Wasser", a: "stilles", why: "<b>still</b> + <b>-es</b> devant un neutre sans article." },
+    { t: "gap", f: "de l'eau gazeuse", s: "___", a: "Sprudelwasser", why: "<b>Sprudel</b> = bulle, jaillissement." },
+    { t: "gap", f: "J'ai soif.", s: "Ich habe ___.", a: "Durst", why: "Sans article." },
+    { t: "gap", f: "Que voudrais-tu boire ?", s: "Was möchtest du ___?", a: "trinken", why: "L'infinitif ferme la phrase après un modal." },
+    { t: "gap", f: "Le lait est froid.", s: "Die ___ ist kalt.", a: "Milch", why: "<b>Milch</b> est féminin." },
+    { t: "gap", f: "Elle préfère le thé.", s: "Sie trinkt ___ Tee.", a: "lieber", why: "<b>lieber</b> = de préférence." },
+
+    { t: "trans", inst: "Mets l'article qui convient.", from: "Ich nehme ___ Saft.", a: "Ich nehme einen Saft.",
+      why: "<b>Saft</b> masculin complément." },
+    { t: "trans", inst: "Mets l'article qui convient.", from: "Ich nehme ___ Cola.", a: "Ich nehme eine Cola.",
+      why: "<b>Cola</b> est féminin." },
+    { t: "trans", inst: "Ajoute le contenant.", from: "Ich hätte gerne Wein.", a: "Ich hätte gerne ein Glas Wein.",
+      why: "On commande un verre, pas « un vin »." },
+    { t: "trans", inst: "Ajoute le contenant.", from: "Ich nehme Kaffee.", a: "Ich nehme eine Tasse Kaffee.",
+      why: "<b>eine Tasse</b> pour une boisson chaude." },
+    { t: "trans", inst: "Rends la commande polie.", from: "Ich will einen Kaffee.", a: "Ich hätte gerne einen Kaffee.",
+      why: "<b>will</b> passe pour brutal au comptoir." },
+    { t: "trans", inst: "Précise l'eau que tu veux.", from: "Ich möchte Wasser.", a: "Ich möchte stilles Wasser.",
+      why: "En Allemagne, on te demandera laquelle." },
+
+    { t: "order", f: "Je prends un café, s'il vous plaît.", a: "Ich nehme einen Kaffee bitte",
+      why: "<b>bitte</b> se met en fin de commande." },
+    { t: "order", f: "J'aimerais un verre de vin.", a: "Ich hätte gerne ein Glas Wein",
+      why: "La formule polie, puis le contenant." },
+    { t: "order", f: "Que voudrais-tu boire ?", a: "Was möchtest du trinken",
+      why: "Mot interrogatif, modal, sujet, infinitif." },
+    { t: "order", f: "Le matin, je bois du café.", a: "Morgens trinke ich Kaffee",
+      why: "Complément en tête, donc inversion." },
+    { t: "order", f: "La bière pression est bonne.", a: "Das Bier vom Fass ist gut",
+      why: "<b>vom</b> = <b>von dem</b>." },
+    { t: "order", f: "Un verre d'eau gazeuse, s'il vous plaît.", a: "Ein Glas Sprudelwasser bitte",
+      why: "Contenant, contenu, <b>bitte</b>." },
+
+    { t: "trad", f: "Je prends un café.", a: "Ich nehme einen Kaffee.",
+      why: "Masculin complément → <b>einen</b>." },
+    { t: "trad", f: "J'aimerais un verre de vin.", a: "Ich hätte gerne ein Glas Wein.",
+      why: "Le contenant est obligatoire." },
+    { t: "trad", f: "Une tasse de café, s'il vous plaît.", a: "Eine Tasse Kaffee, bitte.",
+      why: "<b>Tasse</b> est féminin." },
+    { t: "trad", f: "J'ai soif.", a: "Ich habe Durst.",
+      why: "Sensation → <b>haben</b>." },
+    { t: "trad", f: "De l'eau plate, s'il vous plaît.", a: "Stilles Wasser, bitte.",
+      why: "Sans article, l'adjectif prend <b>-es</b>." },
+    { t: "trad", f: "Que voudrais-tu boire ?", a: "Was möchtest du trinken?",
+      why: "L'infinitif en fin." },
+    { t: "trad", f: "Le lait est froid.", a: "Die Milch ist kalt.",
+      why: "<b>Milch</b> est féminin." }
+  ]
+},
+
+/* ------------------------------- ÉTAPE 27 -----------------------------
+   Unité 26 du livre (p.44) — dire ce qu'on aime.
+   Le livre aligne treize expressions sans distinguer « mögen » de
+   « gefallen ». Or elles ne se construisent pas pareil : gefallen retourne
+   la phrase, et c'est le genre de chose qui bloque une conversation. */
+{
+  day: 27, title: "Ce que j'aime", de: "Ich mag Kaffee.",
+  steps: [
+    {
+      idea: "mögen dit ce qu'on aime — au goût, au sens le plus simple.",
+      detail: "<b>Ich mag Kaffee</b> — j'aime le café. Il se construit comme en français : moi, j'aime, quelque chose. C'est un modal, donc <b>ich</b> et <b>er</b> partagent la forme : <b>ich mag</b>, <b>er mag</b>.",
+      gloss: { de: ["Ich", "mag", "Kaffee"], fr: ["J'", "aime", "le café"] },
+      check: { q: "« Il aime les tomates » se dit…", o: ["Er mag Tomaten", "Er magt Tomaten", "Er mögt Tomaten"], a: 0, why: "C'est un modal : <b>ich mag</b> et <b>er mag</b>, sans <b>-t</b>." }
+    },
+    {
+      idea: "gefallen retourne la phrase — et c'est là que ça coince.",
+      detail: "Il ne veut pas dire « aimer » mais <b>plaire</b>. Ce n'est donc pas toi le sujet, c'est la chose. <b>Mir gefällt diese Farbe</b> — mot à mot « à moi plaît cette couleur ». Comme le français « ça me plaît », mais on l'oublie parce qu'on pense en « j'aime ».",
+      table: [["Ich mag diese Farbe.", "j'aime cette couleur — je suis sujet"], ["Mir gefällt diese Farbe.", "cette couleur me plaît — elle est sujet"]],
+      check: { q: "« Ce livre me plaît » se dit…", o: ["Mir gefällt dieses Buch", "Ich gefalle dieses Buch", "Ich gefällt dieses Buch"], a: 0, why: "C'est le livre qui plaît : lui est sujet, toi tu es au datif — <b>mir</b>." }
+    },
+    {
+      idea: "Pour aimer FAIRE quelque chose : gern après le verbe.",
+      detail: "Pas besoin d'un verbe « aimer ». <b>Ich lese gern</b> — j'aime lire. <b>Ich esse gern Fisch</b> — j'aime manger du poisson. Un seul petit mot, glissé juste après le verbe conjugué.",
+      gloss: { de: ["Ich", "lese", "gern"], fr: ["J'", "aime", "lire"] },
+      check: { q: "« J'aime nager » se dit…", o: ["Ich schwimme gern", "Ich mag schwimmen", "Ich liebe schwimmen"], a: 0, why: "<b>gern</b> après le verbe. C'est la tournure la plus naturelle." }
+    },
+    {
+      idea: "Et pour préférer : lieber, qui est le comparatif de gern.",
+      detail: "<b>gern</b> → <b>lieber</b> → <b>am liebsten</b>. J'aime, je préfère, j'aime par-dessus tout. Et pour comparer deux choses, <b>als</b> — comme à l'étape 17 : <b>Ich mag Äpfel lieber als Birnen</b>.",
+      table: [["gern", "volontiers"], ["lieber", "de préférence"], ["am liebsten", "par-dessus tout"]],
+      check: { q: "« Je préfère le thé » se dit…", o: ["Ich trinke lieber Tee", "Ich trinke gerner Tee", "Ich preferiere Tee"], a: 0, why: "<b>lieber</b> est le comparatif de <b>gern</b>." }
+    },
+    {
+      idea: "Enfin, le raccourci qui dit tout : Lieblings-.",
+      detail: "Collé devant n'importe quel nom, il en fait le préféré. <b>mein Lieblingsbuch</b>, <b>meine Lieblingsfarbe</b>, <b>mein Lieblingsessen</b>. C'est le mot le plus rentable de l'étape : un seul procédé, autant de mots que tu veux.",
+      check: { q: "« Mon plat préféré » se dit…", o: ["mein Lieblingsessen", "mein liebstes Essen", "mein Essen Liebling"], a: 0, why: "<b>Lieblings-</b> se colle au nom, en un seul mot." }
+    }
+  ],
+  examples: [
+    { d: "Ich mag Kaffee.", f: "J'aime le café." },
+    { d: "Ich mag Tomaten.", f: "J'aime les tomates." },
+    { d: "Mir gefällt diese Farbe nicht.", f: "Je n'aime pas cette couleur." },
+    { d: "Das Buch gefällt mir.", f: "Ce livre me plaît." },
+    { d: "Ich lese gern.", f: "J'aime lire." },
+    { d: "Ich esse gern Fisch.", f: "J'aime manger du poisson." },
+    { d: "Ich trinke lieber Tee.", f: "Je préfère le thé." },
+    { d: "Ich mag Äpfel lieber als Birnen.", f: "Je préfère les pommes aux poires." },
+    { d: "Mein Lieblingsbuch ist hier.", f: "Mon livre préféré est ici." },
+    { d: "Das Essen ist gut.", f: "La nourriture est bonne." },
+    { d: "Ich freue mich auf den Sommer.", f: "Je me réjouis de l'été." },
+    { d: "Der Film ist klasse.", f: "Le film est génial." }
+  ],
+  vocab: [
+    { d: "mögen", f: "aimer", p: "MEU-guenn" },
+    { d: "gefallen", f: "plaire", p: "gue-FA-lenn" },
+    { d: "gern", f: "volontiers", p: "GUÈRN" },
+    { d: "lieber", f: "de préférence", p: "LII-beur" },
+    { d: "Lieblings-", f: "préféré", p: "LIIP-linngs" },
+    { d: "lustig", f: "amusant", p: "LOUS-tich" },
+    { d: "klasse", f: "génial", p: "KLA-se" },
+    { d: "lachen", f: "rire", p: "LA-khenn" },
+    { d: "sich freuen", f: "se réjouir", p: "zich FROÏ-enn" },
+    { d: "die Birne", f: "la poire", p: "dii BIR-ne" }
+  ],
+  quiz: [
+    { q: "« Il aime les tomates » se dit…", o: ["Er mag Tomaten", "Er magt Tomaten", "Er mögt Tomaten", "Er mag Tomaten gern"], a: 0, why: "<b>mögen</b> est un modal : <b>ich mag</b>, <b>er mag</b>." },
+    { q: "« Ce livre me plaît » se dit…", o: ["Mir gefällt dieses Buch", "Ich gefalle dieses Buch", "Ich gefällt dieses Buch", "Mich gefällt dieses Buch"], a: 0, why: "C'est le livre qui plaît : toi tu es au datif, <b>mir</b>." },
+    { q: "« J'aime lire » se dit…", o: ["Ich lese gern", "Ich mag lesen", "Ich liebe lesen", "Ich lese gut"], a: 0, why: "<b>gern</b> après le verbe : la tournure la plus naturelle." },
+    { q: "<b>lieber</b> est le comparatif de…", o: ["gern", "gut", "viel", "mögen"], a: 0, why: "<b>gern · lieber · am liebsten</b>." },
+    { q: "« Ma couleur préférée » se dit…", o: ["meine Lieblingsfarbe", "meine liebste Farbe", "meine Farbe Liebling", "mein Lieblingsfarbe"], a: 0, why: "<b>Lieblings-</b> collé, et <b>Farbe</b> est féminin." }
+  ],
+  drills: [
+    { t: "gap", f: "J'aime le café.", s: "Ich ___ Kaffee.", a: "mag", why: "Modal : pas de terminaison à <b>ich</b>." },
+    { t: "gap", f: "Il aime les tomates.", s: "Er ___ Tomaten.", a: "mag", why: "Même forme qu'à <b>ich</b>." },
+    { t: "gap", f: "Ce livre me plaît.", s: "___ gefällt dieses Buch.", a: "Mir", why: "Toi au datif, le livre sujet." },
+    { t: "gap", f: "Je n'aime pas cette couleur.", s: "Mir ___ diese Farbe nicht.", a: "gefällt", why: "<b>gefallen</b> → <b>gefällt</b> à la 3ᵉ personne." },
+    { t: "gap", f: "J'aime lire.", s: "Ich lese ___.", a: "gern", why: "Juste après le verbe." },
+    { t: "gap", f: "Je préfère le thé.", s: "Ich trinke ___ Tee.", a: "lieber", why: "Le comparatif de <b>gern</b>." },
+    { t: "gap", f: "Je préfère les pommes aux poires.", s: "Ich mag Äpfel lieber ___ Birnen.", a: "als", why: "<b>als</b> pour comparer." },
+    { t: "gap", f: "Mon livre préféré.", s: "mein ___", a: "Lieblingsbuch", why: "<b>Lieblings-</b> collé au nom." },
+    { t: "gap", f: "Le film est génial.", s: "Der Film ist ___.", a: "klasse", why: "Après <b>ist</b>, pas de terminaison." },
+    { t: "gap", f: "Je me réjouis de l'été.", s: "Ich freue ___ auf den Sommer.", a: "mich", why: "<b>sich freuen</b> est réfléchi." },
+
+    { t: "trans", inst: "Dis-le avec « gefallen ».", from: "Ich mag diese Farbe.", a: "Mir gefällt diese Farbe.",
+      why: "La phrase se retourne : la couleur devient sujet." },
+    { t: "trans", inst: "Dis-le avec « mögen ».", from: "Mir gefällt dieses Buch.", a: "Ich mag dieses Buch.",
+      why: "Le chemin inverse : c'est toi qui redeviens sujet." },
+    { t: "trans", inst: "Dis que tu aimes faire ça.", from: "Ich lese.", a: "Ich lese gern.",
+      why: "<b>gern</b> suffit, sans verbe « aimer »." },
+    { t: "trans", inst: "Mets à la préférence.", from: "Ich trinke gern Tee.", a: "Ich trinke lieber Tee.",
+      why: "<b>gern</b> devient <b>lieber</b>." },
+    { t: "trans", inst: "Mets à la troisième personne (er).", from: "Ich mag Kaffee.", a: "Er mag Kaffee.",
+      why: "Modal : la forme ne change pas." },
+    { t: "trans", inst: "Corrige la faute.", from: "Ich gefalle dieses Buch.", a: "Mir gefällt dieses Buch.",
+      why: "C'est le livre qui plaît, pas toi." },
+    { t: "trans", inst: "Fais-en ton préféré.", from: "mein Buch", a: "mein Lieblingsbuch",
+      why: "<b>Lieblings-</b> se colle devant." },
+
+    { t: "order", f: "J'aime le café.", a: "Ich mag Kaffee",
+      why: "Sujet, verbe, objet." },
+    { t: "order", f: "Ce livre me plaît.", a: "Mir gefällt dieses Buch",
+      why: "Le datif en tête pousse le sujet après le verbe." },
+    { t: "order", f: "J'aime manger du poisson.", a: "Ich esse gern Fisch",
+      why: "<b>gern</b> juste après le verbe." },
+    { t: "order", f: "Je préfère les pommes aux poires.", a: "Ich mag Äpfel lieber als Birnen",
+      why: "<b>lieber</b> après l'objet, puis <b>als</b>." },
+    { t: "order", f: "Mon livre préféré est ici.", a: "Mein Lieblingsbuch ist hier",
+      why: "Le mot composé compte pour un." },
+    { t: "order", f: "Je me réjouis de l'été.", a: "Ich freue mich auf den Sommer",
+      why: "<b>sich freuen auf</b> + accusatif." },
+
+    { t: "trad", f: "J'aime le café.", a: "Ich mag Kaffee.",
+      why: "Pas d'article devant une matière." },
+    { t: "trad", f: "Ce livre me plaît.", a: "Mir gefällt dieses Buch.",
+      why: "La phrase retournée." },
+    { t: "trad", f: "J'aime lire.", a: "Ich lese gern.",
+      why: "<b>gern</b> après le verbe." },
+    { t: "trad", f: "Je préfère le thé.", a: "Ich trinke lieber Tee.",
+      why: "Le comparatif de <b>gern</b>." },
+    { t: "trad", f: "Ma couleur préférée est le vert.", a: "Meine Lieblingsfarbe ist grün.",
+      why: "<b>Lieblings-</b> collé, <b>Farbe</b> féminin." },
+    { t: "trad", f: "Le livre est amusant.", a: "Das Buch ist lustig.",
+      why: "Après <b>ist</b>, aucune terminaison." },
+    { t: "trad", f: "Je n'aime pas cette couleur.", a: "Mir gefällt diese Farbe nicht.",
+      why: "<b>nicht</b> à la fin nie toute la phrase." }
+  ]
+},
+
+/* ------------------------------- ÉTAPE 28 -----------------------------
+   Unité 27 du livre (p.45-46) — au restaurant.
+   L'unité la plus utile du niveau si l'on voyage. Le livre donne les deux
+   côtés du dialogue, ce qui est rare et précieux : on entend le serveur
+   autant qu'on lui parle. On garde ce parti, et on ajoute les cuissons,
+   qui sont la seule chose qu'on ne peut pas improviser sur place. */
+{
+  day: 28, title: "Au restaurant", de: "Ich hätte gerne…",
+  steps: [
+    {
+      idea: "Arriver : demander une table.",
+      detail: "<b>Ich hätte gerne einen Tisch für zwei</b> — une table pour deux. La formule polie de l'étape 25, avec l'accusatif : <b>Tisch</b> est masculin, donc <b>einen</b>.",
+      gloss: { de: ["Ich", "hätte gerne", "einen", "Tisch"], fr: ["J'", "aimerais", "une", "table"] }
+    },
+    {
+      idea: "Reconnaître ce que dit le serveur — c'est là qu'on se fige.",
+      detail: "On prépare sa phrase, et c'est la réponse qu'on ne comprend pas. Ces quatre-là couvrent presque tout ce qu'on t'adressera.",
+      table: [["Haben Sie sich entschieden?", "Avez-vous choisi ?"], ["Was möchten Sie?", "Que désirez-vous ?"], ["Und danach?", "Et ensuite ?"], ["Was darf ich Ihnen bringen?", "Que puis-je vous apporter ?"]],
+      check: { q: "<b>Haben Sie sich entschieden?</b> veut dire…", o: ["Avez-vous choisi ?", "Voulez-vous payer ?", "Êtes-vous seul ?"], a: 0, why: "<b>sich entscheiden</b> = se décider. On te demande si tu as choisi." }
+    },
+    {
+      idea: "Commander : trois formules, du plus poli au plus direct.",
+      detail: "<b>Ich hätte gerne…</b> est le plus soigné, <b>Ich möchte…</b> convient partout, <b>Ich nehme…</b> est direct mais correct. Aucune n'est impolie — <b>Ich will</b>, en revanche, ne se dit pas au restaurant.",
+      table: [["Ich hätte gerne…", "J'aimerais…"], ["Ich möchte…", "Je voudrais…"], ["Ich nehme…", "Je prends…"]]
+    },
+    {
+      idea: "Signaler ce qu'on ne peut pas manger.",
+      detail: "Ça se prépare avant d'y aller. <b>Ich bin allergisch gegen Nüsse</b> — allergique aux noix. <b>gegen</b> demande l'accusatif. Et <b>Ich bin Vegetarier</b>, sans article, comme pour les métiers à l'étape 8.",
+      table: [["Ich bin allergisch gegen …", "Je suis allergique à…"], ["Ich bin Vegetarier.", "Je suis végétarien."], ["Ich kann … nicht essen.", "Je ne peux pas manger…"]],
+      check: { q: "« Je suis allergique aux noix » se dit…", o: ["Ich bin allergisch gegen Nüsse", "Ich bin allergisch zu Nüsse", "Ich habe allergisch Nüsse"], a: 0, why: "<b>allergisch gegen</b> + accusatif — une expression figée." }
+    },
+    {
+      idea: "Les cuissons : la seule chose qu'on ne peut pas deviner.",
+      detail: "On te demandera <b>Wie möchten Sie es gegart?</b>. Les mots ne ressemblent à rien de français, et se tromper d'un cran change le plat. <b>durch</b> veut dire « à travers » : bien cuit de part en part.",
+      table: [["blutig", "très saignant"], ["englisch", "saignant"], ["rosa", "rosé"], ["medium", "à point"], ["durch", "bien cuit"]],
+      check: { q: "Tu veux ta viande à point. Tu dis…", o: ["medium", "durch", "blutig"], a: 0, why: "<b>durch</b> serait bien cuit, <b>blutig</b> très saignant." }
+    },
+    {
+      idea: "Partir : l'addition, et le pourboire.",
+      detail: "<b>Die Rechnung, bitte</b> suffit. On laisse en général un pourboire — <b>das Trinkgeld</b>, mot à mot « l'argent à boire ». Et si la carte dit <b>Service inbegriffen</b>, le service est déjà compris.",
+      gloss: { de: ["Die", "Rechnung", "bitte"], fr: ["L'", "addition", "s'il vous plaît"] }
+    }
+  ],
+  examples: [
+    { d: "Ich hätte gerne einen Tisch für zwei.", f: "J'aimerais une table pour deux." },
+    { d: "Haben Sie sich entschieden?", f: "Avez-vous choisi ?" },
+    { d: "Ich nehme das Tagesgericht.", f: "Je prends le plat du jour." },
+    { d: "Ich hätte gerne einen Salat.", f: "J'aimerais une salade." },
+    { d: "Was möchten Sie trinken?", f: "Que désirez-vous boire ?" },
+    { d: "Ich bin allergisch gegen Nüsse.", f: "Je suis allergique aux noix." },
+    { d: "Ich bin Vegetarier.", f: "Je suis végétarien." },
+    { d: "Wie möchten Sie es gegart?", f: "Comment le voulez-vous cuit ?" },
+    { d: "Medium, bitte.", f: "À point, s'il vous plaît." },
+    { d: "Die Rechnung, bitte.", f: "L'addition, s'il vous plaît." },
+    { d: "Kann ich bar bezahlen?", f: "Puis-je payer en espèces ?" },
+    { d: "Guten Appetit!", f: "Bon appétit !" }
+  ],
+  vocab: [
+    { d: "der Tisch", f: "la table", p: "dèr TICH" },
+    { d: "bestellen", f: "commander", p: "be-CHTÈ-lenn" },
+    { d: "bezahlen", f: "payer", p: "be-TSAA-lenn" },
+    { d: "die Rechnung", f: "l'addition", p: "dii RÈCH-noung" },
+    { d: "das Trinkgeld", f: "le pourboire", p: "das TRINNK-guèlt" },
+    { d: "die Karte", f: "la carte, le menu", p: "dii KAR-te" },
+    { d: "der Kellner", f: "le serveur", p: "dèr KÈL-neur" },
+    { d: "allergisch", f: "allergique", p: "a-LÈR-guich" },
+    { d: "das Tagesgericht", f: "le plat du jour", p: "das TAA-guess-gue-richt" },
+    { d: "Guten Appetit", f: "bon appétit", p: "GOU-tenn a-pé-TIIT" }
+  ],
+  quiz: [
+    { q: "« Une table pour deux » se dit…", o: ["einen Tisch für zwei", "ein Tisch für zwei", "eine Tisch für zwei", "einem Tisch für zwei"], a: 0, why: "<b>Tisch</b> masculin complément → <b>einen</b>." },
+    { q: "<b>Haben Sie sich entschieden?</b> veut dire…", o: ["Avez-vous choisi ?", "Voulez-vous payer ?", "Avez-vous réservé ?", "Êtes-vous prêt à partir ?"], a: 0, why: "<b>sich entscheiden</b> = se décider." },
+    { q: "Quelle formule ne se dit PAS au restaurant ?", o: ["Ich will…", "Ich hätte gerne…", "Ich möchte…", "Ich nehme…"], a: 0, why: "<b>Ich will</b> sonne comme un ordre." },
+    { q: "« À point » se dit…", o: ["medium", "durch", "blutig", "englisch"], a: 0, why: "<b>durch</b> = bien cuit, <b>blutig</b> = très saignant." },
+    { q: "« Je suis allergique aux noix » se dit…", o: ["Ich bin allergisch gegen Nüsse", "Ich bin allergisch zu Nüsse", "Ich habe Allergie Nüsse", "Ich bin allergisch für Nüsse"], a: 0, why: "<b>allergisch gegen</b> + accusatif, expression figée." }
+  ],
+  drills: [
+    { t: "gap", f: "J'aimerais une table pour deux.", s: "Ich hätte gerne ___ Tisch für zwei.", a: "einen", why: "Masculin complément." },
+    { t: "gap", f: "Je prends le plat du jour.", s: "Ich nehme ___ Tagesgericht.", a: "das", why: "<b>Gericht</b> est neutre." },
+    { t: "gap", f: "L'addition, s'il vous plaît.", s: "Die ___, bitte.", a: "Rechnung", why: "<b>-ung</b> → féminin." },
+    { t: "gap", f: "Je suis allergique aux noix.", s: "Ich bin allergisch ___ Nüsse.", a: "gegen", why: "Expression figée avec l'accusatif." },
+    { t: "gap", f: "Je suis végétarien.", s: "Ich bin ___.", a: "Vegetarier", why: "Sans article, comme pour un métier." },
+    { t: "gap", f: "À point.", s: "___", a: "medium", why: "Le cran du milieu." },
+    { t: "gap", f: "Bien cuit.", s: "___", a: "durch", why: "Mot à mot « à travers »." },
+    { t: "gap", f: "Puis-je payer en espèces ?", s: "Kann ich ___ bezahlen?", a: "bar", why: "<b>bar</b> = en liquide." },
+    { t: "gap", f: "Le pourboire", s: "das ___", a: "Trinkgeld", why: "Mot à mot « argent à boire »." },
+    { t: "gap", f: "Que désirez-vous ?", s: "Was ___ Sie?", a: "möchten", why: "Le <b>Sie</b> poli prend la forme longue." },
+
+    { t: "trans", inst: "Rends la commande polie.", from: "Ich will einen Salat.", a: "Ich hätte gerne einen Salat.",
+      why: "<b>will</b> ne se dit pas au restaurant." },
+    { t: "trans", inst: "Dis-le plus simplement.", from: "Ich hätte gerne das Tagesgericht.", a: "Ich nehme das Tagesgericht.",
+      why: "<b>Ich nehme</b> est direct mais correct." },
+    { t: "trans", inst: "Mets le bon article.", from: "Ich hätte gerne ___ Tisch.", a: "Ich hätte gerne einen Tisch.",
+      why: "Masculin complément." },
+    { t: "trans", inst: "Change la cuisson pour bien cuit.", from: "Medium, bitte.", a: "Durch, bitte.",
+      why: "<b>durch</b> = cuit de part en part." },
+    { t: "trans", inst: "Transforme en question.", from: "Sie haben sich entschieden.", a: "Haben Sie sich entschieden?",
+      why: "Verbe en tête pour une question fermée." },
+    { t: "trans", inst: "Signale que tu ne peux pas en manger.", from: "Ich bin allergisch gegen Nüsse.", a: "Ich kann Nüsse nicht essen.",
+      why: "<b>nicht</b> juste avant l'infinitif." },
+
+    { t: "order", f: "J'aimerais une table pour deux.", a: "Ich hätte gerne einen Tisch für zwei",
+      why: "<b>für</b> + accusatif." },
+    { t: "order", f: "Je prends le plat du jour.", a: "Ich nehme das Tagesgericht",
+      why: "Sujet, verbe, objet." },
+    { t: "order", f: "Que désirez-vous boire ?", a: "Was möchten Sie trinken",
+      why: "L'infinitif ferme la phrase." },
+    { t: "order", f: "Je suis allergique aux noix.", a: "Ich bin allergisch gegen Nüsse",
+      why: "L'expression reste en bloc." },
+    { t: "order", f: "Comment le voulez-vous cuit ?", a: "Wie möchten Sie es gegart",
+      why: "Le participe ferme la phrase." },
+    { t: "order", f: "Puis-je payer en espèces ?", a: "Kann ich bar bezahlen",
+      why: "Modal en tête, infinitif au bout." },
+
+    { t: "trad", f: "J'aimerais une table pour deux.", a: "Ich hätte gerne einen Tisch für zwei.",
+      why: "La phrase d'arrivée." },
+    { t: "trad", f: "Avez-vous choisi ?", a: "Haben Sie sich entschieden?",
+      why: "Ce que dit le serveur." },
+    { t: "trad", f: "Je prends le plat du jour.", a: "Ich nehme das Tagesgericht.",
+      why: "Direct et correct." },
+    { t: "trad", f: "Je suis allergique aux noix.", a: "Ich bin allergisch gegen Nüsse.",
+      why: "À préparer avant d'y aller." },
+    { t: "trad", f: "À point, s'il vous plaît.", a: "Medium, bitte.",
+      why: "Le cran du milieu." },
+    { t: "trad", f: "L'addition, s'il vous plaît.", a: "Die Rechnung, bitte.",
+      why: "Suffit pour demander à payer." },
+    { t: "trad", f: "Bon appétit !", a: "Guten Appetit!",
+      why: "Se dit avant de commencer, comme en français." }
+  ]
+},
+
+/* ------------------------------- ÉTAPE 29 -----------------------------
+   Unité 28 du livre (p.47-48) — « es gibt », repris.
+   Le livre traite « es gibt » deux fois : unité 14 puis unité 28. On ne
+   recopie pas la répétition, on en fait une étape de consolidation : ce
+   qu'on n'avait pas vu la première fois — les quantités, la question, la
+   négation — et l'occasion de réemployer l'accusatif. */
+{
+  day: 29, title: "Il y a, en pratique", de: "Gibt es hier ein Café?",
+  steps: [
+    {
+      idea: "Rappel en une ligne : es gibt ne change jamais.",
+      detail: "Singulier, pluriel, question, négation — la formule reste identique. Seul ce qui suit bouge, et il est toujours à l'accusatif.",
+      gloss: { de: ["Es", "gibt", "einen", "Markt"], fr: ["Il", "y a", "un", "marché"] }
+    },
+    {
+      idea: "Avec une quantité, l'article disparaît.",
+      detail: "<b>Es gibt viele Blumen</b> — pas d'article après <b>viele</b>. Pareil avec un nombre : <b>Es gibt fünf Äpfel</b>. C'est la quantité qui remplace l'article.",
+      table: [["Es gibt viele Cafés.", "beaucoup de cafés"], ["Es gibt fünf Äpfel.", "cinq pommes"], ["Es gibt wenig Zeit.", "peu de temps"]],
+      check: { q: "« Il y a beaucoup de livres » se dit…", o: ["Es gibt viele Bücher", "Es gibt viele die Bücher", "Es gibt die viele Bücher"], a: 0, why: "Après une quantité, plus d'article." }
+    },
+    {
+      idea: "Demander ce qu'il y a : Was gibt es…?",
+      detail: "Avec un mot interrogatif, le verbe reste en place 2 — la règle de l'étape 24. <b>Was gibt es heute in der Stadt?</b>. Et sans mot interrogatif, le verbe passe en tête : <b>Gibt es hier ein Café?</b>",
+      table: [["Was gibt es …?", "Qu'y a-t-il … ?"], ["Gibt es …?", "Y a-t-il … ?"], ["Wo gibt es …?", "Où y a-t-il … ?"]],
+      check: { q: "« Y a-t-il un parking ? » se dit…", o: ["Gibt es einen Parkplatz?", "Es gibt einen Parkplatz?", "Ist es einen Parkplatz?"], a: 0, why: "Question fermée : le verbe passe devant." }
+    },
+    {
+      idea: "Dire qu'il n'y a pas : kein, décliné comme ein.",
+      detail: "Donc <b>keinen</b> au masculin, comme <b>einen</b>. <b>Es gibt keinen Platz mehr</b> — il n'y a plus de place. Le <b>mehr</b> à la fin ajoute le « plus ».",
+      table: [["Es gibt keinen Platz.", "masculin → keinen"], ["Es gibt keine Zeit.", "féminin → keine"], ["Es gibt kein Café.", "neutre → kein"]],
+      check: { q: "« Il n'y a pas de parking » se dit…", o: ["Es gibt keinen Parkplatz", "Es gibt kein Parkplatz", "Es gibt nicht einen Parkplatz"], a: 0, why: "<b>kein</b> se décline comme <b>ein</b> : masculin → <b>keinen</b>." }
+    },
+    {
+      idea: "Et le réflexe à prendre en voyage : Gibt es hier…?",
+      detail: "Trois mots qui ouvrent presque toutes les questions utiles : <b>Gibt es hier ein Restaurant?</b>, <b>… eine Apotheke?</b>, <b>… einen Bahnhof?</b>. Avec <b>hier</b> ou <b>in der Nähe</b> — dans le coin.",
+      gloss: { de: ["Gibt", "es", "hier", "eine", "Apotheke"], fr: ["Y a-t-il", "—", "ici", "une", "pharmacie"] }
+    }
+  ],
+  examples: [
+    { d: "Es gibt einen Markt in der Stadt.", f: "Il y a un marché en ville." },
+    { d: "Was gibt es heute in der Stadt?", f: "Qu'y a-t-il en ville aujourd'hui ?" },
+    { d: "Es gibt viele Blumen.", f: "Il y a beaucoup de fleurs." },
+    { d: "Es gibt fünf Äpfel im Korb.", f: "Il y a cinq pommes dans le panier." },
+    { d: "Gibt es hier ein Café?", f: "Y a-t-il un café ici ?" },
+    { d: "Nein, es gibt kein Café.", f: "Non, il n'y a pas de café." },
+    { d: "Gibt es einen Parkplatz?", f: "Y a-t-il un parking ?" },
+    { d: "Es gibt keinen Platz mehr.", f: "Il n'y a plus de place." },
+    { d: "Gibt es hier eine Apotheke?", f: "Y a-t-il une pharmacie ici ?" },
+    { d: "Es gibt ein Restaurant in der Nähe.", f: "Il y a un restaurant à proximité." },
+    { d: "Es gibt Obst und Gemüse auf dem Markt.", f: "Il y a des fruits et des légumes au marché." },
+    { d: "Wo gibt es einen Bahnhof?", f: "Où y a-t-il une gare ?" }
+  ],
+  vocab: [
+    { d: "der Markt", f: "le marché", p: "dèr MARKT" },
+    { d: "die Apotheke", f: "la pharmacie", p: "dii a-po-TÉÉ-ke" },
+    { d: "in der Nähe", f: "à proximité", p: "in dèr NÈ-e" },
+    { d: "viele", f: "beaucoup de", p: "FII-le" },
+    { d: "wenig", f: "peu de", p: "VÉ-nich" },
+    { d: "kein", f: "aucun, pas de", p: "KAÏN" },
+    { d: "der Korb", f: "le panier", p: "dèr KORP" },
+    { d: "der Bahnhof", f: "la gare", p: "dèr BAAN-hof" },
+    { d: "mehr", f: "plus, davantage", p: "MÉÉR" },
+    { d: "hier", f: "ici", p: "HIIR" }
+  ],
+  quiz: [
+    { q: "Après une quantité comme <b>viele</b>, l'article…", o: ["disparaît", "reste", "devient den", "devient dem"], a: 0, why: "<b>Es gibt viele Bücher</b> — la quantité remplace l'article." },
+    { q: "« Y a-t-il un parking ? » se dit…", o: ["Gibt es einen Parkplatz?", "Es gibt einen Parkplatz?", "Ist es ein Parkplatz?", "Hat es einen Parkplatz?"], a: 0, why: "Question fermée : le verbe passe en tête." },
+    { q: "« Il n'y a pas de parking » se dit…", o: ["Es gibt keinen Parkplatz", "Es gibt kein Parkplatz", "Es gibt nicht Parkplatz", "Es ist kein Parkplatz"], a: 0, why: "<b>kein</b> se décline comme <b>ein</b>." },
+    { q: "Après <b>es gibt</b>, le nom est…", o: ["à l'accusatif", "au nominatif", "au datif", "au génitif"], a: 0, why: "C'est un complément — d'où <b>einen</b> au masculin." },
+    { q: "<b>in der Nähe</b> veut dire…", o: ["à proximité", "à l'intérieur", "au fond", "en face"], a: 0, why: "<b>die Nähe</b> = la proximité." }
+  ],
+  drills: [
+    { t: "gap", f: "Il y a un marché.", s: "Es gibt ___ Markt.", a: "einen", why: "Masculin complément." },
+    { t: "gap", f: "Il y a une pharmacie.", s: "Es gibt ___ Apotheke.", a: "eine", why: "Féminin : rien ne change." },
+    { t: "gap", f: "Il y a beaucoup de fleurs.", s: "Es gibt ___ Blumen.", a: "viele", why: "La quantité remplace l'article." },
+    { t: "gap", f: "Il n'y a pas de café.", s: "Es gibt ___ Café.", a: "kein", why: "<b>Café</b> est neutre." },
+    { t: "gap", f: "Il n'y a plus de place.", s: "Es gibt keinen Platz ___.", a: "mehr", why: "<b>mehr</b> ajoute le « plus »." },
+    { t: "gap", f: "Y a-t-il un café ici ?", s: "___ es hier ein Café?", a: "Gibt", why: "Le verbe passe en tête." },
+    { t: "gap", f: "Qu'y a-t-il en ville ?", s: "Was ___ es in der Stadt?", a: "gibt", why: "Après un mot interrogatif, le verbe reste en place 2." },
+    { t: "gap", f: "Il y a un restaurant à proximité.", s: "Es gibt ein Restaurant in der ___.", a: "Nähe", why: "<b>die Nähe</b> = la proximité." },
+    { t: "gap", f: "Il y a cinq pommes.", s: "Es gibt fünf ___.", a: "Äpfel", why: "<b>Apfel</b> → <b>Äpfel</b> au pluriel." },
+    { t: "gap", f: "Où y a-t-il une gare ?", s: "___ gibt es einen Bahnhof?", a: "Wo", why: "<b>wo</b> pour le lieu." },
+
+    { t: "trans", inst: "Mets à la forme négative.", from: "Es gibt einen Parkplatz.", a: "Es gibt keinen Parkplatz.",
+      why: "<b>einen</b> devient <b>keinen</b>." },
+    { t: "trans", inst: "Mets à la forme négative.", from: "Es gibt ein Café.", a: "Es gibt kein Café.",
+      why: "Neutre : <b>ein</b> devient <b>kein</b>." },
+    { t: "trans", inst: "Transforme en question.", from: "Es gibt hier ein Restaurant.", a: "Gibt es hier ein Restaurant?",
+      why: "Le verbe passe devant." },
+    { t: "trans", inst: "Mets au pluriel avec « beaucoup ».", from: "Es gibt eine Blume.", a: "Es gibt viele Blumen.",
+      why: "La quantité chasse l'article." },
+    { t: "trans", inst: "Demande où ça se trouve.", from: "Es gibt einen Bahnhof.", a: "Wo gibt es einen Bahnhof?",
+      why: "<b>wo</b> en place 1, verbe en place 2." },
+    { t: "trans", inst: "Corrige la faute.", from: "Es gibt ein Markt.", a: "Es gibt einen Markt.",
+      why: "Ce qui suit <b>es gibt</b> est à l'accusatif." },
+
+    { t: "order", f: "Il y a un marché en ville.", a: "Es gibt einen Markt in der Stadt",
+      why: "Formule, complément, lieu." },
+    { t: "order", f: "Y a-t-il un café ici ?", a: "Gibt es hier ein Café",
+      why: "Verbe en tête, puis le lieu." },
+    { t: "order", f: "Il n'y a plus de place.", a: "Es gibt keinen Platz mehr",
+      why: "<b>mehr</b> après le nom nié." },
+    { t: "order", f: "Qu'y a-t-il en ville aujourd'hui ?", a: "Was gibt es heute in der Stadt",
+      why: "Temps avant lieu." },
+    { t: "order", f: "Il y a beaucoup de fleurs.", a: "Es gibt viele Blumen",
+      why: "Sans article après la quantité." },
+
+    { t: "trad", f: "Il y a un marché en ville.", a: "Es gibt einen Markt in der Stadt.",
+      why: "Accusatif après <b>es gibt</b>." },
+    { t: "trad", f: "Y a-t-il un café ici ?", a: "Gibt es hier ein Café?",
+      why: "La question la plus utile en voyage." },
+    { t: "trad", f: "Il n'y a pas de parking.", a: "Es gibt keinen Parkplatz.",
+      why: "<b>kein</b> décliné comme <b>ein</b>." },
+    { t: "trad", f: "Il y a beaucoup de fleurs.", a: "Es gibt viele Blumen.",
+      why: "Pas d'article après <b>viele</b>." },
+    { t: "trad", f: "Y a-t-il une pharmacie ici ?", a: "Gibt es hier eine Apotheke?",
+      why: "<b>Apotheke</b> est féminin." },
+    { t: "trad", f: "Il y a un restaurant à proximité.", a: "Es gibt ein Restaurant in der Nähe.",
+      why: "<b>in der Nähe</b> reste en bloc." },
+    { t: "trad", f: "Où y a-t-il une gare ?", a: "Wo gibt es einen Bahnhof?",
+      why: "<b>Bahnhof</b> masculin complément." }
+  ]
+},
+
+/* ------------------------------- ÉTAPE 30 -----------------------------
+   Unité 29 du livre (p.49) — les transports.
+   Vocabulaire, mais deux points de langue s'y jouent : « mit dem » + datif
+   pour dire comment on se déplace, et « nach » pour la destination. Sans
+   eux la liste ne sert à rien. */
+{
+  day: 30, title: "Se déplacer", de: "Ich fahre mit dem Bus.",
+  steps: [
+    {
+      idea: "Pour dire comment on se déplace : mit dem + le moyen.",
+      detail: "<b>mit</b> demande toujours le datif — sans exception, dans tous les cas. Donc <b>mit dem Bus</b>, <b>mit dem Auto</b>, <b>mit der U-Bahn</b>. C'est une préposition à cas fixe : une chose de moins à décider.",
+      table: [["mit dem Bus", "en bus — masculin"], ["mit dem Auto", "en voiture — neutre"], ["mit der U-Bahn", "en métro — féminin"], ["mit dem Fahrrad", "à vélo — neutre"]],
+      check: { q: "« En métro » se dit…", o: ["mit der U-Bahn", "mit die U-Bahn", "mit den U-Bahn"], a: 0, why: "<b>U-Bahn</b> est féminin, et au datif le féminin devient <b>der</b>." }
+    },
+    {
+      idea: "Une exception qui s'entend souvent : à pied.",
+      detail: "<b>zu Fuß</b> — mot à mot « au pied ». Pas de <b>mit</b>, pas d'article. C'est une formule figée, comme <b>nach Hause</b> à l'étape 18.",
+      check: { q: "« À pied » se dit…", o: ["zu Fuß", "mit dem Fuß", "mit Fuß"], a: 0, why: "Formule figée : <b>zu Fuß</b>, sans article." }
+    },
+    {
+      idea: "Deux verbes pour se déplacer, et ils ne sont pas interchangeables.",
+      detail: "<b>fahren</b> quand un véhicule est en jeu, <b>gehen</b> quand on marche. Un Allemand ne dira jamais <b>ich gehe nach Berlin</b> s'il prend le train. Et souviens-toi de l'étape 12 : <b>fahren</b> prend un tréma, <b>du fährst</b>.",
+      table: [["Ich fahre nach Berlin.", "en véhicule"], ["Ich gehe zur Arbeit.", "à pied"]],
+      check: { q: "Tu prends le train pour Berlin. Tu dis…", o: ["Ich fahre nach Berlin", "Ich gehe nach Berlin", "Ich laufe nach Berlin"], a: 0, why: "<b>fahren</b> dès qu'il y a un véhicule." }
+    },
+    {
+      idea: "La destination : nach pour les villes et les pays.",
+      detail: "<b>nach Berlin</b>, <b>nach Deutschland</b> — sans article. Mais pour un lieu qui en prend un, c'est <b>zu</b> + datif : <b>zum Bahnhof</b>, <b>zur Arbeit</b>. <b>zum</b> = <b>zu dem</b>, <b>zur</b> = <b>zu der</b>.",
+      table: [["nach Berlin", "ville — sans article"], ["nach Deutschland", "pays — sans article"], ["zum Bahnhof", "zu dem — masculin"], ["zur Arbeit", "zu der — féminin"]],
+      check: { q: "« Je vais à la gare » se dit…", o: ["Ich fahre zum Bahnhof", "Ich fahre nach Bahnhof", "Ich fahre zu Bahnhof"], a: 0, why: "<b>Bahnhof</b> prend un article, donc <b>zu</b> + datif → <b>zum</b>." }
+    },
+    {
+      idea: "Et le vocabulaire du billet, à connaître avant le guichet.",
+      detail: "<b>einfach</b> pour un aller simple, <b>hin und zurück</b> pour un aller-retour — mot à mot « là-bas et retour ». Et deux mots qui décident de ta journée : <b>pünktlich</b>, à l'heure, et <b>verspätet</b>, en retard.",
+      table: [["das Ticket", "le billet"], ["einfach", "aller simple"], ["hin und zurück", "aller-retour"], ["pünktlich", "à l'heure"], ["verspätet", "en retard"]]
+    }
+  ],
+  examples: [
+    { d: "Ich fahre mit dem Bus zur Arbeit.", f: "Je vais au travail en bus." },
+    { d: "Sie nimmt lieber die U-Bahn.", f: "Elle préfère prendre le métro." },
+    { d: "Ich fahre nach Berlin.", f: "Je vais à Berlin." },
+    { d: "Wir fahren mit dem Fahrrad.", f: "Nous y allons à vélo." },
+    { d: "Ich gehe zu Fuß.", f: "Je vais à pied." },
+    { d: "Wo ist der Bahnhof?", f: "Où est la gare ?" },
+    { d: "Ich habe mein Ticket verloren.", f: "J'ai perdu mon billet." },
+    { d: "Ein Ticket nach Berlin, bitte.", f: "Un billet pour Berlin, s'il vous plaît." },
+    { d: "Hin und zurück, bitte.", f: "Aller-retour, s'il vous plaît." },
+    { d: "Der Zug ist verspätet.", f: "Le train est en retard." },
+    { d: "Der Bus ist pünktlich.", f: "Le bus est à l'heure." },
+    { d: "Wir fahren zum Flughafen.", f: "Nous allons à l'aéroport." }
+  ],
+  vocab: [
+    { d: "der Zug", f: "le train", p: "dèr TSOUK" },
+    { d: "der Bahnhof", f: "la gare", p: "dèr BAAN-hof" },
+    { d: "die U-Bahn", f: "le métro", p: "dii OU-baan" },
+    { d: "das Fahrrad", f: "le vélo", p: "das FAAR-raat" },
+    { d: "das Flugzeug", f: "l'avion", p: "das FLOUK-tsoïk" },
+    { d: "das Ticket", f: "le billet", p: "das TI-keut" },
+    { d: "zu Fuß", f: "à pied", p: "tsou FOUSS" },
+    { d: "pünktlich", f: "à l'heure", p: "PUNKT-lich" },
+    { d: "verspätet", f: "en retard", p: "feur-CHPÈÈ-teut" },
+    { d: "die Haltestelle", f: "l'arrêt", p: "dii HAL-te-chtè-le" }
+  ],
+  quiz: [
+    { q: "« En métro » se dit…", o: ["mit der U-Bahn", "mit die U-Bahn", "mit den U-Bahn", "mit dem U-Bahn"], a: 0, why: "<b>mit</b> + datif, et le féminin devient <b>der</b>." },
+    { q: "« À pied » se dit…", o: ["zu Fuß", "mit dem Fuß", "mit Fuß", "auf Fuß"], a: 0, why: "Formule figée, sans article." },
+    { q: "Tu prends le train pour Berlin. Tu dis…", o: ["Ich fahre nach Berlin", "Ich gehe nach Berlin", "Ich laufe nach Berlin", "Ich fahre zu Berlin"], a: 0, why: "<b>fahren</b> dès qu'il y a un véhicule, et <b>nach</b> pour une ville." },
+    { q: "« Je vais à la gare » se dit…", o: ["Ich fahre zum Bahnhof", "Ich fahre nach Bahnhof", "Ich fahre zu Bahnhof", "Ich fahre in Bahnhof"], a: 0, why: "Un lieu qui prend un article demande <b>zu</b> + datif." },
+    { q: "« Aller-retour » se dit…", o: ["hin und zurück", "einfach", "hin und her", "vor und zurück"], a: 0, why: "Mot à mot « là-bas et retour ». <b>einfach</b> serait un aller simple." }
+  ],
+  drills: [
+    { t: "gap", f: "en bus", s: "mit ___ Bus", a: "dem", why: "<b>mit</b> + datif, masculin → <b>dem</b>." },
+    { t: "gap", f: "en métro", s: "mit ___ U-Bahn", a: "der", why: "Datif féminin → <b>der</b>." },
+    { t: "gap", f: "à vélo", s: "mit ___ Fahrrad", a: "dem", why: "Neutre au datif → <b>dem</b>." },
+    { t: "gap", f: "à pied", s: "___ Fuß", a: "zu", why: "Formule figée." },
+    { t: "gap", f: "Je vais à Berlin.", s: "Ich fahre ___ Berlin.", a: "nach", why: "<b>nach</b> pour une ville." },
+    { t: "gap", f: "Je vais à la gare.", s: "Ich fahre ___ Bahnhof.", a: "zum", why: "<b>zum</b> = <b>zu dem</b>." },
+    { t: "gap", f: "Je vais au travail.", s: "Ich fahre ___ Arbeit.", a: "zur", why: "<b>zur</b> = <b>zu der</b>, féminin." },
+    { t: "gap", f: "Le train est en retard.", s: "Der Zug ist ___.", a: "verspätet", why: "Après <b>ist</b>, pas de terminaison." },
+    { t: "gap", f: "Aller-retour, s'il vous plaît.", s: "___ und zurück, bitte.", a: "Hin", why: "Mot à mot « là-bas et retour »." },
+    { t: "gap", f: "Où est la gare ?", s: "Wo ist der ___?", a: "Bahnhof", why: "<b>Bahnhof</b> est masculin." },
+
+    { t: "trans", inst: "Dis-le avec le bon verbe.", from: "Ich gehe nach Berlin mit dem Zug.", a: "Ich fahre mit dem Zug nach Berlin.",
+      why: "<b>fahren</b> dès qu'il y a un véhicule, et manière avant lieu." },
+    { t: "trans", inst: "Passe du bus au métro.", from: "Ich fahre mit dem Bus.", a: "Ich fahre mit der U-Bahn.",
+      why: "<b>U-Bahn</b> est féminin : <b>dem</b> devient <b>der</b>." },
+    { t: "trans", inst: "Dis que tu y vas à pied.", from: "Ich fahre mit dem Bus.", a: "Ich gehe zu Fuß.",
+      why: "À pied, on emploie <b>gehen</b>, et <b>zu Fuß</b> sans article." },
+    { t: "trans", inst: "Mets la bonne préposition.", from: "Ich fahre ___ Bahnhof.", a: "Ich fahre zum Bahnhof.",
+      why: "Un lieu à article prend <b>zu</b> + datif." },
+    { t: "trans", inst: "Mets à la deuxième personne (du).", from: "Ich fahre nach Berlin.", a: "Du fährst nach Berlin.",
+      why: "<b>fahren</b> prend un tréma à la 2ᵉ personne." },
+    { t: "trans", inst: "Demande un aller simple.", from: "Hin und zurück, bitte.", a: "Einfach, bitte.",
+      why: "<b>einfach</b> pour un aller simple." },
+
+    { t: "order", f: "Je vais au travail en bus.", a: "Ich fahre mit dem Bus zur Arbeit",
+      why: "Manière avant lieu." },
+    { t: "order", f: "Nous allons à l'aéroport.", a: "Wir fahren zum Flughafen",
+      why: "<b>zum</b> pour un lieu à article." },
+    { t: "order", f: "Un billet pour Berlin, s'il vous plaît.", a: "Ein Ticket nach Berlin bitte",
+      why: "<b>nach</b> + ville." },
+    { t: "order", f: "Le train est en retard.", a: "Der Zug ist verspätet",
+      why: "Sujet, verbe, adjectif." },
+    { t: "order", f: "Elle préfère prendre le métro.", a: "Sie nimmt lieber die U-Bahn",
+      why: "<b>lieber</b> après le verbe, et <b>nehmen</b> → <b>nimmt</b>." },
+
+    { t: "trad", f: "Je vais au travail en bus.", a: "Ich fahre mit dem Bus zur Arbeit.",
+      why: "<b>mit</b> + datif, <b>zur</b> pour la destination." },
+    { t: "trad", f: "Je vais à pied.", a: "Ich gehe zu Fuß.",
+      why: "<b>gehen</b> et la formule figée." },
+    { t: "trad", f: "Je vais à Berlin.", a: "Ich fahre nach Berlin.",
+      why: "<b>nach</b> + ville, sans article." },
+    { t: "trad", f: "Nous y allons à vélo.", a: "Wir fahren mit dem Fahrrad.",
+      why: "<b>Fahrrad</b> est neutre." },
+    { t: "trad", f: "Où est la gare ?", a: "Wo ist der Bahnhof?",
+      why: "<b>wo</b> pour la position." },
+    { t: "trad", f: "Le train est en retard.", a: "Der Zug ist verspätet.",
+      why: "Le mot qui décide de ta journée." },
+    { t: "trad", f: "Aller-retour, s'il vous plaît.", a: "Hin und zurück, bitte.",
+      why: "Au guichet, ça suffit." }
+  ]
+},
+
+/* ------------------------------- ÉTAPE 31 -----------------------------
+   Unité 30 du livre (p.50) — la négation.
+   La faute la plus fréquente des francophones, et le livre l'expédie en
+   quatre puces. On lui donne une étape entière : « nicht » ou « kein » ne
+   se choisit pas au feeling, et la place de « nicht » change le sens. */
+{
+  day: 31, title: "Dire non", de: "Ich habe kein Auto.",
+  steps: [
+    {
+      idea: "Deux mots pour nier, et le choix n'est pas libre.",
+      detail: "<b>kein</b> devant un <b>nom</b>. <b>nicht</b> pour tout le reste — un verbe, un adjectif, un adverbe. C'est la règle entière, et elle règle presque tous les cas.",
+      table: [["Ich habe kein Auto.", "un nom → kein"], ["Ich arbeite nicht.", "un verbe → nicht"], ["Das ist nicht gut.", "un adjectif → nicht"]],
+      check: { q: "« Je n'ai pas de voiture » se dit…", o: ["Ich habe kein Auto", "Ich habe nicht ein Auto", "Ich habe nicht Auto"], a: 0, why: "On nie un nom → <b>kein</b>. « nicht ein » ne se dit pas." }
+    },
+    {
+      idea: "kein se décline exactement comme ein.",
+      detail: "Rien de nouveau à apprendre : tu connais déjà le tableau. <b>ein</b> → <b>kein</b>, <b>einen</b> → <b>keinen</b>, <b>eine</b> → <b>keine</b>. Un <b>k</b> devant, et c'est tout.",
+      table: [["ein Auto", "kein Auto — neutre"], ["einen Hund", "keinen Hund — masculin"], ["eine Katze", "keine Katze — féminin"], ["Bücher", "keine Bücher — pluriel"]],
+      check: { q: "« Je n'ai pas de chien » se dit…", o: ["Ich habe keinen Hund", "Ich habe kein Hund", "Ich habe keine Hund"], a: 0, why: "<b>Hund</b> masculin complément → <b>keinen</b>, comme <b>einen</b>." }
+    },
+    {
+      idea: "Un nom sans article se nie aussi avec kein.",
+      detail: "<b>Ich habe Zeit</b> → <b>Ich habe keine Zeit</b>. <b>Ich trinke Kaffee</b> → <b>Ich trinke keinen Kaffee</b>. Le nom n'avait pas d'article, il en reçoit un négatif.",
+      check: { q: "« Je n'ai pas le temps » se dit…", o: ["Ich habe keine Zeit", "Ich habe nicht Zeit", "Ich habe nicht die Zeit"], a: 0, why: "<b>Zeit</b> est un nom, donc <b>kein</b> — au féminin, <b>keine</b>." }
+    },
+    {
+      idea: "Et la place de nicht : à la fin, sauf devant ce qu'il vise.",
+      detail: "Quand <b>nicht</b> nie toute la phrase, il va en fin : <b>Ich arbeite heute nicht</b>. Mais s'il vise un mot précis, il se place juste devant lui — et le sens change : <b>Ich arbeite nicht heute</b> veut dire « pas aujourd'hui, un autre jour ».",
+      table: [["Ich arbeite heute nicht.", "je ne travaille pas aujourd'hui"], ["Ich arbeite nicht heute.", "pas aujourd'hui — un autre jour"]],
+      check: { q: "Où va <b>nicht</b> quand il nie toute la phrase ?", o: ["à la fin", "après le sujet", "en première position"], a: 0, why: "En fin de phrase — sauf s'il vise un mot précis, qu'il précède alors." }
+    },
+    {
+      idea: "Deux mots de plus, et tu as tout : nie et nichts.",
+      detail: "<b>nie</b> = jamais. <b>nichts</b> = rien. Attention à ne pas confondre <b>nicht</b> (pas) et <b>nichts</b> (rien) : un <b>s</b> les sépare, et le sens n'est pas le même.",
+      table: [["nicht", "pas"], ["nichts", "rien"], ["nie", "jamais"], ["kein", "aucun, pas de"]],
+      check: { q: "« Il n'y a rien d'intéressant » se dit…", o: ["Es gibt nichts Interessantes", "Es gibt nicht Interessantes", "Es gibt kein Interessantes"], a: 0, why: "« rien » se dit <b>nichts</b>, avec un <b>s</b>." }
+    }
+  ],
+  examples: [
+    { d: "Ich habe kein Auto.", f: "Je n'ai pas de voiture." },
+    { d: "Ich habe keinen Hund.", f: "Je n'ai pas de chien." },
+    { d: "Ich habe keine Zeit.", f: "Je n'ai pas le temps." },
+    { d: "Ich arbeite heute nicht.", f: "Je ne travaille pas aujourd'hui." },
+    { d: "Das ist nicht gut.", f: "Ce n'est pas bien." },
+    { d: "Ich sehe den Film nicht.", f: "Je ne vois pas le film." },
+    { d: "Es gibt nichts Interessantes im Fernsehen.", f: "Il n'y a rien d'intéressant à la télé." },
+    { d: "Ich habe ihn nie getroffen.", f: "Je ne l'ai jamais rencontré." },
+    { d: "Es gibt keinen Platz mehr.", f: "Il n'y a plus de place." },
+    { d: "Sie trinkt keinen Kaffee.", f: "Elle ne boit pas de café." },
+    { d: "Das Wochenende war nicht so gut.", f: "Le week-end n'était pas très bon." },
+    { d: "Ich verstehe das nicht.", f: "Je ne comprends pas ça." }
+  ],
+  vocab: [
+    { d: "nicht", f: "pas", p: "NICHT" },
+    { d: "kein", f: "aucun, pas de", p: "KAÏN" },
+    { d: "nichts", f: "rien", p: "NICHTS" },
+    { d: "nie", f: "jamais", p: "NII" },
+    { d: "leider", f: "malheureusement", p: "LAÏ-deur" },
+    { d: "langweilig", f: "ennuyeux", p: "LANNG-vaï-lich" },
+    { d: "verstehen", f: "comprendre", p: "feur-CHTÉ-enn" },
+    { d: "das Fernsehen", f: "la télévision", p: "das FÈRN-zé-enn" },
+    { d: "treffen", f: "rencontrer", p: "TRÈ-fenn" },
+    { d: "hoffentlich", f: "espérons-le", p: "HO-fennt-lich" }
+  ],
+  quiz: [
+    { q: "On nie un nom avec…", o: ["kein", "nicht", "nichts", "nie"], a: 0, why: "<b>kein</b> devant un nom, <b>nicht</b> pour tout le reste." },
+    { q: "« Je n'ai pas de chien » se dit…", o: ["Ich habe keinen Hund", "Ich habe kein Hund", "Ich habe nicht einen Hund", "Ich habe nicht Hund"], a: 0, why: "<b>kein</b> se décline comme <b>ein</b> : masculin complément → <b>keinen</b>." },
+    { q: "Où va <b>nicht</b> quand il nie toute la phrase ?", o: ["à la fin", "après le sujet", "en première position", "devant le verbe"], a: 0, why: "En fin de phrase — sauf s'il vise un mot précis." },
+    { q: "Quelle est la différence entre <b>nicht</b> et <b>nichts</b> ?", o: ["nicht = pas, nichts = rien", "aucune", "nichts est plus poli", "nicht s'emploie au passé"], a: 0, why: "Un <b>s</b> les sépare, et le sens change complètement." },
+    { q: "« Je n'ai pas le temps » se dit…", o: ["Ich habe keine Zeit", "Ich habe nicht Zeit", "Ich habe nicht die Zeit", "Ich habe kein Zeit"], a: 0, why: "<b>Zeit</b> est un nom féminin → <b>keine</b>." }
+  ],
+  drills: [
+    { t: "gap", f: "Je n'ai pas de voiture.", s: "Ich habe ___ Auto.", a: "kein", why: "<b>Auto</b> est neutre." },
+    { t: "gap", f: "Je n'ai pas de chien.", s: "Ich habe ___ Hund.", a: "keinen", why: "Masculin complément → <b>keinen</b>." },
+    { t: "gap", f: "Je n'ai pas le temps.", s: "Ich habe ___ Zeit.", a: "keine", why: "<b>Zeit</b> est féminin." },
+    { t: "gap", f: "Je ne travaille pas aujourd'hui.", s: "Ich arbeite heute ___.", a: "nicht", why: "Il nie le verbe → en fin de phrase." },
+    { t: "gap", f: "Ce n'est pas bien.", s: "Das ist ___ gut.", a: "nicht", why: "Devant l'adjectif qu'il vise." },
+    { t: "gap", f: "Il n'y a rien d'intéressant.", s: "Es gibt ___ Interessantes.", a: "nichts", why: "« rien » → <b>nichts</b>." },
+    { t: "gap", f: "Je ne l'ai jamais rencontré.", s: "Ich habe ihn ___ getroffen.", a: "nie", why: "« jamais » → <b>nie</b>." },
+    { t: "gap", f: "Elle ne boit pas de café.", s: "Sie trinkt ___ Kaffee.", a: "keinen", why: "<b>Kaffee</b> masculin complément." },
+    { t: "gap", f: "Il n'y a plus de place.", s: "Es gibt ___ Platz mehr.", a: "keinen", why: "<b>Platz</b> est masculin." },
+    { t: "gap", f: "Je ne comprends pas ça.", s: "Ich verstehe das ___.", a: "nicht", why: "Il nie le verbe → en fin." },
+
+    { t: "trans", inst: "Mets à la forme négative.", from: "Ich habe ein Auto.", a: "Ich habe kein Auto.",
+      why: "<b>ein</b> devient <b>kein</b>." },
+    { t: "trans", inst: "Mets à la forme négative.", from: "Ich habe einen Hund.", a: "Ich habe keinen Hund.",
+      why: "<b>einen</b> devient <b>keinen</b>." },
+    { t: "trans", inst: "Mets à la forme négative.", from: "Ich habe Zeit.", a: "Ich habe keine Zeit.",
+      why: "Un nom sans article reçoit quand même <b>kein</b>." },
+    { t: "trans", inst: "Mets à la forme négative.", from: "Ich arbeite heute.", a: "Ich arbeite heute nicht.",
+      why: "On nie le verbe → <b>nicht</b> en fin." },
+    { t: "trans", inst: "Corrige la faute.", from: "Ich habe nicht ein Auto.", a: "Ich habe kein Auto.",
+      why: "On ne dit jamais « nicht ein » : c'est <b>kein</b>." },
+    { t: "trans", inst: "Corrige la faute.", from: "Ich habe nicht Zeit.", a: "Ich habe keine Zeit.",
+      why: "<b>Zeit</b> est un nom." },
+    { t: "trans", inst: "Dis que ça n'arrive jamais.", from: "Ich treffe ihn nicht.", a: "Ich treffe ihn nie.",
+      why: "<b>nie</b> pour « jamais »." },
+
+    { t: "order", f: "Je n'ai pas de voiture.", a: "Ich habe kein Auto",
+      why: "Sujet, verbe, négation collée au nom." },
+    { t: "order", f: "Je ne travaille pas aujourd'hui.", a: "Ich arbeite heute nicht",
+      why: "<b>nicht</b> ferme la phrase." },
+    { t: "order", f: "Elle ne boit pas de café.", a: "Sie trinkt keinen Kaffee",
+      why: "<b>keinen</b> devant le nom." },
+    { t: "order", f: "Il n'y a rien d'intéressant à la télé.", a: "Es gibt nichts Interessantes im Fernsehen",
+      why: "<b>im</b> = <b>in dem</b>." },
+    { t: "order", f: "Je ne comprends pas ça.", a: "Ich verstehe das nicht",
+      why: "<b>nicht</b> après le complément." },
+
+    { t: "trad", f: "Je n'ai pas de voiture.", a: "Ich habe kein Auto.",
+      why: "La faute classique évitée : jamais « nicht ein »." },
+    { t: "trad", f: "Je n'ai pas de chien.", a: "Ich habe keinen Hund.",
+      why: "Masculin complément." },
+    { t: "trad", f: "Je n'ai pas le temps.", a: "Ich habe keine Zeit.",
+      why: "Un nom, donc <b>kein</b>." },
+    { t: "trad", f: "Je ne travaille pas aujourd'hui.", a: "Ich arbeite heute nicht.",
+      why: "<b>nicht</b> en fin de phrase." },
+    { t: "trad", f: "Ce n'est pas bien.", a: "Das ist nicht gut.",
+      why: "<b>nicht</b> devant l'adjectif." },
+    { t: "trad", f: "Il n'y a rien d'intéressant.", a: "Es gibt nichts Interessantes.",
+      why: "<b>nichts</b> avec un <b>s</b>." },
+    { t: "trad", f: "Je ne l'ai jamais rencontré.", a: "Ich habe ihn nie getroffen.",
+      why: "<b>nie</b>, et le participe en fin." }
+  ]
+},
+
+/* ------------------------------- ÉTAPE 32 -----------------------------
+   Unité 31 du livre (p.51) — les pronoms réfléchis.
+   Le livre donne la liste et signale que certains verbes prennent le datif.
+   On garde les deux, mais on explique QUAND — sinon « mich » et « mir »
+   se choisissent au hasard. */
+{
+  day: 32, title: "Les verbes réfléchis", de: "Ich wasche mich.",
+  steps: [
+    {
+      idea: "Un verbe réfléchi, c'est une action qui retombe sur soi.",
+      detail: "Comme en français : je me lave, tu t'excuses. L'allemand ajoute un pronom après le verbe : <b>Ich wasche mich</b>. La différence avec le français, c'est la <b>place</b> — chez nous le pronom précède le verbe, en allemand il le suit.",
+      gloss: { de: ["Ich", "wasche", "mich"], fr: ["Je", "me", "lave"] }
+    },
+    {
+      idea: "Les six pronoms, dont deux identiques.",
+      detail: "<b>mich</b>, <b>dich</b>, <b>sich</b>, <b>uns</b>, <b>euch</b>, <b>sich</b>. Un seul est vraiment nouveau : <b>sich</b>, qui sert à la fois pour <i>il/elle</i> et pour <i>ils/elles</i> — et aussi pour le <b>Sie</b> poli.",
+      table: [["ich", "mich"], ["du", "dich"], ["er / sie / es", "sich"], ["wir", "uns"], ["ihr", "euch"], ["sie / Sie", "sich"]],
+      check: { q: "« Nous nous dépêchons » se dit…", o: ["Wir beeilen uns", "Wir beeilen sich", "Wir beeilen wir"], a: 0, why: "<b>wir</b> prend <b>uns</b>." }
+    },
+    {
+      idea: "Certains verbes sont réfléchis en allemand et pas en français.",
+      detail: "Il faut les apprendre comme tels, avec leur <b>sich</b> collé. <b>sich freuen</b> — se réjouir, mais qu'on traduit souvent par « être content ». <b>sich beeilen</b> — se dépêcher. <b>sich erholen</b> — se reposer.",
+      table: [["sich freuen", "être content, se réjouir"], ["sich beeilen", "se dépêcher"], ["sich erholen", "se reposer"], ["sich entspannen", "se détendre"], ["sich entschuldigen", "s'excuser"]]
+    },
+    {
+      idea: "Et le point que le livre effleure : mich ou mir ?",
+      detail: "<b>mich</b> quand l'action retombe directement sur toi. <b>mir</b> quand elle retombe sur autre chose, et que tu en es seulement le bénéficiaire. <b>Ich wasche mich</b> — je me lave. <b>Ich wasche mir die Hände</b> — je me lave les mains : ce sont les mains qui sont lavées, pour moi.",
+      table: [["Ich wasche mich.", "c'est moi qui suis lavé → mich"], ["Ich wasche mir die Hände.", "ce sont les mains → mir"], ["Ich kaufe mir ein Buch.", "c'est le livre, pour moi → mir"]],
+      check: { q: "« Je m'achète un livre » se dit…", o: ["Ich kaufe mir ein Buch", "Ich kaufe mich ein Buch", "Ich kaufe ein Buch mich"], a: 0, why: "C'est le livre qu'on achète : toi tu en es le bénéficiaire → <b>mir</b>." }
+    },
+    {
+      idea: "Un repère simple pour ne pas hésiter.",
+      detail: "S'il y a <b>déjà un complément</b> après le verbe — les mains, un livre, un film — alors le pronom passe au datif : <b>mir</b>, <b>dir</b>. S'il n'y en a pas, c'est <b>mich</b>, <b>dich</b>. Une seule question à se poser.",
+      check: { q: "« Tu te laves les cheveux » — quel pronom ?", o: ["dir, car les cheveux sont le complément", "dich", "sich"], a: 0, why: "Il y a déjà un complément — <b>die Haare</b> — donc le pronom passe au datif." }
+    }
+  ],
+  examples: [
+    { d: "Ich wasche mich.", f: "Je me lave." },
+    { d: "Ich wasche mir die Hände.", f: "Je me lave les mains." },
+    { d: "Du musst dich entschuldigen.", f: "Tu dois t'excuser." },
+    { d: "Wir müssen uns beeilen.", f: "Nous devons nous dépêcher." },
+    { d: "Ich habe mich im Park erholt.", f: "Je me suis reposé au parc." },
+    { d: "Ich freue mich auf den Sommer.", f: "Je me réjouis de l'été." },
+    { d: "Er entspannt sich heute Abend.", f: "Il se détend ce soir." },
+    { d: "Ich kaufe mir ein Buch.", f: "Je m'achète un livre." },
+    { d: "Sie trifft sich gerne mit Freunden.", f: "Elle aime retrouver des amis." },
+    { d: "Setzen Sie sich, bitte.", f: "Asseyez-vous, s'il vous plaît." },
+    { d: "Wie fühlst du dich?", f: "Comment te sens-tu ?" },
+    { d: "Ich ziehe mich an.", f: "Je m'habille." }
+  ],
+  vocab: [
+    { d: "sich waschen", f: "se laver", p: "zich VA-chenn" },
+    { d: "sich beeilen", f: "se dépêcher", p: "zich be-AÏ-lenn" },
+    { d: "sich erholen", f: "se reposer", p: "zich eur-HOO-lenn" },
+    { d: "sich freuen", f: "être content", p: "zich FROÏ-enn" },
+    { d: "sich entschuldigen", f: "s'excuser", p: "zich ennt-CHOUL-di-guenn" },
+    { d: "sich setzen", f: "s'asseoir", p: "zich ZÈ-tsenn" },
+    { d: "sich fühlen", f: "se sentir", p: "zich FU-lenn" },
+    { d: "die Hand", f: "la main", p: "dii HANNT" },
+    { d: "die Haare", f: "les cheveux", p: "dii HAA-re" },
+    { d: "sich anziehen", f: "s'habiller", p: "zich ANN-tsii-enn" }
+  ],
+  quiz: [
+    { q: "En allemand, le pronom réfléchi se place…", o: ["après le verbe", "avant le verbe", "en fin de phrase", "avant le sujet"], a: 0, why: "<b>Ich wasche mich</b> — l'inverse du français." },
+    { q: "« Nous nous dépêchons » se dit…", o: ["Wir beeilen uns", "Wir beeilen sich", "Wir beeilen wir", "Wir uns beeilen"], a: 0, why: "<b>wir</b> prend <b>uns</b>." },
+    { q: "« Je m'achète un livre » se dit…", o: ["Ich kaufe mir ein Buch", "Ich kaufe mich ein Buch", "Ich mir kaufe ein Buch", "Ich kaufe ein Buch mich"], a: 0, why: "Il y a déjà un complément — le livre — donc le pronom passe au datif." },
+    { q: "Quand emploie-t-on <b>mir</b> plutôt que <b>mich</b> ?", o: ["quand il y a déjà un complément", "quand la phrase est longue", "au passé", "avec les verbes courts"], a: 0, why: "<b>Ich wasche mich</b> mais <b>Ich wasche mir die Hände</b>." },
+    { q: "<b>sich freuen</b> veut dire…", o: ["être content", "avoir peur", "se souvenir", "se plaindre"], a: 0, why: "Réfléchi en allemand, alors que le français dit simplement « être content »." }
+  ],
+  drills: [
+    { t: "gap", f: "Je me lave.", s: "Ich wasche ___.", a: "mich", why: "L'action retombe sur moi." },
+    { t: "gap", f: "Tu dois t'excuser.", s: "Du musst ___ entschuldigen.", a: "dich", why: "<b>du</b> prend <b>dich</b>." },
+    { t: "gap", f: "Nous devons nous dépêcher.", s: "Wir müssen ___ beeilen.", a: "uns", why: "<b>wir</b> prend <b>uns</b>." },
+    { t: "gap", f: "Il se détend.", s: "Er entspannt ___.", a: "sich", why: "<b>er</b> prend <b>sich</b>." },
+    { t: "gap", f: "Vous vous détendez.", s: "Ihr entspannt ___.", a: "euch", why: "<b>ihr</b> prend <b>euch</b>." },
+    { t: "gap", f: "Je me lave les mains.", s: "Ich wasche ___ die Hände.", a: "mir", why: "Il y a déjà un complément → datif." },
+    { t: "gap", f: "Je m'achète un livre.", s: "Ich kaufe ___ ein Buch.", a: "mir", why: "C'est le livre qu'on achète, pour moi." },
+    { t: "gap", f: "Je me réjouis de l'été.", s: "Ich freue ___ auf den Sommer.", a: "mich", why: "Pas d'autre complément → accusatif." },
+    { t: "gap", f: "Asseyez-vous, s'il vous plaît.", s: "Setzen Sie ___, bitte.", a: "sich", why: "Le <b>Sie</b> poli prend <b>sich</b>." },
+    { t: "gap", f: "Comment te sens-tu ?", s: "Wie fühlst du ___?", a: "dich", why: "<b>sich fühlen</b> est réfléchi." },
+
+    { t: "trans", inst: "Mets à la deuxième personne (du).", from: "Ich wasche mich.", a: "Du wäschst dich.",
+      why: "<b>waschen</b> prend un tréma, et <b>mich</b> devient <b>dich</b>." },
+    { t: "trans", inst: "Mets à la troisième personne (er).", from: "Ich entspanne mich.", a: "Er entspannt sich.",
+      why: "<b>mich</b> devient <b>sich</b>." },
+    { t: "trans", inst: "Passe au pluriel (wir).", from: "Ich beeile mich.", a: "Wir beeilen uns.",
+      why: "<b>wir</b> prend <b>uns</b>." },
+    { t: "trans", inst: "Ajoute un complément.", from: "Ich wasche mich.", a: "Ich wasche mir die Hände.",
+      why: "Le complément fait passer le pronom au datif." },
+    { t: "trans", inst: "Corrige la faute.", from: "Ich kaufe mich ein Buch.", a: "Ich kaufe mir ein Buch.",
+      why: "Il y a déjà un complément : le pronom passe au datif." },
+    { t: "trans", inst: "Corrige la faute.", from: "Ich mich wasche.", a: "Ich wasche mich.",
+      why: "Le pronom suit le verbe, il ne le précède pas." },
+
+    { t: "order", f: "Je me lave les mains.", a: "Ich wasche mir die Hände",
+      why: "Verbe, pronom au datif, complément." },
+    { t: "order", f: "Nous devons nous dépêcher.", a: "Wir müssen uns beeilen",
+      why: "Modal, pronom, infinitif en fin." },
+    { t: "order", f: "Je me réjouis de l'été.", a: "Ich freue mich auf den Sommer",
+      why: "<b>auf</b> + accusatif après <b>sich freuen</b>." },
+    { t: "order", f: "Tu dois t'excuser.", a: "Du musst dich entschuldigen",
+      why: "L'infinitif ferme la phrase." },
+    { t: "order", f: "Elle aime retrouver des amis.", a: "Sie trifft sich gerne mit Freunden",
+      why: "<b>gerne</b> après le pronom, <b>mit</b> + datif." },
+
+    { t: "trad", f: "Je me lave.", a: "Ich wasche mich.",
+      why: "Le pronom suit le verbe." },
+    { t: "trad", f: "Je me lave les mains.", a: "Ich wasche mir die Hände.",
+      why: "Un complément est là → datif." },
+    { t: "trad", f: "Nous devons nous dépêcher.", a: "Wir müssen uns beeilen.",
+      why: "<b>wir</b> → <b>uns</b>." },
+    { t: "trad", f: "Tu dois t'excuser.", a: "Du musst dich entschuldigen.",
+      why: "<b>du</b> → <b>dich</b>." },
+    { t: "trad", f: "Je m'achète un livre.", a: "Ich kaufe mir ein Buch.",
+      why: "Bénéficiaire → <b>mir</b>." },
+    { t: "trad", f: "Comment te sens-tu ?", a: "Wie fühlst du dich?",
+      why: "Réfléchi en allemand." },
+    { t: "trad", f: "Asseyez-vous, s'il vous plaît.", a: "Setzen Sie sich, bitte.",
+      why: "Le <b>Sie</b> poli prend <b>sich</b>." }
+  ]
+},
+
+/* ------------------------------- ÉTAPE 33 -----------------------------
+   Unité 32 du livre (p.52) — les prépositions.
+   La plus rentable du niveau. Une seule idée porte tout : datif quand on
+   EST quelque part, accusatif quand on Y VA. On l'a semée à l'étape 18,
+   elle se récolte ici. Le reste — les prépositions à cas fixe — n'est
+   qu'une liste à connaître. */
+{
+  day: 33, title: "Les prépositions", de: "Ich gehe ins Kino.",
+  steps: [
+    {
+      idea: "La question à se poser : est-ce que ça bouge ?",
+      detail: "C'est toute la règle. <b>Si tu vas quelque part</b> → accusatif. <b>Si tu y es déjà</b> → datif. Une seule question, et neuf prépositions se rangent d'elles-mêmes.",
+      table: [["Ich gehe ins Kino.", "j'y vais → accusatif"], ["Ich bin im Kino.", "j'y suis → datif"]],
+      check: { q: "« Je suis au cinéma » se dit…", o: ["Ich bin im Kino", "Ich bin ins Kino", "Ich bin in das Kino"], a: 0, why: "On y est, rien ne bouge → datif → <b>im</b>." }
+    },
+    {
+      idea: "Les contractions qu'on entend tout le temps.",
+      detail: "L'allemand fusionne la préposition et l'article. <b>in dem</b> devient <b>im</b>, <b>in das</b> devient <b>ins</b>. C'est pour ça qu'on entend <b>im</b> et <b>ins</b> partout — ce ne sont pas des mots à part.",
+      table: [["in dem → im", "datif — position"], ["in das → ins", "accusatif — mouvement"], ["zu dem → zum", "au, vers le"], ["zu der → zur", "à la, vers la"]],
+      check: { q: "<b>ins</b> est la contraction de…", o: ["in das", "in dem", "in der"], a: 0, why: "<b>in das</b> → <b>ins</b>. Accusatif, donc mouvement." }
+    },
+    {
+      idea: "Les quatre prépositions de lieu qui suivent cette règle.",
+      detail: "<b>in</b> (dans), <b>auf</b> (sur), <b>unter</b> (sous), <b>hinter</b> (derrière). Chacune prend le datif ou l'accusatif selon que ça bouge ou non.",
+      table: [["Das Buch liegt auf dem Tisch.", "il y est → datif"], ["Ich lege das Buch auf den Tisch.", "je l'y mets → accusatif"], ["Der Hund liegt unter dem Tisch.", "datif"], ["Das Auto steht hinter dem Haus.", "datif"]],
+      check: { q: "« Je mets le livre sur la table » se dit…", o: ["auf den Tisch", "auf dem Tisch", "auf der Tisch"], a: 0, why: "Le livre se déplace → accusatif → <b>den</b>." }
+    },
+    {
+      idea: "D'autres prépositions ne se posent pas la question : leur cas est fixe.",
+      detail: "Elles prennent toujours le même, quoi qu'il arrive. Quatre à connaître, et elles reviennent sans arrêt.",
+      table: [["für", "toujours accusatif — Das ist für dich."], ["durch", "toujours accusatif — durch einen Tunnel"], ["mit", "toujours datif — mit dem Bus"], ["bei", "toujours datif — bei Julia"]],
+      check: { q: "<b>mit</b> demande…", o: ["toujours le datif", "toujours l'accusatif", "l'un ou l'autre selon le mouvement"], a: 0, why: "Cas fixe : <b>mit dem Bus</b>, même si le bus roule." }
+    },
+    {
+      idea: "Les prépositions de temps, qui ne suivent aucune logique de mouvement.",
+      detail: "Elles s'apprennent une par une, mais elles sont peu nombreuses. <b>seit</b> pour un début qui dure, <b>vor</b> pour le passé, <b>in</b> pour le futur.",
+      table: [["in zwei Jahren", "dans deux ans — futur"], ["seit einem Monat", "depuis un mois"], ["vor drei Wochen", "il y a trois semaines"], ["nach einer Woche", "après une semaine"], ["bis zum 5. August", "jusqu'au 5 août"], ["um 15 Uhr", "à 15 heures"]],
+      check: { q: "« Il y a trois semaines » se dit…", o: ["vor drei Wochen", "seit drei Wochen", "in drei Wochen"], a: 0, why: "<b>vor</b> pour le passé. <b>seit</b> voudrait dire « depuis trois semaines »." }
+    },
+    {
+      idea: "Et une exception qu'on emploie tous les jours : nach.",
+      detail: "Pour aller dans une ville ou un pays, on ne se demande rien : <b>nach Berlin</b>, <b>nach Deutschland</b>, sans article. Et <b>nach Hause</b> pour rentrer chez soi — la formule figée de l'étape 18.",
+      gloss: { de: ["Ich", "fahre", "nach", "Deutschland"], fr: ["Je", "vais", "en", "Allemagne"] }
+    }
+  ],
+  examples: [
+    { d: "Ich gehe ins Kino.", f: "Je vais au cinéma." },
+    { d: "Ich bin im Kino.", f: "Je suis au cinéma." },
+    { d: "Das Buch liegt auf dem Tisch.", f: "Le livre est sur la table." },
+    { d: "Ich lege das Buch auf den Tisch.", f: "Je mets le livre sur la table." },
+    { d: "Der Hund liegt unter dem Tisch.", f: "Le chien est sous la table." },
+    { d: "Das ist für dich.", f: "C'est pour toi." },
+    { d: "Wir fahren durch einen Tunnel.", f: "Nous traversons un tunnel." },
+    { d: "Ich bin bei Julia.", f: "Je suis chez Julia." },
+    { d: "Ich fahre nach Deutschland.", f: "Je vais en Allemagne." },
+    { d: "Seit einem Monat lerne ich Deutsch.", f: "J'apprends l'allemand depuis un mois." },
+    { d: "Vor drei Wochen war ich in Berlin.", f: "Il y a trois semaines, j'étais à Berlin." },
+    { d: "Wir treffen uns um 15 Uhr.", f: "Nous nous retrouvons à 15 heures." }
+  ],
+  vocab: [
+    { d: "in", f: "dans", p: "INN" },
+    { d: "auf", f: "sur", p: "AOUF" },
+    { d: "unter", f: "sous", p: "OUNN-teur" },
+    { d: "hinter", f: "derrière", p: "HINN-teur" },
+    { d: "für", f: "pour", p: "FUR" },
+    { d: "durch", f: "à travers", p: "DOURCH" },
+    { d: "bei", f: "chez", p: "BAÏ" },
+    { d: "seit", f: "depuis", p: "ZAÏT" },
+    { d: "der Tunnel", f: "le tunnel", p: "dèr TOU-neul" },
+    { d: "legen", f: "poser, mettre", p: "LÉ-guenn" }
+  ],
+  quiz: [
+    { q: "Quelle question décide du cas ?", o: ["est-ce que ça bouge ?", "est-ce masculin ?", "est-ce au passé ?", "y a-t-il un article ?"], a: 0, why: "Mouvement → accusatif. Position → datif." },
+    { q: "« Je suis au cinéma » se dit…", o: ["Ich bin im Kino", "Ich bin ins Kino", "Ich bin in das Kino", "Ich bin in der Kino"], a: 0, why: "On y est → datif → <b>im</b>." },
+    { q: "<b>ins</b> est la contraction de…", o: ["in das", "in dem", "in der", "in den"], a: 0, why: "Accusatif neutre, donc mouvement." },
+    { q: "<b>mit</b> demande…", o: ["toujours le datif", "toujours l'accusatif", "l'un ou l'autre", "le génitif"], a: 0, why: "Cas fixe, quoi qu'il arrive." },
+    { q: "« Il y a trois semaines » se dit…", o: ["vor drei Wochen", "seit drei Wochen", "in drei Wochen", "nach drei Wochen"], a: 0, why: "<b>vor</b> pour le passé, <b>seit</b> pour une durée qui continue." }
+  ],
+  drills: [
+    { t: "gap", f: "Je vais au cinéma.", s: "Ich gehe ___ Kino.", a: "ins", why: "Mouvement → accusatif → <b>ins</b>." },
+    { t: "gap", f: "Je suis au cinéma.", s: "Ich bin ___ Kino.", a: "im", why: "Position → datif → <b>im</b>." },
+    { t: "gap", f: "Le livre est sur la table.", s: "Das Buch liegt auf ___ Tisch.", a: "dem", why: "Il y est posé → datif." },
+    { t: "gap", f: "Je mets le livre sur la table.", s: "Ich lege das Buch auf ___ Tisch.", a: "den", why: "Il se déplace → accusatif." },
+    { t: "gap", f: "Le chien est sous la table.", s: "Der Hund liegt unter ___ Tisch.", a: "dem", why: "Position → datif." },
+    { t: "gap", f: "C'est pour toi.", s: "Das ist ___ dich.", a: "für", why: "<b>für</b> + accusatif, toujours." },
+    { t: "gap", f: "Nous traversons un tunnel.", s: "Wir fahren ___ einen Tunnel.", a: "durch", why: "<b>durch</b> + accusatif." },
+    { t: "gap", f: "Je suis chez Julia.", s: "Ich bin ___ Julia.", a: "bei", why: "<b>bei</b> + datif." },
+    { t: "gap", f: "Je vais en Allemagne.", s: "Ich fahre ___ Deutschland.", a: "nach", why: "<b>nach</b> + pays, sans article." },
+    { t: "gap", f: "J'apprends l'allemand depuis un mois.", s: "___ einem Monat lerne ich Deutsch.", a: "Seit", why: "Un début qui dure encore." },
+    { t: "gap", f: "Il y a trois semaines.", s: "___ drei Wochen", a: "Vor", why: "<b>vor</b> pour le passé." },
+
+    { t: "trans", inst: "Passe du mouvement à la position.", from: "Ich gehe ins Kino.", a: "Ich bin im Kino.",
+      why: "L'accusatif devient datif." },
+    { t: "trans", inst: "Passe de la position au mouvement.", from: "Das Buch liegt auf dem Tisch.", a: "Ich lege das Buch auf den Tisch.",
+      why: "Le datif devient accusatif." },
+    { t: "trans", inst: "Corrige la faute.", from: "Ich bin ins Kino.", a: "Ich bin im Kino.",
+      why: "On y est : rien ne bouge, donc datif." },
+    { t: "trans", inst: "Corrige la faute.", from: "Ich gehe im Kino.", a: "Ich gehe ins Kino.",
+      why: "On s'y rend : accusatif." },
+    { t: "trans", inst: "Dis-le au passé récent.", from: "In drei Wochen fahre ich nach Berlin.", a: "Vor drei Wochen war ich in Berlin.",
+      why: "<b>in</b> pour le futur, <b>vor</b> pour le passé." },
+    { t: "trans", inst: "Mets la préposition qui convient.", from: "Ich fahre ___ dem Bus.", a: "Ich fahre mit dem Bus.",
+      why: "<b>mit</b> + datif pour le moyen de transport." },
+
+    { t: "order", f: "Je vais au cinéma.", a: "Ich gehe ins Kino",
+      why: "Mouvement → <b>ins</b>." },
+    { t: "order", f: "Je mets le livre sur la table.", a: "Ich lege das Buch auf den Tisch",
+      why: "Verbe, objet, puis le lieu à l'accusatif." },
+    { t: "order", f: "Nous traversons un tunnel.", a: "Wir fahren durch einen Tunnel",
+      why: "<b>durch</b> + accusatif." },
+    { t: "order", f: "J'apprends l'allemand depuis un mois.", a: "Seit einem Monat lerne ich Deutsch",
+      why: "Complément en tête → inversion." },
+    { t: "order", f: "Nous nous retrouvons à 15 heures.", a: "Wir treffen uns um 15 Uhr",
+      why: "<b>um</b> pour l'heure précise." },
+    { t: "order", f: "Le chien est sous la table.", a: "Der Hund liegt unter dem Tisch",
+      why: "Position → datif." },
+
+    { t: "trad", f: "Je vais au cinéma.", a: "Ich gehe ins Kino.",
+      why: "Ça bouge → accusatif." },
+    { t: "trad", f: "Je suis au cinéma.", a: "Ich bin im Kino.",
+      why: "Ça ne bouge pas → datif." },
+    { t: "trad", f: "Le livre est sur la table.", a: "Das Buch liegt auf dem Tisch.",
+      why: "Position." },
+    { t: "trad", f: "C'est pour toi.", a: "Das ist für dich.",
+      why: "<b>für</b> + accusatif, cas fixe." },
+    { t: "trad", f: "Je suis chez Julia.", a: "Ich bin bei Julia.",
+      why: "<b>bei</b> + datif, cas fixe." },
+    { t: "trad", f: "Je vais en Allemagne.", a: "Ich fahre nach Deutschland.",
+      why: "<b>nach</b> + pays." },
+    { t: "trad", f: "Il y a trois semaines, j'étais à Berlin.", a: "Vor drei Wochen war ich in Berlin.",
+      why: "<b>vor</b> pour le passé, et <b>war</b> = j'étais." }
+  ]
+},
+
+/* ------------------------------- ÉTAPE 34 -----------------------------
+   Unité 33 du livre (p.53-54) — à l'hôtel.
+   Le livre y aligne vingt phrases utiles. On n'en garde que celles qu'on
+   emploie vraiment, et on ajoute ce qu'il ne dit pas : les questions qui
+   évitent les mauvaises surprises sur la note. */
+{
+  day: 34, title: "À l'hôtel", de: "Ich möchte ein Zimmer reservieren.",
+  steps: [
+    {
+      idea: "Réserver : une phrase, et deux choses à préciser.",
+      detail: "<b>Ich möchte ein Zimmer für zwei Nächte reservieren</b>. Le nombre de nuits, et le type de chambre. <b>Zimmer</b> est neutre, donc <b>ein</b> ne change pas à l'accusatif — une chance.",
+      gloss: { de: ["Ich", "möchte", "ein Zimmer", "reservieren"], fr: ["Je", "voudrais", "une chambre", "réserver"] }
+    },
+    {
+      idea: "Le type de chambre : deux mots composés transparents.",
+      detail: "<b>das Einzelzimmer</b> — chambre simple, mot à mot « chambre individuelle ». <b>das Doppelzimmer</b> — chambre double. Une fois découpés, ils se devinent : <b>einzel</b> = seul, <b>doppel</b> = double.",
+      table: [["das Einzelzimmer", "chambre simple"], ["das Doppelzimmer", "chambre double"], ["verfügbar", "disponible"], ["besetzt", "occupé"]],
+      check: { q: "<b>das Doppelzimmer</b>, c'est…", o: ["une chambre double", "une chambre simple", "une suite"], a: 0, why: "<b>doppel</b> = double, comme dans « doublon »." }
+    },
+    {
+      idea: "Les questions qui évitent les mauvaises surprises.",
+      detail: "Toutes commencent pareil, et méritent d'être posées avant de monter : le petit-déjeuner est-il compris, à quelle heure il faut libérer la chambre, y a-t-il le WiFi.",
+      table: [["Ist das Frühstück inbegriffen?", "Le petit-déjeuner est-il compris ?"], ["Um wie viel Uhr ist der Check-out?", "À quelle heure est le check-out ?"], ["Haben Sie WLAN?", "Avez-vous le WiFi ?"], ["Kann ich bar bezahlen?", "Puis-je payer en espèces ?"]],
+      check: { q: "<b>inbegriffen</b> veut dire…", o: ["compris, inclus", "interdit", "supplémentaire"], a: 0, why: "<b>Service inbegriffen</b> — service compris. Utile aussi au restaurant." }
+    },
+    {
+      idea: "Demander son chemin dans l'hôtel.",
+      detail: "<b>Wo ist…?</b> suffit pour tout : <b>Wo ist die Rezeption?</b>, <b>Wo ist der Aufzug?</b>. Et <b>der Aufzug</b>, l'ascenseur, se découpe aussi : <b>auf</b> + <b>Zug</b>, « le train vers le haut ».",
+      table: [["die Rezeption", "la réception"], ["der Aufzug", "l'ascenseur"], ["die Etage", "l'étage"], ["der Schlüssel", "la clé"]],
+      check: { q: "« Où est l'ascenseur ? » se dit…", o: ["Wo ist der Aufzug?", "Wo ist die Aufzug?", "Wo ist das Aufzug?"], a: 0, why: "<b>der Zug</b> est masculin, et <b>Aufzug</b> le reste." }
+    },
+    {
+      idea: "Et de quoi signaler un problème sans se fâcher.",
+      detail: "<b>Das Zimmer ist zu laut</b> — la chambre est trop bruyante. <b>Die Dusche funktioniert nicht</b> — la douche ne marche pas. Avec <b>Entschuldigung</b> devant, c'est poli et ça suffit.",
+      table: [["Entschuldigung, …", "Excusez-moi, …"], ["… ist zu laut", "… est trop bruyant"], ["… funktioniert nicht", "… ne fonctionne pas"]]
+    }
+  ],
+  examples: [
+    { d: "Ich möchte ein Zimmer für zwei Nächte reservieren.", f: "Je voudrais réserver une chambre pour deux nuits." },
+    { d: "Haben Sie ein Doppelzimmer?", f: "Avez-vous une chambre double ?" },
+    { d: "Wie ist Ihr Name?", f: "Quel est votre nom ?" },
+    { d: "Hier ist Ihr Schlüssel.", f: "Voici votre clé." },
+    { d: "Ist das Frühstück inbegriffen?", f: "Le petit-déjeuner est-il compris ?" },
+    { d: "Um wie viel Uhr ist der Check-out?", f: "À quelle heure est le check-out ?" },
+    { d: "Wo ist die Rezeption?", f: "Où est la réception ?" },
+    { d: "Wo ist der Aufzug?", f: "Où est l'ascenseur ?" },
+    { d: "Haben Sie WLAN in den Zimmern?", f: "Avez-vous le WiFi dans les chambres ?" },
+    { d: "Kann ich bar bezahlen?", f: "Puis-je payer en espèces ?" },
+    { d: "Entschuldigung, das Zimmer ist zu laut.", f: "Excusez-moi, la chambre est trop bruyante." },
+    { d: "Die Dusche funktioniert nicht.", f: "La douche ne fonctionne pas." }
+  ],
+  vocab: [
+    { d: "das Zimmer", f: "la chambre", p: "das TSI-meur" },
+    { d: "die Rezeption", f: "la réception", p: "dii ré-tsèp-TSIOON" },
+    { d: "der Schlüssel", f: "la clé", p: "dèr CHLU-seul" },
+    { d: "der Aufzug", f: "l'ascenseur", p: "dèr AOUF-tsouk" },
+    { d: "die Dusche", f: "la douche", p: "dii DOU-che" },
+    { d: "das Handtuch", f: "la serviette", p: "das HANNT-toukh" },
+    { d: "inbegriffen", f: "compris, inclus", p: "INN-be-gri-fenn" },
+    { d: "verfügbar", f: "disponible", p: "feur-FUK-baar" },
+    { d: "die Nacht", f: "la nuit", p: "dii NAKHT" },
+    { d: "reservieren", f: "réserver", p: "ré-zèr-VII-renn" }
+  ],
+  quiz: [
+    { q: "<b>das Doppelzimmer</b>, c'est…", o: ["une chambre double", "une chambre simple", "une suite", "un étage"], a: 0, why: "<b>doppel</b> = double." },
+    { q: "<b>inbegriffen</b> veut dire…", o: ["compris, inclus", "interdit", "supplémentaire", "réservé"], a: 0, why: "Le mot à repérer sur une note d'hôtel ou de restaurant." },
+    { q: "« Où est l'ascenseur ? » se dit…", o: ["Wo ist der Aufzug?", "Wo ist die Aufzug?", "Wo ist das Aufzug?", "Wo ist den Aufzug?"], a: 0, why: "<b>Aufzug</b> contient <b>Zug</b>, masculin." },
+    { q: "« Je voudrais réserver une chambre » se dit…", o: ["Ich möchte ein Zimmer reservieren", "Ich möchte reservieren ein Zimmer", "Ich reservieren möchte ein Zimmer", "Ich will ein Zimmer reservieren"], a: 0, why: "L'infinitif ferme la phrase — et <b>möchte</b> plutôt que <b>will</b>." },
+    { q: "« La douche ne fonctionne pas » se dit…", o: ["Die Dusche funktioniert nicht", "Die Dusche nicht funktioniert", "Die Dusche funktioniert kein", "Die Dusche ist nicht funktioniert"], a: 0, why: "<b>nicht</b> nie le verbe, donc en fin de phrase." }
+  ],
+  drills: [
+    { t: "gap", f: "Je voudrais réserver une chambre.", s: "Ich möchte ein Zimmer ___.", a: "reservieren", why: "L'infinitif ferme la phrase." },
+    { t: "gap", f: "une chambre double", s: "ein ___", a: "Doppelzimmer", why: "<b>doppel</b> = double." },
+    { t: "gap", f: "une chambre simple", s: "ein ___", a: "Einzelzimmer", why: "<b>einzel</b> = seul." },
+    { t: "gap", f: "Voici votre clé.", s: "Hier ist Ihr ___.", a: "Schlüssel", why: "<b>Schlüssel</b> est masculin." },
+    { t: "gap", f: "Le petit-déjeuner est-il compris ?", s: "Ist das Frühstück ___?", a: "inbegriffen", why: "Le mot à repérer sur la note." },
+    { t: "gap", f: "Où est la réception ?", s: "Wo ist die ___?", a: "Rezeption", why: "<b>-tion</b> → féminin." },
+    { t: "gap", f: "Où est l'ascenseur ?", s: "Wo ist ___ Aufzug?", a: "der", why: "<b>Zug</b> est masculin." },
+    { t: "gap", f: "Puis-je payer en espèces ?", s: "Kann ich ___ bezahlen?", a: "bar", why: "<b>bar</b> = en liquide." },
+    { t: "gap", f: "La douche ne fonctionne pas.", s: "Die Dusche funktioniert ___.", a: "nicht", why: "<b>nicht</b> nie le verbe → en fin." },
+    { t: "gap", f: "pour deux nuits", s: "für zwei ___", a: "Nächte", why: "<b>Nacht</b> → <b>Nächte</b> au pluriel." },
+
+    { t: "trans", inst: "Rends la demande polie.", from: "Ich will ein Zimmer.", a: "Ich möchte ein Zimmer.",
+      why: "<b>will</b> ne convient pas à une réception." },
+    { t: "trans", inst: "Transforme en question.", from: "Sie haben WLAN.", a: "Haben Sie WLAN?",
+      why: "Verbe en tête." },
+    { t: "trans", inst: "Demande où ça se trouve.", from: "Die Rezeption ist dort.", a: "Wo ist die Rezeption?",
+      why: "<b>wo</b> en place 1, verbe en place 2." },
+    { t: "trans", inst: "Signale le problème poliment.", from: "Das Zimmer ist laut.", a: "Entschuldigung, das Zimmer ist zu laut.",
+      why: "<b>Entschuldigung</b> devant, et <b>zu</b> pour « trop »." },
+    { t: "trans", inst: "Passe d'une nuit à deux.", from: "für eine Nacht", a: "für zwei Nächte",
+      why: "<b>Nacht</b> prend un tréma au pluriel." },
+    { t: "trans", inst: "Corrige la place du verbe.", from: "Ich möchte reservieren ein Zimmer.", a: "Ich möchte ein Zimmer reservieren.",
+      why: "L'infinitif va tout au bout." },
+
+    { t: "order", f: "Je voudrais réserver une chambre pour deux nuits.", a: "Ich möchte ein Zimmer für zwei Nächte reservieren",
+      why: "L'infinitif ferme la phrase, après tous les compléments." },
+    { t: "order", f: "Avez-vous une chambre double ?", a: "Haben Sie ein Doppelzimmer",
+      why: "Verbe en tête." },
+    { t: "order", f: "Le petit-déjeuner est-il compris ?", a: "Ist das Frühstück inbegriffen",
+      why: "Question fermée." },
+    { t: "order", f: "Où est l'ascenseur ?", a: "Wo ist der Aufzug",
+      why: "<b>wo</b>, verbe, sujet." },
+    { t: "order", f: "La douche ne fonctionne pas.", a: "Die Dusche funktioniert nicht",
+      why: "<b>nicht</b> en fin." },
+    { t: "order", f: "Puis-je payer en espèces ?", a: "Kann ich bar bezahlen",
+      why: "Modal en tête, infinitif au bout." },
+
+    { t: "trad", f: "Je voudrais réserver une chambre.", a: "Ich möchte ein Zimmer reservieren.",
+      why: "La phrase d'arrivée à l'hôtel." },
+    { t: "trad", f: "Avez-vous une chambre double ?", a: "Haben Sie ein Doppelzimmer?",
+      why: "<b>Zimmer</b> est neutre." },
+    { t: "trad", f: "Le petit-déjeuner est-il compris ?", a: "Ist das Frühstück inbegriffen?",
+      why: "La question qui évite les surprises." },
+    { t: "trad", f: "Où est la réception ?", a: "Wo ist die Rezeption?",
+      why: "<b>-tion</b> → féminin." },
+    { t: "trad", f: "Voici votre clé.", a: "Hier ist Ihr Schlüssel.",
+      why: "Ce que dit le réceptionniste." },
+    { t: "trad", f: "La douche ne fonctionne pas.", a: "Die Dusche funktioniert nicht.",
+      why: "<b>nicht</b> nie le verbe." },
+    { t: "trad", f: "Puis-je payer en espèces ?", a: "Kann ich bar bezahlen?",
+      why: "<b>bar</b> = en liquide." }
+  ]
+},
+
+/* ------------------------------- ÉTAPE 35 -----------------------------
+   Unité 34 du livre (p.55-56) — à l'aéroport.
+   La dernière du niveau A1. Beaucoup de mots composés, ce qui tombe bien :
+   c'est l'occasion de montrer une dernière fois que l'allemand se déchiffre
+   en découpant. Et de dire au revoir proprement. */
+{
+  day: 35, title: "À l'aéroport", de: "Haben Sie Gepäck?",
+  steps: [
+    {
+      idea: "Presque tout se déchiffre en découpant.",
+      detail: "<b>Flug</b> = vol, <b>Zeug</b> = engin → <b>Flugzeug</b>, l'avion. <b>Flug</b> + <b>Hafen</b> (port) → <b>Flughafen</b>, l'aéroport. Une fois le principe vu, la moitié des mots de cette étape se devinent sans les avoir appris.",
+      table: [["das Flugzeug", "vol + engin → l'avion"], ["der Flughafen", "vol + port → l'aéroport"], ["das Handgepäck", "main + bagage → bagage à main"], ["die Bordkarte", "bord + carte → carte d'embarquement"]],
+      check: { q: "<b>der Flughafen</b> est composé de…", o: ["Flug (vol) et Hafen (port)", "Flug et Hafer", "fliegen et Ofen"], a: 0, why: "Un « port pour les vols » — l'allemand construit ses mots ainsi." }
+    },
+    {
+      idea: "L'enregistrement : ce qu'on vous demandera.",
+      detail: "Trois questions, toujours les mêmes. <b>Haben Sie Gepäck zum Einchecken?</b>, <b>Können Sie mir Ihren Pass zeigen?</b>, et le poids. Y répondre demande peu de mots.",
+      table: [["Haben Sie Gepäck?", "Avez-vous des bagages ?"], ["Ihren Pass, bitte.", "Votre passeport, s'il vous plaît."], ["Ja, ich habe zwei Stück.", "Oui, j'en ai deux."]],
+      check: { q: "<b>Gepäck</b> veut dire…", o: ["les bagages", "le passeport", "la porte"], a: 0, why: "Toujours au singulier en allemand, même pour plusieurs valises." }
+    },
+    {
+      idea: "Les mots qui décident de ta journée.",
+      detail: "<b>pünktlich</b> à l'heure, <b>verspätet</b> en retard, <b>gestrichen</b> annulé. Ce sont eux qu'on cherche sur les écrans d'affichage — et les seuls qu'il faut reconnaître sans hésiter.",
+      table: [["pünktlich", "à l'heure"], ["verspätet", "en retard"], ["gestrichen", "annulé"], ["der Zwischenstopp", "l'escale"]]
+    },
+    {
+      idea: "Se repérer : trois mots suffisent.",
+      detail: "<b>Abflüge</b> pour les départs, <b>Ankünfte</b> pour les arrivées, <b>Gate</b> pour la porte. Et <b>Wo ist…?</b>, qu'on connaît depuis l'étape 21, ouvre le reste.",
+      table: [["die Abflüge", "les départs"], ["die Ankünfte", "les arrivées"], ["das Gate", "la porte d'embarquement"], ["der Zoll", "la douane"]],
+      check: { q: "Tu cherches ton vol au départ. Tu regardes…", o: ["Abflüge", "Ankünfte", "Zoll"], a: 0, why: "<b>ab</b> marque l'éloignement — <b>abfahren</b>, <b>abfliegen</b>." }
+    },
+    {
+      idea: "Et voilà : c'est la dernière étape du niveau A1.",
+      detail: "Tu as vu les trois genres, les quatre cas, les verbes réguliers et irréguliers, les modaux, la négation, l'ordre des mots, les prépositions — et de quoi te débrouiller à table, à l'hôtel et en voyage. Le reste, c'est de l'usage. <b>Gute Reise!</b>",
+      gloss: { de: ["Gute", "Reise"], fr: ["Bon", "voyage"] }
+    }
+  ],
+  examples: [
+    { d: "Haben Sie Gepäck zum Einchecken?", f: "Avez-vous des bagages à enregistrer ?" },
+    { d: "Ja, ich habe zwei Stück.", f: "Oui, j'en ai deux." },
+    { d: "Können Sie mir Ihren Pass zeigen?", f: "Pouvez-vous me montrer votre passeport ?" },
+    { d: "Wo ist das Gate?", f: "Où est la porte d'embarquement ?" },
+    { d: "Der Flug ist pünktlich.", f: "Le vol est à l'heure." },
+    { d: "Der Flug ist verspätet.", f: "Le vol est en retard." },
+    { d: "Ich habe nur Handgepäck.", f: "Je n'ai qu'un bagage à main." },
+    { d: "Wo sind die Abflüge?", f: "Où sont les départs ?" },
+    { d: "Ihr Flug startet von Gate sieben.", f: "Votre vol part de la porte sept." },
+    { d: "Ich möchte einen Fensterplatz.", f: "Je voudrais une place côté fenêtre." },
+    { d: "Wo ist die Gepäckausgabe?", f: "Où est la livraison des bagages ?" },
+    { d: "Gute Reise!", f: "Bon voyage !" }
+  ],
+  vocab: [
+    { d: "das Flugzeug", f: "l'avion", p: "das FLOUK-tsoïk" },
+    { d: "der Flughafen", f: "l'aéroport", p: "dèr FLOUK-haa-fenn" },
+    { d: "der Flug", f: "le vol", p: "dèr FLOUK" },
+    { d: "das Gepäck", f: "les bagages", p: "das gue-PÈK" },
+    { d: "der Reisepass", f: "le passeport", p: "dèr RAÏ-ze-pass" },
+    { d: "die Bordkarte", f: "la carte d'embarquement", p: "dii BORT-kar-te" },
+    { d: "der Zoll", f: "la douane", p: "dèr TSOL" },
+    { d: "die Abflüge", f: "les départs", p: "dii AP-flu-gue" },
+    { d: "die Ankünfte", f: "les arrivées", p: "dii ANN-kunnf-te" },
+    { d: "die Reise", f: "le voyage", p: "dii RAÏ-ze" }
+  ],
+  quiz: [
+    { q: "<b>der Flughafen</b> est composé de…", o: ["Flug (vol) et Hafen (port)", "fliegen et Ofen", "Flug et Hafer", "Flucht et Hafen"], a: 0, why: "Un « port pour les vols »." },
+    { q: "<b>Gepäck</b> veut dire…", o: ["les bagages", "le passeport", "la porte", "le vol"], a: 0, why: "Toujours au singulier, même pour plusieurs valises." },
+    { q: "Tu cherches ton vol au départ. Tu regardes…", o: ["Abflüge", "Ankünfte", "Zoll", "Gepäckausgabe"], a: 0, why: "<b>ab</b> marque l'éloignement." },
+    { q: "« Le vol est en retard » se dit…", o: ["Der Flug ist verspätet", "Der Flug ist pünktlich", "Der Flug ist gestrichen", "Der Flug ist spät"], a: 0, why: "<b>verspätet</b> — le mot à reconnaître sur l'écran." },
+    { q: "<b>das Handgepäck</b>, c'est…", o: ["le bagage à main", "le bagage en soute", "le chariot", "la valise perdue"], a: 0, why: "<b>Hand</b> + <b>Gepäck</b> : ce qu'on garde avec soi." }
+  ],
+  drills: [
+    { t: "gap", f: "l'avion", s: "das ___", a: "Flugzeug", why: "<b>Flug</b> + <b>Zeug</b>." },
+    { t: "gap", f: "l'aéroport", s: "der ___", a: "Flughafen", why: "<b>Flug</b> + <b>Hafen</b>, masculin comme <b>Hafen</b>." },
+    { t: "gap", f: "Avez-vous des bagages ?", s: "Haben Sie ___?", a: "Gepäck", why: "Toujours au singulier." },
+    { t: "gap", f: "Où est la porte d'embarquement ?", s: "Wo ist das ___?", a: "Gate", why: "Mot emprunté à l'anglais, neutre." },
+    { t: "gap", f: "Le vol est à l'heure.", s: "Der Flug ist ___.", a: "pünktlich", why: "Après <b>ist</b>, pas de terminaison." },
+    { t: "gap", f: "Le vol est en retard.", s: "Der Flug ist ___.", a: "verspätet", why: "Le mot à reconnaître sur l'écran." },
+    { t: "gap", f: "Je n'ai qu'un bagage à main.", s: "Ich habe nur ___.", a: "Handgepäck", why: "<b>Hand</b> + <b>Gepäck</b>." },
+    { t: "gap", f: "Où sont les départs ?", s: "Wo sind die ___?", a: "Abflüge", why: "<b>ab</b> marque l'éloignement." },
+    { t: "gap", f: "votre passeport", s: "Ihren ___", a: "Pass", why: "<b>Ihren</b> : masculin complément, forme polie." },
+    { t: "gap", f: "Bon voyage !", s: "Gute ___!", a: "Reise", why: "<b>Reise</b> est féminin, d'où <b>Gute</b> sans <b>n</b>." },
+
+    { t: "trans", inst: "Transforme en question.", from: "Sie haben Gepäck.", a: "Haben Sie Gepäck?",
+      why: "Verbe en tête." },
+    { t: "trans", inst: "Demande où ça se trouve.", from: "Das Gate ist dort.", a: "Wo ist das Gate?",
+      why: "<b>wo</b> en place 1." },
+    { t: "trans", inst: "Dis que le vol est en retard.", from: "Der Flug ist pünktlich.", a: "Der Flug ist verspätet.",
+      why: "Le contraire de <b>pünktlich</b>." },
+    { t: "trans", inst: "Rends la demande polie.", from: "Zeigen Sie Ihren Pass!", a: "Können Sie mir Ihren Pass zeigen?",
+      why: "<b>können</b> adoucit un ordre — vu à l'étape 25." },
+    { t: "trans", inst: "Découpe le mot.", from: "Flughafen", a: "Flug + Hafen",
+      why: "Vol + port. C'est ainsi que se lisent les mots composés." },
+    { t: "trans", inst: "Mets au pluriel.", from: "der Abflug", a: "die Abflüge",
+      why: "Masculin → <b>-e</b>, avec tréma." },
+
+    { t: "order", f: "Avez-vous des bagages à enregistrer ?", a: "Haben Sie Gepäck zum Einchecken",
+      why: "<b>zum</b> = <b>zu dem</b>." },
+    { t: "order", f: "Pouvez-vous me montrer votre passeport ?", a: "Können Sie mir Ihren Pass zeigen",
+      why: "Modal en tête, infinitif au bout." },
+    { t: "order", f: "Votre vol part de la porte sept.", a: "Ihr Flug startet von Gate sieben",
+      why: "<b>von</b> + datif pour l'origine." },
+    { t: "order", f: "Je voudrais une place côté fenêtre.", a: "Ich möchte einen Fensterplatz",
+      why: "<b>Platz</b> masculin complément → <b>einen</b>." },
+    { t: "order", f: "Où est la livraison des bagages ?", a: "Wo ist die Gepäckausgabe",
+      why: "Un mot composé compte pour un." },
+
+    { t: "trad", f: "Avez-vous des bagages ?", a: "Haben Sie Gepäck?",
+      why: "<b>Gepäck</b> reste au singulier." },
+    { t: "trad", f: "Où est la porte d'embarquement ?", a: "Wo ist das Gate?",
+      why: "La question la plus utile à l'aéroport." },
+    { t: "trad", f: "Le vol est en retard.", a: "Der Flug ist verspätet.",
+      why: "Le mot des écrans d'affichage." },
+    { t: "trad", f: "Je n'ai qu'un bagage à main.", a: "Ich habe nur Handgepäck.",
+      why: "<b>nur</b> = seulement." },
+    { t: "trad", f: "Pouvez-vous me montrer votre passeport ?", a: "Können Sie mir Ihren Pass zeigen?",
+      why: "<b>zeigen</b> demande le datif : <b>mir</b>." },
+    { t: "trad", f: "Où sont les départs ?", a: "Wo sind die Abflüge?",
+      why: "Pluriel → <b>sind</b>." },
+    { t: "trad", f: "Bon voyage !", a: "Gute Reise!",
+      why: "<b>Reise</b> est féminin : <b>Gute</b> sans <b>n</b>, comme <b>Gute Nacht</b>." }
+  ]
 }
 ];
 
@@ -4013,7 +5275,9 @@ const CHAPTERS = [
   { n: 7, title: "Décrire et raconter", steps: [16, 17, 18] },
   { n: 8, title: "Le temps et la question", steps: [19, 20, 21] },
   { n: 9, title: "Dates, repas, charpente", steps: [22, 23, 24] },
-  { n: 10, title: "Vouloir et pouvoir",     steps: [25] }
+  { n: 10, title: "Vouloir et pouvoir",     steps: [25, 26, 27] },
+  { n: 11, title: "Sortir et se déplacer",  steps: [28, 29, 30] },
+  { n: 12, title: "Nier, situer, voyager",  steps: [31, 32, 33, 34, 35] }
 ];
 
 /* Le chapitre auquel appartient une étape, et son rang à l'intérieur. */
