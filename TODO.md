@@ -1067,12 +1067,39 @@ Vu sur une capture, pas par un test : **« RÉGLAGES » s'affichait deux fois**,
 badge d'en-tête et dans l'étiquette juste dessous. L'étiquette est retirée — le badge
 est arrivé après elle.
 
-### Lot 3 — la carte de progression ⬜
+### Lot 3 — la carte de progression ✅ 02/08/2026
 
-- [ ] **Chemin vertical façon Duolingo** : des paliers, les étapes réussies en vert,
-      celles avec des fautes en orange (rattrapables plus tard), les suivantes
-      grisées en bas. Animation d'avancée après chaque tour.
-      Remplace la ligne de stations horizontale actuelle.
+- [x] **Chemin vertical** — « comme sur Duolingo, des paliers, on avance sur un plan
+      vertical, les prochaines leçons en bas grisées, les réussies en vert, en orange
+      là où on a des fautes ».
+      **Pourquoi le vertical vaut mieux** : la ligne horizontale d'avant tenait 35 étapes
+      dans un défilement latéral de 2,5 rem chacune. On y voyait sa position, jamais son
+      parcours — et le titre d'une étape n'y tenait pas du tout. Une colonne rend la
+      liste lisible et laisse la place au nom.
+- [x] **Quatre états** : vert `sans faute` · orange `N fautes · à rattraper` ·
+      bleu `tu en es là` · grisé `pas encore ouverte`.
+      ⚠️ **L'orange remplace le rouge, et ce n'est pas un détail** : dans le reste de
+      l'app, le vert et le rouge appartiennent au juste et au faux. Le vert convient
+      (une étape validée *est* une réussite), mais une étape acquise ne peut pas porter
+      la couleur de l'erreur.
+- [x] **Chaque palier dit son état en toutes lettres**, pas seulement par la couleur —
+      qui ne se lit pas par tout le monde, et où « 3 fautes » dit ce qu'aucune teinte
+      ne dira. Une vérification l'impose sur les 35.
+- [x] **Rattraper efface l'orange.** L'état se juge sur le **meilleur** score, pas sur le
+      dernier — c'est l'inverse de la règle du livre, et c'est voulu : Exsangue demande
+      justement de « revenir plus tard pour rattraper sa faute », donc rattraper doit
+      pouvoir changer quelque chose.
+- [x] **L'avancée est jouée une seule fois**, au retour au menu après avoir validé.
+      Une animation qui repart à chaque passage sur l'accueil, sans qu'on ait rien
+      avancé, cesse d'être une récompense et devient un défaut. Le drapeau vit **hors de
+      `S`** : ce n'est pas de la progression, c'est un événement qui n'a pas à survivre
+      à la fermeture.
+- [x] **Une étape verrouillée est inerte dans le HTML même** (`disabled`, pas de
+      `data-lesson`), et non plus seulement au clic. Un test l'a signalé : il exigeait
+      que *toutes* les étapes portent le lien. Il avait raison de crier — la règle juste
+      est « ce qui est atteignable porte le lien », et c'est plus solide qu'un contrôle
+      au moment du geste.
+- [x] Auto-test : **2447 vérifications**.
 
 ### Lot 4 — les onglets « à part » ⬜
 

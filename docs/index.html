@@ -333,53 +333,112 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 .back:hover { color: var(--accent); }
 
-/* ---------- La ligne : le cours comme un réseau de stations ---------- */
-.line {
-  display: flex;
-  overflow-x: auto;
-  padding-bottom: .25rem;
-  scrollbar-width: thin;
-}
-.station {
-  flex: 0 0 auto;
-  width: 2.5rem;
+/* ---------- Le chemin : le cours comme une montée ----------
+   Demandé par Exsangue le 02/08/2026 : « comme sur Duolingo, des paliers, on
+   avance sur un plan vertical, les prochaines leçons en bas grisées, les
+   réussies en vert, en orange là où on a des fautes ».
+
+   Pourquoi VERTICAL et non plus horizontal : la ligne d'avant tenait 35
+   étapes dans un défilement latéral de 2,5 rem par étape. On y voyait sa
+   position, jamais son parcours — et le titre de chaque étape n'y tenait
+   pas du tout. Une colonne rend la liste lisible et laisse la place au nom.
+
+   ⚠️ Trois couleurs, trois SENS, et il fallait trancher : le vert et le rouge
+   appartiennent au juste et au faux dans le reste de l'app. Le vert convient
+   donc (une étape validée EST une réussite), mais l'orange remplace le rouge
+   pour « validée avec des fautes » — sinon une étape acquise porterait la
+   couleur de l'erreur. */
+.chemin { display: flex; flex-direction: column; }
+.palier {
   position: relative;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: .375rem;
+  gap: .75rem;
   background: none;
   border: 0;
-  padding: 0;
+  padding: .375rem 0;
+  text-align: left;
+  width: 100%;
+  color: inherit;
 }
-.station::before {
+/* Le trait qui relie un palier au suivant. Posé sur l'élément et non entre
+   deux, pour qu'aucun trou n'apparaisse quand un palier change de hauteur. */
+.palier::before {
   content: "";
   position: absolute;
-  top: .4375rem;
-  left: 0; right: 0;
-  height: 2px;
+  left: 1.09375rem;                 /* le centre de la pastille */
+  top: 0; bottom: 0;
+  width: 2px;
   background: var(--line);
 }
-.station:first-child::before { left: 50%; }
-.station:last-child::before  { right: 50%; }
-.station .dot {
-  position: relative;
-  width: 1rem; height: 1rem;
+.palier:first-child::before { top: 50%; }
+.palier:last-child::before  { bottom: 50%; }
+
+.palier .dot {
+  position: relative;               /* au-dessus du trait */
+  flex: none;
+  width: 2.25rem; height: 2.25rem;
   border-radius: 50%;
   border: 2px solid var(--line);
   background: var(--paper);
-}
-.station .n {
-  font-size: .6875rem;
+  display: grid;
+  place-items: center;
+  font-size: .8125rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--ink-3);
 }
-.station.done .dot { background: var(--accent); border-color: var(--accent); }
-.station.done .n   { color: var(--ink-2); }
-.station.now .dot  { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-.station.now .n    { color: var(--accent); font-weight: 800; }
-.station.soon .dot { border-style: dashed; }
+.palier .t {
+  font-size: .875rem;
+  line-height: 1.25;
+  color: var(--ink-3);
+  min-width: 0;
+}
+.palier .t b { font-weight: 600; }
+/* L'état, en toutes lettres à côté du titre : la couleur seule ne se lit pas
+   par tout le monde, et « 3 fautes » dit ce qu'aucune teinte ne dira. */
+.palier .e {
+  display: block;
+  font-size: .6875rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  opacity: .8;
+}
+
+/* Réussie sans faute. */
+.palier.net .dot { background: var(--good); border-color: var(--good); color: #fff; }
+.palier.net .t   { color: var(--ink-2); }
+.palier.net .e   { color: var(--good); }
+
+/* Réussie, mais avec des fautes — on peut y revenir. */
+.palier.tache .dot { background: var(--amber-bg); border-color: var(--amber-bg); color: var(--amber-ink); }
+.palier.tache .t   { color: var(--ink-2); }
+.palier.tache .e   { color: var(--amber); }
+
+/* Là où l'on en est. */
+.palier.ici .dot {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.palier.ici .t { color: var(--ink); }
+.palier.ici .e { color: var(--accent); }
+
+/* Pas encore ouverte. Grisée, et vraiment inerte. */
+.palier.plus-tard { opacity: .45; cursor: default; }
+.palier.plus-tard .dot { border-style: dashed; }
+
+/* L'avancée, jouée UNE fois au retour au menu après avoir validé une étape.
+   C'est le « effet qui nous fait avancer » demandé. Elle ne se rejoue pas au
+   redessin suivant : une animation qui repart à chaque clic sur l'accueil
+   deviendrait un défaut au bout de trois fois. */
+.palier.franchi .dot { animation: palier-franchi .55s ease-out both; }
+@keyframes palier-franchi {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.28); }
+  100% { transform: scale(1); }
+}
 
 /* ---------- La plaque du jour ---------- */
 .plate {
@@ -6732,6 +6791,46 @@ function home() {
   // Une étape encore verrouillée reste inerte : c'est `reachable` qui tranche,
   // pas l'affichage.
   let stations = "";
+  /* L'étape qui vient d'être validée, pour ne l'animer QU'UNE fois. On la
+     consomme au premier dessin : sans ça, l'animation repartirait à chaque
+     retour à l'accueil, et une avancée qui se rejoue sans qu'on ait rien
+     avancé cesse d'être une récompense. */
+  const franchi = vientDeValider;
+  vientDeValider = null;
+
+  function palierHTML(n) {
+    const st = COURSE[n - 1];
+    const fait = S.done.indexOf(n) !== -1;
+    const score = S.scores[n];
+    const total = st.quiz.length;
+    /* « Sans faute » se juge sur le MEILLEUR score, pas sur le dernier :
+       c'est l'inverse de la règle du livre, et c'est voulu. Ici on peut
+       refaire une étape autant qu'on veut — c'est même ce qu'Exsangue
+       demande avec l'orange, « revenir plus tard pour rattraper sa faute ».
+       Rattraper doit donc pouvoir effacer l'orange, sinon le rattrapage ne
+       servirait à rien. */
+    const net = fait && score === total;
+    const ouvert = reachable(n);
+
+    const cls = fait ? (net ? "net" : "tache")
+              : (n === S.day ? "ici" : (ouvert ? "" : "plus-tard"));
+
+    let etat;
+    if (fait && net)      etat = "Sans faute";
+    else if (fait)        etat = (total - score) + (total - score > 1 ? " fautes" : " faute") + " · à rattraper";
+    else if (n === S.day) etat = "Tu en es là";
+    else if (ouvert)      etat = "Ouverte";
+    else                  etat = "Pas encore ouverte";
+
+    return '<button class="palier ' + cls + (n === franchi ? " franchi" : "") + '"' +
+             (ouvert ? ' data-lesson="' + n + '"' : ' disabled') +
+             ' aria-label="Étape ' + n + ' : ' + att(st.title) + ' — ' + att(etat) + '">' +
+             '<span class="dot">' + n + '</span>' +
+             '<span class="t"><b>' + esc(st.title) + '</b>' +
+               '<span class="e">' + esc(etat) + '</span></span>' +
+           '</button>';
+  }
+
   CHAPTERS.forEach(function (ch) {
     const dispo = ch.steps.filter(function (n) { return n <= COURSE.length; });
     if (!dispo.length) return;
@@ -6743,15 +6842,7 @@ function home() {
           '<span class="g-t">Chapitre ' + ch.n + ' &#183; ' + esc(ch.title) + '</span>' +
           '<span class="g-n">' + faits + '/' + dispo.length + '</span>' +
         '</summary>' +
-        '<div class="line">' +
-          dispo.map(function (n) {
-            const cls = S.done.indexOf(n) !== -1 ? "done" : (n === S.day ? "now" : "soon");
-            return '<button class="station ' + cls + '" data-lesson="' + n + '"' +
-                   ' aria-label="Étape ' + n + ' : ' + att(COURSE[n - 1].title) + '"' +
-                   ' title="' + att(COURSE[n - 1].title) + '">' +
-                   '<span class="dot"></span><span class="n">' + n + '</span></button>';
-          }).join("") +
-        '</div>' +
+        '<div class="chemin">' + dispo.map(palierHTML).join("") + '</div>' +
       '</details>';
   });
 
@@ -7513,6 +7604,13 @@ function advanceCard(ok) {
 }
 
 /* ---------- Quiz ---------- */
+/* L'étape qui vient d'être validée. Elle sert UNIQUEMENT à jouer l'avancée
+   sur le chemin, une fois, au retour au menu — « un effet qui nous fait
+   avancer », demandé par Exsangue le 02/08/2026. L'accueil la consomme dès
+   qu'il l'a dessinée. Volontairement hors de `S` : ce n'est pas de la
+   progression, c'est un événement qui n'a pas à survivre à la fermeture. */
+let vientDeValider = null;
+
 let qi = 0, qScore = 0, qLog = [], answered = false;
 /* qOrder[position] = l'index de la question dans le fichier
    qPerm[position]  = l'ordre d'affichage de ses réponses
@@ -7539,6 +7637,8 @@ function renderQuestion() {
 
     S.scores[d] = Math.max(S.scores[d] || 0, qScore);
     if (passed) {
+      // L'avancée à jouer sur le chemin, au prochain passage par l'accueil.
+      vientDeValider = d;
       if (S.done.indexOf(d) === -1) S.done.push(d);
       // On n'avance que si c'était le jour le plus avancé (pas en rejouant un ancien).
       if (d === Math.max.apply(null, S.done) && d < COURSE.length) {
@@ -9950,6 +10050,65 @@ function runTests() {
     ok("quiz : aucune balise ne se lit à l'écran", vus.length === 0, vus.slice(0, 3).join(" | "));
   })();
 
+  /* ---- Le chemin vertical ----
+     Demande d'Exsangue le 02/08/2026 : « les leçons réussies en vert, en
+     orange là où on a des fautes, les prochaines en bas grisées ». Ce qui
+     compte : que chaque état soit VRAI, et que l'orange se rattrape. */
+  (function () {
+    S = fresh(); seed(1); seed(2); seed(3);
+    const t1 = COURSE[0].quiz.length, t2 = COURSE[1].quiz.length;
+    S.done = [1, 2];
+    S.scores[1] = t1;          // étape 1 : sans faute
+    S.scores[2] = t2 - 1;      // étape 2 : une faute
+    S.day = 3;
+    go("home");
+
+    const p = function (n) { return view.querySelector('.palier[aria-label^="Étape ' + n + ' :"]'); };
+    ok("chemin : une étape sans faute est verte", p(1) && p(1).className.indexOf("net") !== -1);
+    ok("chemin : et le dit en toutes lettres", p(1) && p(1).textContent.indexOf("Sans faute") !== -1);
+    ok("chemin : une étape avec des fautes est orange",
+       p(2) && p(2).className.indexOf("tache") !== -1);
+    ok("chemin : et annonce ce qu'il y a à rattraper",
+       p(2) && p(2).textContent.indexOf("rattraper") !== -1);
+    ok("chemin : l'étape en cours est marquée", p(3) && p(3).className.indexOf("ici") !== -1);
+    ok("chemin : une étape non ouverte est grisée",
+       p(6) && p(6).className.indexOf("plus-tard") !== -1);
+
+    /* La couleur seule ne suffit pas : elle ne se lit pas par tout le monde,
+       et « 3 fautes » dit ce qu'aucune teinte ne dira. Chaque palier doit
+       donc porter son état en toutes lettres. */
+    const muets = [];
+    Array.prototype.forEach.call(view.querySelectorAll(".palier"), function (b) {
+      if (!b.querySelector(".e") || !b.querySelector(".e").textContent.trim()) {
+        muets.push(b.getAttribute("aria-label"));
+      }
+    });
+    ok("chemin : chaque palier dit son état en toutes lettres",
+       muets.length === 0, muets.slice(0, 2).join(" | "));
+
+    /* Rattraper doit pouvoir EFFACER l'orange, sinon revenir sur une étape
+       ne servirait à rien — c'est exactement ce qu'Exsangue demande. D'où le
+       MEILLEUR score et non le dernier. */
+    S.scores[2] = t2;
+    go("home");
+    ok("chemin : rattraper une étape la fait passer au vert",
+       p(2) && p(2).className.indexOf("net") !== -1);
+  })();
+
+  /* L'avancée ne se joue QU'UNE fois. Une animation qui repart à chaque
+     retour à l'accueil, sans qu'on ait rien avancé, cesse d'être une
+     récompense et devient un défaut. */
+  (function () {
+    S = fresh(); S.day = 1; seed(1);
+    vientDeValider = 1;
+    go("home");
+    ok("chemin : l'avancée se joue au retour au menu",
+       !!view.querySelector(".palier.franchi"));
+    go("home");
+    ok("chemin : et elle ne se rejoue pas ensuite",
+       !view.querySelector(".palier.franchi"));
+  })();
+
   /* ---- La sauvegarde par copier-coller ----
      Ajoutée sur l'inquiétude d'Exsangue avant de refaire son icône : « je
      vais perdre ma progression ? ». Elle doit donc être irréprochable sur un
@@ -10538,14 +10697,30 @@ function runTests() {
        return view.querySelectorAll("details.grp:not(.tout)")[i].open;
      })());
 
-  /* Et une pastille ouvre la leçon d'un seul clic, au lieu de revenir à
-     l'accueil de l'étape. */
-  ok("accueil : les pastilles mènent droit à la leçon",
-     view.querySelectorAll('.station[data-lesson]').length === COURSE.length &&
-     !view.querySelector('.station[data-day]'));
+  /* Un palier ouvre la leçon d'un seul clic, au lieu de revenir à l'accueil
+     de l'étape.
+
+     ⚠️ La règle a changé le 02/08/2026 : elle exigeait que TOUTES les étapes
+     portent le lien. Depuis le chemin vertical, une étape verrouillée est
+     inerte dans le HTML même (`disabled`, pas de `data-lesson`) et non plus
+     seulement au clic. C'est plus solide — on ne dépend plus d'un contrôle
+     au moment du geste — mais le compte n'est plus le total. La règle juste
+     est : ce qui est ATTEIGNABLE porte le lien, et rien ne passe par
+     `data-day`. */
+  (function () {
+    const liens = view.querySelectorAll('.palier[data-lesson]');
+    const attendus = [];
+    for (let n = 1; n <= COURSE.length; n++) if (reachable(n)) attendus.push(n);
+    ok("accueil : les paliers atteignables mènent droit à la leçon",
+       liens.length === attendus.length && liens.length > 0 &&
+       !view.querySelector('.palier[data-day]'),
+       liens.length + " liens pour " + attendus.length + " étapes ouvertes");
+    ok("accueil : une étape verrouillée est inerte dans le HTML",
+       view.querySelectorAll(".palier[disabled]").length === COURSE.length - attendus.length);
+  })();
   (function () {
      S.done = [1]; go("home");
-     const p2 = view.querySelector('.station[data-lesson="2"]');
+     const p2 = view.querySelector('.palier[data-lesson="2"]');
      p2.click();
      eq("accueil : cliquer une pastille ouvre bien cette étape", S.day, 2);
      ok("accueil : et directement sa leçon", !!view.querySelector('[data-act="step-next"]'));
@@ -10556,7 +10731,7 @@ function runTests() {
      progression sans avoir validé le quiz. */
   (function () {
      S = fresh(); S.day = 1; seed(1); go("home");
-     const loin = view.querySelector('.station[data-lesson="5"]');
+     const loin = view.querySelector('.palier[data-lesson="5"]');
      if (loin) {
        loin.click();
        eq("accueil : une étape verrouillée reste inaccessible", S.day, 1);
@@ -10565,7 +10740,7 @@ function runTests() {
      }
      go("home");
   })();
-  eq("accueil : une pastille par étape écrite", view.querySelectorAll(".station").length, COURSE.length);
+  eq("accueil : une pastille par étape écrite", view.querySelectorAll(".palier").length, COURSE.length);
   ok("accueil : le niveau est annoncé", view.innerHTML.indexOf("Niveau " + LEVEL) !== -1);
   ok("accueil : le mot « jour » a disparu de l'écran",
      view.innerHTML.toLowerCase().indexOf(">jour") === -1 &&
@@ -10799,7 +10974,7 @@ function runTests() {
   /* --- J. Les écrans --- */
   S = fresh(); S.day = 1; seed(1);
   go("home");
-  eq("accueil : une station par jour du cours", view.querySelectorAll(".station").length, COURSE.length);
+  eq("accueil : un palier par étape du cours", view.querySelectorAll(".palier").length, COURSE.length);
   eq("accueil : les cinq modes sont présents", view.querySelectorAll(".mode").length, 5);
   eq("accueil : la plaque affiche le bon numéro", view.querySelector(".plate .num b").textContent, "1");
 
