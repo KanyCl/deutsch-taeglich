@@ -1029,6 +1029,44 @@ pas changé, le chemin si.
 
 - [x] Auto-test : **2427 vérifications**.
 
+## Sauvegarde sans fichier ✅ 02/08/2026
+
+Inquiétude d'Exsangue, juste avant de refaire son icône : « si je supprime l'icône et
+la refais depuis Safari, je vais perdre ma progression ? »
+
+**La question est légitime et la réponse honnête est « peut-être ».** iOS *peut* donner
+à une app ajoutée à l'écran d'accueil un espace de stockage **distinct** de celui de
+Safari. On ne parie pas une progression là-dessus.
+
+Or les deux boutons existants reposent sur un **fichier** — un téléchargement et un
+sélecteur de fichier — et c'est justement ce qui marche le moins bien dans une app
+d'écran d'accueil iOS, où il n'y a ni barre d'adresse ni gestionnaire de
+téléchargements visible.
+
+- [x] **Sauvegarde en texte** : un cadre à copier, un cadre à coller. Aucun fichier,
+      aucun dossier à retrouver. Sur iPhone c'est probablement le chemin principal,
+      pas le chemin de secours.
+- [x] **Copier** passe par le presse-papiers **et** sélectionne le texte. L'API exige
+      un geste et une page sécurisée, et échoue silencieusement dans certains
+      navigateurs embarqués — la sélection laisse toujours l'appui long disponible.
+- [x] **Restaurer refuse le vide, le texte illisible et un JSON étranger** à l'app,
+      puis demande confirmation. `sane()` borne ce qui entre, comme partout ailleurs.
+- [x] ⚠️ **Et surtout : le chemin qui MARCHE est testé.** Sans lui, les trois refus
+      ci-dessus ne prouveraient qu'une chose — que l'app sait dire non. Une sauvegarde
+      qui refuse *tout*, y compris les bonnes, passerait ces tests haut la main et
+      perdrait quand même la progression. Le test force `window.confirm` (sans fenêtre,
+      le navigateur répond « non » d'office) et le remet en place dans un `finally` :
+      une boîte de dialogue neutralisée pour la suite fausserait des tests très loin
+      de leur cause.
+
+**La marche à suivre donnée à Exsangue**, dans cet ordre — ne rien supprimer d'abord :
+sauvegarder · ajouter le **deuxième** raccourci sans toucher au premier · ouvrir le
+nouveau · si la progression est là, supprimer l'ancien ; sinon, restaurer.
+
+Vu sur une capture, pas par un test : **« RÉGLAGES » s'affichait deux fois**, dans le
+badge d'en-tête et dans l'étiquette juste dessous. L'étiquette est retirée — le badge
+est arrivé après elle.
+
 ### Lot 3 — la carte de progression ⬜
 
 - [ ] **Chemin vertical façon Duolingo** : des paliers, les étapes réussies en vert,

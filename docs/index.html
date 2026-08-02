@@ -1111,6 +1111,24 @@ body.has-tts .say { display: inline-flex; }
 .teinte-p::-webkit-color-swatch-wrapper { padding: 2px; }
 .teinte-p::-webkit-color-swatch { border: 0; }
 
+/* Les deux cadres de la sauvegarde par texte. Volontairement bas (3 lignes)
+   et en chasse fixe : ce n'est pas fait pour être lu, seulement copié ou
+   collé. Un cadre haut donnerait l'impression qu'il faut le relire. */
+.sauve {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .75rem;
+  line-height: 1.4;
+  background: var(--surface);
+  color: var(--ink-2);
+  border: 2px solid var(--line);
+  border-radius: var(--edge);
+  padding: .5rem;
+  resize: vertical;
+}
+.sauve:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
 .why {
   font-size: .875rem;
   color: var(--ink-2);
@@ -8518,7 +8536,9 @@ function reglagesView() {
     '<div class="stack">',
 
       '<div class="stack-s">',
-        '<span class="label">Réglages</span>',
+        /* Plus d'étiquette « Réglages » ici : le badge de l'en-tête le dit
+           déjà, et le mot s'affichait deux fois à trois centimètres d'écart.
+           Vu sur une capture, pas par un test. */
         '<h2>À ton goût</h2>',
         '<p class="msg">Tout se change ici et s\'applique tout de suite. ' +
           'Ces choix partent dans la sauvegarde avec ta progression.</p>',
@@ -8535,6 +8555,49 @@ function reglagesView() {
           '<button class="tool" data-act="import">Restaurer</button>' +
           '<button class="tool danger" data-act="reset">Tout effacer</button>' +
         '</div>'),
+
+      /* ---- La sauvegarde par copier-coller ----
+         Ajoutée le 02/08/2026, sur une vraie inquiétude d'Exsangue : « si je
+         supprime l'icône et la refais depuis Safari, je perds ma progression ? »
+
+         La question est juste, et la réponse honnête est « peut-être » : iOS
+         PEUT donner à une app ajoutée à l'écran d'accueil un espace de
+         stockage distinct de celui de Safari. On ne parie pas une progression
+         là-dessus.
+
+         Or les deux boutons du dessus reposent sur un FICHIER — un
+         téléchargement et un sélecteur de fichier — et c'est précisément ce
+         qui marche le moins bien dans une app d'écran d'accueil iOS, où il
+         n'y a ni barre d'adresse ni gestionnaire de téléchargements visible.
+
+         Le texte, lui, marche partout : on copie, on colle. Aucun fichier,
+         aucun dossier à retrouver. C'est le chemin de secours, et sur iPhone
+         c'est probablement le chemin principal. */
+      '<details class="grp">' +
+        '<summary>' +
+          '<span class="g-t">Sauvegarde sans fichier</span>' +
+          '<span class="g-n">copier-coller</span>' +
+        '</summary>' +
+        '<div class="stack-s" style="padding-top:.75rem">' +
+          '<p class="msg">À utiliser avant de changer de téléphone, ou avant de ' +
+            'refaire le raccourci sur l\'écran d\'accueil. <b>Copie</b> ce texte et ' +
+            'garde-le quelque part (une note, un message que tu t\'envoies). ' +
+            'Pour revenir en arrière, colle-le dans le second cadre.</p>' +
+          '<textarea class="sauve" id="sauve-out" readonly rows="3" ' +
+            'aria-label="Ta progression, à copier">' + esc(JSON.stringify(S)) + '</textarea>' +
+          '<button class="btn wide" data-act="copier">Copier ma progression</button>' +
+          /* Les attributs sont écrits ici et non repris de `saisieAttrs` :
+             celle-ci pose `type="text"`, qui n'a aucun sens sur un
+             `textarea`. Ce qui compte est gardé — pas de correction
+             automatique ni de majuscule sur du JSON, où un caractère changé
+             rend la sauvegarde illisible. */
+          '<textarea class="sauve" id="sauve-in" rows="3"' +
+            ' autocomplete="rien-a-remplir" autocorrect="off"' +
+            ' autocapitalize="off" spellcheck="false"' +
+            ' aria-label="Colle ici une sauvegarde"></textarea>' +
+          '<button class="btn wide" data-act="coller">Restaurer depuis le texte</button>' +
+        '</div>' +
+      '</details>',
 
       bloc('La voix',
         'La vitesse à laquelle l\'allemand est prononcé. ' +
@@ -8924,6 +8987,53 @@ view.addEventListener("click", function (e) {
     applyPrefs();
     go("reglages");
     toolMsg("Les cinq cases suivent de nouveau la palette.");
+    return;
+  }
+
+  /* Copier la progression. Deux chemins, et le second n'est pas un luxe :
+     l'API du presse-papiers exige un geste de l'utilisateur ET une page
+     sécurisée, et elle échoue silencieusement dans certains navigateurs
+     embarqués. On sélectionne donc le texte de toute façon — même en cas
+     d'échec, il ne reste plus qu'un appui long et « Copier ». */
+  if (t.dataset.act === "copier") {
+    const zone = document.getElementById("sauve-out");
+    if (!zone) return;
+    zone.focus();
+    zone.setSelectionRange(0, zone.value.length);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(zone.value).then(function () {
+        toolMsg("Progression copiée. Colle-la dans une note pour la garder.");
+      }).catch(function () {
+        toolMsg("Le texte est sélectionné : appuie longuement dessus, puis « Copier ».");
+      });
+    } else {
+      toolMsg("Le texte est sélectionné : appuie longuement dessus, puis « Copier ».");
+    }
+    return;
+  }
+
+  /* Restaurer depuis du texte collé. Mêmes garanties que la restauration par
+     fichier : on refuse un texte illisible plutôt que d'écraser une
+     progression avec du vide, et `sane` borne ce qui entre. */
+  if (t.dataset.act === "coller") {
+    const zone = document.getElementById("sauve-in");
+    if (!zone) return;
+    const brut = String(zone.value || "").trim();
+    if (!brut) { toolMsg("Colle d'abord une sauvegarde dans le cadre."); return; }
+    let lu;
+    try { lu = JSON.parse(brut); }
+    catch (e) { toolMsg("Ce texte n'est pas une sauvegarde valable. Recopie-le en entier."); return; }
+    if (!lu || typeof lu !== "object" || !lu.cards) {
+      toolMsg("Ce texte n'est pas une sauvegarde de cette app.");
+      return;
+    }
+    if (!window.confirm("Remplacer ta progression actuelle par cette sauvegarde ?")) return;
+    S = sane(lu);
+    persist();
+    paintStreak();
+    applyPrefs();
+    go("reglages");
+    toolMsg("Progression restaurée.");
     return;
   }
 
@@ -9838,6 +9948,68 @@ function runTests() {
       }
     }
     ok("quiz : aucune balise ne se lit à l'écran", vus.length === 0, vus.slice(0, 3).join(" | "));
+  })();
+
+  /* ---- La sauvegarde par copier-coller ----
+     Ajoutée sur l'inquiétude d'Exsangue avant de refaire son icône : « je
+     vais perdre ma progression ? ». Elle doit donc être irréprochable sur un
+     point précis — ne JAMAIS écraser une progression par du vide ou du
+     n'importe quoi. C'est le seul filet, il ne peut pas être troué. */
+  (function () {
+    S = fresh(); S.day = 3; S.streak = 7; seed(3);
+    go("reglages");
+
+    const out = document.getElementById("sauve-out");
+    ok("sauvegarde : la progression est offerte en texte",
+       !!out && out.value.indexOf('"day":3') !== -1);
+
+    // Et ce texte doit vraiment se relire — sinon on garde une copie morte.
+    let relu = null;
+    try { relu = JSON.parse(out.value); } catch (e) {}
+    ok("sauvegarde : le texte proposé se relit", !!relu);
+    eq("sauvegarde : et il porte bien l'étape", relu && sane(relu).day, 3);
+    eq("sauvegarde : et la série", relu && sane(relu).streak, 7);
+
+    /* Un texte qui n'est pas une sauvegarde ne doit RIEN écraser. On vérifie
+       par l'état, pas par le message : c'est la progression qui compte. */
+    const zone = document.getElementById("sauve-in");
+    zone.value = "bonjour";
+    view.querySelector('[data-act="coller"]').click();
+    eq("sauvegarde : un texte illisible n'écrase rien", S.day, 3);
+
+    zone.value = "";
+    view.querySelector('[data-act="coller"]').click();
+    eq("sauvegarde : un cadre vide n'écrase rien", S.day, 3);
+
+    /* Un JSON valable mais étranger à l'app non plus — sans quoi coller
+       n'importe quel objet remettrait la progression à zéro. */
+    document.getElementById("sauve-in").value = '{"quelque":"chose"}';
+    view.querySelector('[data-act="coller"]').click();
+    eq("sauvegarde : un JSON étranger n'écrase rien", S.day, 3);
+
+    /* ⚠️ Et surtout LE CHEMIN QUI MARCHE. Sans lui, tout ce qui précède ne
+       prouverait qu'une chose : que l'app sait refuser. Une sauvegarde qui
+       refuse tout, y compris les bonnes, passerait ces trois tests haut la
+       main et perdrait quand même la progression d'Exsangue.
+
+       La confirmation est forcée le temps de l'essai : sans fenêtre, le
+       navigateur répond « non » à `confirm`, et la restauration n'aurait
+       jamais lieu. Elle est remise en place dans `finally` — une boîte de
+       dialogue neutralisée pour le reste des tests fausserait tout ce qui
+       suit, très loin de sa cause. */
+    const copie = out.value;
+    const vraiConfirm = window.confirm;
+    window.confirm = function () { return true; };
+    try {
+      S = fresh(); S.day = 1; S.streak = 0; seed(1);
+      go("reglages");
+      document.getElementById("sauve-in").value = copie;
+      view.querySelector('[data-act="coller"]').click();
+      eq("sauvegarde : une sauvegarde valable est bien restaurée", S.day, 3);
+      eq("sauvegarde : la série revient avec elle", S.streak, 7);
+    } finally {
+      window.confirm = vraiConfirm;
+    }
   })();
 
   /* ---- Le relais entre deux phases ----
