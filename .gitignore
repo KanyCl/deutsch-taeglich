@@ -2,18 +2,22 @@
 # CE QUI NE DOIT JAMAIS PARTIR SUR LE DEPOT PUBLIC
 # ---------------------------------------------------------------------------
 #
-# index.html est le fichier de travail : il contient le livre transcrit
-# (Werner Dubois et Alvaro Garcia Noble, 2025). Il n'a sa place que sur le
-# disque d'Exsangue, qui possede le livre.
+# ⚠️ CHANGEMENT DU 02/08/2026 : `/index.html` N'EST PLUS IGNORE.
 #
-# Ce qui est publie, c'est docs\ : la meme app SANS le livre, produite par
-# .\sans-livre.ps1. Elle contient tout le reste — les 25 etapes, le code, les
-# tests — soit l'essentiel du travail. Le seul morceau non sauvegarde ici est
-# la transcription du livre, qui se refait depuis les photos.
+# Il l'etait parce qu'il contenait le livre transcrit (Werner Dubois et Alvaro
+# Garcia Noble, 2025). Exsangue a fait retirer le livre : la source ne contient
+# plus que du contenu redige independamment, elle est donc suivie par git.
 #
-# La barre oblique de tete est essentielle : « index.html » sans elle masquait
-# aussi docs/index.html, et le site serait parti sans page d'accueil.
-/index.html
+# C'est un gain qu'il faut mesurer : tant que index.html etait ignore, LA SOURCE
+# DU TRAVAIL N'ETAIT SAUVEGARDEE NULLE PART — ni commit, ni historique. Elle
+# l'est desormais.
+#
+# La copie d'avant suppression est conservee hors du depot, dans
+# C:\Shared\atelier\livre\index-AVEC-LIVRE-2026-08-02.html
+#
+# ⚠️ Si le livre revenait un jour dans index.html, il faudrait RETABLIR la ligne
+# `/index.html` ici AVANT tout commit. `publier.ps1` refuse de publier dans ce
+# cas, mais il ne protege pas le depot — c'est ce fichier-ci qui le fait.
 /public/
 /deploy/
 
