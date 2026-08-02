@@ -8253,44 +8253,66 @@ function home() {
            '</button>';
   }
 
-  CHAPTERS.forEach(function (ch) {
-    const dispo = ch.steps.filter(function (n) { return n <= COURSE.length; });
-    if (!dispo.length) return;
-    const faits = dispo.filter(function (n) { return S.done.indexOf(n) !== -1; }).length;
-    const ouvert = dispo.indexOf(S.day) !== -1;
-    stations +=
-      '<details class="grp"' + (ouvert ? ' open' : '') + '>' +
+  /* Les chapitres d'UN niveau, et d'un seul.
+     Demandé par Exsangue le 02/08/2026 : « je veux le A1 dans son dépliant, et
+     un autre dépliant en dessous pour le A2 et ses chapitres ». Un sommaire
+     unique mélangeait les deux, et rien ne disait où l'un finissait.
+     Le filtre se fait sur les BORNES du niveau et non sur une étiquette portée
+     par le chapitre : c'est `NIVEAUX` qui fait autorité sur ce découpage, et
+     une seconde source finirait par le contredire. */
+  function stationsDe(niv) {
+    const suivant = NIVEAUX[NIVEAUX.indexOf(niv) + 1];
+    const dernier = suivant ? suivant.premiere - 1 : Infinity;
+    let out = "";
+    CHAPTERS.forEach(function (ch) {
+      const dispo = ch.steps.filter(function (n) {
+        return n <= COURSE.length && n >= niv.premiere && n <= dernier;
+      });
+      if (!dispo.length) return;
+      const faits = dispo.filter(function (n) { return S.done.indexOf(n) !== -1; }).length;
+      const ouvert = dispo.indexOf(S.day) !== -1;
+      out +=
+        '<details class="grp"' + (ouvert ? ' open' : '') + '>' +
+          '<summary>' +
+            '<span class="g-t">Chapitre ' + ch.n + ' &#183; ' + esc(ch.title) + '</span>' +
+            '<span class="g-n">' + faits + '/' + dispo.length + '</span>' +
+          '</summary>' +
+          '<div class="chemin">' + dispo.map(palierHTML).join("") + '</div>' +
+        '</details>';
+    });
+    return out;
+  }
+
+  /* Un dépliant par niveau, dans l'ordre. Un niveau dont aucune étape n'est
+     encore écrite n'apparaît pas du tout : on ne déclare que ce qui existe,
+     et une ligne « Niveau B1 · 0 / 0 » ne promettrait que du vide. */
+  stations = NIVEAUX.map(function (niv) {
+    const av = avancementNiveau(niv);
+    if (!av.ecrites) return "";
+    return '<details class="grp tout">' +
         '<summary>' +
-          '<span class="g-t">Chapitre ' + ch.n + ' &#183; ' + esc(ch.title) + '</span>' +
-          '<span class="g-n">' + faits + '/' + dispo.length + '</span>' +
+          '<span class="g-t">Niveau ' + esc(niv.id) + ' &#183; ' +
+            av.faites + ' / ' + av.ecrites + ' étapes</span>' +
+          '<span class="g-n">' + av.prevu + ' prévues</span>' +
         '</summary>' +
-        '<div class="chemin">' + dispo.map(palierHTML).join("") + '</div>' +
+        stationsDe(niv) +
       '</details>';
-  });
+  }).join("");
 
   const finished = S.done.length >= COURSE.length;
 
   return [
     '<div class="stack">',
 
-      /* Tout le sommaire tient sous UNE ligne, repliée par défaut. Dix
-         chapitres empilés, même repliés, poussaient encore l'étape en cours
-         et les modes hors de l'écran — or c'est eux qu'on vient chercher.
-         L'étape du jour est affichée juste en dessous : on ne perd rien à
-         fermer la liste. */
-      '<details class="grp tout">',
-        '<summary>',
-          /* Le compte est celui du NIVEAU EN COURS, pas des deux réunis :
-             « 2 / 63 » ne dit rien, « 2 / 28 » situe. Le niveau affiché est
-             celui de l'étape où l'on se trouve, et non le dernier déclaré —
-             sinon on annoncerait « A2 » à quelqu'un qui est à l'étape 4. */
-          '<span class="g-t">Niveau ' + niveauDe(S.day).id + ' &#183; ' +
-            avancementNiveau(niveauDe(S.day)).faites + ' / ' +
-            avancementNiveau(niveauDe(S.day)).ecrites + ' étapes</span>',
-          '<span class="g-n">' + niveauDe(S.day).prevu + ' prévues</span>',
-        '</summary>',
-        stations,
-      '</details>',
+      /* Le sommaire tient sous UNE ligne PAR NIVEAU, repliée par défaut. Les
+         chapitres empilés, même repliés, poussaient l'étape en cours et les
+         modes hors de l'écran — or c'est eux qu'on vient chercher. L'étape du
+         jour est affichée juste en dessous : on ne perd rien à fermer.
+         ⚠️ Les deux niveaux restent FERMÉS au démarrage, y compris celui où
+         l'on se trouve. En ouvrir un rendrait à l'accueil la hauteur qu'on lui
+         avait justement retirée. Le niveau en cours se lit sur le badge de
+         l'en-tête et sur la plaque ci-dessous. */
+      stations,
 
       '<div class="plate">',
         '<div class="num"><b>' + S.day + '</b></div>',
@@ -13688,11 +13710,25 @@ function runTests() {
   eq("accueil : un bloc repliable par chapitre",
      view.querySelectorAll("details.grp:not(.tout)").length, CHAPTERS.length);
 
-  /* Demandé par Exsangue : la liste mangeait tout l'accueil. Le sommaire
-     entier tient sous une ligne, repliée par défaut. */
-  eq("accueil : le sommaire est replié sous une seule ligne",
-     view.querySelectorAll("details.grp.tout").length, 1);
-  ok("accueil : et il est fermé au départ", !view.querySelector("details.grp.tout").open);
+  /* Demandé par Exsangue : la liste mangeait tout l'accueil. Le sommaire tient
+     sous UNE LIGNE PAR NIVEAU, repliée par défaut.
+     ⚠️ Ce test exigeait exactement une ligne jusqu'au 02/08/2026, date à
+     laquelle Exsangue a demandé un dépliant par niveau. Son intention n'a pas
+     changé — rien ne doit être ouvert au départ — mais l'unité de mesure, si.
+     On la rattache donc au NOMBRE DE NIVEAUX ÉCRITS et non à la constante 1,
+     sinon le test retombera au premier niveau ajouté. */
+  eq("accueil : une ligne de sommaire par niveau écrit",
+     view.querySelectorAll("details.grp.tout").length,
+     NIVEAUX.filter(function (n) { return avancementNiveau(n).ecrites > 0; }).length);
+  (function () {
+    const ouverts = [];
+    const tous = view.querySelectorAll("details.grp.tout");
+    for (let i = 0; i < tous.length; i++) {
+      if (tous[i].open) ouverts.push(tous[i].querySelector(".g-t").textContent);
+    }
+    ok("accueil : et aucun niveau n'est ouvert au départ",
+       ouverts.length === 0, ouverts.join(" | "));
+  })();
 
   /* À l'intérieur, seul le chapitre où l'on travaille est ouvert. */
   eq("accueil : un seul chapitre ouvert",
@@ -13766,6 +13802,44 @@ function runTests() {
     });
     S.day = garde;
     go("home");
+  })();
+
+  /* --- Un dépliant PAR NIVEAU, demandé par Exsangue le 02/08/2026 ---
+     Le vrai risque n'est pas qu'il en manque un : c'est qu'une étape se range
+     du mauvais côté. Un chapitre A2 glissé sous « Niveau A1 » ne se verrait
+     qu'en dépliant, et personne ne déplie tous les jours. On vérifie donc
+     l'APPARTENANCE de chaque pastille, pas seulement le compte des dépliants. */
+  (function () {
+    go("home");
+    const ecrits = NIVEAUX.filter(function (n) { return avancementNiveau(n).ecrites > 0; });
+    const blocs = view.querySelectorAll("details.tout");
+    eq("accueil : un dépliant par niveau écrit", blocs.length, ecrits.length);
+
+    let vues = 0;
+    for (let i = 0; i < blocs.length; i++) {
+      const niv = ecrits[i];
+      const suivant = NIVEAUX[NIVEAUX.indexOf(niv) + 1];
+      const dernier = suivant ? suivant.premiere - 1 : Infinity;
+
+      ok("accueil : le dépliant " + i + " s'annonce comme le niveau " + niv.id,
+         blocs[i].querySelector("summary").textContent.indexOf("Niveau " + niv.id) !== -1);
+
+      /* Chaque pastille du bloc doit tomber dans les bornes de SON niveau. */
+      const dedans = blocs[i].querySelectorAll(".palier");
+      const egarees = [];
+      for (let k = 0; k < dedans.length; k++) {
+        const n = parseInt(dedans[k].querySelector(".dot").textContent, 10);
+        if (!(n >= niv.premiere && n <= dernier)) egarees.push(n);
+      }
+      vues += dedans.length;
+      ok("accueil : aucune étape étrangère dans le niveau " + niv.id,
+         egarees.length === 0, egarees.join(", "));
+    }
+
+    /* Et rien ne doit se perdre entre les deux : la somme des pastilles des
+       dépliants est le cours entier. Sans ce contrôle, une étape hors de toute
+       borne disparaîtrait de l'écran sans qu'aucun test ne bronche. */
+    eq("accueil : les dépliants couvrent tout le cours", vues, COURSE.length);
   })();
   ok("accueil : le mot « jour » a disparu de l'écran",
      view.innerHTML.toLowerCase().indexOf(">jour") === -1 &&

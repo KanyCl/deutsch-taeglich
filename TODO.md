@@ -1618,6 +1618,34 @@ exactement le défaut.
 
 La leçon est générale : **un repère de découpage doit vivre dans le bloc qu'il découpe.**
 
+## Un dépliant par niveau ✅ 02/08/2026
+
+Demandé par Exsangue : « dans le dépliant Niveau A1 je veux que le A1, et un autre
+dépliant en dessous avec le niveau A2 et ses chapitres ». Le sommaire unique mélangeait
+les deux niveaux et rien ne disait où l'un finissait.
+
+- [x] `stationsDe(niveau)` construit les chapitres **d'un seul niveau**. Le filtre se fait
+      sur les **bornes** de `NIVEAUX`, pas sur une étiquette portée par le chapitre :
+      `NIVEAUX` fait autorité sur ce découpage, et une seconde source finirait par le
+      contredire.
+- [x] **Un niveau sans étape écrite n'apparaît pas.** « Niveau B1 · 0 / 0 » ne promettrait
+      que du vide.
+- [x] ⚠️ **Les deux niveaux restent FERMÉS au démarrage**, y compris celui où l'on se
+      trouve. En ouvrir un rendrait à l'accueil la hauteur qu'on lui avait justement
+      retirée à la demande d'Exsangue. Le niveau en cours se lit sur le badge de l'en-tête
+      et sur la plaque.
+- [x] **Le test « une seule ligne de sommaire » a été rattaché au nombre de niveaux
+      écrits** au lieu de la constante `1`. Son intention n'a pas changé — rien d'ouvert
+      au départ — mais l'unité de mesure, si. Écrit en dur, il serait retombé au premier
+      niveau ajouté.
+- [x] **Le contrôle qui compte n'est pas le nombre de dépliants, c'est l'APPARTENANCE.**
+      Un chapitre A2 glissé sous « Niveau A1 » ne se verrait qu'en dépliant, et personne
+      ne déplie tous les jours. Chaque pastille est donc verifiée contre les bornes de son
+      niveau, **et** la somme des pastilles doit couvrir le cours entier — sans quoi une
+      étape hors de toute borne disparaîtrait de l'écran sans qu'un test bronche.
+- [x] Auto-test : **2053 vérifications**. Vérifié aussi sur capture : « Niveau A1 · 0 / 35 »
+      puis « Niveau A2 · 0 / 7 », les cinq modes toujours visibles sans défiler.
+
 ### Reprendre ici
 
 - [ ] **Étape 43 · Le logement** (l'appartement, les pièces, les meubles), puis 44 à 63
