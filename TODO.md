@@ -1325,16 +1325,26 @@ qu'une série d'exemples sans rapport : **l'étape 1 porte sur les sons**, et so
 vocabulaire est *der Bär*, *die Schule*, *das Buch*, *die Straße* — choisis pour ce
 qu'ils font entendre. Les afficher sous « langues et pays » était un mensonge.
 
-- [x] **Pis-aller posé** : l'étape 1 prend le thème **neutre** (« la langue », gris).
-      Ne rien affirmer vaut mieux qu'affirmer à côté.
-- [ ] **LE VRAI CORRECTIF : étiqueter les 350 mots un par un.** Le thème doit venir du
-      MOT. Implémentation prévue : une table `THEME_MOT` consultée **avant**
-      `THEME_ETAPE`, en un seul bloc — pour ne pas toucher aux 350 lignes de contenu et
-      pouvoir la relire d'un coup d'œil.
-- [ ] **Même travail, deuxième bénéfice** : c'est ce qui permettra d'éviter les suites
+- [x] **Pis-aller posé** puis **VRAI CORRECTIF FAIT ✅ 02/08/2026** : les **350 mots sont
+      rangés un par un** dans `THEME_MOT`, consultée **avant** `THEME_ETAPE`.
+      Vérification : *der Bär*, enseigné à l'étape des **sons**, s'affiche désormais en
+      « animaux et nature » — c'était l'exemple exact du défaut.
+      **Écrits en GROUPES et non en 350 lignes** « mot : thème » : groupés, la liste se
+      relit d'un coup d'œil et une erreur de rangement saute aux yeux.
+      **Deux thèmes ajoutés en rangeant** : `temps` (« le temps qui passe » se
+      distinguait mal des nombres) et `maison` (les objets n'en avaient aucun).
+      Douze thèmes en tout.
+      ⚠️ **Une vérification exige un thème par mot, et elle échoue en les NOMMANT** —
+      une liste de 350 entrées se complète, elle ne se devine pas.
+      ⚠️ **Le vocabulaire venu du livre est marqué `livre: true` et exempté.** Il
+      n'existe pas dans la version publiée : réclamer son rangement demanderait un
+      travail que personne ne verrait jamais. Il garde le thème de son étape.
+      C'est ce marqueur qui manquait — sans lui, le contrôle réclamait 319 mots
+      fantômes.
+- [ ] **Reste le deuxième bénéfice** : se servir de `THEME_MOT` pour éviter les suites
       logiques (*eins, zwei, drei* qui se suivent dans un paquet, où la réponse se
-      devine). Le thème par étape ne peut pas y aider — dans l'étape des nombres, tous
-      les mots sont des nombres.
+      devine). La matière est là désormais ; il reste à s'en servir dans le tirage des
+      cartes et du quiz.
 
 ### Lot 4 — les onglets « à part » 🔄
 

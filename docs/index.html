@@ -983,6 +983,11 @@ body.has-tts .say { display: inline-flex; }
 .carte3d[data-th="quotidien"] { --th: 90, 80, 110; }
 .carte3d[data-th="table"]     { --th: 176, 98, 20; }
 .carte3d[data-th="voyage"]    { --th: 40, 110, 120; }
+/* Ajoutés le 02/08/2026 en rangeant les 350 mots un par un : « le temps qui
+   passe » se distinguait mal des nombres, et les objets de la maison
+   n'avaient aucun thème du tout. */
+.carte3d[data-th="temps"]     { --th: 128, 92, 140; }
+.carte3d[data-th="maison"]    { --th: 120, 110, 85; }
 
 /* Le contenu des faces reprend l'habillage des anciennes boîtes : il n'y a
    aucune raison qu'un mot s'affiche autrement selon qu'il est sur une carte
@@ -7862,17 +7867,116 @@ const THEME_ETAPE = {
 };
 const THEME_DEFAUT = "mots";
 
+/* ---------- Le thème d'un MOT ----------
+   Le vrai correctif, posé le 02/08/2026. Exsangue avait vu tout de suite que
+   « le thème de la carte n'est pas en lien avec le mot » : le thème venait de
+   l'ÉTAPE, ce qui ne vaut que pour les étapes qui SONT un thème. L'étape 1
+   porte sur les sons, et son vocabulaire est *der Bär*, *die Schule*,
+   *das Buch* — choisis pour ce qu'ils font entendre.
+
+   Les 350 mots du cours sont donc rangés un par un. Écrits en GROUPES et non
+   en 350 lignes « mot : thème » : groupés, la liste se relit d'un coup d'œil
+   et une erreur de rangement saute aux yeux. Une vérification s'assure
+   qu'aucun mot n'est oublié — et elle échoue en les nommant.
+
+   `THEME_ETAPE` reste, en filet : un mot ajouté demain prendra le thème de
+   son étape en attendant d'être rangé ici. */
+const THEME_MOT = {};
+[
+  ["monde", ["das Land", "Deutschland", "Frankreich", "Deutsch", "Französisch",
+    "Englisch", "die Sprache"]],
+
+  ["gens", ["ich heiße", "mein Name ist", "ich bin", "Wie geht's?", "mir geht's gut",
+    "danke", "der Freund", "freut mich", "Guten Morgen", "Guten Tag", "Guten Abend",
+    "Gute Nacht", "Hallo", "Tschüss", "Auf Wiedersehen", "bis bald", "bis morgen",
+    "willkommen", "der Mann", "die Frau", "das Kind", "der Lehrer", "das Mädchen",
+    "die Kinder", "die Frauen", "die Männer", "die Lehrer", "der Arzt", "der Student",
+    "die Geschwister", "die Eltern", "der Nachbar", "der Bürgermeister", "die Leute",
+    "der Vater", "die Mutter", "der Sohn", "die Tochter", "der Onkel", "die Tante",
+    "die Familie", "der Verwandte", "der Chef"]],
+
+  ["nombres", ["null", "vier", "fünf", "zehn", "zwölf", "zwanzig", "dreißig",
+    "hundert", "tausend", "der erste", "der zweite"]],
+
+  ["temps", ["die Zeit", "das Jahr", "immer", "jeden Tag", "heute Abend", "morgen früh",
+    "die Uhr", "die Stunde", "die Minute", "halb", "das Viertel", "nach", "vor",
+    "Mittag", "Mitternacht", "jetzt", "oft", "selten", "der Montag", "der Mittwoch",
+    "der Sonntag", "der Monat", "das Datum", "der Frühling", "der Herbst", "der Winter",
+    "der Geburtstag", "die Nacht"]],
+
+  ["couleurs", ["grün", "schön", "interessant", "müde", "alt", "glücklich", "nett",
+    "pünktlich", "spannend", "die Farbe", "weiß", "schwarz", "rot", "blau", "gelb",
+    "grau", "braun", "die Lieblingsfarbe", "Angst haben", "frisch", "groß", "klein",
+    "neu", "bunt", "sportlich", "schnell", "leise", "wunderschön", "friedlich",
+    "lustig", "klasse", "langweilig"]],
+
+  ["nature", ["der Bär", "die Blume", "die Blumen", "die Katze", "der Hund",
+    "die Maus", "der Elefant", "der Knochen", "der Hase", "das Pferd", "die Kuh",
+    "das Schaf", "die Biene", "der Schmetterling", "der Löwe", "das Haustier",
+    "der Garten", "das Meer", "die Sonne"]],
+
+  ["maison", ["das Haus", "der Tisch", "das Buch", "die Bücher", "die Häuser",
+    "die Tische", "zu Hause", "das Bett", "der Raum", "der Eingang", "die Tasche",
+    "die Möbel", "nach Hause", "das Fenster", "der Korb"]],
+
+  ["quotidien", ["die Schule", "die Zeitung", "der Pullover", "die Jacke",
+    "das Konzert", "die Hand", "die Arbeit", "der Spaziergang", "einkaufen",
+    "aufwachen", "anrufen", "aufstehen", "die Hausaufgaben", "das Fernsehen",
+    "sich waschen", "sich beeilen", "sich erholen", "sich entschuldigen",
+    "sich setzen", "sich fühlen", "die Haare", "sich anziehen"]],
+
+  ["table", ["das Wasser", "Hunger haben", "Durst haben", "der Apfel", "der Markt",
+    "das Restaurant", "das Frühstück", "das Abendessen", "das Brot", "der Fisch",
+    "das Fleisch", "das Gemüse", "das Obst", "die Suppe", "das Salz", "das Getränk",
+    "der Saft", "der Tee", "das Bier", "der Wein", "die Milch", "das Glas",
+    "die Tasse", "die Birne", "bestellen", "bezahlen", "die Rechnung",
+    "das Trinkgeld", "die Karte", "der Kellner", "allergisch", "das Tagesgericht",
+    "Guten Appetit"]],
+
+  ["voyage", ["die Straße", "die Autos", "das Auto", "der Koffer", "das Fahrrad",
+    "der Platz", "die Warteschlange", "der Park", "abfahren", "der Urlaub",
+    "der Ausflug", "der Ort", "die Apotheke", "der Bahnhof", "der Zug", "die U-Bahn",
+    "das Flugzeug", "das Ticket", "zu Fuß", "verspätet", "die Haltestelle",
+    "der Tunnel", "das Zimmer", "die Rezeption", "der Schlüssel", "der Aufzug",
+    "die Dusche", "das Handtuch", "reservieren", "der Flughafen", "der Flug",
+    "das Gepäck", "der Reisepass", "die Bordkarte", "der Zoll", "die Abflüge",
+    "die Ankünfte", "die Reise"]],
+
+  ["verbes", ["spielen", "lernen", "kaufen", "arbeiten", "wohnen", "machen",
+    "kommen", "sprechen", "lesen", "essen", "nehmen", "fahren", "schlafen", "sehen",
+    "geben", "gehören", "legen", "gehen", "werden", "scheinen", "können", "wollen",
+    "müssen", "möchten", "dürfen", "sollen", "schwimmen", "mögen", "gefallen",
+    "lachen", "sich freuen", "verstehen", "treffen"]],
+
+  ["mots", ["ja", "ein wenig", "auch", "das ist", "ebenfalls", "die Freiheit",
+    "viele", "es gibt", "die Idee", "die Auswahl", "mein", "dein", "besser", "als",
+    "dort", "oben", "sehr", "ein bisschen", "wer", "wen", "was", "wo", "woher",
+    "wann", "warum", "wie viele", "gern", "lieber", "Lieblings-", "in der Nähe",
+    "wenig", "kein", "mehr", "hier", "nicht", "nichts", "nie", "leider",
+    "hoffentlich", "in", "auf", "unter", "hinter", "für", "durch", "bei", "seit",
+    "inbegriffen", "verfügbar"]]
+].forEach(function (groupe) {
+  groupe[1].forEach(function (mot) { THEME_MOT[mot] = groupe[0]; });
+});
+
 /* Le nom affiché. Il compte autant que la couleur : une teinte qu'on ne sait
    pas nommer ne veut rien dire, et personne ne devinera « quotidien » d'après
    un mauve. Il s'écrit dans la ligne d'état, au-dessus de la carte. */
 const THEME_NOM = {
   monde: "langues et pays", gens: "les gens", mots: "la langue",
-  nombres: "nombres et temps", verbes: "les verbes", couleurs: "décrire",
-  nature: "les animaux", quotidien: "la journée", table: "à table",
-  voyage: "en déplacement"
+  nombres: "les nombres", temps: "le temps qui passe", verbes: "les verbes",
+  couleurs: "décrire", nature: "animaux et nature", quotidien: "la journée",
+  maison: "la maison", table: "à table", voyage: "en déplacement"
 };
 
-function themeDe(day) { return THEME_ETAPE[day] || THEME_DEFAUT; }
+/* Le thème d'une carte : celui du MOT d'abord, celui de l'étape en secours.
+   L'ordre est tout : c'est lui qui corrige le défaut signalé par Exsangue.
+   Prend la carte entière et non son numéro d'étape — sans le mot, on ne peut
+   pas faire mieux que deviner. */
+function themeDe(carte) {
+  if (!carte) return THEME_DEFAUT;
+  return THEME_MOT[carte.d] || THEME_ETAPE[carte.day] || THEME_DEFAUT;
+}
 
 /* ---------- Ne jamais perdre sa place ----------
    Demandé par Exsangue le 02/08/2026 : « lorsqu'on sort d'un exercice comme
@@ -7989,7 +8093,7 @@ function renderCard() {
            retourne, cette ligne non. */
         '<span class="label">' + (left > 0 ? 'Encore ' + left : 'Dernière carte') +
           ' &#183; étape ' + c.day + ' &#183; ' +
-          esc(THEME_NOM[themeDe(c.day)] || "") + ' &#183; ' + tag + '</span>',
+          esc(THEME_NOM[themeDe(c)] || "") + ' &#183; ' + tag + '</span>',
         '<div class="meter">' + deck.map(function (_, i) { return '<i class="' + (i < pos ? 'on' : '') + '"></i>'; }).join("") + '</div>',
       '</div>',
 
@@ -8050,7 +8154,7 @@ function writeFrBody(c) {
     '<div class="trad">' + esc(c.f) + '</div>' +
     (verdict && verdict.typed ? '<div class="tip">Tu as écrit : ' + esc(verdict.typed) + '</div>' : '');
 
-  return carte3d(themeDe(c.day),
+  return carte3d(themeDe(c),
       verdict ? '' : ' data-consigne="En français" data-autosay="' + att(c.d) + '"', avant,
       '', arriere) +
     (verdict
@@ -8100,7 +8204,7 @@ function writeBody(c) {
      arrière. Ici c'est l'allemand qu'on doit écrire : le prononcer avant
      reviendrait à le souffler. C'est aussi pourquoi le bouton d'écoute ne
      figure que sur cette face. */
-  return carte3d(themeDe(c.day),
+  return carte3d(themeDe(c),
       verdict ? '' : ' data-consigne="En allemand"', avant,
       verdict ? ' data-autosay="' + att(c.d) + '"' : '', arriere) +
     (verdict
@@ -11756,15 +11860,49 @@ function runTests() {
     ok("cartes : chaque étape a son thème, et chaque thème son nom",
        sans.length === 0, sans.join(", "));
 
+    /* ⚠️ ET SURTOUT : chaque MOT du cours doit avoir le sien. C'est le défaut
+       qu'Exsangue avait signalé — « le thème de la carte n'est pas en lien
+       avec le mot » — et le seul contrôle qui le ferme vraiment. Il échoue
+       en NOMMANT les mots oubliés : une liste de 350 entrées se complète,
+       elle ne se devine pas. */
+    /* On n'exige un thème que pour le vocabulaire ÉCRIT POUR L'APP. Celui
+       qui vient du livre est marqué `livre: true` : il n'existe pas dans la
+       version publiée, donc réclamer son rangement demanderait un travail
+       que personne ne verrait jamais. Il prend le thème de son étape. */
+    const orphelins = [];
+    COURSE.forEach(function (st) {
+      (st.vocab || []).forEach(function (v) {
+        if (!v.livre && !THEME_MOT[v.d]) orphelins.push(v.d);
+      });
+    });
+    ok("cartes : chaque mot du cours est rangé dans un thème",
+       orphelins.length === 0,
+       orphelins.length + " oublié(s) : " + orphelins.slice(0, 8).join(", "));
+
+    // Et aucun thème inventé au passage : tout thème posé doit avoir un nom.
+    const inconnus = [];
+    Object.keys(THEME_MOT).forEach(function (m) {
+      if (!THEME_NOM[THEME_MOT[m]]) inconnus.push(m + " → " + THEME_MOT[m]);
+    });
+    ok("cartes : aucun thème sans nom affichable",
+       inconnus.length === 0, inconnus.slice(0, 5).join(" | "));
+
+    /* Le MOT prime sur l'étape — c'est tout l'objet de la correction.
+       *der Bär* est un animal, même s'il est enseigné à l'étape des sons. */
+    eq("cartes : le thème vient du mot, pas de l'étape",
+       themeDe({ d: "der Bär", day: 1 }), "nature");
+    eq("cartes : et l'étape ne sert que de filet",
+       themeDe({ d: "mot-jamais-vu", day: 14 }), THEME_ETAPE[14]);
+
     S = fresh(); S.day = 1; seed(1);
     oublieSeances();
     go("cards");
     ok("cartes : la carte porte deux faces",
        !!view.querySelector(".face.avant") && !!view.querySelector(".face.arriere"));
     ok("cartes : et le thème de son étape",
-       !!view.querySelector('.carte3d[data-th="' + themeDe(deck[pos].day) + '"]'));
+       !!view.querySelector('.carte3d[data-th="' + themeDe(deck[pos]) + '"]'));
     ok("cartes : le thème est aussi écrit en toutes lettres",
-       view.textContent.indexOf(THEME_NOM[themeDe(deck[pos].day)]) !== -1);
+       view.textContent.indexOf(THEME_NOM[themeDe(deck[pos])]) !== -1);
 
     /* ⚠️ `data-autosay` ne doit jamais être sur la face CACHÉE : les deux
        faces vivent en permanence dans le document, et un `autosay` resté
