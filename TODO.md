@@ -1189,12 +1189,50 @@ règle juste porte sur ce qu'on VOIT — pas sur la face avant, et carte non ret
       le clavier et fait sauter la page à chaque mot.
 - [x] Auto-test : **2457 vérifications**.
 
-### Reste à faire sur ce sujet
+## La carte devient PORTRAIT — par la largeur, pas par la hauteur ✅ 02/08/2026
 
-- [ ] **Étiqueter le vocabulaire par thème**, en plus de l'étape. C'est ce qui permettra
-      d'éviter les suites logiques (*eins, zwei, drei* qui se suivent dans un paquet,
-      où la réponse se devine) — demande déjà notée plus bas. Le thème par étape ne
-      suffit pas pour ça : dans l'étape des nombres, tous les mots sont des nombres.
+Essai sur l'iPhone, retour d'Exsangue : « la carte est toujours rectangle, et ça n'a rien
+changé : quand je veux écrire, la carte n'est plus centrée, parfois je ne vois plus ce
+qui est écrit dessus. **Je veux voir le mot de la carte ET ce que j'écris, à chaque
+nouvelle carte.** »
+
+**Le premier essai était une erreur d'approche.** Allonger la carte a *aggravé* le
+problème. Le conflit, une fois nommé : une carte HAUTE et le champ de saisie ne tiennent
+pas ensemble quand le clavier prend la moitié de l'écran. Exsangue a tranché — voir les
+deux compte plus que la forme.
+
+- [x] **Changement de levier : on rétrécit la LARGEUR** (17 rem) au lieu d'augmenter la
+      hauteur. La carte devient portrait sans coûter un pixel de hauteur.
+- [x] **La hauteur prend ce qui reste** : `clamp(8rem, calc(100dvh - 20rem), 21rem)`.
+      Tant que la page peut défiler, elle défilera — le navigateur amène le champ à
+      l'écran et pousse la carte dehors. **Aucun réglage de focus ne corrige ça** : il
+      fallait supprimer le défilement lui-même en faisant tenir l'écran entier.
+      `dvh` et non `vh` : c'est la hauteur réellement visible, clavier déduit. C'est
+      précisément pourquoi le premier essai n'avait rien changé.
+- [x] Le filigrane passe à 1,75 rem sur une carte : « EN FRANÇAIS » à 2,25 touchait les
+      deux bords d'une carte de 17 rem.
+
+## ⚠️ Le thème des cartes est FAUX — corrigé à moitié, à finir
+
+Exsangue, immédiatement : « le thème de la carte n'est pas en lien avec le mot ».
+**Il a raison, et le raisonnement de départ était faux.**
+
+Le thème venait de l'ÉTAPE. Ça ne vaut que pour les étapes qui *sont* un thème — les
+animaux, la table, l'hôtel. Pour celles qui enseignent une règle, le vocabulaire n'est
+qu'une série d'exemples sans rapport : **l'étape 1 porte sur les sons**, et son
+vocabulaire est *der Bär*, *die Schule*, *das Buch*, *die Straße* — choisis pour ce
+qu'ils font entendre. Les afficher sous « langues et pays » était un mensonge.
+
+- [x] **Pis-aller posé** : l'étape 1 prend le thème **neutre** (« la langue », gris).
+      Ne rien affirmer vaut mieux qu'affirmer à côté.
+- [ ] **LE VRAI CORRECTIF : étiqueter les 350 mots un par un.** Le thème doit venir du
+      MOT. Implémentation prévue : une table `THEME_MOT` consultée **avant**
+      `THEME_ETAPE`, en un seul bloc — pour ne pas toucher aux 350 lignes de contenu et
+      pouvoir la relire d'un coup d'œil.
+- [ ] **Même travail, deuxième bénéfice** : c'est ce qui permettra d'éviter les suites
+      logiques (*eins, zwei, drei* qui se suivent dans un paquet, où la réponse se
+      devine). Le thème par étape ne peut pas y aider — dans l'étape des nombres, tous
+      les mots sont des nombres.
 
 ### Lot 4 — les onglets « à part » ⬜
 

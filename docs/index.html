@@ -837,7 +837,27 @@ body.has-tts .say { display: inline-flex; }
 
    ⚠️ Le champ de saisie et les boutons restent DEHORS. À l'intérieur, ils
    partiraient à l'envers avec la face — un champ inversé ne se remplit pas. */
-.carte3d { perspective: 1200px; width: 100%; }
+/* ⚠️ LA CARTE EST ÉTROITE, PAS HAUTE. C'est la correction du 02/08/2026,
+   après un premier essai raté.
+
+   Exsangue voulait « une vraie carte » — donc un format portrait. J'ai
+   d'abord allongé la carte, et il l'a essayée sur son iPhone : « ça n'a rien
+   changé, et quand je veux écrire la carte n'est plus centrée, parfois je ne
+   vois plus ce qui est écrit dessus ».
+
+   Le conflit est réel et il fallait le nommer : une carte HAUTE et le champ
+   de saisie ne tiennent pas ensemble à l'écran quand le clavier prend la
+   moitié de la place. Il a tranché — voir les deux en même temps compte plus
+   que la forme.
+
+   D'où le changement de levier : on obtient le portrait en RÉTRÉCISSANT la
+   largeur, ce qui ne coûte aucune hauteur. 17 rem de large pour ~20 de haut,
+   soit à peu près les proportions d'une carte à jouer. */
+.carte3d {
+  perspective: 1200px;
+  width: min(100%, 17rem);
+  margin: 0 auto;
+}
 .carte-i {
   display: grid;
   transform-style: preserve-3d;
@@ -853,36 +873,34 @@ body.has-tts .say { display: inline-flex; }
   align-items: center;
   justify-content: center;
   gap: .5rem;
-  /* Allongée à la demande d'Exsangue le 02/08/2026 — 14 rem donnaient un
-     rectangle couché qui ne ressemblait pas à une carte.
+  /* ⚠️ LA HAUTEUR EST CALCULÉE POUR QUE TOUT TIENNE SANS DÉFILEMENT.
 
-     20 rem et pas plus : à 390 px de large, la carte occupe 358 px, donc il
-     faudrait 22,5 rem pour être vraiment plus haute que large. Mais le
-     clavier d'iPhone mange la moitié de l'écran dès qu'on écrit, et le champ
-     de réponse doit rester atteignable sans chercher. C'est un compromis
-     assumé entre la forme et l'usage, pas une valeur au hasard. */
-  min-height: 20rem;
-  padding: 1.5rem 1rem 3rem;
-  /* ⚠️ LA CARTE SE RÉTRACTE QUAND LE CLAVIER MONTE. Signalé par Exsangue le
-     02/08/2026 : « quand je veux écrire, ça ouvre le clavier, ça bouge la
-     page, le focus est mal géré ».
+     C'est LE point, et il a fallu deux essais pour le comprendre. Exsangue,
+     après avoir essayé sur son iPhone : « quand je veux écrire, la carte
+     n'est plus centrée, parfois je ne vois plus ce qui est écrit dessus. Je
+     veux voir le mot de la carte ET ce que j'écris, à chaque nouvelle carte ».
 
-     Une des trois causes était ici : une carte de 20 rem pousse le champ de
-     réponse très bas, et le clavier d'iPhone mange la moitié de l'écran. Le
-     champ se retrouvait alors hors de vue, et iOS devait faire défiler la
-     page d'un coup pour le rattraper — c'est ce saut qu'il voyait.
+     Tant que la page peut défiler, elle défilera : le navigateur amène le
+     champ à l'écran et pousse la carte dehors. Aucun réglage de focus ne
+     corrige ça — il fallait supprimer le défilement lui-même.
 
-     `dvh` est la hauteur RÉELLEMENT visible, clavier déduit — contrairement
-     à `vh`, qui ignore le clavier et n'aurait rien changé. La carte garde
-     donc ses 20 rem tant qu'il y a la place, et se rétracte dès qu'il n'y en
-     a plus. Le champ reste visible sans que rien ne bouge.
+     D'où une hauteur qui prend CE QUI RESTE : la hauteur visible moins tout
+     ce qui accompagne la carte (en-tête collant, ligne d'état, champ,
+     boutons, marges) ≈ 20 rem. Bornée entre 8 et 21 rem pour qu'elle ne
+     devienne ni ridicule ni envahissante.
 
-     La règle est isolée dans un `@supports` : sur un navigateur qui ignore
-     `dvh`, tout le `min-height` serait invalide et la carte n'aurait plus
-     aucune hauteur. */
+     `dvh` et non `vh` : `dvh` est la hauteur RÉELLEMENT visible, clavier
+     déduit. `vh` l'ignore, et c'est pourquoi le premier essai n'a rien
+     changé. Isolé dans un `@supports` : sans `dvh`, toute la déclaration
+     serait invalide et la carte n'aurait plus aucune hauteur. */
+  min-height: 17rem;
+  padding: 1.25rem 1rem 2.5rem;
 }
 @supports (height: 1dvh) {
-  .face { min-height: min(20rem, 46dvh); }
+  .face {
+    height: clamp(8rem, calc(100dvh - 20rem), 21rem);
+    min-height: 0;
+  }
 }
 .face {
   text-align: center;
@@ -907,6 +925,11 @@ body.has-tts .say { display: inline-flex; }
     linear-gradient(rgba(var(--th), .10), rgba(var(--th), .10));
 }
 .face.arriere { transform: rotateY(180deg); }
+
+/* Le filigrane est plus petit SUR UNE CARTE que dans les exercices : la
+   carte ne fait plus que 17 rem de large depuis qu'elle est passée en
+   portrait, et « EN FRANÇAIS » à 2,25 rem venait toucher ses deux bords. */
+.face[data-consigne]::before { font-size: 1.75rem; }
 
 /* Les teintes. Aucune n'est verte ni rouge : ces deux-là disent le juste et
    le faux, et une carte ne doit pas avoir l'air de répondre à sa place. */
@@ -7521,8 +7544,24 @@ const WRITE_FROM_BOX = 2;
    ⚠️ Aucun thème n'est vert ni rouge. Ces deux couleurs appartiennent au juste
    et au faux dans toute l'app : une carte au fond verdâtre laisserait croire
    à une bonne réponse avant même qu'on ait répondu. */
+/* ⚠️ CETTE TABLE EST UN PIS-ALLER, et il faut le savoir en la lisant.
+
+   Elle donne le thème de l'ÉTAPE. Ça ne vaut que pour les étapes qui SONT un
+   thème — les animaux, la table, l'hôtel. Pour celles qui enseignent une
+   règle, le vocabulaire n'est qu'une série d'exemples sans rapport entre eux :
+   l'étape 1 porte sur les sons, et son vocabulaire est *der Bär*, *die
+   Schule*, *das Buch*, *die Straße*, choisis pour ce qu'ils font entendre.
+
+   Exsangue l'a vu immédiatement le 02/08/2026 : « le thème de la carte n'est
+   pas en lien avec le mot ». Il a raison.
+
+   Le vrai correctif est d'étiqueter les 350 MOTS un par un — c'est noté dans
+   `TODO.md`, et c'est le même travail qui permettra d'éviter que *eins, zwei,
+   drei* se suivent dans un paquet. En attendant, les étapes dont le
+   vocabulaire est hétéroclite portent le thème NEUTRE (« la langue », gris)
+   plutôt qu'un thème faux : ne rien affirmer vaut mieux qu'affirmer à côté. */
 const THEME_ETAPE = {
-  1: "monde",  2: "monde",  3: "gens",   4: "gens",   5: "mots",
+  1: "mots",   2: "monde",  3: "gens",   4: "gens",   5: "mots",
   6: "mots",   7: "nombres", 8: "verbes", 9: "verbes", 10: "couleurs",
   11: "verbes", 12: "verbes", 13: "mots", 14: "nature", 15: "voyage",
   16: "gens",  17: "couleurs", 18: "quotidien", 19: "nombres", 20: "mots",
