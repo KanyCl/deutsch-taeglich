@@ -1328,8 +1328,44 @@ Appelés ainsi par Exsangue : ils ne s'enchaînent jamais après une leçon.
       temps. Redessiner dix fois par seconde détruirait le champ, donc le focus, et on ne
       pourrait pas écrire un mot entier.
       Masqué tant qu'il y a moins de 4 mots rencontrés. Auto-test : **2481**.
-- [ ] **Verbes irréguliers** : les répertorier, en proposer un au hasard à conjuguer
-      au présent. Les autres temps viendront ensuite.
+- [x] **Verbes irréguliers ✅ 02/08/2026.** 37 verbes, un tiré au hasard, à conjuguer au
+      présent. Onglet « à part » lui aussi, mais **toujours accessible** : contrairement
+      au contre-la-montre il ne demande aucun acquis, c'est une table de référence qu'on
+      vient réviser.
+      ⚠️ **AUCUNE CONJUGAISON N'EST INVENTÉE.** La table est extraite par script de
+      `reference/verbes-wiktionnaire.csv` (8 047 verbes) et triée par fréquence réelle.
+      Est « irrégulier au présent » un verbe dont la forme `du`/`er` ne se déduit **pas**
+      de l'infinitif — c'est exactement ce qu'il faut réviser, le reste se calcule.
+      **228 verbes** répondent au critère ; on en garde 37.
+      ⚠️ **`sein` est écrit de mémoire, et c'est signalé dans le code.** Le dictionnaire
+      de référence **ne le contient pas** — vérifié, aucune ligne. C'est pourtant le
+      verbe le plus irrégulier de la langue. Une donnée absente se dit, elle ne se
+      maquille pas.
+      **Verbes à particule séparable écartés** : leur difficulté est la *place de la
+      particule*, pas le changement de voyelle. Les mêler ferait deux exercices en un.
+      **Liste choisie à la main** parmi les plus fréquents, pas « les N premiers » : le
+      dictionnaire remonte des composés littéraires (*vermögen*, *hinterlassen*) et une
+      ligne fautive (*umgehen*, donné au subjonctif).
+
+**⚠️ On ne demande QUE les formes irrégulières** — c'est le point le plus important, et
+c'est un principe, pas une économie. Exsangue avait fait retirer les exercices « réécris
+sans le tréma » parce qu'ils étaient impossibles à rater : « je n'apprends rien de
+spécial ». Faire taper *wir sprechen* à partir de *sprechen* serait exactement la même
+chose. Au pluriel, un verbe fort ne change **jamais** de voyelle. La règle se retourne
+d'elle-même sur `sein`, seul verbe dont le pluriel sort du moule : lui se demande en
+entier.
+
+⚠️ **Le piège du script, rencontré trois fois de suite** : PowerShell 5.1 lit les `.ps1`
+en **ANSI**. Un tréma tapé dans le script devient une suite d'octets qui ne correspond
+plus à rien — les noms de colonnes ne matchaient pas, et le filtre rejetait les 8 047
+verbes **en silence**. Les lettres allemandes sont donc construites par `[char]0xE4` et
+consorts, la source restant strictement ASCII. Même piège que `sans-livre.ps1` documente.
+Deux autres erreurs de règle au passage : le « -e- d'appui » ne s'applique **pas** après
+l, m, n, r, h (sinon *kommen*, *lernen*, *wohnen* passent pour irréguliers), et le `ß`
+manquait dans la classe des sifflantes (*heißen*, *schließen* signalés à tort).
+
+- [x] Auto-test : **2501 vérifications**, dont une relecture complète de la table —
+      colonnes, doublons, régularité, cohérence du pluriel.
 - [ ] **Test final A1** calqué sur les examens officiels, seuil à **70 %** pour
       ouvrir le A2. À noter : le Goethe-Zertifikat A1 officiel passe à **60 %** —
       le 70 % voulu par Exsangue est donc plus exigeant que l'examen réel.

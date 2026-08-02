@@ -994,6 +994,57 @@ body.has-tts .say { display: inline-flex; }
 .face .trad  { font-size: 1.125rem; color: var(--accent); font-weight: 700; margin-top: .5rem; }
 .face .tip   { font-size: .8125rem; color: var(--ink-2); font-weight: 600; }
 
+/* ---------- Les verbes irréguliers ---------- */
+.verbe-i {
+  font-family: var(--de);
+  font-size: 1.875rem;
+  font-weight: 600;
+  text-align: center;
+  padding-top: .5rem;
+}
+.verbe-f {
+  text-align: center;
+  font-size: .9375rem;
+  color: var(--ink-3);
+  padding-bottom: .5rem;
+}
+/* Une ligne par pronom, le pronom aligné à gauche en colonne fixe : c'est
+   une conjugaison, elle doit se lire en colonne comme dans un manuel. */
+.conj-q {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr;
+  align-items: center;
+  gap: .625rem;
+}
+.conj-q label {
+  font-size: .8125rem;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+.conj-q .answer { margin: 0; }
+
+.conj { display: flex; flex-direction: column; gap: .25rem; }
+.conj-l {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr;
+  gap: .625rem;
+  padding: .375rem .5rem;
+  background: var(--surface);
+  border-left: 4px solid var(--line);
+}
+.conj-p { font-size: .8125rem; color: var(--ink-3); }
+.conj-l b { font-family: var(--de); font-size: 1rem; }
+.conj-l.ok    { border-left-color: var(--good); }
+.conj-l.ko    { border-left-color: var(--bad); }
+/* Les formes qu'on n'a PAS demandées restent neutres : les marquer en vert
+   féliciterait pour une réponse jamais donnée. */
+.conj-l.calme { opacity: .6; }
+.conj-t {
+  grid-column: 2;
+  font-size: .75rem;
+  color: var(--bad);
+}
+
 /* ---------- Le contre-la-montre ----------
    Trois chiffres sur une ligne : le temps, les trouvés, le combo. Le temps
    est le plus gros parce que c'est lui qu'on surveille — dans un jeu de
@@ -6947,7 +6998,8 @@ const OU_SUIS_JE = {
   lesson: "La leçon", drills: "Les exercices", cards: "Les cartes",
   practice: "Entraînement", oral: "L'oral", quiz: "Le quiz",
   book: "Le livre", unit: "Le livre", booktest: "Test du livre",
-  reglages: "Réglages", relais: "La suite", chrono: "Contre la montre"
+  reglages: "Réglages", relais: "La suite", chrono: "Contre la montre",
+  verbes: "Verbes irréguliers"
 };
 
 /* L'étape suivante du parcours, en sautant celles qui n'ont rien à offrir
@@ -7254,6 +7306,12 @@ function home() {
       Object.keys(S.cards).length >= 4
         ? '<button class="btn wide" data-go="chrono">Contre la montre &#183; 30 secondes</button>'
         : '',
+
+      /* Les verbes irréguliers, même coin « à part ». Toujours accessible,
+         lui : contrairement au contre-la-montre, il n'a besoin d'aucun
+         acquis — c'est une table de référence qu'on vient réviser. */
+      '<button class="btn wide" data-go="verbes">Les verbes irréguliers &#183; ' +
+        VERBES.length + '</button>',
 
       // Le jour est fini mais l'envie est là : on ne renvoie pas à demain.
       (doneToday && reachable(S.day + 1)
@@ -9232,6 +9290,208 @@ function reglagesView() {
 }
 
 /* ===============================================================
+   LES VERBES IRRÉGULIERS
+   ===============================================================
+   Demandé par Exsangue le 02/08/2026 : « répertorie-moi tous les verbes
+   irréguliers, tu me proposeras aléatoirement des verbes et je devrai les
+   conjuguer au présent ; ensuite on rajoutera peut-être d'autres temps ».
+
+   ⚠️ AUCUNE CONJUGAISON N'EST INVENTÉE. La table est extraite du socle de
+   référence (`reference/verbes-wiktionnaire.csv`, 8 047 verbes) par un
+   script, puis triée par fréquence réelle. Est retenu « irrégulier au
+   présent » un verbe dont la forme `du`/`er` ne se déduit PAS de l'infinitif
+   par la règle ordinaire — c'est exactement ce qu'il faut réviser, le reste
+   se calcule.
+
+   Trois choix à connaître :
+
+   1. **`sein` est écrit DE MÉMOIRE**, et c'est la seule entrée dans ce cas :
+      le dictionnaire de référence ne le contient pas — vérifié, aucune ligne.
+      C'est pourtant le verbe le plus irrégulier de la langue. Le signaler
+      plutôt que de le taire est la règle du socle : une donnée absente se
+      dit, elle ne se maquille pas.
+   2. **Les verbes à particule séparable sont écartés** (mitfahren, aufstehen).
+      Leur difficulté est la PLACE DE LA PARTICULE, pas le changement de
+      voyelle. Ils méritent leur propre leçon ; les mêler ici ferait deux
+      exercices en un.
+   3. **La liste est choisie à la main parmi les plus fréquents**, et non
+      « les N premiers ». Le dictionnaire remonte aussi des composés
+      littéraires (*vermögen*, *hinterlassen*) et une ligne visiblement
+      fautive (*umgehen*, donné au subjonctif). Trente-sept verbes sûrs
+      valent mieux que deux cents douteux.
+
+   Ordre des colonnes : infinitif, sens, ich, du, er/sie/es, wir, ihr, sie. */
+const VERBES = [
+  // Écrit de mémoire — absent du socle de référence. Voir ci-dessus.
+  ["sein", "être", "bin", "bist", "ist", "sind", "seid", "sind"],
+  ["haben", "avoir", "habe", "hast", "hat", "haben", "habt", "haben"],
+  ["werden", "devenir", "werde", "wirst", "wird", "werden", "werdet", "werden"],
+  ["können", "pouvoir, savoir", "kann", "kannst", "kann", "können", "könnt", "können"],
+  ["sehen", "voir", "sehe", "siehst", "sieht", "sehen", "seht", "sehen"],
+  ["wissen", "savoir", "weiß", "weißt", "weiß", "wissen", "wisst", "wissen"],
+  ["müssen", "devoir", "muss", "musst", "muss", "müssen", "müsst", "müssen"],
+  ["wollen", "vouloir", "will", "willst", "will", "wollen", "wollt", "wollen"],
+  ["lassen", "laisser", "lasse", "lässt", "lässt", "lassen", "lasst", "lassen"],
+  ["helfen", "aider", "helfe", "hilfst", "hilft", "helfen", "helft", "helfen"],
+  ["geben", "donner", "gebe", "gibst", "gibt", "geben", "gebt", "geben"],
+  ["sollen", "devoir (conseil)", "soll", "sollst", "soll", "sollen", "sollt", "sollen"],
+  ["essen", "manger", "esse", "isst", "isst", "essen", "esst", "essen"],
+  ["nehmen", "prendre", "nehme", "nimmst", "nimmt", "nehmen", "nehmt", "nehmen"],
+  ["sprechen", "parler", "spreche", "sprichst", "spricht", "sprechen", "sprecht", "sprechen"],
+  ["halten", "tenir", "halte", "hältst", "hält", "halten", "haltet", "halten"],
+  ["vergessen", "oublier", "vergesse", "vergisst", "vergisst", "vergessen", "vergesst", "vergessen"],
+  ["fahren", "aller en véhicule", "fahre", "fährst", "fährt", "fahren", "fahrt", "fahren"],
+  ["treffen", "rencontrer", "treffe", "triffst", "trifft", "treffen", "trefft", "treffen"],
+  ["gefallen", "plaire", "gefalle", "gefällst", "gefällt", "gefallen", "gefallt", "gefallen"],
+  ["schlafen", "dormir", "schlafe", "schläfst", "schläft", "schlafen", "schlaft", "schlafen"],
+  ["dürfen", "avoir le droit", "darf", "darfst", "darf", "dürfen", "dürft", "dürfen"],
+  ["laufen", "courir", "laufe", "läufst", "läuft", "laufen", "lauft", "laufen"],
+  ["tragen", "porter", "trage", "trägst", "trägt", "tragen", "tragt", "tragen"],
+  ["lesen", "lire", "lese", "liest", "liest", "lesen", "lest", "lesen"],
+  ["mögen", "aimer bien", "mag", "magst", "mag", "mögen", "mögt", "mögen"],
+  ["fallen", "tomber", "falle", "fällst", "fällt", "fallen", "fallt", "fallen"],
+  ["fangen", "attraper", "fange", "fängst", "fängt", "fangen", "fangt", "fangen"],
+  ["schlagen", "frapper", "schlage", "schlägst", "schlägt", "schlagen", "schlagt", "schlagen"],
+  ["werfen", "jeter", "werfe", "wirfst", "wirft", "werfen", "werft", "werfen"],
+  ["treten", "donner un coup de pied", "trete", "trittst", "tritt", "treten", "tretet", "treten"],
+  ["brechen", "casser", "breche", "brichst", "bricht", "brechen", "brecht", "brechen"],
+  ["raten", "conseiller, deviner", "rate", "rätst", "rät", "raten", "ratet", "raten"],
+  ["waschen", "laver", "wasche", "wäschst", "wäscht", "waschen", "wascht", "waschen"],
+  ["sterben", "mourir", "sterbe", "stirbst", "stirbt", "sterben", "sterbt", "sterben"],
+  ["verlassen", "quitter", "verlasse", "verlässt", "verlässt", "verlassen", "verlasst", "verlassen"],
+  ["laden", "charger", "lade", "lädst", "lädt", "laden", "ladet", "laden"]
+];
+
+const PRONOMS = ["ich", "du", "er / sie / es", "wir", "ihr", "sie / Sie"];
+
+/* La conjugaison qu'aurait un verbe RÉGULIER. Sert à ne demander que ce qui
+   est réellement irrégulier — voir `formesAdemander`. */
+function verbeRegulier(inf) {
+  const rad = /(eln|ern)$/.test(inf) ? inf.slice(0, -1)
+            : /en$/.test(inf)        ? inf.slice(0, -2)
+            : inf.slice(0, -1);
+  // Le « -e- d'appui » : après d ou t, et après m/n précédé d'une consonne —
+  // mais jamais après l, m, n, r, h. C'est ce dernier point qu'on oublie, et
+  // il ferait passer *kommen* ou *nehmen* pour irréguliers.
+  const appui = /[dt]$/.test(rad) || /[^aeiouäöüAEIOUÄÖÜlmnrh][mn]$/.test(rad);
+  const siffl = /(s|z|x|ß)$/.test(rad);
+  return [
+    rad + "e",
+    rad + (appui ? "est" : (siffl ? "t" : "st")),
+    rad + (appui ? "et" : "t"),
+    inf,
+    rad + (appui ? "et" : "t"),
+    inf
+  ];
+}
+
+/* Les formes à demander : UNIQUEMENT celles qui s'écartent du moule régulier.
+
+   ⚠️ C'est un principe, pas une économie. Exsangue avait fait retirer les
+   exercices « réécris sans le tréma » parce qu'ils étaient impossibles à
+   rater — « je n'apprends rien de spécial ». Faire taper « wir sprechen »
+   à partir de « sprechen » serait exactement la même chose. Au pluriel, un
+   verbe fort ne change JAMAIS de voyelle ; le demander serait de la copie.
+
+   La règle se retourne d'elle-même sur `sein`, seul verbe dont le pluriel
+   sort du moule : lui, on le demande en entier. */
+function formesAdemander(v) {
+  const reg = verbeRegulier(v[0]);
+  const idx = [];
+  for (let i = 0; i < 6; i++) if (v[i + 2] !== reg[i]) idx.push(i);
+  return idx.length ? idx : [1, 2];      // filet : jamais un écran sans question
+}
+
+let verbeCourant = null, verbeVerdict = null, verbeSerie = 0;
+
+function verbeTire() {
+  let v = VERBES[Math.floor(Math.random() * VERBES.length)];
+  if (verbeCourant && v[0] === verbeCourant[0] && VERBES.length > 1) {
+    v = VERBES[(VERBES.indexOf(v) + 1) % VERBES.length];
+  }
+  return v;
+}
+
+function verbesView() {
+  if (!verbeCourant) verbeCourant = verbeTire();
+  const v = verbeCourant;
+  const demandees = formesAdemander(v);
+
+  /* La table complète, montrée seulement APRÈS la réponse. Avant, elle
+     donnerait tout. */
+  const table = verbeVerdict
+    ? '<div class="conj">' + PRONOMS.map(function (p, i) {
+        const juste = demandees.indexOf(i) === -1 ||
+                      (verbeVerdict.formes[i] && verbeVerdict.formes[i].ok);
+        return '<div class="conj-l' + (demandees.indexOf(i) === -1 ? ' calme' : (juste ? ' ok' : ' ko')) + '">' +
+                 '<span class="conj-p">' + esc(p) + '</span>' +
+                 '<b>' + esc(v[i + 2]) + '</b>' +
+                 (demandees.indexOf(i) !== -1 && verbeVerdict.formes[i] && !verbeVerdict.formes[i].ok
+                   ? '<span class="conj-t">tu as écrit : ' +
+                     esc(verbeVerdict.formes[i].saisi || "rien") + '</span>'
+                   : '') +
+               '</div>';
+      }).join("") + '</div>'
+    : '';
+
+  const champs = demandees.map(function (i) {
+    return '<div class="conj-q">' +
+             '<label for="vf' + i + '">' + esc(PRONOMS[i]) + '</label>' +
+             '<input class="answer" id="vf' + i + '" data-vf="' + i + '"' +
+               saisieAttrs("Forme pour " + PRONOMS[i]) + '>' +
+           '</div>';
+  }).join("");
+
+  return [
+    backBar('Accueil'),
+    '<div class="stack">',
+      '<div class="stack-s">',
+        '<span class="label">Verbes irréguliers &#183; ' + VERBES.length + ' au programme' +
+          (verbeSerie > 0 ? ' &#183; ' + verbeSerie + ' d\'affilée' : '') + '</span>',
+      '</div>',
+      '<div class="card">',
+        '<div class="verbe-i">' + esc(v[0]) + '</div>',
+        '<div class="verbe-f">' + esc(v[1]) + '</div>',
+      '</div>',
+      verbeVerdict
+        ? table +
+          '<div class="why ' + (verbeVerdict.ok ? "good" : "bad") + '">' +
+            (verbeVerdict.ok
+              ? "Tout juste."
+              : "Regarde les lignes en rouge. Au pluriel, un verbe fort ne change " +
+                "jamais de voyelle — c'est au singulier que tout se joue.") +
+          '</div>' +
+          '<button class="btn primary wide" data-act="verbe-next">Un autre verbe</button>'
+        : '<p class="msg">Écris les formes demandées. Les autres se déduisent de ' +
+          'l\'infinitif — on ne te fait pas recopier ce qui ne change pas.</p>' +
+          champs +
+          '<button class="btn primary wide" data-act="verbe-check">Vérifier</button>',
+      '<button class="btn wide" data-go="home">Retour à l\'accueil</button>',
+    '</div>'
+  ].join("");
+}
+
+function verbeRepond() {
+  const v = verbeCourant;
+  if (!v) return;
+  const demandees = formesAdemander(v);
+  const formes = {};
+  let tout = true;
+  demandees.forEach(function (i) {
+    const champ = document.getElementById("vf" + i);
+    const saisi = champ ? champ.value : "";
+    // `checkAnswer` : mêmes tolérances que partout — `ae` pour `ä`, jamais
+    // le `ß` exigé, la casse ignorée. Le verbe, lui, doit être exact.
+    const ok = checkAnswer(saisi, v[i + 2]).ok;
+    formes[i] = { ok: ok, saisi: String(saisi).trim() };
+    if (!ok) tout = false;
+  });
+  verbeVerdict = { ok: tout, formes: formes };
+  verbeSerie = tout ? verbeSerie + 1 : 0;
+  show(verbesView());
+}
+
+/* ===============================================================
    LE CONTRE-LA-MONTRE
    ===============================================================
    Demandé par Exsangue le 02/08/2026 : « un timer de 30 secondes, je dois
@@ -9444,7 +9704,8 @@ const ROUTES = {
   home: home, lesson: lessonView, cards: cardsView,
   practice: practiceView, oral: oralView, drills: drillsView, quiz: quizView,
   book: bookView, unit: unitView, booktest: bookTestView,
-  reglages: reglagesView, relais: relaisView, chrono: chronoView
+  reglages: reglagesView, relais: relaisView, chrono: chronoView,
+  verbes: verbesView
 };
 
 /* L'écran affiché. Sert au rouage, qui doit savoir s'il ouvre les réglages
@@ -9718,6 +9979,15 @@ view.addEventListener("click", function (e) {
     return;
   }
 
+  // Les verbes irréguliers.
+  if (t.dataset.act === "verbe-check") { verbeRepond(); return; }
+  if (t.dataset.act === "verbe-next")  {
+    verbeVerdict = null;
+    verbeCourant = verbeTire();
+    show(verbesView());
+    return;
+  }
+
   // Le contre-la-montre.
   if (t.dataset.act === "chrono-go")    { chronoDemarre(); return; }
   if (t.dataset.act === "chrono-check") { chronoRepond(); return; }
@@ -9892,12 +10162,25 @@ document.addEventListener("keydown", function (e) {
     return;
   }
 
+  /* Les verbes irréguliers ont PLUSIEURS champs. Entrée doit y descendre au
+     suivant, et ne valider que depuis le dernier — sinon on validerait une
+     conjugaison à moitié écrite en croyant passer à la ligne d'en dessous. */
+  if (cible && cible.dataset && cible.dataset.vf) {
+    const champs = Array.prototype.slice.call(view.querySelectorAll("[data-vf]"));
+    const i = champs.indexOf(cible);
+    if (i !== -1 && i < champs.length - 1) {
+      e.preventDefault();
+      champs[i + 1].focus();
+      return;
+    }
+  }
+
   const valider = view.querySelector(
-    '[data-act="check-word"],[data-act="oral-check"],[data-act="drill-check"],[data-act="chrono-check"]');
+    '[data-act="check-word"],[data-act="oral-check"],[data-act="drill-check"],[data-act="chrono-check"],[data-act="verbe-check"]');
   if (valider) { e.preventDefault(); valider.click(); return; }
 
   const suivant = view.querySelector(
-    '[data-act="card-next"],[data-act="oral-next"],[data-act="drill-next"]');
+    '[data-act="card-next"],[data-act="oral-next"],[data-act="drill-next"],[data-act="verbe-next"]');
   if (suivant) { e.preventDefault(); suivant.click(); }
 });
 
@@ -10713,6 +10996,108 @@ function runTests() {
       }
     }
     ok("quiz : aucune balise ne se lit à l'écran", vus.length === 0, vus.slice(0, 3).join(" | "));
+  })();
+
+  /* ---- Les verbes irréguliers ----
+     Demande d'Exsangue le 02/08/2026. Ici le risque n'est pas l'interface :
+     c'est qu'une conjugaison soit FAUSSE. Elles viennent d'un script et d'un
+     dictionnaire, mais une entrée recopiée à la main peut toujours déraper —
+     et une conjugaison fausse s'apprend et se garde des années. */
+  (function () {
+    const mal = [];
+    const vus = {};
+    VERBES.forEach(function (v) {
+      if (v.length !== 8) mal.push(v[0] + " : " + v.length + " colonnes");
+      if (vus[v[0]]) mal.push(v[0] + " : en double");
+      vus[v[0]] = true;
+      for (let i = 0; i < 8; i++) {
+        if (!v[i] || !String(v[i]).trim()) mal.push(v[0] + " : colonne " + i + " vide");
+      }
+    });
+    ok("verbes : la table est complète et sans doublon", mal.length === 0, mal.join(" | "));
+
+    /* Chaque verbe doit être VRAIMENT irrégulier au présent — sinon il n'a
+       rien à faire ici, et l'exercice se réduirait à recopier l'infinitif. */
+    const faciles = VERBES.filter(function (v) {
+      const reg = verbeRegulier(v[0]);
+      for (let i = 0; i < 6; i++) if (v[i + 2] !== reg[i]) return false;
+      return true;
+    });
+    ok("verbes : aucun verbe régulier ne s'est glissé dans la table",
+       faciles.length === 0, faciles.map(function (v) { return v[0]; }).join(", "));
+
+    /* Le pluriel d'un verbe fort ne change JAMAIS de voyelle : wir et sie
+       reprennent l'infinitif. `sein` est la seule exception de la langue —
+       si une autre apparaît, c'est une faute de frappe, pas une découverte. */
+    const pluriels = VERBES.filter(function (v) {
+      return v[0] !== "sein" && (v[5] !== v[0] || v[7] !== v[0]);
+    });
+    ok("verbes : au pluriel, wir et sie reprennent l'infinitif",
+       pluriels.length === 0, pluriels.map(function (v) { return v[0]; }).join(", "));
+
+    // `sein`, lui, sort du moule partout : c'est bien pour ça qu'on l'a ajouté.
+    const sein = VERBES.filter(function (v) { return v[0] === "sein"; })[0];
+    ok("verbes : sein est présent", !!sein);
+    eq("verbes : et son pluriel est irrégulier", sein && sein[5], "sind");
+
+    /* ⚠️ On ne demande QUE ce qui est irrégulier. Faire taper « wir sprechen »
+       à partir de « sprechen » serait un exercice impossible à rater — la
+       famille qu'Exsangue avait justement fait retirer. */
+    const inutiles = [];
+    VERBES.forEach(function (v) {
+      const reg = verbeRegulier(v[0]);
+      formesAdemander(v).forEach(function (i) {
+        if (v[i + 2] === reg[i]) inutiles.push(v[0] + " / " + PRONOMS[i]);
+      });
+    });
+    ok("verbes : aucune forme régulière n'est demandée",
+       inutiles.length === 0, inutiles.slice(0, 3).join(" | "));
+    ok("verbes : et il y a toujours au moins une question",
+       VERBES.every(function (v) { return formesAdemander(v).length > 0; }));
+    eq("verbes : sein se demande en entier", formesAdemander(sein).length, 6);
+
+    // L'écran : on répond juste, puis on se trompe.
+    S = fresh(); S.day = 1; seed(1);
+    go("verbes");
+    verbeCourant = VERBES.filter(function (v) { return v[0] === "sprechen"; })[0];
+    verbeVerdict = null;
+    show(verbesView());
+    ok("verbes : l'infinitif et son sens sont montrés",
+       view.textContent.indexOf("sprechen") !== -1 && view.textContent.indexOf("parler") !== -1);
+    ok("verbes : la réponse n'est pas déjà affichée",
+       view.textContent.indexOf("sprichst") === -1);
+
+    formesAdemander(verbeCourant).forEach(function (i) {
+      document.getElementById("vf" + i).value = verbeCourant[i + 2];
+    });
+    view.querySelector('[data-act="verbe-check"]').click();
+    ok("verbes : une conjugaison juste est acceptée", !!view.querySelector(".why.good"));
+    ok("verbes : et la table complète s'affiche alors",
+       view.textContent.indexOf("sprechen") !== -1 && view.textContent.indexOf("sprichst") !== -1);
+    eq("verbes : la série monte", verbeSerie, 1);
+
+    verbeVerdict = null;
+    show(verbesView());
+    document.getElementById("vf1").value = "sprechst";     // la faute classique
+    view.querySelector('[data-act="verbe-check"]').click();
+    ok("verbes : une forme fausse est refusée", !!view.querySelector(".why.bad"));
+    ok("verbes : et la ligne fautive est marquée", !!view.querySelector(".conj-l.ko"));
+    eq("verbes : la série retombe", verbeSerie, 0);
+
+    // Les tolérances habituelles valent ici aussi.
+    verbeVerdict = null;
+    verbeCourant = VERBES.filter(function (v) { return v[0] === "fahren"; })[0];
+    show(verbesView());
+    formesAdemander(verbeCourant).forEach(function (i) {
+      document.getElementById("vf" + i).value =
+        verbeCourant[i + 2].replace(/ä/g, "ae").replace(/ü/g, "ue").replace(/ö/g, "oe");
+    });
+    view.querySelector('[data-act="verbe-check"]').click();
+    ok("verbes : le tréma écrit en deux lettres est accepté",
+       !!view.querySelector(".why.good"));
+
+    go("home");
+    ok("verbes : l'accueil y donne accès", !!view.querySelector('[data-go="verbes"]'));
   })();
 
   /* ---- Le contre-la-montre ----
