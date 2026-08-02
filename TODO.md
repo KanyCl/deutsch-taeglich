@@ -1212,6 +1212,39 @@ deux compte plus que la forme.
 - [x] Le filigrane passe à 1,75 rem sur une carte : « EN FRANÇAIS » à 2,25 touchait les
       deux bords d'une carte de 17 rem.
 
+## L'écran des cartes ne défile plus du tout ✅ 02/08/2026
+
+Photo d'Exsangue, clavier ouvert : la page avait défilé pour amener le champ à l'écran,
+et **le haut de la carte — donc le mot — était sorti par le haut**. « Le focus est sur le
+texte, ce qui rend la carte à moitié cachée, c'est désagréable. »
+
+**J'avais remplacé un problème par une estimation.** Le calcul était « hauteur visible
+moins 20 rem de voisinage » — une estimation de l'en-tête, de la ligne d'état, du champ,
+des boutons et des marges. Fausse d'un rem, la page redéfile. Et je n'ai **aucun moyen de
+la vérifier** : il n'y a pas de clavier dans un navigateur sans fenêtre.
+
+- [x] **Estimation remplacée par une garantie.** L'écran des cartes fait exactement la
+      hauteur visible (`body.plein .app { height: 100dvh }`) et la carte prend **ce qui
+      reste**, quel qu'il soit (`flex: 1 1 0`). Plus rien à estimer : c'est la mise en
+      page qui mesure, et elle ne se trompe pas.
+- [x] Seuls **les cartes et l'entraînement** passent en pleine hauteur. Le livre et les
+      leçons sont longs — les enfermer dans une hauteur fixe les rendrait illisibles.
+      Une vérification l'impose dans les deux sens.
+- [x] ⚠️ **Le maillon qu'on oublie** : `.carte-i`, la grille qui porte les deux faces.
+      Sans hauteur propre elle reste à la taille de son contenu, et le `height: 100%` des
+      faces se mesure alors sur rien. Vu sur une capture : le bloc prenait bien la place,
+      mais la carte restait petite au milieu d'un grand vide.
+
+## ⚠️ La version est affichée dans les réglages ✅ 02/08/2026
+
+La photo d'Exsangue montrait un défaut **déjà corrigé** : son iPhone servait une page en
+cache. On a cherché un bug dans du code qu'il n'exécutait pas.
+
+- [x] « Version du JJ/MM/AAAA HH:MM » sous les outils de progression, tirée de
+      `document.lastModified` — la date du **fichier**, donnée par le serveur. Elle ne
+      peut pas se désynchroniser d'un numéro écrit à la main, qu'on oublierait de changer
+      une fois sur deux.
+
 ## ⚠️ Le thème des cartes est FAUX — corrigé à moitié, à finir
 
 Exsangue, immédiatement : « le thème de la carte n'est pas en lien avec le mot ».

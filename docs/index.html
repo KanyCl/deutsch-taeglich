@@ -896,11 +896,33 @@ body.has-tts .say { display: inline-flex; }
   min-height: 17rem;
   padding: 1.25rem 1rem 2.5rem;
 }
+/* ⚠️ REMPLACÉ UNE ESTIMATION PAR UNE GARANTIE — 02/08/2026, après une photo
+   d'Exsangue : la page avait défilé pour amener le champ à l'écran, et le
+   haut de la carte, donc LE MOT, était sorti par le haut.
+
+   La version précédente calculait « la hauteur visible moins 20 rem de
+   voisinage ». Ce 20 rem était une estimation de l'en-tête, de la ligne
+   d'état, du champ, des boutons et des marges. Une estimation fausse d'un
+   rem et la page redéfile — et je n'ai aucun moyen de la vérifier, faute de
+   clavier dans un navigateur sans fenêtre.
+
+   Désormais l'écran des cartes fait exactement la hauteur visible, et la
+   carte prend CE QUI RESTE, quel qu'il soit. Plus rien à estimer : c'est la
+   mise en page qui mesure, et elle ne se trompe pas. */
 @supports (height: 1dvh) {
-  .face {
-    height: clamp(8rem, calc(100dvh - 20rem), 21rem);
-    min-height: 0;
-  }
+  body.plein .app { height: 100dvh; padding-bottom: 1.25rem; }
+  body.plein #view { flex: 1 1 auto; min-height: 0; }
+  body.plein #view > .stack { height: 100%; }
+  /* `flex: 1 1 0` et non `auto` : la carte doit partir de zéro et prendre le
+     reste, sans que sa hauteur propre entre dans le calcul. */
+  body.plein .carte3d { flex: 1 1 0; min-height: 5rem; }
+  /* ⚠️ Le maillon qu'on oublie : `.carte-i` est la grille qui porte les deux
+     faces. Sans hauteur propre, elle reste à la taille de son contenu, et le
+     `height: 100%` des faces se mesure alors sur RIEN. Vu sur une capture :
+     le bloc prenait bien la place, mais la carte restait petite au milieu
+     d'un grand vide. */
+  body.plein .carte-i { height: 100%; }
+  body.plein .face { height: 100%; min-height: 0; }
 }
 .face {
   text-align: center;
@@ -8897,7 +8919,21 @@ function reglagesView() {
           '<button class="tool" data-act="export">Sauvegarder</button>' +
           '<button class="tool" data-act="import">Restaurer</button>' +
           '<button class="tool danger" data-act="reset">Tout effacer</button>' +
-        '</div>'),
+        '</div>' +
+        /* La date de la version. Ajoutée le 02/08/2026 après une photo
+           d'Exsangue montrant un défaut déjà corrigé : son iPhone servait
+           une page en cache, et ni lui ni moi n'avions moyen de le savoir —
+           on a cherché un bug dans du code qu'il n'exécutait pas.
+
+           `document.lastModified` est la date du FICHIER, donnée par le
+           serveur. Elle ne peut pas se désynchroniser d'un numéro de version
+           écrit à la main, qu'on oublierait de changer une fois sur deux. */
+        '<p class="msg" style="margin-top:.5rem">Version du <b>' +
+          esc(new Date(document.lastModified).toLocaleString("fr-FR", {
+            day: "2-digit", month: "2-digit", year: "numeric",
+            hour: "2-digit", minute: "2-digit"
+          })) + '</b><br>Si cette date est ancienne alors qu\'une correction ' +
+          'vient d\'être faite, ferme complètement l\'app et rouvre-la.</p>'),
 
       /* ---- La sauvegarde par copier-coller ----
          Ajoutée le 02/08/2026, sur une vraie inquiétude d'Exsangue : « si je
@@ -9099,6 +9135,12 @@ function paintOu(name) {
 function go(name) {
   ecranCourant = name;
   paintOu(name);
+  /* Les écrans de cartes tiennent dans la hauteur visible et ne défilent
+     pas — c'est la seule façon de garantir que le mot ET le champ restent
+     vus ensemble quand le clavier monte. Posé sur `body` et non sur `view` :
+     l'en-tête et la marge de `.app` entrent dans le calcul, et ils sont
+     au-dessus de `view`. */
+  document.body.classList.toggle("plein", name === "cards" || name === "practice");
   const g = document.getElementById("gear");
   if (g) {
     g.classList.toggle("on", name === "reglages");
@@ -10379,6 +10421,20 @@ function runTests() {
     const suivant = document.getElementById("answer");
     ok("clavier : et il le garde à la carte suivante",
        !!suivant && document.activeElement === suivant);
+
+    /* L'écran des cartes doit être en mode « pleine hauteur » : c'est lui qui
+       empêche la page de défiler, donc qui garantit que le mot et le champ
+       restent vus ensemble. La photo d'Exsangue montrait exactement le
+       contraire — la page défilée, le mot sorti par le haut. */
+    ok("clavier : l'écran des cartes tient dans la hauteur visible",
+       document.body.classList.contains("plein"));
+    go("practice");
+    ok("clavier : l'entraînement aussi", document.body.classList.contains("plein"));
+    /* Et les autres écrans NON : le livre et les leçons sont longs, les
+       enfermer dans une hauteur fixe les rendrait illisibles. */
+    go("home");
+    ok("clavier : mais pas les écrans qui doivent défiler",
+       !document.body.classList.contains("plein"));
   })();
 
   /* ---- Le chemin vertical ----
