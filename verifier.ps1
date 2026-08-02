@@ -93,9 +93,26 @@ Write-Output ""
 # --- Le cours --------------------------------------------------------------
 $html = Get-Content (Join-Path $src "index.html") -Raw -Encoding utf8
 $deb = $html.IndexOf("const COURSE = [")
-$fin = $html.IndexOf("/* LIVRE-DEBUT")
+
+# La fin de COURSE etait reperee par "/* LIVRE-DEBUT". Ce repere a DISPARU le
+# 02/08/2026, quand Exsangue a fait retirer le livre : le controle echouait
+# alors sans rien verifier du tout. Il est desormais delimite par sa PROPRE
+# fermeture -- le "];" en debut de ligne, a la colonne zero.
+#
+# Pourquoi c'est fiable : toutes les entrees du tableau sont indentees. Un "];"
+# colle a la marge ne peut donc fermer que COURSE lui-meme. Et surtout, ce
+# repere appartient a COURSE : il ne peut plus etre emporte par la suppression
+# d'autre chose, ce qui etait exactement le defaut precedent.
+$fin = -1
+if ($deb -ge 0) {
+  foreach ($nl in @("`r`n];", "`n];")) {
+    $p = $html.IndexOf($nl, $deb)
+    if ($p -ge 0 -and ($fin -lt 0 -or $p -lt $fin)) { $fin = $p }
+  }
+}
 if ($deb -lt 0 -or $fin -le $deb) {
   Write-Output "ECHEC : impossible de delimiter COURSE dans index.html."
+  Write-Output "Attendu : 'const COURSE = [' puis un '];' en debut de ligne."
   exit 1
 }
 $cours = $html.Substring($deb, $fin - $deb)

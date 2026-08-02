@@ -1591,11 +1591,38 @@ revérifier `sein` en priorité.
 - [x] Auto-test : **2744 vérifications**. `verifier.ps1` : **0 écart**. Aucun nom nouveau
       à l'étape 41 (elle n'apporte que des formes verbales et des repères de temps).
 
+- [x] **42 · Dire pourquoi (`weil`)** ✅ 02/08/2026. **Le chapitre 14 est complet.**
+      La première subordonnée du cours, et la règle qu'elle installe — **le verbe
+      conjugué part à la fin** — resservira telle quelle pour `dass` (45) et `wenn` (50).
+      C'est pourquoi elle a une étape entière alors qu'elle tient en une phrase :
+      **c'est l'entraînement qui coûte, pas l'énoncé.**
+      Le point qui surprend est traité à part : au passé composé, l'auxiliaire passe
+      **dernier**, après le participe — `weil ich geschlafen habe`. L'ordre habituel
+      s'inverse.
+      ⚠️ Les exercices `order` portent volontairement sur la **seule subordonnée**
+      (« weil ich krank bin »), sans virgule ni principale : c'est exactement le morceau
+      à réordonner, et une virgule collée à un mot rendrait le jeu de cartes illisible.
+- [x] Auto-test : **2047 vérifications**. `verifier.ps1` : 160 articles de vocabulaire,
+      189 dans les phrases, **0 écart**.
+
+⚠️ **EFFET DE BORD DE LA SUPPRESSION DU LIVRE, attrapé le 02/08/2026 :
+`verifier.ps1` était CASSÉ.** Il délimitait le tableau `COURSE` entre
+`const COURSE = [` et **`/* LIVRE-DEBUT`** — un repère appartenant au livre, donc
+disparu avec lui. Le contrôle s'arrêtait sans rien vérifier.
+
+Il est désormais délimité par sa **propre fermeture** : le `];` en début de ligne, à la
+colonne zéro. Toutes les entrées du tableau étant indentées, un `];` collé à la marge ne
+peut fermer que `COURSE`. Et surtout **le repère appartient maintenant à ce qu'il
+délimite** — il ne peut plus être emporté par la suppression d'autre chose, ce qui était
+exactement le défaut.
+
+La leçon est générale : **un repère de découpage doit vivre dans le bloc qu'il découpe.**
+
 ### Reprendre ici
 
-- [ ] **Étape 42 · Dire pourquoi (`weil`)** — et le verbe rejeté à la fin de la
-      subordonnée. Elle ferme le chapitre 14. Puis 43 à 63 selon `PLAN-A2.md`.
-      ⚠️ Le chapitre 14 contient **40 et 41** : l'allonger avec 42.
+- [ ] **Étape 43 · Le logement** (l'appartement, les pièces, les meubles), puis 44 à 63
+      selon `PLAN-A2.md`. Elle ouvre le **chapitre 15 « Chez soi, et ce qu'on en pense »**,
+      qui n'est pas encore déclaré — le créer avec la seule étape 43, puis l'allonger.
       **On ne déclare que ce qui existe**, sinon l'auto-test échoue — et il a raison.
 
 ## Mise en ligne du 02/08/2026

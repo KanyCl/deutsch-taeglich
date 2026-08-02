@@ -7050,6 +7050,147 @@ const COURSE = [
     { t: "trans", inst: "Mets la phrase au passé.", from: "Hast du einen Termin?", a: "Hattest du einen Termin?",
       why: "<b>hast</b> devient <b>hattest</b>." }
   ]
+},
+
+/* ------------------------------- ÉTAPE 42 -----------------------------
+   weil, et le verbe rejeté à la fin. Ferme le chapitre 14.
+
+   C'est la première subordonnée du cours, et la règle qu'elle installe
+   resservira pour `dass` (45) et `wenn` (50) : on ne l'apprend qu'une fois.
+   D'où le choix de lui donner une étape entière alors qu'elle tient en une
+   phrase — c'est l'ENTRAÎNEMENT qui coûte, pas l'énoncé.
+
+   Les exercices `order` portent volontairement sur la SEULE subordonnée
+   (« weil ich krank bin »), sans virgule ni principale : c'est exactement le
+   morceau qu'il faut réordonner, et une virgule collée à un mot rendrait le
+   jeu de cartes illisible. */
+{
+  day: 42, title: "Dire pourquoi", de: "Der Nebensatz mit weil",
+  steps: [
+    {
+      idea: "<b>weil</b> veut dire « parce que ».",
+      detail: "C'est la réponse à <b>warum?</b>. Elle s'ajoute à une phrase que tu sais déjà faire : <b>ich bleibe zu Hause</b>, puis la raison. Mais elle emporte une règle qui change tout — celle de l'écran suivant.",
+      gloss: { de: ["weil", "ich", "krank", "bin"], fr: ["parce que", "je", "malade", "suis"] }
+    },
+    {
+      idea: "⚠️ Après <b>weil</b>, le verbe part à la FIN.",
+      detail: "C'est la règle la plus dépaysante de l'allemand, et il n'y a aucune exception. Le verbe conjugué quitte sa deuxième place et va se poser au bout. On dit <b>weil ich krank bin</b>, jamais « weil ich bin krank ».",
+      table: [["Ich <b>bin</b> krank.", "phrase normale : verbe en 2ᵉ"], ["…, weil ich krank <b>bin</b>.", "après weil : verbe à la fin"]],
+      check: { q: "« parce que je suis malade » se dit…", o: ["weil ich krank bin", "weil ich bin krank", "weil bin ich krank"], a: 0, why: "Le verbe <b>bin</b> descend tout au bout. C'est la seule chose à retenir de cette étape." }
+    },
+    {
+      idea: "Une virgule sépare toujours les deux morceaux.",
+      detail: "En allemand elle n'est pas facultative : elle marque l'endroit où la phrase change de règle. Avant la virgule, verbe en deuxième position ; après, verbe à la fin.",
+      table: [["Ich bleibe zu Hause<b>,</b> weil ich krank bin.", "Je reste à la maison parce que je suis malade."], ["Er kommt nicht<b>,</b> weil er keine Zeit hat.", "Il ne vient pas parce qu'il n'a pas le temps."]],
+      check: { q: "Que met-on obligatoirement devant <b>weil</b> ?", o: ["une virgule", "un point", "rien du tout"], a: 0, why: "La virgule est obligatoire en allemand. Elle signale que la règle du verbe change juste après." }
+    },
+    {
+      idea: "Avec <b>war</b> et <b>hatte</b>, c'est la même chose.",
+      detail: "Rien de neuf : les formes de l'étape 41 descendent au bout comme les autres. C'est même là qu'on raconte le plus souvent une raison — un fait passé.",
+      table: [["…, weil ich krank <b>war</b>.", "parce que j'étais malade"], ["…, weil ich Fieber <b>hatte</b>.", "parce que j'avais de la fièvre"]],
+      check: { q: "« parce qu'elle était seule » se dit…", o: ["weil sie allein war", "weil sie war allein", "weil war sie allein"], a: 0, why: "<b>war</b> se comporte comme n'importe quel verbe : il finit la phrase." }
+    },
+    {
+      idea: "Avec le passé composé, c'est l'AUXILIAIRE qui finit.",
+      detail: "Voilà le seul point qui surprend. Dans une phrase normale, le participe ferme la marche (<b>ich habe geschlafen</b>). Après <b>weil</b>, le participe recule d'un cran et laisse l'auxiliaire passer dernier : <b>weil ich geschlafen habe</b>. Les deux morceaux du verbe restent collés, mais dans l'autre sens.",
+      table: [["Ich <b>habe</b> nicht <b>geschlafen</b>.", "phrase normale"], ["…, weil ich nicht <b>geschlafen habe</b>.", "après weil : l'auxiliaire finit"]],
+      check: { q: "« parce que je n'ai pas dormi » se dit…", o: ["weil ich nicht geschlafen habe", "weil ich nicht habe geschlafen", "weil ich habe nicht geschlafen"], a: 0, why: "Le participe d'abord, l'auxiliaire tout au bout. C'est l'inverse de l'ordre habituel." }
+    }
+  ],
+  examples: [
+    { d: "Ich bleibe zu Hause, weil ich krank bin.", f: "Je reste à la maison parce que je suis malade." },
+    { d: "Warum bist du müde?", f: "Pourquoi es-tu fatigué ?" },
+    { d: "Ich bin müde, weil ich nicht geschlafen habe.", f: "Je suis fatigué parce que je n'ai pas dormi." },
+    { d: "Er kommt nicht, weil er keine Zeit hat.", f: "Il ne vient pas parce qu'il n'a pas le temps." },
+    { d: "Ich nehme das Medikament, weil ich Fieber habe.", f: "Je prends le médicament parce que j'ai de la fièvre." },
+    { d: "Wir bleiben hier, weil wir müde sind.", f: "Nous restons ici parce que nous sommes fatigués." },
+    { d: "Sie war traurig, weil sie allein war.", f: "Elle était triste parce qu'elle était seule." },
+    { d: "Ich lerne Deutsch, weil es wichtig ist.", f: "J'apprends l'allemand parce que c'est important." },
+    { d: "Das ist der Grund.", f: "C'est la raison." },
+    { d: "Ich habe nichts gegessen, weil ich keinen Hunger hatte.", f: "Je n'ai rien mangé parce que je n'avais pas faim." },
+    { d: "Vielleicht ist er krank.", f: "Il est peut-être malade." },
+    { d: "Natürlich komme ich!", f: "Bien sûr que je viens !" }
+  ],
+  vocab: [
+    { d: "weil", f: "parce que", p: "VAÏL" },
+    { d: "der Grund", f: "la raison", p: "dèr GROUNT" },
+    { d: "wichtig", f: "important", p: "VIKH-tikh" },
+    { d: "vielleicht", f: "peut-être", p: "fii-LAÏKHT" },
+    { d: "natürlich", f: "bien sûr", p: "na-TUUR-likh" },
+    { d: "schlecht", f: "mauvais", p: "CHLÈKHT" },
+    { d: "traurig", f: "triste", p: "TRAO-rikh" },
+    { d: "sicher", f: "sûr, certain", p: "ZI-kheur" },
+    { d: "endlich", f: "enfin", p: "ÈNT-likh" },
+    { d: "genug", f: "assez", p: "gue-NOUK" }
+  ],
+  quiz: [
+    { q: "Dans une phrase avec <b>weil</b>, le verbe conjugué se place…", o: ["à la fin de la phrase", "en deuxième position", "juste après weil"], a: 0, why: "Il descend au bout, sans exception. C'est la règle de toutes les subordonnées allemandes." },
+    { q: "« Je reste à la maison parce que je suis malade » se dit…", o: ["Ich bleibe zu Hause, weil ich krank bin", "Ich bleibe zu Hause, weil ich bin krank", "Ich bleibe zu Hause, weil bin ich krank"], a: 0, why: "Verbe en deuxième position avant la virgule, verbe à la fin après." },
+    { q: "Avec un passé composé après <b>weil</b>, où va l'auxiliaire ?", o: ["tout à la fin, après le participe", "juste après weil", "avant le participe, comme d'habitude"], a: 0, why: "<b>weil ich geschlafen habe</b> : le participe recule, l'auxiliaire finit. C'est l'inverse de l'ordre normal." },
+    { q: "Que met-on obligatoirement devant <b>weil</b> ?", o: ["une virgule", "un point", "rien"], a: 0, why: "La virgule est obligatoire, et elle marque l'endroit où la règle du verbe change." },
+    { q: "<b>weil</b> répond à quelle question ?", o: ["warum ?", "wann ?", "wo ?", "wer ?"], a: 0, why: "<b>warum</b> = pourquoi. <b>weil</b> introduit la réponse." }
+  ],
+  drills: [
+    { t: "gap", f: "Je reste à la maison parce que je suis malade.", s: "Ich bleibe zu Hause, weil ich krank ___.", a: "bin",
+      why: "Le verbe descend à la fin de la subordonnée." },
+    { t: "gap", f: "Il ne vient pas parce qu'il n'a pas le temps.", s: "Er kommt nicht, weil er keine Zeit ___.", a: "hat",
+      why: "<b>hat</b> ferme la phrase, après son complément." },
+    { t: "gap", f: "Je suis fatigué parce que je n'ai pas dormi.", s: "Ich bin müde, weil ich nicht geschlafen ___.", a: "habe",
+      why: "Au passé composé, c'est l'AUXILIAIRE qui finit, après le participe." },
+    { t: "gap", f: "Elle était triste parce qu'elle était seule.", s: "Sie war traurig, weil sie allein ___.", a: "war",
+      why: "<b>war</b> se comporte comme les autres verbes." },
+    { t: "gap", f: "J'apprends l'allemand parce que c'est important.", s: "Ich lerne Deutsch, ___ es wichtig ist.", a: "weil",
+      why: "<b>weil</b> ouvre la raison, et envoie <b>ist</b> à la fin." },
+    { t: "gap", f: "Pourquoi es-tu fatigué ?", s: "___ bist du müde?", a: "Warum",
+      why: "<b>warum</b> pose la question à laquelle <b>weil</b> répond." },
+    { t: "gap", f: "C'est la raison.", s: "Das ist der ___.", a: "Grund",
+      why: "<b>der Grund</b> est masculin. Pluriel <b>die Gründe</b>." },
+    { t: "gap", f: "Il est peut-être malade.", s: "___ ist er krank.", a: "Vielleicht",
+      why: "<b>vielleicht</b> en tête fait reculer le sujet — le verbe garde sa deuxième place." },
+
+    { t: "order", f: "parce que je suis malade", a: "weil ich krank bin",
+      why: "<b>weil</b>, le sujet, le reste, puis le verbe tout au bout." },
+    { t: "order", f: "parce qu'il n'a pas le temps", a: "weil er keine Zeit hat",
+      why: "Le complément passe avant le verbe, qui finit." },
+    { t: "order", f: "parce que je n'ai pas dormi", a: "weil ich nicht geschlafen habe",
+      why: "Participe puis auxiliaire : l'ordre s'inverse après <b>weil</b>." },
+    { t: "order", f: "parce qu'elle était seule", a: "weil sie allein war",
+      why: "<b>war</b> descend comme n'importe quel verbe." },
+    { t: "order", f: "parce que c'est important", a: "weil es wichtig ist",
+      why: "L'adjectif précède le verbe, qui ferme." },
+    { t: "order", f: "parce que nous sommes fatigués", a: "weil wir müde sind",
+      why: "<b>sind</b> tout au bout." },
+
+    { t: "trad", f: "parce que", a: "weil",
+      why: "Et il envoie le verbe à la fin." },
+    { t: "trad", f: "la raison", a: "der Grund",
+      why: "Masculin." },
+    { t: "trad", f: "important", a: "wichtig",
+      why: "Adjectif : pas de terminaison après <b>sein</b>." },
+    { t: "trad", f: "peut-être", a: "vielleicht",
+      why: "Ne pas confondre avec <b>viel</b> (beaucoup)." },
+    { t: "trad", f: "bien sûr", a: "natürlich",
+      why: "Littéralement « naturellement »." },
+    { t: "trad", f: "assez", a: "genug",
+      why: "Se place APRÈS ce qu'il quantifie : <b>Zeit genug</b>." },
+    { t: "trad", f: "Je reste à la maison parce que je suis malade.", a: "Ich bleibe zu Hause, weil ich krank bin.",
+      why: "Virgule obligatoire, et <b>bin</b> à la fin." },
+    { t: "trad", f: "Il ne vient pas parce qu'il n'a pas le temps.", a: "Er kommt nicht, weil er keine Zeit hat.",
+      why: "<b>hat</b> ferme la subordonnée." },
+
+    { t: "trans", inst: "Relie les deux phrases avec weil.", from: "Ich bleibe zu Hause. Ich bin krank.", a: "Ich bleibe zu Hause, weil ich krank bin.",
+      why: "<b>bin</b> quitte sa deuxième place et descend à la fin." },
+    { t: "trans", inst: "Relie les deux phrases avec weil.", from: "Er kommt nicht. Er hat keine Zeit.", a: "Er kommt nicht, weil er keine Zeit hat.",
+      why: "<b>hat</b> passe derrière son complément." },
+    { t: "trans", inst: "Relie les deux phrases avec weil.", from: "Ich bin müde. Ich habe nicht geschlafen.", a: "Ich bin müde, weil ich nicht geschlafen habe.",
+      why: "Les deux morceaux du verbe s'inversent : participe, puis auxiliaire." },
+    { t: "trans", inst: "Relie les deux phrases avec weil.", from: "Sie war traurig. Sie war allein.", a: "Sie war traurig, weil sie allein war.",
+      why: "Le second <b>war</b> descend à la fin, le premier ne bouge pas." },
+    { t: "trans", inst: "Relie les deux phrases avec weil.", from: "Ich lerne Deutsch. Es ist wichtig.", a: "Ich lerne Deutsch, weil es wichtig ist.",
+      why: "<b>ist</b> ferme la subordonnée." },
+    { t: "trans", inst: "Relie les deux phrases avec weil.", from: "Wir bleiben hier. Wir sind müde.", a: "Wir bleiben hier, weil wir müde sind.",
+      why: "<b>sind</b> descend au bout." }
+  ]
 }
 ];
 
@@ -7158,7 +7299,7 @@ const CHAPTERS = [
   /* Le chapitre 14 s'allongera avec les étapes 41 et 42 (war/hatte, puis weil).
      On ne déclare que ce qui existe : une étape annoncée mais absente ferait
      échouer l'auto-test, et il aurait raison. */
-  { n: 14, title: "Le corps, la santé, la cause", steps: [40, 41] }
+  { n: 14, title: "Le corps, la santé, la cause", steps: [40, 41, 42] }
 ];
 
 /* Le chapitre auquel appartient une étape, et son rang à l'intérieur. */
@@ -8742,7 +8883,7 @@ const THEME_ETAPE = {
   31: "mots",  32: "verbes", 33: "mots",  34: "voyage", 35: "voyage",
   /* Niveau A2 */
   36: "corps", 37: "verbes", 38: "verbes", 39: "verbes", 40: "corps",
-  41: "verbes"
+  41: "verbes", 42: "mots"
 };
 const THEME_DEFAUT = "mots";
 
@@ -8863,7 +9004,12 @@ const THEME_MOT = {};
   ["verbes", ["war", "waren", "hatte", "hatten"]],
   ["temps", ["früher", "damals", "vorgestern", "letzte Woche"]],
 
-  ["mots", ["gestern", "lange", "schon", "allein", "anders"]]
+  /* Étape 42 : `weil` et les mots qui servent à donner une raison vont dans
+     « la langue » ; les adjectifs de jugement vont dans « décrire », qui est
+     le nom affiché du thème `couleurs`. */
+  ["mots", ["gestern", "lange", "schon", "allein", "anders",
+    "weil", "der Grund", "vielleicht", "natürlich", "endlich", "genug"]],
+  ["couleurs", ["wichtig", "schlecht", "traurig", "sicher"]]
 ].forEach(function (groupe) {
   groupe[1].forEach(function (mot) { THEME_MOT[mot] = groupe[0]; });
 });
