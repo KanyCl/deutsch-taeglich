@@ -6443,9 +6443,10 @@ function fresh() {
      attendait un champ de saisie et tombait sur un écran de correction. */
   oublieSeances();
   // chrono : les records du contre-la-montre, { s: score, c: combo, d: date }.
+  // a1     : le test de fin de niveau, { passe, score, total, date } — ou null.
   return { day: 1, done: [], cards: {}, streak: 0, last: null,
            scores: {}, qmiss: {}, oral: {}, dseen: {}, unit: 0, bookq: {},
-           chrono: { records: [] },
+           chrono: { records: [] }, a1: null,
            prefs: Object.assign({}, PREFS_DEFAUT) };
 }
 
@@ -6529,6 +6530,15 @@ function sane(s) {
     })
     .sort(function (a, b) { return b.s - a.s; })
     .slice(0, CHRONO_RECORDS);
+
+  /* Le test A1. Un résultat incomplet ou fantaisiste ferait afficher
+     « validé le undefined avec NaN / NaN » : on préfère l'oublier. */
+  if (!(s.a1 && typeof s.a1 === "object" &&
+        typeof s.a1.score === "number" && isFinite(s.a1.score) &&
+        typeof s.a1.total === "number" && s.a1.total > 0 &&
+        typeof s.a1.date === "string" && s.a1.date)) {
+    s.a1 = null;
+  }
 
   /* Les réglages subissent le même traitement que l'étape : une sauvegarde
      peut venir d'une version qui n'avait pas encore ce réglage, ou en proposer
@@ -7057,7 +7067,7 @@ const OU_SUIS_JE = {
   practice: "Entraînement", oral: "L'oral", quiz: "Le quiz",
   book: "Le livre", unit: "Le livre", booktest: "Test du livre",
   reglages: "Réglages", relais: "La suite", chrono: "Contre la montre",
-  verbes: "Verbes irréguliers"
+  verbes: "Verbes irréguliers", a1: "Test A1"
 };
 
 /* L'étape suivante du parcours, en sautant celles qui n'ont rien à offrir
@@ -7370,6 +7380,13 @@ function home() {
          acquis — c'est une table de référence qu'on vient réviser. */
       '<button class="btn wide" data-go="verbes">Les verbes irréguliers &#183; ' +
         VERBES.length + '</button>',
+
+      /* Le test de fin de niveau. Toujours accessible — on doit pouvoir se
+         mesurer quand on veut — mais il DIT clairement, sur son écran
+         d'accueil, quand le cours n'est pas fini. Le cacher jusqu'à la 35ᵉ
+         étape priverait de la seule façon de savoir où l'on en est. */
+      '<button class="btn wide" data-go="a1">Test de fin de niveau A1' +
+        (S.a1 && S.a1.passe ? ' &#183; validé' : '') + '</button>',
 
       // Le jour est fini mais l'envie est là : on ne renvoie pas à demain.
       (doneToday && reachable(S.day + 1)
@@ -9365,6 +9382,268 @@ function reglagesView() {
 }
 
 /* ===============================================================
+   LE TEST DE FIN DE NIVEAU A1
+   ===============================================================
+   Demandé par Exsangue le 02/08/2026 : « fais un test pour valider la partie
+   finale A1, réfère-toi à des tests officiels, 70 % ou plus ».
+
+   Calqué sur le **Goethe-Zertifikat A1 / Start Deutsch 1**, qui comporte
+   quatre épreuves : Hören, Lesen, Schreiben, Sprechen.
+
+   ⚠️ IL N'Y EN A QUE TROIS ICI, ET C'EST DIT À L'ÉCRAN. L'épreuve de
+   PAROLE est absente : l'app peut faire entendre de l'allemand, elle ne sait
+   pas écouter. Prétendre évaluer l'expression orale en faisant taper des
+   phrases serait mentir sur ce qu'on mesure. Mieux vaut un test qui annonce
+   son périmètre qu'un test qui gonfle son score.
+
+   ⚠️ SEUIL À 70 %, choisi par Exsangue. L'examen officiel passe à **60 %** :
+   son seuil est donc plus exigeant que le vrai, il l'a confirmé en connaissant
+   le chiffre. On ne le « corrige » pas en douce.
+
+   Le A2 n'existe pas encore dans l'app. Réussir ce test CERTIFIE le A1 et le
+   dit ; on n'invente pas un déblocage vers un niveau vide. */
+const A1_SEUIL = 0.70;
+
+const A1_TEXTE = "Hallo! Ich heiße Lukas. Ich bin fünfundzwanzig Jahre alt und " +
+  "ich wohne in Berlin. Ich arbeite in einem Café. Am Wochenende spiele ich " +
+  "Fußball mit meinen Freunden. Ich habe einen Hund. Er heißt Max.";
+
+/* Comme le quiz du cours, la bonne réponse est TOUJOURS `a: 0` dans le
+   fichier ; c'est l'affichage qui mélange. Le score raisonne donc sur la
+   source, jamais sur l'écran. */
+const TEST_A1 = [
+  {
+    t: "Écouter",
+    aide: "Appuie sur le bouton pour entendre la phrase. Tu peux la réécouter autant que tu veux.",
+    items: [
+      { say: "Ich komme aus Frankreich.", q: "Qu'est-ce que la personne dit ?",
+        o: ["D'où elle vient", "Son âge", "Son métier", "Où elle habite"], a: 0 },
+      { say: "Es ist halb acht.", q: "Quelle heure est-il ?",
+        o: ["7 h 30", "8 h 30", "8 h 00", "6 h 30"], a: 0 },
+      { say: "Ich hätte gerne einen Kaffee.", q: "Où se trouve sans doute cette personne ?",
+        o: ["Au café", "À la gare", "À l'hôtel", "À l'aéroport"], a: 0 },
+      { say: "Der Zug fährt um zehn Uhr.", q: "Écris en allemand l'heure que tu entends.",
+        ecrit: "zehn" },
+      { say: "Meine Schwester heißt Anna.", q: "De qui la personne parle-t-elle ?",
+        o: ["De sa sœur", "De sa mère", "De sa fille", "De son amie"], a: 0 },
+      { say: "Wo ist der Bahnhof?", q: "Que cherche la personne ?",
+        o: ["La gare", "L'hôtel", "La pharmacie", "Le restaurant"], a: 0 }
+    ]
+  },
+  {
+    t: "Lire",
+    aide: "Lis le texte, puis réponds. Il reste affiché pendant toutes les questions.",
+    texte: A1_TEXTE,
+    items: [
+      { q: "Wie alt ist Lukas ?", o: ["25 ans", "35 ans", "15 ans", "45 ans"], a: 0 },
+      { q: "Wo wohnt er ?", o: ["À Berlin", "À Munich", "À Vienne", "À Hambourg"], a: 0 },
+      { q: "Où travaille-t-il ?", o: ["Dans un café", "Dans une école", "À la gare", "À l'hôpital"], a: 0 },
+      { q: "Que fait-il le week-end ?", o: ["Il joue au football", "Il travaille", "Il dort", "Il lit"], a: 0 },
+      { q: "Wie heißt sein Hund ?", o: ["Max", "Lukas", "Anna", "Paul"], a: 0 },
+      { q: "Vrai ou faux : Lukas a un chat.", o: ["Faux", "Vrai"], a: 0 }
+    ]
+  },
+  {
+    t: "Écrire",
+    aide: "Écris la phrase en allemand. L'article compte, mais le ß n'est jamais exigé " +
+          "et « ae » passe pour « ä ».",
+    items: [
+      { q: "Je m'appelle Anna.",        ecrit: "Ich heiße Anna." },
+      { q: "J'ai vingt ans.",           ecrit: "Ich bin zwanzig Jahre alt." },
+      { q: "Le livre est grand.",       ecrit: "Das Buch ist groß." },
+      { q: "Je voudrais un café.",      ecrit: "Ich hätte gerne einen Kaffee." },
+      { q: "Où est la gare ?",          ecrit: "Wo ist der Bahnhof?" },
+      { q: "Je n'ai pas de voiture.",   ecrit: "Ich habe kein Auto." }
+    ]
+  },
+  {
+    t: "La langue",
+    aide: "Grammaire : articles, cas, conjugaison, pluriels.",
+    items: [
+      { q: "___ Frau ist nett.", o: ["Die", "Der", "Das", "Den"], a: 0 },
+      { q: "Ich sehe ___ Hund.", o: ["den", "der", "dem", "das"], a: 0 },
+      { q: "Du ___ sehr gut Deutsch. (sprechen)", o: ["sprichst", "sprechst", "spricht", "sprechen"], a: 0 },
+      { q: "Wir ___ nach Berlin. (fahren)", o: ["fahren", "fährt", "fahrt", "fährst"], a: 0 },
+      { q: "Le pluriel de <b>das Kind</b> est…", o: ["die Kinder", "die Kinde", "die Kinden", "die Kinds"], a: 0 },
+      { q: "Ich fahre ___ dem Bus.", o: ["mit", "für", "aus", "um"], a: 0 }
+    ]
+  }
+];
+
+/* Les questions mises bout à bout, chacune sachant d'où elle vient. Le test
+   se parcourt d'un seul mouvement : découper la navigation par épreuve
+   ajouterait des écrans sans rien apprendre. */
+function a1Questions() {
+  const l = [];
+  TEST_A1.forEach(function (sec) {
+    sec.items.forEach(function (it, i) {
+      l.push({ sec: sec, it: it, premier: i === 0 });
+    });
+  });
+  return l;
+}
+
+let a1i = 0, a1Log = [], a1Perm = [], a1Repondu = false, a1Verdict = null;
+
+/* Le résultat, calculé UNE fois quand la dernière question est répondue.
+
+   ⚠️ Il vivait auparavant dans la vue, qui enregistrait le score en même
+   temps qu'elle l'affichait. Un test l'a attrapé : réafficher l'écran de
+   résultat le réenregistrait, et un vieux résultat pouvait ainsi être écrit
+   par-dessus une progression neuve. Une vue AFFICHE, elle ne décide de
+   rien — sans quoi le simple fait de regarder change l'état. */
+let a1Resultat = null;
+
+function a1Demarre() {
+  const qs = a1Questions();
+  a1i = 0; a1Log = []; a1Repondu = false; a1Verdict = null;
+  a1Resultat = null;
+  a1Perm = qs.map(function (q) {
+    return q.it.o ? shuffleIdx(q.it.o.length) : null;
+  });
+  show(a1View());
+}
+
+/* Clôt le test : compte, décide, enregistre. Appelée depuis le bouton qui
+   quitte la dernière question, jamais depuis un rendu. */
+function a1Termine() {
+  const qs = a1Questions();
+  const bons = a1Log.filter(function (x) { return x; }).length;
+  const part = bons / qs.length;
+  const passe = part >= A1_SEUIL;
+  a1Resultat = { bons: bons, total: qs.length, part: part, passe: passe };
+  // On ne remplace un résultat déjà obtenu que par un MEILLEUR : refaire le
+  // test pour s'entraîner ne doit pas effacer un niveau déjà validé.
+  if (passe && (!S.a1 || !S.a1.passe || S.a1.score < bons)) {
+    S.a1 = { passe: true, score: bons, total: qs.length, date: today() };
+    persist();
+  }
+}
+
+function a1Repond(bon) {
+  a1Log[a1i] = bon;
+  a1Repondu = true;
+  show(a1View());
+}
+
+function a1View() {
+  const qs = a1Questions();
+
+  // ---- L'écran d'accueil du test ----
+  if (!a1Perm.length) {
+    const fait = S.done.length;
+    const dejaPasse = S.a1 && S.a1.passe;
+    return [
+      backBar('Accueil'),
+      '<div class="stack">',
+        '<div class="stack-s">',
+          '<h2>Test de fin de niveau A1</h2>',
+          '<p class="msg">' + qs.length + ' questions, en quatre épreuves : ' +
+            '<b>écouter</b>, <b>lire</b>, <b>écrire</b>, <b>la langue</b>. ' +
+            'Il faut <b>' + Math.round(A1_SEUIL * 100) + ' %</b> de bonnes réponses pour ' +
+            'le valider, soit <b>' + Math.ceil(qs.length * A1_SEUIL) + '</b> sur ' + qs.length + '.</p>',
+          /* Le périmètre est annoncé AVANT de commencer, pas après. Un test
+             qui révèle ses limites à la fin a déjà menti. */
+          '<p class="msg">Calqué sur le <b>Goethe-Zertifikat A1</b>, qui compte quatre ' +
+            'épreuves. La quatrième, <b>parler</b>, n\'est pas ici : l\'app sait faire ' +
+            'entendre de l\'allemand, elle ne sait pas t\'écouter. La juger en te faisant ' +
+            'taper des phrases serait mentir sur ce qu\'on mesure.</p>',
+          '<p class="msg">À savoir : l\'examen officiel passe à <b>60 %</b>. ' +
+            'Le seuil de <b>' + Math.round(A1_SEUIL * 100) + ' %</b> est ton choix — ' +
+            'il est donc plus exigeant que le vrai.</p>',
+        '</div>',
+        fait < COURSE.length
+          ? '<div class="why bad">Tu as terminé <b>' + fait + '</b> étapes sur ' +
+            COURSE.length + '. Le test couvre tout le niveau : tu peux le tenter, ' +
+            'mais il portera sur des choses que tu n\'as pas encore vues.</div>'
+          : '',
+        dejaPasse
+          ? '<div class="why good">Déjà validé le ' + esc(S.a1.date) +
+            ' avec ' + S.a1.score + ' / ' + S.a1.total + '.</div>'
+          : '',
+        '<button class="btn primary wide" data-act="a1-go">Commencer le test</button>',
+        '<button class="btn wide" data-go="home">Retour à l\'accueil</button>',
+      '</div>'
+    ].join("");
+  }
+
+  // ---- Le résultat ----
+  if (a1i >= qs.length && a1Resultat) {
+    const bons = a1Resultat.bons, part = a1Resultat.part, passe = a1Resultat.passe;
+    // Le détail par épreuve : un score global ne dit pas OÙ ça coince.
+    let k = 0;
+    const detail = TEST_A1.map(function (sec) {
+      const n = sec.items.filter(function () { return a1Log[k++]; }).length;
+      return '<div class="rec"><span class="rec-n">' + n + '/' + sec.items.length +
+             '</span><b>' + esc(sec.t) + '</b></div>';
+    }).join("");
+
+    return [
+      backBar('Accueil'),
+      '<div class="stack">',
+        '<div class="score"><b>' + bons + '/' + qs.length + '</b><span>' +
+          Math.round(part * 100) + ' %. ' +
+          (passe
+            ? 'Le niveau A1 est validé. Le A2 n\'existe pas encore dans l\'app — c\'est le prochain chantier.'
+            : 'Il faut ' + Math.ceil(qs.length * A1_SEUIL) + ' bonnes réponses. Revois les épreuves les plus faibles et retente.') +
+        '</span></div>',
+        '<div class="stack-s"><h3 class="sec">Par épreuve</h3><div class="recs">' + detail + '</div></div>',
+        '<button class="btn primary wide" data-act="a1-go">Refaire le test</button>',
+        '<button class="btn wide" data-go="home">Retour à l\'accueil</button>',
+      '</div>'
+    ].join("");
+  }
+
+  // ---- Une question ----
+  const q = qs[a1i];
+  const it = q.it;
+  const perm = a1Perm[a1i];
+
+  const corps = it.o
+    ? '<div class="opts">' + perm.map(function (i) {
+        let cls = "opt";
+        if (a1Repondu) {
+          if (i === it.a) cls += " right";
+          else if (i === a1Verdict) cls += " wrong";
+        }
+        return '<button class="' + cls + '" data-a1pick="' + i + '"' +
+               (a1Repondu ? " disabled" : "") + '>' + esc(it.o[i]) + '</button>';
+      }).join("") + '</div>'
+    : (a1Repondu
+        ? '<div class="why ' + (a1Log[a1i] ? "good" : "bad") + '">' +
+            (a1Log[a1i] ? "Exact. " : "La réponse attendue : ") +
+            '<b>' + esc(it.ecrit) + '</b></div>'
+        : '<input class="answer" id="answer"' + saisieAttrs("Ta réponse en allemand") + '>' +
+          '<button class="btn primary wide" data-act="a1-check">Valider</button>');
+
+  return [
+    backBar('Accueil'),
+    '<div class="stack">',
+      '<div class="stack-s">',
+        '<span class="label">Test A1 &#183; ' + esc(q.sec.t) +
+          ' &#183; question ' + (a1i + 1) + ' sur ' + qs.length + '</span>',
+        '<div class="meter">' + qs.map(function (_, i) {
+          return '<i class="' + (i < a1i ? (a1Log[i] ? 'on' : 'err') : '') + '"></i>';
+        }).join("") + '</div>',
+      '</div>',
+      q.premier ? '<p class="msg">' + esc(q.sec.aide) + '</p>' : '',
+      q.sec.texte ? '<div class="card"><p class="de">' + esc(q.sec.texte) + '</p></div>' : '',
+      it.say
+        ? '<div class="card" style="text-align:center">' +
+            '<button class="btn primary" data-say="' + att(it.say) + '">&#9654;&nbsp; Écouter</button>' +
+          '</div>'
+        : '',
+      '<p class="q">' + it.q + '</p>',
+      corps,
+      a1Repondu
+        ? '<button class="btn primary wide" data-act="a1-next">' +
+            (a1i + 1 >= qs.length ? 'Voir le résultat' : 'Question suivante') + '</button>'
+        : '',
+    '</div>'
+  ].join("");
+}
+
+/* ===============================================================
    LES VERBES IRRÉGULIERS
    ===============================================================
    Demandé par Exsangue le 02/08/2026 : « répertorie-moi tous les verbes
@@ -9782,7 +10061,7 @@ const ROUTES = {
   practice: practiceView, oral: oralView, drills: drillsView, quiz: quizView,
   book: bookView, unit: unitView, booktest: bookTestView,
   reglages: reglagesView, relais: relaisView, chrono: chronoView,
-  verbes: verbesView
+  verbes: verbesView, a1: a1View
 };
 
 /* L'écran affiché. Sert au rouage, qui doit savoir s'il ouvre les réglages
@@ -9817,6 +10096,11 @@ function go(name) {
      continuerait à tourner sous les autres écrans et finirait par ramener de
      force à un écran de fin qu'on n'a pas demandé. */
   if (name !== "chrono") { stopChrono(); chronoEtat = "pret"; }
+
+  /* Quitter le test A1 l'abandonne. C'est un EXAMEN : pouvoir en sortir,
+     revoir une leçon, puis revenir finir ses questions le viderait de son
+     sens. On repart de son écran d'accueil, qui annonce tout. */
+  if (name !== "a1") a1Perm = [];
   const g = document.getElementById("gear");
   if (g) {
     g.classList.toggle("on", name === "reglages");
@@ -9870,7 +10154,7 @@ if (gearBtn) {
 }
 
 view.addEventListener("click", function (e) {
-  const t = e.target.closest("[data-go],[data-act],[data-pick],[data-grade],[data-day],[data-lesson],[data-say],[data-scheck],[data-chip],[data-unchip],[data-unit],[data-reveal],[data-check],[data-model],[data-send],[data-reset],[data-play],[data-pref],[data-teinte-off],[data-relais]");
+  const t = e.target.closest("[data-go],[data-act],[data-pick],[data-grade],[data-day],[data-lesson],[data-say],[data-scheck],[data-chip],[data-unchip],[data-unit],[data-reveal],[data-check],[data-model],[data-send],[data-reset],[data-play],[data-pref],[data-teinte-off],[data-relais],[data-a1pick]");
   if (!t) return;
 
   /* Un réglage : on l'enregistre, on l'applique, on redessine l'écran pour
@@ -10053,6 +10337,31 @@ view.addEventListener("click", function (e) {
   if (t.dataset.act === "quit-test") {
     try { history.replaceState(null, "", window.location.pathname); } catch (e) {}
     go("home");
+    return;
+  }
+
+  // Le test de fin de niveau A1.
+  if (t.dataset.act === "a1-go")   { a1Demarre(); return; }
+  if (t.dataset.act === "a1-next") {
+    a1i++; a1Repondu = false; a1Verdict = null;
+    // La clôture se décide ICI, sur un geste, jamais dans un rendu.
+    if (a1i >= a1Questions().length) a1Termine();
+    show(a1View());
+    return;
+  }
+  if (t.dataset.a1pick !== undefined && !a1Repondu) {
+    const qs = a1Questions();
+    a1Verdict = Number(t.dataset.a1pick);
+    a1Repond(a1Verdict === qs[a1i].it.a);
+    return;
+  }
+  if (t.dataset.act === "a1-check") {
+    const qs = a1Questions();
+    const inp = document.getElementById("answer");
+    // `checkAnswer` : mêmes tolérances que partout, y compris dans un examen.
+    // Un test qui exigerait le ß alors que l'app ne l'exige jamais mesurerait
+    // le clavier, pas l'allemand.
+    a1Repond(checkAnswer(inp ? inp.value : "", qs[a1i].it.ecrit).ok);
     return;
   }
 
@@ -11073,6 +11382,106 @@ function runTests() {
       }
     }
     ok("quiz : aucune balise ne se lit à l'écran", vus.length === 0, vus.slice(0, 3).join(" | "));
+  })();
+
+  /* ---- Le test de fin de niveau A1 ----
+     Demande d'Exsangue le 02/08/2026. Un examen qui se trompe est pire
+     qu'un examen absent : il donne un niveau qu'on n'a pas, ou refuse un
+     niveau qu'on a. */
+  (function () {
+    const qs = a1Questions();
+    ok("test A1 : il y a des questions", qs.length > 0);
+
+    /* Chaque question doit être d'un des DEUX types, et complète. Une entrée
+       à moitié écrite passerait inaperçue à la lecture — pas ici. */
+    const bancales = [];
+    qs.forEach(function (q, i) {
+      const it = q.it;
+      if (it.o) {
+        if (it.a !== 0) bancales.push(i + " : la bonne réponse n'est pas en tête du fichier");
+        if (it.o.length < 2) bancales.push(i + " : moins de deux choix");
+        const vus = {};
+        it.o.forEach(function (x) { if (vus[x]) bancales.push(i + " : choix en double"); vus[x] = true; });
+      } else if (!it.ecrit) {
+        bancales.push(i + " : ni choix ni réponse écrite");
+      }
+      if (!it.q || !String(it.q).trim()) bancales.push(i + " : énoncé vide");
+    });
+    ok("test A1 : chaque question est complète", bancales.length === 0, bancales.slice(0, 3).join(" | "));
+
+    /* ⚠️ Une réponse attendue doit s'accepter ELLE-MÊME. C'est le contrôle
+       bête qui attrape la faute de frappe : si `checkAnswer` refuse la
+       réponse du corrigé, personne ne pourra jamais avoir juste. */
+    const refusees = [];
+    qs.forEach(function (q) {
+      if (q.it.ecrit && !checkAnswer(q.it.ecrit, q.it.ecrit).ok) refusees.push(q.it.ecrit);
+    });
+    ok("test A1 : chaque corrigé est accepté par le correcteur",
+       refusees.length === 0, refusees.join(" | "));
+
+    // Le seuil annoncé et le seuil appliqué doivent être le même nombre.
+    eq("test A1 : le seuil est bien à 70 %", A1_SEUIL, 0.70);
+
+    /* Le parcours complet, tout juste : le niveau doit être validé et gardé. */
+    S = fresh(); S.day = 1; seed(1);
+    go("a1");
+    ok("test A1 : l'écran d'accueil annonce l'épreuve absente",
+       view.textContent.indexOf("parler") !== -1);
+    ok("test A1 : et le seuil officiel, pour comparaison",
+       view.textContent.indexOf("60 %") !== -1);
+
+    view.querySelector('[data-act="a1-go"]').click();
+    for (let k = 0; k < qs.length; k++) {
+      const it = qs[k].it;
+      if (it.o) {
+        view.querySelector('[data-a1pick="0"]').click();     // 0 = la bonne, toujours
+      } else {
+        document.getElementById("answer").value = it.ecrit;
+        view.querySelector('[data-act="a1-check"]').click();
+      }
+      view.querySelector('[data-act="a1-next"]').click();
+    }
+    ok("test A1 : un sans-faute valide le niveau", !!(S.a1 && S.a1.passe));
+    eq("test A1 : et le score est enregistré", S.a1 && S.a1.score, qs.length);
+    ok("test A1 : le résultat détaille chaque épreuve",
+       view.textContent.indexOf("Par épreuve") !== -1);
+    ok("test A1 : et ne promet pas un A2 qui n'existe pas",
+       view.textContent.indexOf("n'existe pas encore") !== -1);
+
+    /* Et l'inverse : tout faux ne doit RIEN valider. Un examen qui se laisse
+       arracher un niveau ne sert à rien. */
+    S = fresh(); S.day = 1; seed(1);
+    go("a1");
+    view.querySelector('[data-act="a1-go"]').click();
+    for (let k = 0; k < qs.length; k++) {
+      const it = qs[k].it;
+      if (it.o) {
+        const faux = view.querySelector('.opt:not([data-a1pick="0"])');
+        if (faux) faux.click(); else view.querySelector('[data-a1pick="0"]').click();
+      } else {
+        document.getElementById("answer").value = "zzz";
+        view.querySelector('[data-act="a1-check"]').click();
+      }
+      view.querySelector('[data-act="a1-next"]').click();
+    }
+    ok("test A1 : tout faux ne valide rien", !(S.a1 && S.a1.passe));
+
+    /* Quitter le test l'abandonne : c'est un examen, on ne sort pas revoir
+       la leçon au milieu pour revenir finir ses questions. */
+    go("a1");
+    view.querySelector('[data-act="a1-go"]').click();
+    go("home");
+    go("a1");
+    ok("test A1 : quitter l'examen le remet à zéro",
+       !!view.querySelector('[data-act="a1-go"]'));
+
+    // Un résultat abîmé dans une sauvegarde ne doit pas s'afficher.
+    const abime = sane(Object.assign(fresh(), { a1: { passe: true, score: "beaucoup" } }));
+    ok("test A1 : un résultat illisible est écarté", abime.a1 === null);
+
+    S = fresh(); S.day = 1; seed(1);
+    go("home");
+    ok("test A1 : l'accueil y donne accès", !!view.querySelector('[data-go="a1"]'));
   })();
 
   /* ---- La progression survit au rechargement ----

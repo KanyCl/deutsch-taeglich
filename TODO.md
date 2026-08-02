@@ -1411,9 +1411,37 @@ manquait dans la classe des sifflantes (*heißen*, *schließen* signalés à tor
 
 - [x] Auto-test : **2501 vérifications**, dont une relecture complète de la table —
       colonnes, doublons, régularité, cohérence du pluriel.
-- [ ] **Test final A1** calqué sur les examens officiels, seuil à **70 %** pour
-      ouvrir le A2. À noter : le Goethe-Zertifikat A1 officiel passe à **60 %** —
-      le 70 % voulu par Exsangue est donc plus exigeant que l'examen réel.
+- [x] **Test final A1 ✅ 02/08/2026.** 24 questions, quatre épreuves : **écouter**
+      (6, la phrase est prononcée), **lire** (6, sur un texte qui reste affiché),
+      **écrire** (6, traduire en allemand), **la langue** (6, grammaire).
+      Seuil **70 %** = 17 bonnes réponses.
+      ⚠️ **L'épreuve de PAROLE du Goethe-Zertifikat est absente, et c'est dit sur
+      l'écran d'accueil du test — avant de commencer, pas après.** L'app sait faire
+      entendre de l'allemand, elle ne sait pas écouter. Prétendre évaluer
+      l'expression orale en faisant taper des phrases serait mentir sur ce qu'on
+      mesure. Mieux vaut un test qui annonce son périmètre qu'un test qui gonfle son
+      score.
+      ⚠️ **Le seuil officiel (60 %) est affiché à côté du sien.** Son 70 % est plus
+      exigeant que l'examen réel ; il l'a choisi en connaissant le chiffre, on ne le
+      « corrige » pas en douce.
+      ⚠️ **Le A2 n'existe pas encore : le test certifie le A1 et le dit.** On
+      n'invente pas un déblocage vers un niveau vide. Une vérification l'impose.
+      Le résultat se détaille **par épreuve** — un score global ne dit pas *où* ça
+      coince. Refaire le test ne peut qu'améliorer un résultat déjà obtenu, jamais
+      l'effacer. Quitter en cours **abandonne** : c'est un examen, on ne sort pas
+      revoir la leçon au milieu pour revenir finir ses questions.
+
+⚠️ **Un vrai défaut trouvé par un test, et il valait la peine** : l'écran de résultat
+**enregistrait** le score au moment de s'afficher. Le réafficher le réenregistrait — et un
+vieux résultat pouvait être écrit par-dessus une progression neuve. **Une vue affiche,
+elle ne décide de rien**, sans quoi le simple fait de regarder change l'état. Le calcul
+se fait désormais sur le geste qui quitte la dernière question.
+
+Le contrôle le plus utile de la série est le plus bête : **chaque corrigé doit s'accepter
+lui-même**. Si `checkAnswer` refusait la réponse du barème, personne n'aurait jamais pu
+avoir juste — et rien ne l'aurait signalé.
+
+- [x] Auto-test : **2525 vérifications**. `verifier.ps1` : aucun écart d'article.
 
 ## Lot 3 — à discuter avant d'attaquer
 
