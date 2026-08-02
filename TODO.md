@@ -909,10 +909,49 @@ Deux demandes d'Exsangue, dont une restée en plan la veille.
       écrit dans l'écran des réglages. La lisibilité, elle, reste garantie.
 - [x] Auto-test : **2396 vérifications**. `verifier.ps1` : aucun écart d'article.
 
-### Lot 2 — le parcours ⬜
+## Le bouton est FIGÉ — trois points, 02/08/2026
 
-- [ ] **Expliquer chaque erreur** : dire *pourquoi* c'est faux — la règle de
-      grammaire en jeu, ou « faute d'orthographe » en pointant laquelle.
+Exsangue voulait trancher une fois pour toutes : « que sur l'appli ce soit fixe et qu'il
+n'y ait rien à changer ensuite ». Le réglage à cinq dessins, créé le matin même, a donc
+été **entièrement retiré** — constante, préférence, validation, bloc d'écran, aperçu et
+tests. Un réglage qui ne sert qu'une fois est un réglage de trop.
+
+**Comment le choix s'est fait, et c'est reproductible** : douze candidats dessinés, posés
+dans le **vrai en-tête** de l'app (règle de 3 px, badge d'onglet, cible tactile de 44 px),
+publiés en page web qu'Exsangue a ouverte **sur son iPhone** — le seul endroit où l'app
+est vraiment utilisée. Il a tapé le n° 9. Une planche de contact sur fond blanc flatte
+tout et ne décide de rien.
+
+⚠️ **« Claude design » n'existe pas** comme outil à brancher — c'était déjà noté. Ce qui
+existe, c'est ce procédé-là. Il est en cours de normalisation en skill.
+
+- [x] **Trois points empilés**, en SVG (le caractère ⋮ s'affiche en emoji couleur sur
+      iPhone, qui jurerait et ne suivrait pas le thème).
+- [x] **Plus de quart de tour à l'ouverture** : trois points empilés tourneraient sans
+      qu'on voie pourquoi. C'est la **couleur** qui porte l'état — elle le faisait déjà.
+- [x] Les tests du réglage sont remplacés par ce qui reste vrai : le bouton existe, il
+      ouvre les réglages, et il en revient. C'est le seul chemin vers cet écran, et il
+      vit **hors** de la délégation de clic posée sur `view`.
+
+### Lot 2 — le parcours 🔄
+
+- [x] **Expliquer chaque erreur** (`fauteOrtho`). Branché sur les trois écrans de
+      correction : les cartes, l'oral et les exercices.
+      Le risque n'était pas de ne rien dire — c'était de **dire une bêtise avec
+      assurance**. La fonction sépare donc deux familles : le mot visé est le bon et
+      seule la forme cloche (on montre où), ou ce n'est pas le bon mot (on renvoie
+      `null`, et la règle de l'exercice répond seule).
+      Ce qu'elle reconnaît : une lettre à changer, une lettre manquante, une de trop,
+      et **deux lettres interverties** — avec sa règle quand c'est le piège *ie / ei* :
+      en allemand c'est la **deuxième** lettre de la paire qui donne le son.
+      ⚠️ **Ce que l'app pardonne n'est jamais « expliqué ».** `normDE` replie ä sur ae,
+      ß sur ss, et ignore la casse : diagnostiquer un tréma enverrait corriger ce qui
+      était déjà juste. Trois vérifications l'imposent.
+      ⚠️ Le mot montré est celui qui **s'écrit vraiment** (`Straße`), pas sa forme
+      repliée (`strasse`) — sans quoi la correction enseignerait une faute.
+      Aux exercices, la **faute** vient avant la **règle** : on regarde d'abord son
+      erreur, on comprend la règle ensuite.
+- [x] Auto-test : **2407 vérifications**.
 - [ ] **Reprise exacte** : sortir des cartes / de l'oral / des exercices et y
       revenir doit reprendre au même point, pas au début. Les erreurs restent
       comptées, aucun reset possible.

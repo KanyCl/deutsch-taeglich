@@ -275,9 +275,23 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 .streak[hidden] { display: none; }
 
-/* ---------- Le rouage ----------
+/* ---------- Le bouton des réglages ----------
    En haut à droite de TOUTES les pages : l'en-tête est hors de la zone
-   redessinée, donc il ne dépend d'aucun écran. */
+   redessinée, donc il ne dépend d'aucun écran.
+
+   ⚠️ C'est un DESSIN À TROIS POINTS, et non un rouage. Choisi par Exsangue le
+   02/08/2026 sur une planche de douze candidats vus à taille réelle sur son
+   iPhone — il trouvait le rouage « horrible », ce qui était juste : deux
+   cercles et huit dents font une tache à 22 px.
+
+   Un réglage a brièvement existé pour laisser le choix dans l'app. Il a été
+   RETIRÉ à sa demande — « que ce soit fixe, qu'il n'y ait rien à changer
+   ensuite ». Un réglage qui n'a servi qu'une fois est un réglage de trop :
+   il coûte une ligne dans la sauvegarde, une validation, et de la place sur
+   un écran qu'on ouvre pour autre chose.
+
+   En SVG et non le caractère ⋮ : sur iPhone celui-ci s'affiche en emoji
+   couleur, qui jurerait et ne suivrait pas le thème. */
 .topright { display: flex; align-items: center; gap: .5rem; }
 .gear {
   background: none;
@@ -297,29 +311,11 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* L'icône est en traits : `fill: currentColor` la remplirait et la rendrait
    illisible. C'est le `stroke` du SVG qui suit la couleur du texte. */
 .gear svg { width: 1.5rem; height: 1.5rem; }
-/* Le quart de tour dit « ouvert ». Il ne vaut que pour un dessin dont la
-   rotation se voit : les trois points empilés et les trois curseurs
-   tourneraient sans qu'on comprenne pourquoi. La couleur, elle, suffit
-   partout — c'est elle qui porte l'état, la rotation n'est qu'un bonus. */
-.gear[data-dessin="rouage"].on svg,
-.gear[data-dessin="carre"].on svg { transform: rotate(45deg); }
-.gear svg { transition: transform .2s ease; }
+/* Aucune rotation à l'ouverture : trois points empilés tourneraient sans
+   qu'on voie pourquoi. C'est la COULEUR qui porte l'état — elle marchait
+   déjà, la rotation n'était qu'un bonus lié au rouage. */
 .gear:hover { color: var(--accent); }
 .gear.on { color: var(--accent); }
-
-/* Le mot à la place du dessin. Il lui faut son propre cadre : une icône
-   tient dans un carré, un mot non. */
-.gear-mot {
-  font-family: var(--display);
-  font-size: .75rem;
-  font-weight: 700;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  border: 2px solid currentColor;
-  padding: .25rem .5rem;
-  white-space: nowrap;
-}
-.gear.gear-texte { min-width: 0; padding: .25rem .125rem; }
 
 .back {
   background: none;
@@ -1026,13 +1022,6 @@ body.has-tts .say { display: inline-flex; }
 .teinte-p::-webkit-color-swatch-wrapper { padding: 2px; }
 .teinte-p::-webkit-color-swatch { border: 0; }
 
-/* L'aperçu du bouton dans son propre réglage : on voit ce qu'on choisit
-   avant de le choisir, plutôt qu'un nom à traduire mentalement en dessin. */
-.bpv { display: block; margin-bottom: .25rem; }
-.bpv svg { width: 1.375rem; height: 1.375rem; }
-.bpv .gear-mot { font-size: .5625rem; padding: .125rem .25rem; border-width: 1px; }
-.segb.boutonb { flex-direction: column; gap: 0; line-height: 1.15; }
-
 .why {
   font-size: .875rem;
   color: var(--ink-2);
@@ -1186,12 +1175,10 @@ body.has-tts .say { display: inline-flex; }
            thèmes. -->
       <button class="gear" id="gear" type="button" aria-label="Réglages et progression">
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
-            <circle cx="12" cy="12" r="7"/>
-            <circle cx="12" cy="12" r="2.7"/>
-            <path d="M12 2.2v2.6M12 19.2v2.6M21.8 12h-2.6M4.8 12H2.2
-                     M18.93 5.07l-1.84 1.84M6.91 17.09l-1.84 1.84
-                     M18.93 18.93l-1.84-1.84M6.91 6.91L5.07 5.07"/>
+          <g fill="currentColor">
+            <circle cx="12" cy="5"  r="2.1"/>
+            <circle cx="12" cy="12" r="2.1"/>
+            <circle cx="12" cy="19" r="2.1"/>
           </g>
         </svg>
       </button>
@@ -5905,8 +5892,6 @@ const TEINTE_SECOURS = {
   drills: "#ffffff", quiz: "#1d4e89"
 };
 
-const BOUTONS = ["curseurs", "rouage", "mot", "points", "carre"];
-
 const PREFS_DEFAUT = {
   voix: "posee",       // vitesse de la voix allemande
   theme: "auto",       // auto = on suit le réglage du téléphone
@@ -5917,7 +5902,6 @@ const PREFS_DEFAUT = {
   taille: "normale",   // hauteur des cases de l'accueil
   ordre: MODES_IDS.slice(),  // l'ordre des cinq modes sur l'accueil
   sonAuto: true,       // le mot se prononce-t-il tout seul à l'affichage
-  bouton: "curseurs",  // le dessin du bouton des réglages, voir BOUTONS
   /* Vide au départ, et c'est le point : une case sans entrée ici suit la
      palette du thème. On n'enregistre que ce qui a été choisi à la main. */
   teintes: {}
@@ -5986,7 +5970,6 @@ function sane(s) {
   if (THEMES.indexOf(p.theme) === -1) p.theme = PREFS_DEFAUT.theme;
   if (FORMES.indexOf(p.forme) === -1) p.forme = PREFS_DEFAUT.forme;
   if (TAILLES.indexOf(p.taille) === -1) p.taille = PREFS_DEFAUT.taille;
-  if (BOUTONS.indexOf(p.bouton) === -1) p.bouton = PREFS_DEFAUT.bouton;
 
   /* Les teintes choisies à la main. On ne garde que ce qui est à la fois un
      mode connu ET un hexadécimal complet : une valeur inventée irait droit
@@ -6128,66 +6111,10 @@ function applyPrefs() {
     root.style.removeProperty("--ct-practice");
   }
 
-  dessineBouton();
-
   DRILL_SESSION = SEANCES[p.seance];
   ORAL_SIZE = SEANCES[p.seance];
 }
 
-/* ---------- Le bouton des réglages ----------
-   Exsangue trouvait le rouage « horrible » et m'a demandé comment choisir.
-   La réponse la plus honnête : que ce soit LUI qui choisisse, dans l'app,
-   sur son téléphone — plutôt que moi qui devine à partir d'une capture.
-
-   Les dessins sont en SVG et non en caractères (⚙, ⋮) : sur iPhone ceux-ci
-   s'affichent en emoji couleur, qui jureraient et ne suivraient pas le
-   thème. Tout est en traits, donc rien à accorder au fond. */
-const DESSINS_BOUTON = {
-  curseurs:
-    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
-      '<g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">' +
-        '<path d="M3 7h18M3 12h18M3 17h18"/>' +
-        '<circle cx="8" cy="7" r="2.4" fill="var(--paper)"/>' +
-        '<circle cx="16" cy="12" r="2.4" fill="var(--paper)"/>' +
-        '<circle cx="10" cy="17" r="2.4" fill="var(--paper)"/>' +
-      '</g></svg>',
-  rouage:
-    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
-      '<g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">' +
-        '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.7"/>' +
-        '<path d="M12 2.2v2.6M12 19.2v2.6M21.8 12h-2.6M4.8 12H2.2' +
-                ' M18.93 5.07l-1.84 1.84M6.91 17.09l-1.84 1.84' +
-                ' M18.93 18.93l-1.84-1.84M6.91 6.91L5.07 5.07"/>' +
-      '</g></svg>',
-  points:
-    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
-      '<g fill="currentColor">' +
-        '<circle cx="12" cy="5" r="2.1"/><circle cx="12" cy="12" r="2.1"/>' +
-        '<circle cx="12" cy="19" r="2.1"/>' +
-      '</g></svg>',
-  carre:
-    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
-      '<g fill="none" stroke="currentColor" stroke-width="2">' +
-        '<rect x="3" y="3" width="18" height="18"/>' +
-        '<path d="M3 12h18M12 3v18"/>' +
-        '<rect x="3" y="3" width="9" height="9" fill="currentColor"/>' +
-      '</g></svg>',
-  // Le seul sans dessin : le mot lui-même. Le Bauhaus tenait la typographie
-  // pour une forme, et aucune icône n'est aussi claire qu'un mot.
-  mot: '<span class="gear-mot">Réglages</span>'
-};
-
-function dessineBouton() {
-  const g = document.getElementById("gear");
-  if (!g) return;
-  const choix = DESSINS_BOUTON[S.prefs.bouton] ? S.prefs.bouton : PREFS_DEFAUT.bouton;
-  g.innerHTML = DESSINS_BOUTON[choix];
-  // Le mot n'est pas une icône : il n'a ni la même largeur ni le même cadre.
-  g.classList.toggle("gear-texte", choix === "mot");
-  // Lu par la feuille de style : seuls les dessins dont la rotation SE VOIT
-  // prennent le quart de tour à l'ouverture.
-  g.setAttribute("data-dessin", choix);
-}
 function persist() {
   try { localStorage.setItem(KEY, JSON.stringify(S)); }
   catch (e) { storageOK = false; }
@@ -6953,6 +6880,77 @@ function checkAnswer(typed, expected) {
   return { ok: false, kind: "wrong" };
 }
 
+/* ---------- Dire POURQUOI c'est faux ----------
+   Demandé par Exsangue le 02/08/2026 : « donne l'explication de l'erreur et
+   la règle grammaticale correspondante, ou dis faute d'orthographe en me
+   disant laquelle ».
+
+   Deux familles, et les séparer honnêtement est tout l'enjeu :
+
+     - une faute d'ORTHOGRAPHE : le mot visé est le bon, la forme non. Là on
+       peut montrer exactement où ça coince, et c'est utile.
+     - autre chose : ce n'est pas le bon mot. Prétendre y pointer une lettre
+       serait mentir sur ce qu'on a compris. On renvoie `null`, et la règle
+       de l'exercice (le champ `why`, déjà écrit) prend seule le relais.
+
+   Ce qui n'a PAS besoin d'être diagnostiqué, et pourquoi : les trémas et le
+   ß ne peuvent pas être la cause d'un échec — `normDE` replie ä sur ae et ß
+   sur ss avant toute comparaison. La casse non plus. Chercher à expliquer
+   une faute que l'app pardonne enverrait corriger ce qui était déjà juste. */
+function fauteOrtho(saisi, attendu) {
+  const t = normDE(saisi), e = normDE(attendu);
+  if (!t || t === e) return null;
+
+  const mt = t.split(" "), me = e.split(" ");
+  if (mt.length !== me.length) return null;      // ce n'est plus de l'orthographe
+
+  /* On isole LE mot qui diffère. Sur une phrase entière, annoncer « une
+     lettre » sans dire dans quel mot ne sert à rien — et si deux mots
+     diffèrent, c'est que la phrase est à revoir, pas une lettre. */
+  let i = -1, n = 0;
+  for (let k = 0; k < me.length; k++) if (mt[k] !== me[k]) { i = k; n++; }
+  if (n !== 1) return null;
+
+  const a = mt[i], b = me[i];
+  if (editDistance(a, b, 3) > 2) return null;
+
+  // Le mot tel qu'il s'écrit VRAIMENT, pas sa forme repliée : montrer
+  // « strasse » quand la réponse est « Straße » apprendrait une faute.
+  const brut = String(attendu).split(/\s+/);
+  const mot = (brut.length === me.length) ? brut[i] : b;
+  const tete = "Faute d'orthographe : ";
+
+  if (a.length === b.length) {
+    const pos = [];
+    for (let k = 0; k < a.length; k++) if (a.charAt(k) !== b.charAt(k)) pos.push(k);
+
+    /* Deux lettres voisines interverties. C'est la faute la plus fréquente
+       du francophone sur ie / ei, et elle mérite sa règle : en allemand,
+       c'est la DEUXIÈME lettre de la paire qui donne le son. */
+    if (pos.length === 2 && pos[1] === pos[0] + 1 &&
+        a.charAt(pos[0]) === b.charAt(pos[1]) && a.charAt(pos[1]) === b.charAt(pos[0])) {
+      const paire = b.substr(pos[0], 2);
+      if (paire === "ie" || paire === "ei") {
+        return tete + "tu as inversé <b>" + esc(a.substr(pos[0], 2)) + "</b> et <b>" +
+               esc(paire) + "</b> dans <b>" + esc(mot) + "</b>. En allemand, c'est la " +
+               "<b>deuxième</b> lettre de la paire qui donne le son : <b>ie</b> se lit " +
+               "« i », <b>ei</b> se lit « aï ».";
+      }
+      return tete + "deux lettres sont inversées dans <b>" + esc(mot) + "</b>.";
+    }
+    if (pos.length === 1) {
+      return tete + "une seule lettre à changer dans <b>" + esc(mot) + "</b> — tu as écrit " +
+             "<b>" + esc(a.charAt(pos[0])) + "</b> là où il faut <b>" +
+             esc(b.charAt(pos[0])) + "</b>.";
+    }
+    return tete + "le mot est <b>" + esc(mot) + "</b>, à deux lettres près.";
+  }
+
+  if (a.length === b.length - 1) return tete + "il manque une lettre à <b>" + esc(mot) + "</b>.";
+  if (a.length === b.length + 1) return tete + "une lettre de trop — le mot est <b>" + esc(mot) + "</b>.";
+  return tete + "le mot visé est bien <b>" + esc(mot) + "</b>, mais pas sous cette forme.";
+}
+
 /* ---------- Comparaison d'une traduction française ----------
    Bien plus lâche que le contrôle de l'allemand : ici on vérifie qu'on a
    COMPRIS, pas qu'on sait écrire le français. Accents, ponctuation, article
@@ -7236,7 +7234,12 @@ function writeBody(c) {
   else if (verdict.kind === "bad-article") note = "Le mot est bon, mais pas le genre : c'est <b>" + esc(c.d) + "</b>.";
   else if (verdict.kind === "dunno")       note = "Pas grave — ce mot va revenir vite.";
   else if (verdict.kind === "empty")       note = "Rien d'écrit.";
-  else                                     note = "Ce n'était pas ça.";
+  /* « Ce n'était pas ça » ne dit rien de ce qu'il faut corriger. Quand le mot
+     visé était le bon et que seule la forme cloche, on montre où — demande
+     d'Exsangue le 02/08/2026. Quand ce n'est pas ça du tout, `fauteOrtho`
+     renvoie `null` et on ne prétend pas en savoir plus. */
+  else                                     note = fauteOrtho(verdict.typed, c.d) ||
+                                                  "Ce n'était pas ça.";
 
   return [
     // On prononce la solution une fois la réponse donnée. Avant, ce serait la
@@ -7593,7 +7596,12 @@ function renderOral() {
   else if (oralVerdict.kind === "bad-article") note = "Le mot est bon, mais pas le genre : c'est <b>" + esc(it.de) + "</b>.";
   else if (oralVerdict.kind === "dunno")       note = "Pas grave — réécoute-la une fois de plus.";
   else if (oralVerdict.kind === "empty")       note = "Rien d'écrit.";
-  else                                         note = "Ce n'était pas ça.";
+  /* À l'oral la faute d'orthographe n'a de sens que si l'on écrivait
+     l'allemand : quand la consigne était de traduire, une lettre près n'est
+     pas le sujet — c'est le sens qui manquait. */
+  else                                         note = (it.task === "write" &&
+                                                  fauteOrtho(oralVerdict.typed, it.de)) ||
+                                                  "Ce n'était pas ça.";
 
   // Le déplacement de niveau, dit explicitement : c'est ce qui rend la
   // progression lisible d'une séance à l'autre.
@@ -7794,8 +7802,19 @@ function renderDrill() {
       '<div class="sol">' + esc(d.a) + '</div>',
       drillVerdict.typed ? '<div class="tip">Tu as écrit : ' + esc(drillVerdict.typed) + '</div>' : '',
     '</div>',
+    /* Deux choses différentes, et il faut les deux : la FAUTE (où ça coince
+       dans ce qu'on a écrit) puis la RÈGLE (`why`, écrite avec l'exercice).
+       La faute vient en premier — on regarde d'abord son erreur, on comprend
+       la règle ensuite. Elle ne s'affiche que si c'est vraiment une question
+       d'orthographe ; sinon la règle seule répond mieux. */
     '<div class="why ' + (drillVerdict.ok ? "good" : "bad") + '">' +
-      (drillVerdict.ok ? "Exact. " : "") + (d.why || "") + '</div>',
+      (drillVerdict.ok
+        ? "Exact. "
+        : (function () {
+            const f = fauteOrtho(drillVerdict.typed, d.a);
+            return f ? f + "<br>" : "";
+          })()) +
+      (d.why || "") + '</div>',
     '<button class="btn primary wide" data-act="drill-next">Continuer</button>',
   '</div>'
   ].join("");
@@ -8341,21 +8360,6 @@ function reglagesView() {
                  '</div>';
         }).join("") + '</div>' +
         '<button class="btn wide" data-act="teintes-reset">Rendre toutes les cases à la palette</button>'),
-
-      bloc('Le bouton des réglages',
-        'Celui d\'en haut à droite, celui sur lequel tu viens d\'appuyer. ' +
-        'Le changement se voit tout de suite, au-dessus.',
-        '<div class="seg">' + BOUTONS.map(function (b) {
-          const noms = {
-            curseurs: "Curseurs", rouage: "Rouage", mot: "Le mot",
-            points: "Trois points", carre: "Carré"
-          };
-          return '<button class="segb boutonb' + (b === p.bouton ? ' on' : '') + '"' +
-                 ' data-pref="bouton" data-val="' + b + '"' +
-                 ' aria-pressed="' + (b === p.bouton) + '">' +
-                 '<i class="bpv">' + DESSINS_BOUTON[b] + '</i>' + esc(noms[b]) +
-                 '</button>';
-        }).join("") + '</div>'),
 
       bloc('La forme des cases',
         'En cercles, le sous-titre de chaque case disparaît — il ne tient pas ' +
@@ -9583,6 +9587,59 @@ function runTests() {
     ok("quiz : aucune balise ne se lit à l'écran", vus.length === 0, vus.slice(0, 3).join(" | "));
   })();
 
+  /* ---- Expliquer l'erreur ----
+     Demande d'Exsangue le 02/08/2026 : « donne l'explication de l'erreur,
+     la règle, ou dis-moi quelle faute d'orthographe ». Le risque n'est pas
+     de ne rien dire — c'est de dire une bêtise avec assurance. D'où deux
+     séries : ce qu'on DOIT reconnaître, et ce qu'on doit refuser d'expliquer. */
+  (function () {
+    // Une lettre à changer, et on dit laquelle.
+    const une = fauteOrtho("Hars", "Haus");
+    ok("erreur : une seule lettre fautive est pointée",
+       une && une.indexOf("une seule lettre") !== -1, String(une));
+
+    /* Deux lettres voisines INTERVERTIES : le piège ie / ei mérite sa règle.
+       ⚠️ « Bierne » pour « Birne » n'en est pas une — c'est une lettre en
+       trop. Ce test s'est trompé d'exemple avant de trouver le bon, et il
+       avait raison de crier : les deux mots doivent avoir la même longueur
+       pour qu'il y ait interversion. */
+    const inv = fauteOrtho("Beir", "Bier");
+    ok("erreur : ie / ei inversés reçoivent leur règle",
+       inv && inv.indexOf("deuxième") !== -1, String(inv));
+
+    ok("erreur : une lettre manquante est signalée",
+       (fauteOrtho("Hus", "Haus") || "").indexOf("manque") !== -1);
+    ok("erreur : une lettre en trop est signalée",
+       (fauteOrtho("Hauus", "Haus") || "").indexOf("de trop") !== -1);
+
+    /* Le mot montré est celui qui s'écrit VRAIMENT. `normDE` replie ß sur ss ;
+       afficher « strasse » comme correction apprendrait une faute. */
+    const st = fauteOrtho("Strase", "Straße");
+    ok("erreur : la correction montre le mot tel qu'il s'écrit",
+       !st || st.indexOf("Straße") !== -1, String(st));
+
+    /* Et surtout : ce qu'il faut REFUSER d'expliquer. Prétendre pointer une
+       lettre quand ce n'est pas le bon mot serait mentir sur ce qu'on a
+       compris — la règle de l'exercice répond mieux dans ce cas. */
+    ok("erreur : un mot sans rapport n'est pas traité comme une faute de frappe",
+       fauteOrtho("Katze", "Haus") === null);
+    ok("erreur : une phrase de longueur différente n'est pas traitée",
+       fauteOrtho("Ich bin", "Ich bin hier") === null);
+    ok("erreur : deux mots fautifs ne se résument pas à une lettre",
+       fauteOrtho("Der Katze ist gross", "Die Blume ist klein") === null);
+    ok("erreur : rien d'écrit n'est pas une faute d'orthographe",
+       fauteOrtho("", "Haus") === null);
+
+    /* Ce que l'app PARDONNE ne doit jamais être « expliqué » : envoyer
+       corriger un tréma accepté enverrait corriger ce qui était juste. */
+    ok("erreur : un tréma écrit en deux lettres reste sans reproche",
+       fauteOrtho("gruen", "grün") === null);
+    ok("erreur : ß écrit ss reste sans reproche",
+       fauteOrtho("Strasse", "Straße") === null);
+    ok("erreur : la casse reste sans reproche",
+       fauteOrtho("haus", "Haus") === null);
+  })();
+
   /* Le filigrane de consigne — demande d'Exsangue le 02/08/2026 : « on ne
      voit pas d'un regard ce qu'on doit faire ». Un mode où l'on répond sans
      consigne visible est précisément ce qui le faisait se tromper. */
@@ -9753,33 +9810,25 @@ function runTests() {
   })();
 
   /* ---- Le bouton des réglages ----
-     Exsangue trouvait le rouage horrible : c'est lui qui choisit, dans
-     l'app. Chaque choix doit donc produire un dessin, et aucun ne doit
-     laisser le bouton vide. */
+     Il est FIGÉ dans le HTML depuis qu'Exsangue a choisi les trois points
+     (02/08/2026) : il n'y a plus de réglage à tester. Ce qui reste à
+     garantir, c'est qu'il existe et qu'il agisse — c'est le seul chemin
+     vers les réglages, et il vit hors de la zone redessinée, donc hors de
+     la délégation de clic posée sur `view`. */
   (function () {
     S = fresh(); S.day = 1; seed(1);
-    const vides = [];
-    BOUTONS.forEach(function (b) {
-      S.prefs.bouton = b;
-      applyPrefs();
-      const g = document.getElementById("gear");
-      if (!g.innerHTML.trim()) vides.push(b);
-      if (g.getAttribute("data-dessin") !== b) vides.push(b + " : data-dessin");
-    });
-    ok("bouton : chaque choix donne un dessin", vides.length === 0, vides.join(", "));
-
-    // Un choix inconnu venu d'une sauvegarde ne doit pas vider le bouton.
-    S.prefs.bouton = "licorne";
-    applyPrefs();
-    ok("bouton : un choix inconnu retombe sur le dessin par défaut",
-       document.getElementById("gear").getAttribute("data-dessin") === PREFS_DEFAUT.bouton);
-    S.prefs.bouton = PREFS_DEFAUT.bouton;
-    applyPrefs();
+    go("home");
+    const g = document.getElementById("gear");
+    ok("bouton : le dessin est présent", !!g && !!g.querySelector("svg"));
+    g.click();
+    eq("bouton : il ouvre les réglages", ecranCourant, "reglages");
+    g.click();
+    eq("bouton : et il en revient — c'est un va-et-vient", ecranCourant, "home");
   })();
 
   S = fresh(); S.day = 1; seed(1); applyPrefs();
   go("reglages");
-  ["voix", "sonAuto", "theme", "texte", "couleur", "forme", "seance", "bouton"].forEach(function (cle) {
+  ["voix", "sonAuto", "theme", "texte", "couleur", "forme", "seance"].forEach(function (cle) {
     const boutons = view.querySelectorAll('[data-pref="' + cle + '"]');
     ok("réglages : « " + cle + " » propose au moins deux choix", boutons.length >= 2);
     eq("réglages : « " + cle + " » en marque exactement un",
