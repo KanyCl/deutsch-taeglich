@@ -82,7 +82,10 @@ if ($Shots) {
     $target = "file:///" + ($copy -replace '\\', '/')
   }
 
-  foreach ($screen in @("home", "lesson", "cards", "practice", "quiz", "reglages", "test")) {
+  # "drills" ajoute le 02/08/2026 : c'est le seul ecran qui porte le filigrane
+  # de consigne dans une boite COURTE. Les cartes, elles, ont 14 rem de haut —
+  # un debordement ne s'y verrait pas.
+  foreach ($screen in @("home", "lesson", "cards", "drills", "practice", "quiz", "reglages", "test")) {
     $hash    = if ($screen -eq "home") { "" } else { "#$screen" }
     $wrapper = Join-Path $env:TEMP "deutsch-shot-$screen.html"
     $png     = Join-Path $out "$screen$suffix.png"

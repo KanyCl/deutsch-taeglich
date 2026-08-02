@@ -754,6 +754,105 @@ fonctionne, il ne dit pas qu'elle est lisible.
 
 - [x] Auto-test : **2369 vérifications**.
 
+## Douze demandes d'Exsangue — 02/08/2026, après une soirée d'usage
+
+Rangées en quatre lots, du plus rentable à l'heure passée au plus lourd.
+**Lot 1 fait**, lots 2 à 4 à venir.
+
+### Lot 1 ✅ 02/08/2026 — ce qu'on croise à chaque séance
+
+- [x] **L'icône est un drapeau allemand.** Trois bandes pleines, noir/rouge/or
+      (DIN 6171-1), sans lettre ni logo. Raison du choix : iOS arrondit les angles
+      et Android rogne les bords des icônes « maskable » — des bandes horizontales
+      survivent aux deux, un logo centré se fait manger les coins. Et à 40 px sur un
+      écran d'accueil, une lettre ne se lit plus ; un drapeau, si.
+      Corrigé au passage : le manifeste annonçait encore `#EDEEF0`, la couleur de
+      fond d'avant le design Bauhaus. Passé à `#F4F3EF`.
+- [x] **Le remplissage automatique ne propose plus ni l'adresse ni le nom.**
+      `autocomplete="off"` était déjà posé — Safari le LIT puis l'IGNORE dès qu'il
+      croit reconnaître un champ d'adresse. En revanche il traite une valeur
+      **inconnue** comme « off » : d'où un jeton bidon à la place du mot `off`.
+      S'y ajoutent un `name` différent à chaque affichage (c'est lui qui sert de
+      crochet aux valeurs enregistrées) et les marqueurs des gestionnaires de mots
+      de passe.
+      ⚠️ **Limite à dire franchement** : la barre de suggestions de mots d'iOS
+      relève du clavier, pas de la page. Aucun attribut HTML ne la fait taire. Ce
+      qui disparaît, c'est le bandeau « Remplissage automatique » et ses
+      propositions de contact — pas les prédictions de mots.
+      Les attributs étaient recopiés à **cinq** endroits → une seule fonction
+      `saisieAttrs`. Une correction sur quatre des cinq serait passée inaperçue.
+- [x] **Un badge « où suis-je » dans l'en-tête**, et **l'en-tête devient collant**.
+      Le badge prend la PLACE du nom de l'app au lieu de s'ajouter à côté : à 390 px,
+      titre + badge + série + rouage ne tiennent pas sur une ligne. Sur un écran de
+      leçon, « Deutsch Täglich » n'apprend rien ; « L'ORAL » répond à la question.
+      Sur l'accueil, où l'on ne peut pas se perdre, le nom revient.
+      **Ses couleurs sont celles des cases de l'accueil** : on appuie sur le bloc
+      bleu « la leçon », on obtient le bandeau bleu « LA LEÇON » — le badge confirme
+      le geste. Le livre et les réglages prennent un aplat sourd : ce ne sont pas des
+      étapes du parcours, et chaque couleur de plus est une couleur de moins qui
+      veut dire quelque chose.
+      L'en-tête est collant parce qu'un en-tête qui défile ne répond qu'à moitié :
+      au milieu d'une leçon il est déjà sorti de l'écran. Le rouage devient
+      accessible partout au passage.
+- [x] **Filigrane de consigne** — « quand on va vite parce qu'on connaît, on se
+      trompe : on ne voit pas d'un regard ce qu'on doit faire ». Deux décisions :
+      **1.** le filigrane est **dans la boîte**, jamais derrière le champ de saisie.
+      Écrire par-dessus un texte, même pâle, gêne la relecture de ce qu'on tape —
+      ce serait échanger un défaut de lisibilité contre un autre. La boîte, elle, a
+      de la place perdue (14 rem de haut pour un mot).
+      **2.** il porte un **verbe court** (« EN ALLEMAND », « COMPLÈTE », « DANS
+      L'ORDRE »), pas la consigne entière : un filigrane qu'il faut lire n'est plus
+      un coup d'œil. La phrase exacte reste en clair juste dessous.
+      Le texte vient de `attr()`, donc une seule règle CSS sert les cartes, l'oral
+      et les exercices — le filigrane ne peut pas se désaccorder de sa consigne.
+      Pour les transformations il est **tiré du premier mot** de l'instruction
+      (« Transforme… », « Remets… ») plutôt que d'une seconde table, qui finirait
+      par contredire la première.
+      Au passage : la consigne précise n'est plus en gris pâle minuscule — c'est
+      elle qu'Exsangue disait ne pas voir.
+- [x] Auto-test : **2377 vérifications**.
+
+⚠️ **Deux défauts vus sur une capture, pas par un test** — encore une fois :
+- Le filigrane **débordait vers le bas** (`bottom: -.375rem`). Avec
+  `overflow: hidden`, ça ne se lisait pas comme un débord voulu mais comme un texte
+  coupé — et la cédille de « FRANÇAIS » disparaissait avec.
+- Une boîte courte se faisait **traverser** par le filigrane. La place est
+  désormais réservée (`padding-bottom`) au lieu d'être partagée.
+Conséquence : `test.ps1` photographie maintenant aussi l'écran **`drills`**, le seul
+qui porte un filigrane dans une boîte courte.
+
+### Lot 2 — le parcours ⬜
+
+- [ ] **Expliquer chaque erreur** : dire *pourquoi* c'est faux — la règle de
+      grammaire en jeu, ou « faute d'orthographe » en pointant laquelle.
+- [ ] **Reprise exacte** : sortir des cartes / de l'oral / des exercices et y
+      revenir doit reprendre au même point, pas au début. Les erreurs restent
+      comptées, aucun reset possible.
+- [ ] **Transitions annoncées** entre les phases (« place à l'oral »), et **retour
+      au menu à la fin du tour** au lieu d'enchaîner : « si on enchaîne les leçons
+      on ne sait plus où on en est ».
+- [ ] **Refaire l'oral** si le taux de fautes y dépasse un seuil.
+
+### Lot 3 — la carte de progression ⬜
+
+- [ ] **Chemin vertical façon Duolingo** : des paliers, les étapes réussies en vert,
+      celles avec des fautes en orange (rattrapables plus tard), les suivantes
+      grisées en bas. Animation d'avancée après chaque tour.
+      Remplace la ligne de stations horizontale actuelle.
+
+### Lot 4 — les onglets « à part » ⬜
+
+Appelés ainsi par Exsangue : ils ne s'enchaînent jamais après une leçon.
+
+- [ ] **Contre-la-montre** : 30 secondes, traduire un maximum de mots déjà vus.
+      Un combo de bonnes réponses fait gagner du temps, une erreur le remet à 0.
+      Classement des records.
+- [ ] **Verbes irréguliers** : les répertorier, en proposer un au hasard à conjuguer
+      au présent. Les autres temps viendront ensuite.
+- [ ] **Test final A1** calqué sur les examens officiels, seuil à **70 %** pour
+      ouvrir le A2. À noter : le Goethe-Zertifikat A1 officiel passe à **60 %** —
+      le 70 % voulu par Exsangue est donc plus exigeant que l'examen réel.
+
 ## Lot 3 — à discuter avant d'attaquer
 
 - [ ] **Éviter les suites logiques.** un-deux-trois, les jours de la semaine… ne doivent pas

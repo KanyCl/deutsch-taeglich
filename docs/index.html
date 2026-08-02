@@ -177,7 +177,15 @@ button { font: inherit; color: inherit; cursor: pointer; }
   color: var(--ink-3);
 }
 
-/* ---------- En-tête ---------- */
+/* ---------- En-tête ----------
+   COLLANT depuis le 02/08/2026. Demande d'Exsangue : « je veux pouvoir lever
+   les yeux et lire dans quel onglet je suis ». Un en-tête qui défile avec la
+   page ne répond qu'à moitié : au milieu d'une leçon, il est déjà sorti de
+   l'écran. Le rouage devient accessible partout au passage.
+
+   La marge négative compense la marge intérieure de `.app` : sans elle, le
+   fond de l'en-tête s'arrêterait 1 rem trop bas et on verrait le contenu
+   défiler dans cette bande. */
 .top {
   display: flex;
   align-items: center;
@@ -185,6 +193,12 @@ button { font: inherit; color: inherit; cursor: pointer; }
   gap: .75rem;
   border-bottom: 3px solid var(--ink);
   padding-bottom: .625rem;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--paper);
+  padding-top: 1rem;
+  margin-top: -1rem;
 }
 .wordmark {
   font-family: var(--display);
@@ -204,6 +218,42 @@ button { font: inherit; color: inherit; cursor: pointer; }
   text-transform: uppercase;
   color: var(--ink-3);
 }
+/* ---------- « Où suis-je » ----------
+   Demandé par Exsangue le 02/08/2026. Le badge prend la PLACE du nom de
+   l'app, il ne s'ajoute pas à côté : à 390 px de large, un titre + un badge
+   + la série + le rouage ne tiennent pas sur une ligne sans que tout
+   rétrécisse. Et sur un écran de leçon, « Deutsch Täglich » n'apprend rien
+   qu'on ne sache déjà — alors que « L'ORAL » répond à la question posée.
+   Sur l'accueil, où il n'y a pas d'ambiguïté, le nom revient.
+
+   Les couleurs sont celles des cases de l'accueil, et c'est le point : on
+   appuie sur le bloc bleu « la leçon », on obtient le bandeau bleu « LA
+   LEÇON ». Le badge confirme le geste au lieu de le commenter. */
+.ou {
+  display: inline-block;
+  font-family: var(--display);
+  font-size: .8125rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: .3125rem .625rem;
+  border: 2px solid transparent;
+}
+.ou[data-ou="lesson"],
+.ou[data-ou="quiz"]     { background: var(--accent);  color: var(--accent-ink); }
+.ou[data-ou="cards"],
+.ou[data-ou="practice"] { background: var(--amber-bg); color: var(--amber-ink); }
+.ou[data-ou="oral"]     { background: var(--ink);      color: var(--paper); }
+.ou[data-ou="drills"]   { background: var(--surface);  color: var(--ink); border-color: var(--ink); }
+/* Le livre et les réglages ne sont pas des étapes du parcours : un aplat
+   sourd les distingue des cinq modes sans inventer une sixième couleur —
+   or chaque couleur de plus est une couleur de moins qui veut dire quelque
+   chose. Ils restent bien lisibles, seulement plus discrets. */
+.ou[data-ou="book"],
+.ou[data-ou="unit"],
+.ou[data-ou="booktest"],
+.ou[data-ou="reglages"] { background: var(--surface-2); color: var(--ink-2); }
+
 .streak {
   display: inline-flex;
   align-items: center;
@@ -237,7 +287,11 @@ button { font: inherit; color: inherit; cursor: pointer; }
   justify-content: center;
   margin-right: -.25rem;
 }
-.gear svg { width: 1.375rem; height: 1.375rem; fill: currentColor; }
+/* L'icône est en traits : `fill: currentColor` la remplirait et la rendrait
+   illisible. C'est le `stroke` du SVG qui suit la couleur du texte. */
+.gear svg { width: 1.5rem; height: 1.5rem; }
+.gear.on svg { transform: rotate(45deg); }
+.gear svg { transition: transform .2s ease; }
 .gear:hover { color: var(--accent); }
 .gear.on { color: var(--accent); }
 
@@ -405,12 +459,25 @@ button { font: inherit; color: inherit; cursor: pointer; }
     "cartes exos"
     "quiz   quiz";
 }
-.modes-home.carre .mode[data-go="lesson"]   { grid-area: lecon; }
-.modes-home.carre .mode[data-go="cards"],
-.modes-home.carre .mode[data-go="practice"] { grid-area: cartes; }
-.modes-home.carre .mode[data-go="oral"]     { grid-area: oral; }
-.modes-home.carre .mode[data-go="drills"]   { grid-area: exos; }
-.modes-home.carre .mode[data-go="quiz"]     { grid-area: quiz; }
+/* Les emplacements suivent la POSITION, pas l'identité du mode : c'est ce qui
+   permet de réordonner les cases depuis les réglages. La 1re case ouvre en
+   pleine largeur, la 2e occupe la grande colonne de gauche, la 5e ferme en
+   pleine largeur. Lier l'emplacement à `data-go` rendait l'ordre décoratif —
+   on aurait réordonné le HTML sans que rien ne bouge à l'écran. */
+.modes-home.carre .mode[data-pos="1"] { grid-area: lecon; }
+.modes-home.carre .mode[data-pos="2"] { grid-area: cartes; }
+.modes-home.carre .mode[data-pos="3"] { grid-area: oral; }
+.modes-home.carre .mode[data-pos="4"] { grid-area: exos; }
+.modes-home.carre .mode[data-pos="5"] { grid-area: quiz; }
+
+/* La taille des cases. Elle n'agit que sur la hauteur minimale et les marges
+   intérieures : le texte, lui, a son propre réglage. */
+.modes-home.t-compacte .mode { min-height: 3.25rem; padding: .5rem .75rem; }
+.modes-home.t-normale  .mode { min-height: 4.25rem; }
+.modes-home.t-grande   .mode { min-height: 5.75rem; padding: 1rem; }
+.modes-home.rond.t-compacte .mode,
+.modes-home.rond.t-normale  .mode,
+.modes-home.rond.t-grande   .mode { min-height: 0; }
 .modes-home .mode {
   border: 0;
   border-left: 0;
@@ -642,9 +709,66 @@ body.has-tts .say { display: inline-flex; }
 .flash .front { font-family: var(--de); font-size: 1.75rem; font-weight: 600; line-height: 1.25; }
 .flash .p     { font-size: .8125rem; color: var(--ink-3); letter-spacing: .02em; }
 .flash .trad  { font-size: 1.125rem; color: var(--accent); font-weight: 700; margin-top: .5rem; }
-.flash .tip   { font-size: .75rem; color: var(--ink-3); }
+/* La consigne précise n'est plus en gris pâle et minuscule : c'est elle
+   qu'Exsangue disait ne pas voir. Elle reste petite — le filigrane porte le
+   coup d'œil — mais elle se lit. */
+.flash .tip   { font-size: .8125rem; color: var(--ink-2); font-weight: 600; }
 .flash .ask   { font-size: 1.375rem; font-weight: 600; line-height: 1.3; }
 .flash .sol   { font-family: var(--de); font-size: 1.625rem; font-weight: 600; color: var(--accent); }
+
+/* ---------- Le filigrane de consigne ----------
+   Demandé par Exsangue le 02/08/2026 : « quand on va vite parce qu'on
+   connaît, on se trompe — on ne voit pas d'un regard ce qu'on doit faire ».
+
+   Deux décisions, et la raison de chacune :
+
+   1. Le filigrane est DANS LA BOÎTE, jamais derrière le champ de saisie.
+      Écrire par-dessus un texte, même pâle, gêne la relecture de ce qu'on
+      tape : ce serait échanger un défaut de lisibilité contre un autre.
+      La boîte, elle, a de la place perdue — `min-height: 14rem` pour un mot.
+   2. Le filigrane porte un VERBE court (« TRADUIS », « COMPLÈTE », « EN
+      ALLEMAND »), pas la consigne entière. Un filigrane qu'il faut lire
+      n'est plus un coup d'œil. La phrase exacte reste affichée en clair
+      juste en dessous, pour le cas où le verbe ne suffit pas.
+
+   `attr()` : le texte vient du HTML. Une seule règle CSS sert donc les
+   cartes, l'oral et les exercices, et le filigrane ne peut pas se
+   désaccorder de la consigne qu'il résume. */
+[data-consigne] { position: relative; overflow: hidden; }
+/* On RÉSERVE la place du filigrane au lieu de le laisser passer derrière le
+   texte. Sans ça, une boîte courte — un exercice d'une seule ligne — verrait
+   sa dernière ligne traversée par le filigrane. Pâle ou pas, deux textes
+   superposés se lisent mal, et c'est exactement le défaut qu'on corrige. */
+.flash[data-consigne] { padding-bottom: 3rem; }
+.card[data-consigne]  { padding-bottom: 2.5rem; }
+[data-consigne]::before {
+  content: attr(data-consigne);
+  position: absolute;
+  left: 0; right: 0;
+  /* Posé DANS la boîte, pas mordant sur son bord. Une première version le
+     débordait vers le bas (`bottom: -.375rem`) : avec `overflow: hidden`,
+     le résultat ne se lisait pas comme un débord voulu mais comme un texte
+     coupé — vu sur une capture, pas par un test. */
+  bottom: .5rem;
+  font-family: var(--display);
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  line-height: 1;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--ink);
+  opacity: .11;
+  pointer-events: none;
+  white-space: nowrap;
+}
+/* Sur fond sombre, l'encre est déjà claire : la même opacité donnerait un
+   gris sale. Un filigrane un peu plus present compense la perte de contraste
+   d'un texte clair sur fond noir. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) [data-consigne]::before { opacity: .16; }
+}
+:root[data-theme="dark"] [data-consigne]::before { opacity: .16; }
 
 /* Saisie de la réponse, à partir du niveau 3.
    Sur iPhone, la correction automatique remplacerait les mots allemands par
@@ -785,6 +909,40 @@ body.has-tts .say { display: inline-flex; }
   border-color: var(--ink);
   border-width: 3px;
 }
+/* ---------- Réordonner les cases ----------
+   Des flèches et non un glisser-déposer : le glisser est pénible au doigt sur
+   une liste courte, impossible au clavier, et demanderait du code qu'on
+   n'aurait aucun moyen de tester ici. Deux boutons font le même travail. */
+.ordre { display: flex; flex-direction: column; gap: .375rem; }
+.ordre-l {
+  display: flex; align-items: center; gap: .5rem;
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: var(--edge);
+  padding: .375rem .5rem;
+}
+.ordre-l b { flex: 1; font-size: .875rem; font-weight: 600; }
+.ordre-n {
+  flex: 0 0 auto;
+  width: 1.5rem; height: 1.5rem;
+  display: grid; place-items: center;
+  background: var(--ink); color: var(--paper);
+  border-radius: 50%;
+  font-size: .75rem; font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.ordre-b {
+  flex: 0 0 auto;
+  min-width: 2.25rem; min-height: 2.25rem;
+  background: none;
+  border: 2px solid var(--line);
+  border-radius: var(--edge);
+  color: var(--ink);
+  font-size: .875rem;
+}
+.ordre-b:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.ordre-b:disabled { opacity: .3; cursor: not-allowed; }
+
 .pas-bauhaus { background: #1D4E89; }
 .pas-indigo  { background: #3D3A8C; }
 .pas-prune   { background: #6A4C93; }
@@ -926,16 +1084,30 @@ body.has-tts .say { display: inline-flex; }
 
 <div class="app">
   <header class="top">
-    <h1 class="wordmark">Deutsch Täglich <small>A1</small></h1>
+    <h1 class="wordmark" id="wordmark">Deutsch Täglich <small>A1</small></h1>
     <div class="topright">
       <span class="streak" id="streak" hidden></span>
       <!-- Rouage dessiné et non le caractère ⚙ : sur iPhone ce dernier
            s'affiche en emoji couleur, qui jurerait avec le reste et ne
-           suivrait pas le thème. Le SVG prend la couleur du texte. -->
+           suivrait pas le thème. Le SVG prend la couleur du texte.
+
+           Il est CONSTRUIT et non tracé à main levée. La première version
+           était un `path` écrit au jugé : ses dents n'étaient ni de la même
+           taille ni régulièrement réparties, et à 22 px ça donnait une tache.
+           Ici, huit dents identiques posées tous les 45°, et deux cercles
+           concentriques — de la géométrie, ce que réclame la direction
+           choisie. Tout est en traits (`stroke`) : pas de trou à remplir,
+           donc rien à accorder au fond, et l'icône reste nette sur les deux
+           thèmes. -->
       <button class="gear" id="gear" type="button" aria-label="Réglages et progression">
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-          <circle cx="12" cy="12" r="3.2"/>
-          <path d="M12 1.6l1.7 2.6 3-.7.6 3 2.8 1.2-1.3 2.8 1.3 2.8-2.8 1.2-.6 3-3-.7L12 22.4l-1.7-2.6-3 .7-.6-3-2.8-1.2 1.3-2.8-1.3-2.8 2.8-1.2.6-3 3 .7z"/>
+          <g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+            <circle cx="12" cy="12" r="7"/>
+            <circle cx="12" cy="12" r="2.7"/>
+            <path d="M12 2.2v2.6M12 19.2v2.6M21.8 12h-2.6M4.8 12H2.2
+                     M18.93 5.07l-1.84 1.84M6.91 17.09l-1.84 1.84
+                     M18.93 18.93l-1.84-1.84M6.91 6.91L5.07 5.07"/>
+          </g>
         </svg>
       </button>
     </div>
@@ -5594,6 +5766,19 @@ const SEANCES = { courte: 5, normale: 8, longue: 12 };
 const COULEURS = ["bauhaus", "indigo", "prune", "encre"];
 const THEMES   = ["auto", "light", "dark"];
 const FORMES   = ["carre", "rond"];
+const TAILLES  = ["compacte", "normale", "grande"];
+
+/* Les cinq modes de l'accueil, dans leur ordre d'origine. Sert à la fois de
+   référence pour valider un ordre enregistré et de source des noms affichés
+   dans les réglages — deux listes séparées finiraient par ne plus coïncider. */
+const MODES = [
+  { id: "lesson", nom: "La leçon" },
+  { id: "cards",  nom: "Les cartes" },
+  { id: "oral",   nom: "L'oral" },
+  { id: "drills", nom: "Les exercices" },
+  { id: "quiz",   nom: "Le quiz" }
+];
+const MODES_IDS = MODES.map(function (m) { return m.id; });
 
 const PREFS_DEFAUT = {
   voix: "posee",       // vitesse de la voix allemande
@@ -5602,8 +5787,26 @@ const PREFS_DEFAUT = {
   seance: "normale",   // combien d'exercices et de phrases par séance
   couleur: "bauhaus",  // la couleur des cases de l'accueil
   forme: "carre",      // cases rectangulaires ou disques
+  taille: "normale",   // hauteur des cases de l'accueil
+  ordre: MODES_IDS.slice(),  // l'ordre des cinq modes sur l'accueil
   sonAuto: true        // le mot se prononce-t-il tout seul à l'affichage
 };
+
+/* L'ordre à utiliser, toujours COMPLET et sans doublon, quoi qu'il y ait dans
+   la sauvegarde. Un ordre amputé ferait disparaître un mode de l'accueil sans
+   aucun message — on ne saurait même pas que « l'oral » existe. On repart donc
+   de ce qui est enregistré, on ne garde que les identifiants connus et uniques,
+   puis on complète avec les manquants dans leur ordre d'origine. */
+function ordreModes() {
+  const enregistre = Array.isArray(S.prefs && S.prefs.ordre) ? S.prefs.ordre : [];
+  const vus = {};
+  const sortie = [];
+  enregistre.forEach(function (id) {
+    if (MODES_IDS.indexOf(id) !== -1 && !vus[id]) { vus[id] = true; sortie.push(id); }
+  });
+  MODES_IDS.forEach(function (id) { if (!vus[id]) sortie.push(id); });
+  return sortie;
+}
 
 let storageOK = true;
 let S = load();
@@ -5651,6 +5854,18 @@ function sane(s) {
   if (COULEURS.indexOf(p.couleur) === -1) p.couleur = PREFS_DEFAUT.couleur;
   if (THEMES.indexOf(p.theme) === -1) p.theme = PREFS_DEFAUT.theme;
   if (FORMES.indexOf(p.forme) === -1) p.forme = PREFS_DEFAUT.forme;
+  if (TAILLES.indexOf(p.taille) === -1) p.taille = PREFS_DEFAUT.taille;
+  // L'ordre est remis d'aplomb par `ordreModes`, mais on le range aussi ici :
+  // ce qui est enregistré doit être valide, pas seulement ce qui est affiché.
+  s.prefs = p;
+  p.ordre = (function () {
+    const vus = {}, sortie = [];
+    (Array.isArray(p.ordre) ? p.ordre : []).forEach(function (id) {
+      if (MODES_IDS.indexOf(id) !== -1 && !vus[id]) { vus[id] = true; sortie.push(id); }
+    });
+    MODES_IDS.forEach(function (id) { if (!vus[id]) sortie.push(id); });
+    return sortie;
+  })();
   p.sonAuto = p.sonAuto !== false;
   s.prefs = p;
   return s;
@@ -5934,6 +6149,38 @@ function att(s) {
 function sayBtn(text) {
   return '<button class="say" data-say="' + att(text) + '" aria-label="Écouter">&#9654;</button>';
 }
+
+/* Les attributs communs à TOUT champ de saisie de l'app — cartes, oral,
+   exercices, questions du livre. Ils étaient recopiés à cinq endroits ; une
+   correction sur quatre d'entre eux serait passée inaperçue.
+
+   Demande d'Exsangue le 02/08/2026 : « le remplissage automatique me propose
+   de remplir avec mon adresse quand on parle de Straße, et avec mon nom ».
+   Ce qui se joue, et pourquoi la version d'avant ne suffisait pas :
+
+     - `autocomplete="off"` est LU par Safari, puis IGNORÉ dès qu'il croit
+       reconnaître un champ d'adresse ou de nom. En revanche une valeur
+       qu'il ne connaît pas le fait retomber sur le comportement « off ».
+       D'où le jeton bidon plutôt que le mot `off`.
+     - Le `name` sert de crochet aux valeurs déjà enregistrées. Un nom
+       différent à chaque affichage n'accroche rien.
+     - `data-lpignore` / `data-form-type` visent les gestionnaires de mots de
+       passe (LastPass, Dashlane, 1Password), qui ont leurs propres règles.
+
+   Honnêteté sur la limite : la barre de suggestions d'iOS relève du clavier,
+   pas de la page. Aucun attribut HTML ne la fait taire. Ce qu'on supprime
+   ici, c'est le bandeau « Remplissage automatique » et ses propositions de
+   contact — pas les prédictions de mots. */
+let nSaisie = 0;
+function saisieAttrs(label) {
+  nSaisie++;
+  return ' type="text" enterkeyhint="done"' +
+    ' name="rep-' + nSaisie + '-' + Math.random().toString(36).slice(2, 8) + '"' +
+    ' autocomplete="rien-a-remplir"' +
+    ' autocorrect="off" autocapitalize="off" spellcheck="false"' +
+    ' data-lpignore="true" data-form-type="other"' +
+    ' aria-label="' + att(label) + '"';
+}
 function paintStreak() {
   if (S.streak > 0) {
     streakEl.hidden = false;
@@ -5942,12 +6189,30 @@ function paintStreak() {
     streakEl.hidden = true;
   }
 }
-function show(html) {
+/* `show` sert à DEUX choses très différentes, et les confondre était le
+   défaut signalé par Exsangue le 02/08/2026 — « dès que je fais une action ça
+   me remet en haut de la page, ça rend fou » :
+
+     - CHANGER d'écran : remonter en haut est juste, on arrive sur autre chose.
+     - REDESSINER le même écran après une action (valider une réponse, cocher
+       un mot, choisir un réglage) : remonter est absurde. On était en bas de
+       la page, on y regardait quelque chose, et on se retrouve projeté en
+       haut à chaque clic.
+
+   La position est donc CONSERVÉE par défaut, et on ne remonte que si on le
+   demande explicitement — ce que fait `go`, qui est le seul vrai changement
+   d'écran. Le défaut inverse (tout conserver) serait moins grave : on peut
+   toujours remonter à la main, alors qu'on ne peut pas annuler un saut. */
+function show(html, versLeHaut) {
   // Quitter l'écran doit couper la lecture : sinon le dialogue continue à
   // parler par-dessus l'écran suivant, sans aucun bouton pour l'arrêter.
   stopLecture();
+  const y = window.scrollY;
   view.innerHTML = html;
-  window.scrollTo(0, 0);
+  // Remettre la position APRÈS le remplacement : le navigateur peut l'avoir
+  // écrêtée si la nouvelle page est plus courte, et c'est très bien ainsi.
+  if (versLeHaut) window.scrollTo(0, 0);
+  else window.scrollTo(0, y);
   // L'oral : la phrase est prononcée dès l'affichage. Avant le focus, sinon
   // l'ouverture du clavier peut couper le début.
   // Le réglage « son automatique » se joue ICI, au seul endroit qui déclenche
@@ -5986,6 +6251,21 @@ const PARCOURS = ["lesson", "drills", "cards", "oral", "quiz"];
 const PARCOURS_NOM = {
   lesson: "la leçon", drills: "les exercices", cards: "les cartes",
   oral:   "l'oral",   quiz:   "le quiz"
+};
+
+/* Le nom affiché dans l'en-tête — « où suis-je ». Table SÉPARÉE de
+   `PARCOURS_NOM`, qui ne couvre que les cinq maillons du parcours et sert à
+   composer des phrases (« place à l'oral »). Ici il faut aussi le livre, les
+   réglages et l'entraînement libre, et il faut des titres, pas des morceaux
+   de phrase. Les fusionner obligerait l'une des deux à porter des formes qui
+   ne lui servent pas.
+   L'accueil n'y figure pas volontairement : c'est là que le nom de l'app
+   reprend sa place, puisqu'on ne peut pas s'y perdre. */
+const OU_SUIS_JE = {
+  lesson: "La leçon", drills: "Les exercices", cards: "Les cartes",
+  practice: "Entraînement", oral: "L'oral", quiz: "Le quiz",
+  book: "Le livre", unit: "Le livre", booktest: "Test du livre",
+  reglages: "Réglages"
 };
 
 /* L'étape suivante du parcours, en sautant celles qui n'ont rien à offrir
@@ -6117,39 +6397,73 @@ function home() {
         '</div>',
       '</div>',
 
-      // `modes-home` distingue cette grille de la liste des unités du livre,
-      // qui réutilise la classe `.mode`. Sans ce marqueur, colorier les cinq
-      // modes colorierait aussi les 35 unités.
-      '<div class="modes modes-home ' + (S.prefs.forme === "rond" ? "rond" : "carre") + '">',
-        '<button class="mode" data-go="lesson">',
-          '<div class="txt"><strong>La leçon</strong><span>' + lesson.steps.length + ' écrans, ' + lesson.vocab.length + ' mots</span></div>',
-          '<span class="chip">' + lesson.steps.length + '</span>',
-        '</button>',
-        // Rien à réviser n'est plus un cul-de-sac : on bascule sur l'entraînement
-        // libre, qui travaille les mots les plus ratés sans toucher au calendrier.
-        '<button class="mode" data-go="' + (due === 0 ? 'practice' : 'cards') + '">',
-          '<div class="txt"><strong>Les cartes</strong><span>' +
-            (due === 0 ? 'Rien d\'obligatoire aujourd\'hui — entraîne-toi si tu veux' : 'Révision espacée du vocabulaire') +
-          '</span></div>',
-          '<span class="chip' + (due > 0 ? ' hot' : '') + '">' + (due > 0 ? due : 'libre') + '</span>',
-        '</button>',
-        // Toujours actif : les voix de l'appareil arrivent parfois après le
-        // premier affichage. C'est l'écran lui-même qui explique s'il en manque.
-        '<button class="mode" data-go="oral">',
-          '<div class="txt"><strong>L\'oral</strong><span>Écoute seule — écris ou traduis ce qui est dit</span></div>',
-          '<span class="chip">' + ORAL_SIZE + '</span>',
-        '</button>',
-        '<button class="mode" data-go="drills"' + (nbDrills ? '' : ' disabled') + '>',
-          '<div class="txt"><strong>Les exercices</strong><span>' +
-            (nbDrills ? Math.min(DRILL_SESSION, nbDrills) + ' tirés parmi ' + nbDrills +
-                        ' — différents à chaque fois'
-                      : 'Pas encore d\'exercices pour cette étape') + '</span></div>',
-          '<span class="chip">' + Math.min(DRILL_SESSION, nbDrills) + '</span>',
-        '</button>',
-        '<button class="mode" data-go="quiz">',
-          '<div class="txt"><strong>Le quiz</strong><span>' + (doneToday ? 'Refaire le test de cette étape' : 'Valide cette étape et débloque la suite') + '</span></div>',
-          '<span class="chip' + (doneToday ? ' ok' : '') + '">' + (S.scores[S.day] != null ? S.scores[S.day] + '/' + lesson.quiz.length : lesson.quiz.length) + '</span>',
-        '</button>',
+      /* `modes-home` distingue cette grille de la liste des unités du livre,
+         qui réutilise la classe `.mode`. Sans ce marqueur, colorier les cinq
+         modes colorierait aussi les 35 unités.
+
+         Les cinq blocs sont décrits séparément puis rendus DANS L'ORDRE CHOISI
+         par Exsangue (`prefs.ordre`). C'est ce qui permet à « l'emplacement
+         des onglets » d'être un réglage : le contenu de chaque bloc ne dépend
+         pas de sa place, et sa place ne dépend pas de son contenu. */
+      '<div class="modes modes-home ' + (S.prefs.forme === "rond" ? "rond" : "carre") +
+        ' t-' + S.prefs.taille + '">',
+        ordreModes().map(function (id, rang) {
+          const bloc = {
+            lesson: {
+              go: "lesson",
+              titre: "La leçon",
+              sous: lesson.steps.length + " écrans, " + lesson.vocab.length + " mots",
+              chip: String(lesson.steps.length)
+            },
+            // Rien à réviser n'est plus un cul-de-sac : on bascule sur
+            // l'entraînement libre, qui travaille les mots les plus ratés
+            // sans toucher au calendrier.
+            cards: {
+              go: due === 0 ? "practice" : "cards",
+              titre: "Les cartes",
+              sous: due === 0
+                ? "Rien d'obligatoire aujourd'hui — entraîne-toi si tu veux"
+                : "Révision espacée du vocabulaire",
+              chip: due > 0 ? String(due) : "libre",
+              classeChip: due > 0 ? " hot" : ""
+            },
+            // Toujours actif : les voix de l'appareil arrivent parfois après
+            // le premier affichage. C'est l'écran lui-même qui explique s'il
+            // en manque.
+            oral: {
+              go: "oral",
+              titre: "L'oral",
+              sous: "Écoute seule — écris ou traduis ce qui est dit",
+              chip: String(ORAL_SIZE)
+            },
+            drills: {
+              go: "drills",
+              titre: "Les exercices",
+              sous: nbDrills
+                ? Math.min(DRILL_SESSION, nbDrills) + " tirés parmi " + nbDrills + " — différents à chaque fois"
+                : "Pas encore d'exercices pour cette étape",
+              chip: String(Math.min(DRILL_SESSION, nbDrills)),
+              inactif: !nbDrills
+            },
+            quiz: {
+              go: "quiz",
+              titre: "Le quiz",
+              sous: doneToday ? "Refaire le test de cette étape"
+                              : "Valide cette étape et débloque la suite",
+              chip: S.scores[S.day] != null
+                ? S.scores[S.day] + "/" + lesson.quiz.length
+                : String(lesson.quiz.length),
+              classeChip: doneToday ? " ok" : ""
+            }
+          }[id];
+          if (!bloc) return "";
+          return '<button class="mode" data-go="' + bloc.go + '" data-pos="' + (rang + 1) + '"' +
+                   (bloc.inactif ? ' disabled' : '') + '>' +
+                   '<div class="txt"><strong>' + esc(bloc.titre) + '</strong>' +
+                     '<span>' + esc(bloc.sous) + '</span></div>' +
+                   '<span class="chip' + (bloc.classeChip || "") + '">' + esc(bloc.chip) + '</span>' +
+                 '</button>';
+        }).join(""),
       '</div>',
 
       // Le livre lui-même, dans son coin : on ne le mélange pas aux cinq
@@ -6582,14 +6896,12 @@ function writeFrBody(c) {
       // pouvoir travailler à l'oreille autant qu'à l'œil. Sans risque ici,
       // le mot allemand étant déjà à l'écran — c'est la traduction qu'on
       // cherche, pas lui.
-      '<div class="flash" data-autosay="' + att(c.d) + '">',
+      '<div class="flash" data-consigne="En français" data-autosay="' + att(c.d) + '">',
         '<div class="front">' + esc(c.d) + '</div>',
         sayBtn(c.d),
         '<div class="tip">Écris ce que ça veut dire, en français.</div>',
       '</div>',
-      '<input class="answer" id="answer" type="text" enterkeyhint="done"',
-        ' autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"',
-        ' aria-label="Ta réponse en français">',
+      '<input class="answer" id="answer"' + saisieAttrs("Ta réponse en français") + '>',
       '<div class="pair">',
         '<button class="btn" data-act="dunno">Je ne sais pas</button>',
         '<button class="btn primary" data-act="check-word">Vérifier</button>',
@@ -6622,13 +6934,11 @@ function writeFrBody(c) {
 function writeBody(c) {
   if (!verdict) {
     return [
-      '<div class="flash">',
+      '<div class="flash" data-consigne="En allemand">',
         '<div class="ask">' + esc(c.f) + '</div>',
         '<div class="tip">Écris le mot en allemand.</div>',
       '</div>',
-      '<input class="answer" id="answer" type="text" enterkeyhint="done"',
-        ' autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"',
-        ' aria-label="Ta réponse en allemand">',
+      '<input class="answer" id="answer"' + saisieAttrs("Ta réponse en allemand") + '>',
       '<div class="pair">',
         '<button class="btn" data-act="dunno">Je ne sais pas</button>',
         '<button class="btn primary" data-act="check-word">Vérifier</button>',
@@ -6955,7 +7265,12 @@ function renderOral() {
 
   if (!oralVerdict) {
     return head + [
-      '<div class="flash">',
+      /* Le filigrane dit LA langue dans laquelle il faut répondre : c'est le
+         seul choix qu'on peut se tromper à l'oral, puisqu'on n'a rien à
+         lire. La consigne complète, juste dessous, ajoute le degré
+         d'exigence (article, tréma) — un détail qui ne se résume pas. */
+      '<div class="flash" data-consigne="' +
+          (it.task === "write" ? "En allemand" : "En français") + '">',
         // data-autosay : la phrase est prononcée dès que l'écran s'affiche.
         '<button class="btn primary" data-say="' + att(it.de) + '" data-autosay="' + att(it.de) + '">&#9654;&nbsp; Réécouter</button>',
         '<div class="tip">' + (it.task === "write"
@@ -6966,9 +7281,7 @@ function renderOral() {
                   : 'Écris en allemand ce que tu entends.'))
           : 'Écris en français ce que ça veut dire.') + '</div>',
       '</div>',
-      '<input class="answer" id="answer" type="text" enterkeyhint="done"',
-        ' autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"',
-        ' aria-label="Ce que tu entends">',
+      '<input class="answer" id="answer"' + saisieAttrs("Ce que tu entends") + '>',
       '<div class="pair">',
         '<button class="btn" data-act="oral-dunno">Je ne sais pas</button>',
         '<button class="btn primary" data-act="oral-check">Vérifier</button>',
@@ -7126,6 +7439,18 @@ function renderDrill() {
     trad:  "Traduis en allemand."
   };
 
+  /* Le filigrane — le coup d'œil, pas la phrase. Pour les transformations,
+     le PREMIER MOT de l'instruction est déjà le verbe qui compte
+     (« Transforme… », « Remets… ») : on le prend là plutôt que d'écrire une
+     seconde table, qui finirait tôt ou tard par contredire la première. */
+  const filigranes = {
+    order: "Dans l'ordre",
+    gap:   "Complète",
+    trans: String(d.inst || "Transforme").split(" ")[0].replace(/[.,;:!?]+$/, ""),
+    trad:  "En allemand"
+  };
+  const filigrane = filigranes[d.t] || "";
+
   const head = [
     backBar('Accueil'),
     '<div class="stack">',
@@ -7135,7 +7460,8 @@ function renderDrill() {
           return '<i class="' + (i < di ? (drills[i].ok ? 'on' : 'err') : '') + '"></i>';
         }).join("") + '</div>',
       '</div>',
-      '<div class="card">',
+      '<div class="card"' +
+        (filigrane ? ' data-consigne="' + att(filigrane) + '"' : '') + '>',
         '<h3 class="sec">' + esc(consignes[d.t] || "") + '</h3>',
         d.f     ? '<p class="q" style="margin-top:.75rem">' + esc(d.f) + '</p>' : '',
         d.from  ? '<p class="de" style="margin-top:.5rem">' + esc(d.from) + '</p>' : '',
@@ -7158,9 +7484,7 @@ function renderDrill() {
             }).join("") +
           '</div>'
         ].join("")
-      : '<input class="answer" id="answer" type="text" enterkeyhint="done"' +
-        ' autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"' +
-        ' aria-label="Ta réponse">';
+      : '<input class="answer" id="answer"' + saisieAttrs("Ta réponse") + '>';
 
     return head + saisie + [
       '<div class="pair">',
@@ -7324,9 +7648,7 @@ function askItem(it, id, indice) {
       indice ? '<p class="ask-ou">' + esc(indice) + '</p>' : '',
       ouverte
         ? '<button class="btn" data-model="' + att(id) + '">Voir une réponse possible</button>'
-        : '<input class="answer" type="text" data-in="' + att(id) + '"' +
-            ' autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"' +
-            ' aria-label="Ta réponse">' +
+        : '<input class="answer" data-in="' + att(id) + '"' + saisieAttrs("Ta réponse") + '>' +
           '<div class="pair">' +
             '<button class="btn primary" data-send="' + att(id) + '">Envoyer</button>' +
             '<button class="btn" data-check="' + att(id) + '">Voir la réponse</button>' +
@@ -7707,6 +8029,33 @@ function reglagesView() {
           { id: "rond",  nom: "Cercles" }
         ], p.forme)),
 
+      bloc('La taille des cases',
+        'N\'agit que sur la hauteur des cases. Le texte, lui, a son propre réglage ' +
+        'juste au-dessus.',
+        segment("taille", [
+          { id: "compacte", nom: "Compacte" },
+          { id: "normale",  nom: "Normale" },
+          { id: "grande",   nom: "Grande" }
+        ], p.taille)),
+
+      bloc('L\'ordre des cases',
+        'La première case s\'affiche en pleine largeur, la deuxième occupe la ' +
+        'grande colonne, la dernière ferme en pleine largeur. Mets en premier ' +
+        'ce que tu ouvres le plus souvent.',
+        '<div class="ordre">' + ordreModes().map(function (id, i, tab) {
+          const m = MODES.filter(function (x) { return x.id === id; })[0];
+          return '<div class="ordre-l">' +
+                   '<span class="ordre-n">' + (i + 1) + '</span>' +
+                   '<b>' + esc(m.nom) + '</b>' +
+                   '<button class="ordre-b" data-monte="' + id + '"' +
+                     (i === 0 ? ' disabled' : '') +
+                     ' aria-label="Monter ' + att(m.nom) + '">&#8593;</button>' +
+                   '<button class="ordre-b" data-descend="' + id + '"' +
+                     (i === tab.length - 1 ? ' disabled' : '') +
+                     ' aria-label="Descendre ' + att(m.nom) + '">&#8595;</button>' +
+                 '</div>';
+        }).join("") + '</div>'),
+
       bloc('La longueur d\'une séance',
         'Vaut pour les exercices et pour l\'oral. Les cartes, elles, suivent ' +
         'le calendrier de révision : c\'est lui qui décide, pas toi.',
@@ -7738,15 +8087,32 @@ const ROUTES = {
    ou s'il en revient — sans quoi il serait sans effet une fois dessus. */
 let ecranCourant = "home";
 
+/* Le badge « où suis-je ». Il vit dans l'en-tête, donc hors de la zone
+   redessinée : c'est `go` qui doit le tenir à jour, et personne d'autre.
+   `esc` par principe, même si la table est écrite à la main : la règle « tout
+   ce qui devient du HTML passe par esc » ne souffre pas d'exception, sinon
+   elle finit par en souffrir une vraie. */
+function paintOu(name) {
+  const w = document.getElementById("wordmark");
+  if (!w) return;
+  const nom = OU_SUIS_JE[name];
+  w.innerHTML = nom
+    ? '<span class="ou" data-ou="' + att(name) + '">' + esc(nom) + '</span>'
+    : 'Deutsch Täglich <small>A1</small>';
+}
+
 function go(name) {
   ecranCourant = name;
+  paintOu(name);
   const g = document.getElementById("gear");
   if (g) {
     g.classList.toggle("on", name === "reglages");
     g.setAttribute("aria-label", name === "reglages"
       ? "Fermer les réglages" : "Réglages et progression");
   }
-  show(ROUTES[name]());
+  // Seul vrai changement d'écran : c'est ici, et nulle part ailleurs, qu'on
+  // remonte en haut.
+  show(ROUTES[name](), true);
 }
 
 /* Le rouage vit dans l'en-tête, hors de la zone redessinée : il ne peut donc
@@ -7841,9 +8207,12 @@ view.addEventListener("click", function (e) {
     show(renderStep());
     return;
   }
-  if (t.dataset.act === "step-next")    { setStep(stepIdx + 1); show(renderStep()); return; }
-  if (t.dataset.act === "step-back")    { setStep(Math.max(0, stepIdx - 1)); show(renderStep()); return; }
-  if (t.dataset.act === "step-restart") { setStep(0); show(renderStep()); return; }
+  /* Changer d'écran DANS la leçon remonte en haut : c'est un contenu
+     entièrement nouveau, pas une mise à jour. Répondre à la mini-question
+     d'un écran (juste au-dessus) conserve la position, elle. */
+  if (t.dataset.act === "step-next")    { setStep(stepIdx + 1); show(renderStep(), true); return; }
+  if (t.dataset.act === "step-back")    { setStep(Math.max(0, stepIdx - 1)); show(renderStep(), true); return; }
+  if (t.dataset.act === "step-restart") { setStep(0); show(renderStep(), true); return; }
 
   if (t.hasAttribute("data-grade")) { advanceCard(t.dataset.grade === "1"); return; }
 
@@ -8747,6 +9116,127 @@ function runTests() {
        view.textContent.slice(Math.max(0, view.textContent.indexOf("&#") - 20), view.textContent.indexOf("&#") + 20));
   });
 
+  /* Le remplissage automatique — demande d'Exsangue le 02/08/2026 : « ça me
+     propose mon adresse quand on parle de Straße ».
+
+     Le contrôle porte sur le RENDU de tous les écrans qui portent un champ,
+     et pas sur `saisieAttrs` elle-même. C'est délibéré : le risque n'est pas
+     que la fonction soit fausse, c'est qu'un futur champ soit écrit à la main
+     à côté d'elle. Tester la fonction ne verrait jamais ce champ-là. */
+  (function () {
+    let vus = 0;
+    const fautifs = [];
+    [["cards",  function () { S = fresh(); S.day = 1; seed(1); }],
+     ["drills", function () { S = fresh(); S.day = 1; seed(1); }],
+     ["unit",   function () { S = fresh(); S.unit = 2; }]
+    ].forEach(function (paire) {
+      paire[1]();
+      go(paire[0]);
+      Array.prototype.forEach.call(view.querySelectorAll("input"), function (c) {
+        vus++;
+        const a = (c.getAttribute("autocomplete") || "").toLowerCase();
+        /* Un jeton INCONNU vaut « off » dans tous les navigateurs. Le mot
+           `off` lui-même, non : Safari le contourne dès qu'il croit
+           reconnaître une adresse ou un nom. C'est exactement le défaut
+           signalé, donc c'est exactement ce qu'on interdit ici. */
+        if (a === "" || a === "off" || a === "on") {
+          fautifs.push(paire[0] + " : autocomplete=\"" + a + "\"");
+        }
+        if (!c.getAttribute("name")) fautifs.push(paire[0] + " : pas de name");
+        if (c.getAttribute("spellcheck") !== "false") {
+          fautifs.push(paire[0] + " : spellcheck laissé actif");
+        }
+      });
+    });
+    ok("saisie : des champs ont bien été examinés", vus > 0, "champs vus : " + vus);
+    ok("saisie : aucun champ ne laisse passer le remplissage automatique",
+       fautifs.length === 0, fautifs.join(" | "));
+  })();
+
+  /* Le filigrane de consigne — demande d'Exsangue le 02/08/2026 : « on ne
+     voit pas d'un regard ce qu'on doit faire ». Un mode où l'on répond sans
+     consigne visible est précisément ce qui le faisait se tromper. */
+  (function () {
+    const sans = [];
+    [["cards",  function () { S = fresh(); S.day = 1; seed(1); }],
+     ["drills", function () { S = fresh(); S.day = 1; seed(1); }]
+    ].forEach(function (paire) {
+      paire[1]();
+      go(paire[0]);
+      const f = view.querySelector("[data-consigne]");
+      if (!f || !f.getAttribute("data-consigne").trim()) sans.push(paire[0]);
+    });
+    ok("consigne : chaque mode de réponse porte son filigrane",
+       sans.length === 0, sans.join(", "));
+  })();
+
+  /* Le filigrane des transformations est TIRÉ du premier mot de la consigne.
+     Une consigne qui commencerait par une ponctuation ou un espace donnerait
+     un filigrane vide — donc une boîte qui réserve la place d'un texte
+     absent. On vérifie la matière première, sur tout le cours. */
+  (function () {
+    const mauvais = [];
+    COURSE.forEach(function (st, i) {
+      (st.drills || []).forEach(function (d) {
+        if (d.t !== "trans") return;
+        const mot = String(d.inst || "Transforme").split(" ")[0].replace(/[.,;:!?]+$/, "");
+        if (!mot) mauvais.push("étape " + (i + 1) + " : « " + d.inst + " »");
+      });
+    });
+    ok("consigne : chaque transformation donne un filigrane non vide",
+       mauvais.length === 0, mauvais.join(" | "));
+
+    /* Et il doit TENIR sur une ligne. Le filigrane est en `white-space:
+       nowrap` dans une boîte en `overflow: hidden` : trop long, il sort du
+       cadre et se lit comme un texte coupé. À 2,25 rem dans une boîte de
+       390 px, quatorze caractères sont la limite tenable. La règle porte
+       sur la longueur plutôt que sur un pixel mesuré : aucune mesure n'est
+       possible ici, le rendu dépend de la police de l'appareil. */
+    const longs = [];
+    COURSE.forEach(function (st, i) {
+      (st.drills || []).forEach(function (d) {
+        if (d.t !== "trans") return;
+        const mot = String(d.inst || "Transforme").split(" ")[0].replace(/[.,;:!?]+$/, "");
+        if (mot.length > 14) longs.push("étape " + (i + 1) + " : « " + mot + " »");
+      });
+    });
+    ok("consigne : aucun filigrane trop long pour tenir sur une ligne",
+       longs.length === 0, longs.join(" | "));
+  })();
+
+  /* « Où suis-je » — demande d'Exsangue le 02/08/2026 : « pouvoir lever les
+     yeux et lire dans quel onglet je suis ».
+
+     La règle vérifiée est GÉNÉRALE : tout écran sauf l'accueil doit se
+     nommer. Elle parcourt `ROUTES` au lieu d'une liste écrite ici, sinon un
+     écran ajouté plus tard passerait sans badge — c'est-à-dire précisément
+     le défaut qu'on corrige. */
+  (function () {
+    const sans = [];
+    Object.keys(ROUTES).forEach(function (nom) {
+      if (nom === "home") return;
+      S = fresh(); S.day = 1; S.unit = 2; seed(1);
+      go(nom);
+      const b = document.querySelector("#wordmark .ou");
+      if (!b || !b.textContent.trim()) sans.push(nom + " : aucun badge");
+      else if (b.getAttribute("data-ou") !== nom) sans.push(nom + " : mauvais data-ou");
+    });
+    ok("où suis-je : chaque écran affiche son nom", sans.length === 0, sans.join(" | "));
+
+    S = fresh(); S.day = 1; seed(1);
+    go("home");
+    ok("où suis-je : l'accueil rend sa place au nom de l'app",
+       !document.querySelector("#wordmark .ou") &&
+       document.getElementById("wordmark").textContent.indexOf("Deutsch") !== -1);
+  })();
+
+  /* Deux champs affichés en même temps ne doivent pas porter le même `name` :
+     c'est lui qui sert de crochet aux valeurs déjà enregistrées. */
+  ok("saisie : chaque champ reçoit un nom qui lui est propre",
+     saisieAttrs("x").match(/name="([^"]+)"/)[1] !==
+     saisieAttrs("x").match(/name="([^"]+)"/)[1]);
+
+  S = fresh(); S.day = 1; seed(1); applyPrefs();
   go("reglages");
   ["voix", "sonAuto", "theme", "texte", "couleur", "forme", "seance"].forEach(function (cle) {
     const boutons = view.querySelectorAll('[data-pref="' + cle + '"]');
