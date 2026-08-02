@@ -9310,17 +9310,31 @@ function chronoDemarre() {
   show(chronoView());
 }
 
-/* Une réponse. Le sens est allemand → français, et c'est délibéré : la
-   correction du français est volontairement lâche (`checkGloss`), alors que
-   l'allemand est jugé au mot près. Dans un jeu de vitesse, exiger
-   l'orthographe allemande ferait un test de frappe, pas de vocabulaire. */
+/* Une réponse. Le sens est FRANÇAIS → ALLEMAND, demandé par Exsangue le
+   02/08/2026 : « je veux que ce soit l'inverse, le français apparaît, on
+   écrit l'allemand ».
+
+   C'est le sens exigeant — l'allemand est jugé au mot près, là où le
+   français est corrigé avec indulgence. C'est aussi le seul sens qui
+   apprenne l'orthographe, exactement comme les cartes au-dessus du seuil.
+
+   Deux tolérances reprises des cartes, sans quoi le jeu punirait des
+   réponses justes :
+     - `checkAnswer` pardonne déjà l'orthographe de dépannage (`ae` pour `ä`),
+       n'exige jamais le `ß`, ignore la casse et l'article oublié ;
+     - `autreTraduction` accepte un AUTRE mot allemand qui traduit la même
+       chose. Se faire refuser un synonyme correct dans un jeu de vitesse est
+       la meilleure façon de le fermer. */
 function chronoRepond() {
   if (chronoEtat !== "joue" || !chronoMot) return;
   const champ = document.getElementById("answer");
   const saisi = champ ? champ.value : "";
   if (!String(saisi).trim()) return;              // Entrée à vide : on ignore
 
-  const v = checkGloss(saisi, chronoMot.f);
+  let v = checkAnswer(saisi, chronoMot.d);
+  if (!v.ok && v.kind !== "empty" && autreTraduction(saisi, chronoMot)) {
+    v = { ok: true, kind: "autre" };
+  }
   if (v.ok) {
     chronoScore++;
     chronoCombo++;
@@ -9370,10 +9384,10 @@ function chronoView() {
             '<b>' + chronoCombo + '</b>combo</span>',
         '</div>',
         chronoDernier ? '<div class="chrono-gain">' + esc(chronoDernier) + '</div>' : '',
-        '<div class="card" data-consigne="En français">',
-          '<div class="chrono-mot">' + esc(chronoMot ? chronoMot.d : "") + '</div>',
+        '<div class="card" data-consigne="En allemand">',
+          '<div class="chrono-mot">' + esc(chronoMot ? chronoMot.f : "") + '</div>',
         '</div>',
-        '<input class="answer" id="answer"' + saisieAttrs("Traduis en français") + '>',
+        '<input class="answer" id="answer"' + saisieAttrs("Écris le mot en allemand") + '>',
         '<div class="pair">',
           '<button class="btn" data-act="chrono-passe">Passer</button>',
           '<button class="btn primary" data-act="chrono-check">Valider</button>',
@@ -9412,7 +9426,9 @@ function chronoView() {
           'rencontrés</b>. Chaque bonne réponse enchaînée fait monter le combo : ' +
           'à partir de <b>' + CHRONO_COMBO_BONUS + '</b>, tu gagnes du temps. ' +
           'Une erreur remet le combo à zéro — mais ne te coûte aucune seconde.</p>',
-        '<p class="msg">On te montre l\'allemand, tu écris le français. ' +
+        '<p class="msg">On te montre le <b>français</b>, tu écris l\'<b>allemand</b>. ' +
+          'L\'article n\'est pas obligatoire, le <b>ß</b> jamais exigé, et ' +
+          '<b>ae</b> passe pour <b>ä</b> — mais le mot, lui, doit être le bon. ' +
           'Rien ici ne touche à ton calendrier de révision.</p>',
       '</div>',
       vivier.length >= 4
@@ -10716,10 +10732,20 @@ function runTests() {
     ok("chrono : un mot est proposé", !!chronoMot);
     ok("chrono : avec un champ pour répondre", !!document.getElementById("answer"));
 
+    /* ⚠️ LE SENS : le FRANÇAIS est montré, l'ALLEMAND est attendu. Exsangue
+       l'a demandé explicitement après un premier essai en sens inverse. Une
+       inversion silencieuse ne casserait rien — elle changerait juste
+       complètement l'exercice, sans que rien ne le signale. */
+    eq("chrono : c'est le français qui est montré",
+       view.querySelector(".chrono-mot").textContent, chronoMot.f);
+    document.getElementById("answer").value = chronoMot.f;
+    view.querySelector('[data-act="chrono-check"]').click();
+    eq("chrono : répondre en français ne compte pas", chronoScore, 0);
+
     /* Une bonne réponse : le score et le combo montent. En dessous du seuil,
        aucun temps gagné — sinon le combo ne récompenserait rien. */
     const avant = chronoReste;
-    document.getElementById("answer").value = chronoMot.f;
+    document.getElementById("answer").value = chronoMot.d;
     view.querySelector('[data-act="chrono-check"]').click();
     eq("chrono : une bonne réponse compte un point", chronoScore, 1);
     eq("chrono : et fait monter le combo", chronoCombo, 1);
@@ -10728,7 +10754,7 @@ function runTests() {
     // Au seuil, le temps monte : c'est tout l'intérêt du combo.
     chronoCombo = CHRONO_COMBO_BONUS - 1;
     const avant2 = chronoReste;
-    document.getElementById("answer").value = chronoMot.f;
+    document.getElementById("answer").value = chronoMot.d;
     view.querySelector('[data-act="chrono-check"]').click();
     ok("chrono : au seuil, le combo fait gagner du temps", chronoReste > avant2);
 
@@ -10761,7 +10787,7 @@ function runTests() {
     view.querySelector('[data-act="chrono-go"]').click();
     chronoMot = cardById(id0);
     show(chronoView());
-    document.getElementById("answer").value = chronoMot.f;
+    document.getElementById("answer").value = chronoMot.d;
     view.querySelector('[data-act="chrono-check"]').click();
     eq("chrono : le calendrier de révision ne bouge pas", S.cards[id0].due, echeance);
     eq("chrono : ni le niveau du mot", S.cards[id0].box, niveau);

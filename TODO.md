@@ -1308,9 +1308,19 @@ Appelés ainsi par Exsangue : ils ne s'enchaînent jamais après une leçon.
       d'intervalle. Il nourrit le journal `hit`/`miss`, rien d'autre. Deux vérifications.
       ⚠️ **Quitter arrête le compte à rebours** — sans quoi il tournerait sous les autres
       écrans et ramènerait de force à un écran de fin qu'on n'a pas demandé.
-      **Le sens est allemand → français**, délibérément : la correction du français est
-      lâche (`checkGloss`), l'allemand est jugé au mot près. Dans un jeu de vitesse,
-      exiger l'orthographe allemande ferait un test de frappe, pas de vocabulaire.
+      **Le sens est FRANÇAIS → ALLEMAND**, corrigé le 02/08/2026 à la demande d'Exsangue :
+      « je veux que ce soit l'inverse ». Le premier jet allait dans l'autre sens, pour
+      éviter d'exiger l'orthographe allemande dans un jeu de vitesse. Son choix est
+      meilleur : c'est le seul sens qui **apprenne** l'orthographe, comme les cartes
+      au-dessus du seuil.
+      Deux tolérances reprises des cartes, sans quoi le jeu punirait des réponses justes :
+      `checkAnswer` pardonne l'orthographe de dépannage (`ae` pour `ä`), n'exige jamais le
+      `ß`, ignore la casse et l'article oublié ; et `autreTraduction` accepte un **autre**
+      mot allemand qui traduit la même chose — se faire refuser un synonyme correct dans
+      un jeu de vitesse est la meilleure façon de le fermer.
+      ⚠️ Une vérification **ancre le sens** : répondre en français ne doit rien compter.
+      Une inversion silencieuse ne casserait rien, elle changerait juste complètement
+      l'exercice sans que rien ne le signale.
       **Une erreur coûte le combo, jamais du temps** : punir deux fois rendrait une
       mauvaise série irrattrapable. **Passer coûte le combo aussi**, sinon on éviterait
       tous les mots durs sans jamais rien risquer.
