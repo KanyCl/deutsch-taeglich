@@ -1235,6 +1235,30 @@ la vérifier** : il n'y a pas de clavier dans un navigateur sans fenêtre.
       faces se mesure alors sur rien. Vu sur une capture : le bloc prenait bien la place,
       mais la carte restait petite au milieu d'un grand vide.
 
+## ⚠️ `dvh` NE VOIT PAS LE CLAVIER — l'erreur qui a coûté deux tentatives
+
+**À ne jamais re-découvrir.** Exsangue a dû signaler trois fois que rien ne changeait
+avant que je cherche au bon endroit.
+
+`dvh` (*dynamic viewport height*) suit les **barres du navigateur** — l'adresse, les
+onglets. **Pas le clavier.** Sur iPhone, le clavier se pose *par-dessus* la page sans
+réduire la fenêtre de mise en page : `100dvh` vaut exactement la même chose clavier
+ouvert ou fermé. Les deux premières tentatives s'appuyaient dessus ; elles ne pouvaient
+pas fonctionner.
+
+**La seule mesure qui recule quand le clavier monte est `window.visualViewport`.** Elle
+n'existe qu'en JavaScript — d'où `suitLeClavier()`, qui la recopie dans `--vv`, lue par
+la feuille de style. `100dvh` reste en secours pour les navigateurs sans `visualViewport`.
+
+- [x] Un `scrollTo(0, 0)` accompagne : en pleine hauteur il n'y a rien à faire défiler,
+      donc tout défilement est un défilement **parasite** d'iOS cherchant à montrer le
+      champ. On le défait aussitôt. Ailleurs on n'y touche pas — les leçons et le livre
+      doivent défiler normalement.
+- [x] **La carte était « beaucoup trop grande »** sans clavier : elle prenait toute la
+      hauteur. Elle a désormais `aspect-ratio: 5 / 7` — les proportions d'une carte à
+      jouer — et une hauteur bornée à 23,8 rem. Au-delà elle ne grandit plus, elle laisse
+      la place.
+
 ## ⚠️ La version est affichée dans les réglages ✅ 02/08/2026
 
 La photo d'Exsangue montrait un défaut **déjà corrigé** : son iPhone servait une page en

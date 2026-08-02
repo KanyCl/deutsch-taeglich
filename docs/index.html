@@ -856,6 +856,11 @@ body.has-tts .say { display: inline-flex; }
 .carte3d {
   perspective: 1200px;
   width: min(100%, 17rem);
+  /* Les proportions d'une carte à jouer. C'est ce qui l'empêche de devenir
+     démesurée quand il y a de la place — signalé par Exsangue : « la carte
+     est beaucoup trop grande ». Sans ce rapport, elle prenait toute la
+     hauteur de l'écran dès que le clavier était fermé. */
+  aspect-ratio: 5 / 7;
   margin: 0 auto;
 }
 .carte-i {
@@ -910,12 +915,25 @@ body.has-tts .say { display: inline-flex; }
    carte prend CE QUI RESTE, quel qu'il soit. Plus rien à estimer : c'est la
    mise en page qui mesure, et elle ne se trompe pas. */
 @supports (height: 1dvh) {
-  body.plein .app { height: 100dvh; padding-bottom: 1.25rem; }
+  /* ⚠️ `--vv` D'ABORD, `100dvh` seulement en secours — et c'est LA correction
+     du 02/08/2026, après deux tentatives ratées que je dois nommer :
+
+     `dvh` suit les BARRES DU NAVIGATEUR, pas le clavier. Sur iPhone, le
+     clavier se pose PAR-DESSUS la page sans réduire la fenêtre de mise en
+     page : `100dvh` ne bouge pas d'un pixel quand il monte. C'est pourquoi
+     les deux essais précédents n'ont rien changé, et pourquoi Exsangue a dû
+     me le dire deux fois.
+
+     La seule mesure qui voit le clavier est `visualViewport`. Elle n'existe
+     qu'en JavaScript, d'où la variable posée par `suitLeClavier()`. */
+  body.plein .app { height: var(--vv, 100dvh); padding-bottom: 1.25rem; }
   body.plein #view { flex: 1 1 auto; min-height: 0; }
   body.plein #view > .stack { height: 100%; }
   /* `flex: 1 1 0` et non `auto` : la carte doit partir de zéro et prendre le
-     reste, sans que sa hauteur propre entre dans le calcul. */
-  body.plein .carte3d { flex: 1 1 0; min-height: 5rem; }
+     reste, sans que sa hauteur propre entre dans le calcul.
+     `max-height` la borne aux proportions d'une carte à jouer — 17 rem de
+     large × 7/5. Au-delà, elle ne grandit plus, elle laisse la place. */
+  body.plein .carte3d { flex: 1 1 0; min-height: 5rem; max-height: 23.8rem; }
   /* ⚠️ Le maillon qu'on oublie : `.carte-i` est la grille qui porte les deux
      faces. Sans hauteur propre, elle reste à la taille de son contenu, et le
      `height: 100%` des faces se mesure alors sur RIEN. Vu sur une capture :
@@ -9157,6 +9175,35 @@ function go(name) {
    fois pour toutes — l'élément, lui, ne disparaît jamais.
    C'est un va-et-vient : appuyer dessus alors qu'on y est déjà ramène à
    l'accueil, sinon le bouton semblerait cassé. */
+/* ---------- Suivre le clavier ----------
+   La pièce manquante, et l'aveu qui va avec : deux tentatives ont échoué
+   parce qu'elles s'appuyaient sur `dvh`. `dvh` suit les barres du navigateur.
+   Le clavier d'iPhone, lui, se pose PAR-DESSUS la page sans réduire la
+   fenêtre de mise en page — `100dvh` vaut exactement la même chose clavier
+   ouvert ou fermé. Exsangue a dû le signaler deux fois avant que je cherche
+   au bon endroit.
+
+   `visualViewport` est la seule mesure qui recule quand le clavier monte.
+   Elle n'existe qu'en JavaScript : on la recopie donc dans `--vv`, que la
+   feuille de style lit pour dimensionner l'écran des cartes.
+
+   Le `scrollTo(0, 0)` accompagne : en mode pleine hauteur il n'y a rien à
+   faire défiler, donc tout défilement est un défilement parasite d'iOS
+   cherchant à montrer le champ. On le défait aussitôt. Ailleurs, on n'y
+   touche pas — les leçons et le livre doivent défiler normalement. */
+function suitLeClavier() {
+  const vv = window.visualViewport;
+  if (!vv) return;                       // navigateur ancien : `dvh` reprend la main
+  const poser = function () {
+    document.documentElement.style.setProperty("--vv", vv.height + "px");
+    if (document.body.classList.contains("plein")) window.scrollTo(0, 0);
+  };
+  poser();
+  vv.addEventListener("resize", poser);
+  vv.addEventListener("scroll", poser);
+}
+suitLeClavier();
+
 const gearBtn = document.getElementById("gear");
 if (gearBtn) {
   gearBtn.addEventListener("click", function () {
