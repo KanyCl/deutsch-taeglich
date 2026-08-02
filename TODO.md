@@ -1291,13 +1291,33 @@ qu'ils font entendre. Les afficher sous « langues et pays » était un mensonge
       devine). Le thème par étape ne peut pas y aider — dans l'étape des nombres, tous
       les mots sont des nombres.
 
-### Lot 4 — les onglets « à part » ⬜
+### Lot 4 — les onglets « à part » 🔄
 
 Appelés ainsi par Exsangue : ils ne s'enchaînent jamais après une leçon.
 
-- [ ] **Contre-la-montre** : 30 secondes, traduire un maximum de mots déjà vus.
-      Un combo de bonnes réponses fait gagner du temps, une erreur le remet à 0.
-      Classement des records.
+- [x] **Contre-la-montre ✅ 02/08/2026.** 30 secondes, l'allemand s'affiche, on écrit le
+      français. Combo à partir de **3** → +1 s ; à partir de **6** → +2 s. Classement des
+      **5** meilleurs scores.
+      ⚠️ **Onglet à part, dans le coin du livre** — « je ne veux pas qu'après une leçon ça
+      me lance dans cet onglet ». Absent de `PARCOURS`, absent de la grille des cinq
+      modes. La raison est pédagogique : c'est un jeu de vitesse, il mesure ce qu'on sait
+      **déjà**. Le mettre sur le chemin d'apprentissage reviendrait à demander d'aller
+      vite avant de savoir.
+      ⚠️ **Il ne touche NI au calendrier NI aux niveaux**, comme l'entraînement libre :
+      répondre vite n'est pas la même compétence que se souvenir à trois jours
+      d'intervalle. Il nourrit le journal `hit`/`miss`, rien d'autre. Deux vérifications.
+      ⚠️ **Quitter arrête le compte à rebours** — sans quoi il tournerait sous les autres
+      écrans et ramènerait de force à un écran de fin qu'on n'a pas demandé.
+      **Le sens est allemand → français**, délibérément : la correction du français est
+      lâche (`checkGloss`), l'allemand est jugé au mot près. Dans un jeu de vitesse,
+      exiger l'orthographe allemande ferait un test de frappe, pas de vocabulaire.
+      **Une erreur coûte le combo, jamais du temps** : punir deux fois rendrait une
+      mauvaise série irrattrapable. **Passer coûte le combo aussi**, sinon on éviterait
+      tous les mots durs sans jamais rien risquer.
+      **Le compte à rebours ne redessine pas l'écran** — il n'écrit que dans l'élément du
+      temps. Redessiner dix fois par seconde détruirait le champ, donc le focus, et on ne
+      pourrait pas écrire un mot entier.
+      Masqué tant qu'il y a moins de 4 mots rencontrés. Auto-test : **2481**.
 - [ ] **Verbes irréguliers** : les répertorier, en proposer un au hasard à conjuguer
       au présent. Les autres temps viendront ensuite.
 - [ ] **Test final A1** calqué sur les examens officiels, seuil à **70 %** pour

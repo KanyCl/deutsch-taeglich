@@ -994,6 +994,86 @@ body.has-tts .say { display: inline-flex; }
 .face .trad  { font-size: 1.125rem; color: var(--accent); font-weight: 700; margin-top: .5rem; }
 .face .tip   { font-size: .8125rem; color: var(--ink-2); font-weight: 600; }
 
+/* ---------- Le contre-la-montre ----------
+   Trois chiffres sur une ligne : le temps, les trouvés, le combo. Le temps
+   est le plus gros parce que c'est lui qu'on surveille — dans un jeu de
+   vitesse, le score se lit à la fin, le temps se lit pendant. */
+.chrono-tete {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr;
+  align-items: baseline;
+  gap: .75rem;
+  border-bottom: 3px solid var(--ink);
+  padding-bottom: .5rem;
+}
+.chrono-t {
+  font-family: var(--display);
+  font-size: 2.75rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;   /* sans quoi les chiffres dansent */
+}
+.chrono-s, .chrono-c {
+  display: flex;
+  flex-direction: column;
+  font-size: .625rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.chrono-s b, .chrono-c b {
+  font-family: var(--display);
+  font-size: 1.375rem;
+  letter-spacing: 0;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+/* Le combo devient ambre quand il rapporte du temps. L'ambre signale ce qui
+   attend ou ce qui compte — c'est exactement son rôle ici. */
+.chrono-c.chaud b { color: var(--amber); }
+.chrono-c.chaud   { color: var(--amber); }
+
+.chrono-gain {
+  align-self: center;
+  background: var(--amber-bg);
+  color: var(--amber-ink);
+  font-family: var(--display);
+  font-weight: 700;
+  letter-spacing: .06em;
+  padding: .125rem .625rem;
+}
+.chrono-mot {
+  font-family: var(--de);
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+/* Le classement. Le premier est détaché : un record qui ressemble aux autres
+   n'est plus un record. */
+.recs { display: flex; flex-direction: column; gap: .25rem; }
+.rec {
+  display: flex;
+  align-items: baseline;
+  gap: .625rem;
+  padding: .375rem .5rem;
+  background: var(--surface);
+  border: 2px solid var(--line);
+}
+.rec.top { border-color: var(--amber-bg); }
+.rec-n {
+  font-family: var(--display);
+  font-weight: 700;
+  color: var(--ink-3);
+  min-width: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+.rec b { font-size: .9375rem; }
+.rec-d { margin-left: auto; font-size: .75rem; color: var(--ink-3); }
+
 /* ---------- Le filigrane de consigne ----------
    Demandé par Exsangue le 02/08/2026 : « quand on va vite parce qu'on
    connaît, on se trompe — on ne voit pas d'un regard ce qu'on doit faire ».
@@ -6296,8 +6376,10 @@ function fresh() {
      C'est un test des cartes qui l'a révélé, pas un raisonnement : il
      attendait un champ de saisie et tombait sur un écran de correction. */
   oublieSeances();
+  // chrono : les records du contre-la-montre, { s: score, c: combo, d: date }.
   return { day: 1, done: [], cards: {}, streak: 0, last: null,
            scores: {}, qmiss: {}, oral: {}, dseen: {}, unit: 0, bookq: {},
+           chrono: { records: [] },
            prefs: Object.assign({}, PREFS_DEFAUT) };
 }
 
@@ -6324,6 +6406,20 @@ function sane(s) {
   const max = COURSE.length;
   if (!(s.day >= 1 && s.day <= max)) s.day = Math.min(Math.max(1, s.day | 0 || 1), max);
   s.done = (Array.isArray(s.done) ? s.done : []).filter(function (n) { return n >= 1 && n <= max; });
+
+  /* Les records du contre-la-montre. Une sauvegarde d'une version antérieure
+     n'en a pas, et une sauvegarde abîmée pourrait en avoir de faux : on ne
+     garde que des entrées complètes et numériques, sinon le classement
+     afficherait « NaN mots ». */
+  s.chrono = (s.chrono && typeof s.chrono === "object") ? s.chrono : {};
+  s.chrono.records = (Array.isArray(s.chrono.records) ? s.chrono.records : [])
+    .filter(function (r) {
+      return r && typeof r === "object" &&
+             typeof r.s === "number" && isFinite(r.s) && r.s >= 0 &&
+             typeof r.c === "number" && isFinite(r.c) && r.c >= 0;
+    })
+    .sort(function (a, b) { return b.s - a.s; })
+    .slice(0, CHRONO_RECORDS);
 
   /* Les réglages subissent le même traitement que l'étape : une sauvegarde
      peut venir d'une version qui n'avait pas encore ce réglage, ou en proposer
@@ -6851,7 +6947,7 @@ const OU_SUIS_JE = {
   lesson: "La leçon", drills: "Les exercices", cards: "Les cartes",
   practice: "Entraînement", oral: "L'oral", quiz: "Le quiz",
   book: "Le livre", unit: "Le livre", booktest: "Test du livre",
-  reglages: "Réglages", relais: "La suite"
+  reglages: "Réglages", relais: "La suite", chrono: "Contre la montre"
 };
 
 /* L'étape suivante du parcours, en sautant celles qui n'ont rien à offrir
@@ -7147,6 +7243,16 @@ function home() {
       // et avec lui l'onglet, sans qu'on ait à toucher au reste du code.
       BOOK.length
         ? '<button class="btn wide" data-go="book">Le livre &#183; dialogues et exercices</button>'
+        : '',
+
+      /* Le contre-la-montre, dans le même coin « à part » que le livre, et
+         pour la même raison : ce n'est pas une étape du parcours. Exsangue
+         a été explicite — « je ne veux pas qu'après une leçon ça me lance
+         dans cet onglet ». Il se cherche, il ne se subit pas.
+         Masqué tant qu'il n'y a rien à jouer : proposer un défi sur quatre
+         mots qu'on n'a pas encore vus n'aurait aucun sens. */
+      Object.keys(S.cards).length >= 4
+        ? '<button class="btn wide" data-go="chrono">Contre la montre &#183; 30 secondes</button>'
         : '',
 
       // Le jour est fini mais l'envie est là : on ne renvoie pas à demain.
@@ -9125,11 +9231,204 @@ function reglagesView() {
   ].join("");
 }
 
+/* ===============================================================
+   LE CONTRE-LA-MONTRE
+   ===============================================================
+   Demandé par Exsangue le 02/08/2026 : « un timer de 30 secondes, je dois
+   traduire le plus de mots possible, on gagne du temps quand on fait des
+   combos, une erreur remet le combo à 0, avec un classement des records ».
+
+   ⚠️ C'est un onglet « À PART », selon son mot : il ne s'enchaîne JAMAIS
+   après une leçon. Il ne figure donc pas dans `PARCOURS`, et il vit hors de
+   la grille des cinq modes sur l'accueil. La raison est pédagogique : c'est
+   un jeu de vitesse, il mesure ce qu'on sait déjà. Le mettre sur le chemin
+   d'apprentissage reviendrait à demander d'aller vite avant de savoir.
+
+   Il ne touche NI au calendrier de révision, NI aux niveaux des cartes —
+   comme l'entraînement libre. Répondre vite n'est pas la même compétence que
+   se souvenir à trois jours d'intervalle, et laisser une bonne partie
+   espacer les révisions fausserait le calendrier. */
+const CHRONO_DUREE = 300;        // en dixièmes de seconde : 30,0 s
+const CHRONO_COMBO_BONUS = 3;    // à partir de ce combo, on gagne du temps
+const CHRONO_RECORDS = 5;        // combien de records on garde
+
+let chronoEtat = "pret";         // pret | joue | fini
+let chronoReste = 0;
+let chronoScore = 0, chronoCombo = 0, chronoMeilleurCombo = 0;
+let chronoMot = null, chronoTimer = null, chronoDernier = "";
+
+/* Les mots déjà rencontrés — pas tout le cours. Interroger un mot jamais vu
+   ne serait pas un défi, seulement une devinette. */
+function chronoVivier() {
+  return Object.keys(S.cards).map(cardById).filter(function (c) { return c; });
+}
+
+function chronoTire() {
+  const v = chronoVivier();
+  if (!v.length) return null;
+  /* On évite de retomber sur le mot qu'on vient de faire : à trois mots en
+     réserve, le hasard pur en servirait deux fois de suite et on croirait à
+     un bug. */
+  let choix = v[Math.floor(Math.random() * v.length)];
+  if (v.length > 1 && chronoMot && choix.id === chronoMot.id) {
+    choix = v[(v.indexOf(choix) + 1) % v.length];
+  }
+  return choix;
+}
+
+function stopChrono() {
+  if (chronoTimer) { clearInterval(chronoTimer); chronoTimer = null; }
+}
+
+function chronoFin() {
+  stopChrono();
+  chronoEtat = "fini";
+  if (!S.chrono || !Array.isArray(S.chrono.records)) S.chrono = { records: [] };
+  S.chrono.records.push({ s: chronoScore, c: chronoMeilleurCombo, d: today() });
+  S.chrono.records.sort(function (a, b) { return b.s - a.s; });
+  S.chrono.records = S.chrono.records.slice(0, CHRONO_RECORDS);
+  persist();
+  show(chronoView());
+}
+
+function chronoDemarre() {
+  chronoEtat = "joue";
+  chronoReste = CHRONO_DUREE;
+  chronoScore = 0; chronoCombo = 0; chronoMeilleurCombo = 0;
+  chronoDernier = "";
+  chronoMot = chronoTire();
+  stopChrono();
+  /* Le compte à rebours ne redessine PAS l'écran : il n'écrit que dans
+     l'élément du temps. Redessiner dix fois par seconde détruirait le champ
+     de saisie et donc le focus — on ne pourrait plus écrire un mot entier. */
+  chronoTimer = setInterval(function () {
+    chronoReste--;
+    const el = document.getElementById("chrono-temps");
+    if (el) el.textContent = (chronoReste / 10).toFixed(1);
+    if (chronoReste <= 0) chronoFin();
+  }, 100);
+  show(chronoView());
+}
+
+/* Une réponse. Le sens est allemand → français, et c'est délibéré : la
+   correction du français est volontairement lâche (`checkGloss`), alors que
+   l'allemand est jugé au mot près. Dans un jeu de vitesse, exiger
+   l'orthographe allemande ferait un test de frappe, pas de vocabulaire. */
+function chronoRepond() {
+  if (chronoEtat !== "joue" || !chronoMot) return;
+  const champ = document.getElementById("answer");
+  const saisi = champ ? champ.value : "";
+  if (!String(saisi).trim()) return;              // Entrée à vide : on ignore
+
+  const v = checkGloss(saisi, chronoMot.f);
+  if (v.ok) {
+    chronoScore++;
+    chronoCombo++;
+    if (chronoCombo > chronoMeilleurCombo) chronoMeilleurCombo = chronoCombo;
+    grade(chronoMot.id, true, false);             // le journal, jamais le calendrier
+    /* Le bonus de temps monte avec le combo, mais par paliers : un gain
+       continu rendrait la partie sans fin dès qu'on enchaîne. */
+    let gain = 0;
+    if (chronoCombo >= CHRONO_COMBO_BONUS * 2) gain = 20;
+    else if (chronoCombo >= CHRONO_COMBO_BONUS) gain = 10;
+    chronoReste += gain;
+    chronoDernier = gain ? "+" + (gain / 10).toFixed(0) + " s" : "";
+  } else {
+    /* Le combo tombe, mais on ne RETIRE pas de temps. Punir deux fois rendrait
+       une mauvaise série irrattrapable, et le jeu n'aurait plus d'intérêt
+       passé la troisième erreur. */
+    chronoCombo = 0;
+    chronoDernier = "";
+    grade(chronoMot.id, false, false);
+  }
+  chronoMot = chronoTire();
+  show(chronoView());
+}
+
+function chronoView() {
+  const vivier = chronoVivier();
+  const records = (S.chrono && Array.isArray(S.chrono.records)) ? S.chrono.records : [];
+
+  const tableauRecords = records.length
+    ? '<div class="stack-s"><h3 class="sec">Tes records</h3>' +
+        '<div class="recs">' + records.map(function (r, i) {
+          return '<div class="rec' + (i === 0 ? ' top' : '') + '">' +
+                   '<span class="rec-n">' + (i + 1) + '</span>' +
+                   '<b>' + r.s + ' mot' + (r.s > 1 ? 's' : '') + '</b>' +
+                   '<span class="rec-d">combo ' + r.c + ' &#183; ' + esc(r.d) + '</span>' +
+                 '</div>';
+        }).join("") + '</div></div>'
+    : '';
+
+  if (chronoEtat === "joue") {
+    return [
+      '<div class="stack">',
+        '<div class="chrono-tete">',
+          '<span class="chrono-t" id="chrono-temps">' + (chronoReste / 10).toFixed(1) + '</span>',
+          '<span class="chrono-s"><b>' + chronoScore + '</b>trouvés</span>',
+          '<span class="chrono-c' + (chronoCombo >= CHRONO_COMBO_BONUS ? ' chaud' : '') + '">' +
+            '<b>' + chronoCombo + '</b>combo</span>',
+        '</div>',
+        chronoDernier ? '<div class="chrono-gain">' + esc(chronoDernier) + '</div>' : '',
+        '<div class="card" data-consigne="En français">',
+          '<div class="chrono-mot">' + esc(chronoMot ? chronoMot.d : "") + '</div>',
+        '</div>',
+        '<input class="answer" id="answer"' + saisieAttrs("Traduis en français") + '>',
+        '<div class="pair">',
+          '<button class="btn" data-act="chrono-passe">Passer</button>',
+          '<button class="btn primary" data-act="chrono-check">Valider</button>',
+        '</div>',
+        '<button class="btn wide" data-act="chrono-stop">Arrêter</button>',
+      '</div>'
+    ].join("");
+  }
+
+  if (chronoEtat === "fini") {
+    const meilleur = records.length ? records[0].s : 0;
+    return [
+      backBar('Accueil'),
+      '<div class="stack">',
+        '<div class="score"><b>' + chronoScore + '</b><span>mot' +
+          (chronoScore > 1 ? 's' : '') + ' en 30 secondes' +
+          (chronoMeilleurCombo > 1 ? ', meilleur combo ' + chronoMeilleurCombo : '') + '. ' +
+          (chronoScore >= meilleur && chronoScore > 0
+            ? 'C\'est ton record.'
+            : 'Ton record est de ' + meilleur + '.') +
+          ' Le calendrier de révision n\'a pas bougé.</span></div>',
+        '<button class="btn primary wide" data-act="chrono-go">Rejouer</button>',
+        tableauRecords,
+        '<button class="btn wide" data-go="home">Retour à l\'accueil</button>',
+      '</div>'
+    ].join("");
+  }
+
+  // L'écran d'accueil du mode.
+  return [
+    backBar('Accueil'),
+    '<div class="stack">',
+      '<div class="stack-s">',
+        '<h2>Contre la montre</h2>',
+        '<p class="msg">Trente secondes pour traduire un maximum de mots <b>déjà ' +
+          'rencontrés</b>. Chaque bonne réponse enchaînée fait monter le combo : ' +
+          'à partir de <b>' + CHRONO_COMBO_BONUS + '</b>, tu gagnes du temps. ' +
+          'Une erreur remet le combo à zéro — mais ne te coûte aucune seconde.</p>',
+        '<p class="msg">On te montre l\'allemand, tu écris le français. ' +
+          'Rien ici ne touche à ton calendrier de révision.</p>',
+      '</div>',
+      vivier.length >= 4
+        ? '<button class="btn primary wide" data-act="chrono-go">Commencer</button>'
+        : '<div class="why bad">Il faut au moins quatre mots rencontrés pour ' +
+          'jouer. Fais une leçon d\'abord.</div>',
+      tableauRecords,
+    '</div>'
+  ].join("");
+}
+
 const ROUTES = {
   home: home, lesson: lessonView, cards: cardsView,
   practice: practiceView, oral: oralView, drills: drillsView, quiz: quizView,
   book: bookView, unit: unitView, booktest: bookTestView,
-  reglages: reglagesView, relais: relaisView
+  reglages: reglagesView, relais: relaisView, chrono: chronoView
 };
 
 /* L'écran affiché. Sert au rouage, qui doit savoir s'il ouvre les réglages
@@ -9159,6 +9458,11 @@ function go(name) {
      l'en-tête et la marge de `.app` entrent dans le calcul, et ils sont
      au-dessus de `view`. */
   document.body.classList.toggle("plein", name === "cards" || name === "practice");
+
+  /* Quitter le contre-la-montre arrête le compte à rebours. Sans ça, il
+     continuerait à tourner sous les autres écrans et finirait par ramener de
+     force à un écran de fin qu'on n'a pas demandé. */
+  if (name !== "chrono") { stopChrono(); chronoEtat = "pret"; }
   const g = document.getElementById("gear");
   if (g) {
     g.classList.toggle("on", name === "reglages");
@@ -9398,6 +9702,19 @@ view.addEventListener("click", function (e) {
     return;
   }
 
+  // Le contre-la-montre.
+  if (t.dataset.act === "chrono-go")    { chronoDemarre(); return; }
+  if (t.dataset.act === "chrono-check") { chronoRepond(); return; }
+  if (t.dataset.act === "chrono-passe") {
+    // Passer coûte le combo, comme une erreur : sinon on passerait tous les
+    // mots durs sans jamais rien risquer, et le combo ne voudrait plus rien.
+    chronoCombo = 0; chronoDernier = "";
+    chronoMot = chronoTire();
+    show(chronoView());
+    return;
+  }
+  if (t.dataset.act === "chrono-stop")  { chronoFin(); return; }
+
   /* Le relais : on retient où l'on va, puis on annonce. Une route ne prenant
      pas d'argument, la cible passe par cette variable. */
   if (t.dataset.relais) { relaisVers = t.dataset.relais; go("relais"); return; }
@@ -9560,7 +9877,7 @@ document.addEventListener("keydown", function (e) {
   }
 
   const valider = view.querySelector(
-    '[data-act="check-word"],[data-act="oral-check"],[data-act="drill-check"]');
+    '[data-act="check-word"],[data-act="oral-check"],[data-act="drill-check"],[data-act="chrono-check"]');
   if (valider) { e.preventDefault(); valider.click(); return; }
 
   const suivant = view.querySelector(
@@ -10380,6 +10697,94 @@ function runTests() {
       }
     }
     ok("quiz : aucune balise ne se lit à l'écran", vus.length === 0, vus.slice(0, 3).join(" | "));
+  })();
+
+  /* ---- Le contre-la-montre ----
+     Demande d'Exsangue le 02/08/2026. Deux choses comptent plus que le
+     reste : que le compte à rebours s'arrête quand on quitte, et que le
+     mode ne touche PAS au calendrier de révision. */
+  (function () {
+    S = fresh(); S.day = 1; seed(1);
+    go("chrono");
+    ok("chrono : l'écran d'accueil du mode s'ouvre",
+       view.textContent.indexOf("Contre la montre") !== -1);
+    ok("chrono : et propose de commencer", !!view.querySelector('[data-act="chrono-go"]'));
+
+    view.querySelector('[data-act="chrono-go"]').click();
+    eq("chrono : la partie démarre à 30 secondes", chronoReste, CHRONO_DUREE);
+    eq("chrono : et à zéro trouvé", chronoScore, 0);
+    ok("chrono : un mot est proposé", !!chronoMot);
+    ok("chrono : avec un champ pour répondre", !!document.getElementById("answer"));
+
+    /* Une bonne réponse : le score et le combo montent. En dessous du seuil,
+       aucun temps gagné — sinon le combo ne récompenserait rien. */
+    const avant = chronoReste;
+    document.getElementById("answer").value = chronoMot.f;
+    view.querySelector('[data-act="chrono-check"]').click();
+    eq("chrono : une bonne réponse compte un point", chronoScore, 1);
+    eq("chrono : et fait monter le combo", chronoCombo, 1);
+    ok("chrono : sous le seuil, aucun temps gagné", chronoReste <= avant);
+
+    // Au seuil, le temps monte : c'est tout l'intérêt du combo.
+    chronoCombo = CHRONO_COMBO_BONUS - 1;
+    const avant2 = chronoReste;
+    document.getElementById("answer").value = chronoMot.f;
+    view.querySelector('[data-act="chrono-check"]').click();
+    ok("chrono : au seuil, le combo fait gagner du temps", chronoReste > avant2);
+
+    /* Une erreur remet le combo à zéro — mais ne retire PAS de temps. Punir
+       deux fois rendrait une mauvaise série irrattrapable. */
+    const avant3 = chronoReste;
+    document.getElementById("answer").value = "n'importe quoi du tout";
+    view.querySelector('[data-act="chrono-check"]').click();
+    eq("chrono : une erreur remet le combo à zéro", chronoCombo, 0);
+    ok("chrono : mais ne coûte pas de temps", chronoReste >= avant3 - 1);
+
+    // Passer coûte le combo aussi : sinon on éviterait tous les mots durs.
+    chronoCombo = 4;
+    view.querySelector('[data-act="chrono-passe"]').click();
+    eq("chrono : passer coûte le combo", chronoCombo, 0);
+
+    /* ⚠️ LE POINT LE PLUS IMPORTANT : quitter arrête le compte à rebours.
+       Sans ça, il tournerait sous les autres écrans et finirait par ramener
+       de force à un écran de fin qu'on n'a pas demandé. */
+    go("home");
+    ok("chrono : quitter arrête le compte à rebours", chronoTimer === null);
+    eq("chrono : et remet le mode au repos", chronoEtat, "pret");
+
+    /* Et il ne touche pas au calendrier : répondre vite n'est pas la même
+       compétence que se souvenir à trois jours d'intervalle. */
+    S = fresh(); S.day = 1; seed(1);
+    const id0 = Object.keys(S.cards)[0];
+    const echeance = S.cards[id0].due, niveau = S.cards[id0].box;
+    go("chrono");
+    view.querySelector('[data-act="chrono-go"]').click();
+    chronoMot = cardById(id0);
+    show(chronoView());
+    document.getElementById("answer").value = chronoMot.f;
+    view.querySelector('[data-act="chrono-check"]').click();
+    eq("chrono : le calendrier de révision ne bouge pas", S.cards[id0].due, echeance);
+    eq("chrono : ni le niveau du mot", S.cards[id0].box, niveau);
+    ok("chrono : mais la réussite est notée", S.cards[id0].hit > 0);
+
+    // La fin enregistre un record, et le classement reste borné.
+    chronoScore = 12; chronoMeilleurCombo = 5;
+    chronoFin();
+    eq("chrono : la partie finie entre au classement", S.chrono.records[0].s, 12);
+    for (let k = 0; k < CHRONO_RECORDS + 3; k++) {
+      chronoScore = k; chronoMeilleurCombo = 1; chronoFin();
+    }
+    ok("chrono : le classement ne garde que les meilleurs",
+       S.chrono.records.length === CHRONO_RECORDS &&
+       S.chrono.records[0].s === 12);
+
+    /* Une sauvegarde abîmée ne doit pas afficher « NaN mots ». */
+    const abime = sane(Object.assign(fresh(), {
+      chrono: { records: [{ s: "beaucoup", c: 1, d: "x" }, { s: 3, c: 2, d: "y" }, null] }
+    }));
+    eq("chrono : un record illisible est écarté", abime.chrono.records.length, 1);
+
+    go("home");
   })();
 
   /* ---- Les cartes qui se retournent ----
