@@ -138,7 +138,17 @@
    rem, les marges, les boutons et les traits grandissent avec les lettres.
    Agrandir le seul corps donnerait de grosses lettres dans des boutons
    restés petits — et des mots qui débordent. */
-html { font-size: calc(100% * var(--zoom, 1)); }
+html {
+  font-size: calc(100% * var(--zoom, 1));
+  /* Deuxième cause du « ça bouge quand j'écris » : l'en-tête est COLLANT.
+     Quand le navigateur amène le champ de réponse à l'écran, il le pose au
+     ras du haut — c'est-à-dire DERRIÈRE l'en-tête, qui ne défile pas. On
+     réserve donc sa hauteur : tout défilement automatique s'arrête en
+     dessous, et le champ reste visible.
+     La valeur suit l'en-tête : 1 rem de marge + la cible tactile de 2,75 rem
+     + 0,625 rem + le trait, arrondi au-dessus. */
+  scroll-padding-top: 5rem;
+}
 
 body {
   margin: 0;
@@ -843,8 +853,38 @@ body.has-tts .say { display: inline-flex; }
   align-items: center;
   justify-content: center;
   gap: .5rem;
-  min-height: 14rem;
+  /* Allongée à la demande d'Exsangue le 02/08/2026 — 14 rem donnaient un
+     rectangle couché qui ne ressemblait pas à une carte.
+
+     20 rem et pas plus : à 390 px de large, la carte occupe 358 px, donc il
+     faudrait 22,5 rem pour être vraiment plus haute que large. Mais le
+     clavier d'iPhone mange la moitié de l'écran dès qu'on écrit, et le champ
+     de réponse doit rester atteignable sans chercher. C'est un compromis
+     assumé entre la forme et l'usage, pas une valeur au hasard. */
+  min-height: 20rem;
   padding: 1.5rem 1rem 3rem;
+  /* ⚠️ LA CARTE SE RÉTRACTE QUAND LE CLAVIER MONTE. Signalé par Exsangue le
+     02/08/2026 : « quand je veux écrire, ça ouvre le clavier, ça bouge la
+     page, le focus est mal géré ».
+
+     Une des trois causes était ici : une carte de 20 rem pousse le champ de
+     réponse très bas, et le clavier d'iPhone mange la moitié de l'écran. Le
+     champ se retrouvait alors hors de vue, et iOS devait faire défiler la
+     page d'un coup pour le rattraper — c'est ce saut qu'il voyait.
+
+     `dvh` est la hauteur RÉELLEMENT visible, clavier déduit — contrairement
+     à `vh`, qui ignore le clavier et n'aurait rien changé. La carte garde
+     donc ses 20 rem tant qu'il y a la place, et se rétracte dès qu'il n'y en
+     a plus. Le champ reste visible sans que rien ne bouge.
+
+     La règle est isolée dans un `@supports` : sur un navigateur qui ignore
+     `dvh`, tout le `min-height` serait invalide et la carte n'aurait plus
+     aucune hauteur. */
+}
+@supports (height: 1dvh) {
+  .face { min-height: min(20rem, 46dvh); }
+}
+.face {
   text-align: center;
   border: 2px solid var(--ink);
   border-radius: var(--edge);
@@ -6682,10 +6722,19 @@ function show(html, versLeHaut) {
   stopLecture();
   const y = window.scrollY;
   view.innerHTML = html;
-  // Remettre la position APRÈS le remplacement : le navigateur peut l'avoir
-  // écrêtée si la nouvelle page est plus courte, et c'est très bien ainsi.
+
+  /* Remettre la position APRÈS le remplacement : le navigateur peut l'avoir
+     écrêtée si la nouvelle page est plus courte, et c'est très bien ainsi.
+
+     ⚠️ MAIS PAS QUAND UN CHAMP VA PRENDRE LE FOCUS. Troisième cause du « ça
+     bouge » signalé par Exsangue le 02/08/2026 : on replaçait la page à `y`,
+     puis le focus (quelques lignes plus bas) faisait défiler le navigateur
+     ailleurs pour montrer le champ. Deux défilements contradictoires à
+     chaque affichage — d'où la secousse. Quand il y a un champ, c'est lui
+     qui décide de la position, et lui seul. */
+  const field = view.querySelector("#answer");
   if (versLeHaut) window.scrollTo(0, 0);
-  else window.scrollTo(0, y);
+  else if (!field) window.scrollTo(0, y);
   // L'oral : la phrase est prononcée dès l'affichage. Avant le focus, sinon
   // l'ouverture du clavier peut couper le début.
   // Le réglage « son automatique » se joue ICI, au seul endroit qui déclenche
@@ -6696,7 +6745,8 @@ function show(html, versLeHaut) {
   const auto = view.querySelector("[data-autosay]");
   if (auto && S.prefs.sonAuto) speak(auto.getAttribute("data-autosay"));
   // Carte à écrire : le clavier s'ouvre tout de suite, ça évite un appui.
-  const field = view.querySelector("#answer");
+  // `field` est relevé plus haut — c'est sa présence qui décide du
+  // défilement, les deux ne peuvent donc pas se contredire.
   if (field) { try { field.focus(); } catch (e) {} }
 }
 function backBar(label) {
@@ -10258,6 +10308,38 @@ function runTests() {
     view.querySelector('[data-act="card-next"]').click();
     ok("cartes : la carte suivante se présente à l'endroit",
        !view.querySelector(".carte-i.retourne"));
+  })();
+
+  /* ---- Le clavier ne doit pas faire sauter la page ----
+     Signalé par Exsangue le 02/08/2026 : « ça ouvre le clavier, ça bouge la
+     page, le focus est mal géré ».
+
+     Ce qui est vérifiable ici : que le champ prenne le focus TOUT SEUL. Sans
+     ça, il faut un appui de plus — et c'est cet appui, une fois la page déjà
+     placée, qui déclenchait le second défilement.
+
+     ⚠️ Et il faut être franc sur le reste : la carte qui se rétracte au
+     clavier (`dvh`) et la place réservée sous l'en-tête collant
+     (`scroll-padding-top`) relèvent de la mise en page réelle. Aucun test
+     sans fenêtre ne peut en juger — il n'y a pas de clavier ici. Ces deux-là
+     se vérifient sur un vrai téléphone, et nulle part ailleurs. */
+  (function () {
+    S = fresh(); S.day = 1; seed(1);
+    oublieSeances();
+    go("cards");
+    const champ = document.getElementById("answer");
+    ok("clavier : le champ de réponse prend le focus tout seul",
+       !!champ && document.activeElement === champ);
+
+    /* Et il ne doit pas le perdre en avançant d'une carte à l'autre : c'est
+       la perte de focus qui referme le clavier, et sa réouverture qui fait
+       sauter la page à chaque mot. */
+    champ.value = "n'importe quoi";
+    view.querySelector('[data-act="check-word"]').click();
+    view.querySelector('[data-act="card-next"]').click();
+    const suivant = document.getElementById("answer");
+    ok("clavier : et il le garde à la carte suivante",
+       !!suivant && document.activeElement === suivant);
   })();
 
   /* ---- Le chemin vertical ----

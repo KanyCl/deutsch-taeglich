@@ -1155,6 +1155,40 @@ règle juste porte sur ce qu'on VOIT — pas sur la face avant, et carte non ret
 
 - [x] Auto-test : **2455 vérifications**.
 
+## La carte allongée, et le clavier qui faisait sauter la page ✅ 02/08/2026
+
+- [x] **Carte allongée** de 14 rem à **20 rem**, à la demande d'Exsangue : 14 donnaient un
+      rectangle couché qui ne ressemblait pas à une carte. Pas plus de 20 : à 390 px de
+      large la carte occupe 358 px, il faudrait donc 22,5 rem pour être *vraiment* plus
+      haute que large — mais le clavier mange la moitié de l'écran. Compromis assumé
+      entre la forme et l'usage.
+
+- [x] **« Ça ouvre le clavier, ça bouge la page, le focus est mal géré. »** Signalé juste
+      après. **Trois causes qui s'additionnaient**, dont deux introduites le jour même :
+
+      **1. La carte trop haute** poussait le champ très bas ; le clavier d'iPhone prenant
+      la moitié de l'écran, le champ sortait de vue et iOS devait rattraper d'un coup.
+      → La carte se **rétracte** maintenant : `min(20rem, 46dvh)`. `dvh` est la hauteur
+      réellement visible, **clavier déduit** — `vh` l'ignore et n'aurait rien changé.
+      Isolé dans un `@supports` : sans `dvh`, tout le `min-height` serait invalide et la
+      carte n'aurait plus aucune hauteur.
+
+      **2. L'en-tête collant** (ajouté le matin). Le navigateur amenait le champ au ras
+      du haut, c'est-à-dire **derrière** un en-tête qui ne défile pas.
+      → `scroll-padding-top: 5rem` sur `html` réserve sa hauteur.
+
+      **3. Deux défilements se disputaient la page.** `show()` replaçait la vue à sa
+      position précédente, puis le focus faisait défiler le navigateur ailleurs pour
+      montrer le champ. Deux ordres contradictoires à chaque affichage.
+      → Quand un champ est présent, **c'est lui qui décide**, et lui seul.
+
+- [x] ⚠️ **Ce que les tests ne peuvent PAS voir, et il faut le dire** : la rétractation et
+      la place réservée relèvent de la mise en page réelle. Il n'y a pas de clavier dans
+      un navigateur sans fenêtre. Seul le focus automatique est vérifié — y compris qu'il
+      **survit au passage à la carte suivante**, la perte de focus étant ce qui referme
+      le clavier et fait sauter la page à chaque mot.
+- [x] Auto-test : **2457 vérifications**.
+
 ### Reste à faire sur ce sujet
 
 - [ ] **Étiqueter le vocabulaire par thème**, en plus de l'étape. C'est ce qui permettra
