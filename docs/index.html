@@ -6227,6 +6227,829 @@ const COURSE = [
     { t: "trad", f: "Bon voyage !", a: "Gute Reise!",
       why: "<b>Reise</b> est féminin : <b>Gute</b> sans <b>n</b>, comme <b>Gute Nacht</b>." }
   ]
+},
+
+/* ======================================================================
+   NIVEAU A2 — à partir d'ici
+   ======================================================================
+   ⚠️ CE CONTENU NE VIENT PAS DU LIVRE, et c'est une décision d'Exsangue
+   du 02/08/2026. Les photos s'arrêtent à la page 62 ; le programme du A2
+   est de toute façon public (CECRL, repris par Goethe, telc et l'ÖSD).
+   Voir PLAN-A2.md pour les 28 étapes prévues.
+
+   Conséquence à ne pas oublier : ces étapes sont NOTRE texte, pas celui du
+   livre. Elles ne sont donc pas concernées par le copyright et n'ont rien
+   à faire dans `sans-livre.ps1` — seuls BOOK et BOOK_TEST en sortent.
+
+   Tous les participes passés et tous les auxiliaires ci-dessous ont été
+   relevés le 02/08/2026 dans `reference/verbes-wiktionnaire.csv`, colonnes
+   « Partizip II » et « Hilfsverb ». Aucun n'est écrit de mémoire. */
+
+/* ------------------------------- ÉTAPE 36 -----------------------------
+   Le corps. Ouvre le niveau sur du vocabulaire concret plutôt que sur une
+   règle : le A2 commence par une marche facile, la suivante est le Perfekt.
+   C'est aussi l'unité 1 du A2 dans le livre (p.61) — le seul endroit où les
+   deux plans se rejoignent, et ça n'a rien coûté de garder l'ordre. */
+{
+  day: 36, title: "Le corps", de: "Der Körper",
+  steps: [
+    {
+      idea: "Le corps se dit <b>der Körper</b>.",
+      detail: "C'est un mot qu'on croise partout — chez le médecin, au sport, quand on a mal quelque part. Cette étape en donne les dix parties les plus utiles. Rien de neuf en grammaire : on réutilise l'article et le pluriel, appris au A1.",
+      gloss: { de: ["Das", "ist", "mein", "Körper"], fr: ["Ça", "est", "mon", "corps"] }
+    },
+    {
+      idea: "Les trois genres sont représentés — il faut apprendre l'article avec le mot.",
+      detail: "Aucune règle ne dit qu'une partie du corps est masculine ou neutre. C'est un cas où mémoriser l'article en même temps que le mot fait gagner des mois.",
+      table: [["masculin", "<b>der</b> Kopf, <b>der</b> Arm, <b>der</b> Fuß"], ["féminin", "<b>die</b> Nase, <b>die</b> Hand"], ["neutre", "<b>das</b> Auge, <b>das</b> Ohr, <b>das</b> Bein"]],
+      check: { q: "Quel est l'article de <b>Auge</b> (l'œil) ?", o: ["das", "der", "die"], a: 0, why: "<b>das Auge</b>, neutre — comme <b>das Ohr</b> et <b>das Bein</b>." }
+    },
+    {
+      idea: "Beaucoup de parties vont par deux : le pluriel sert tout le temps.",
+      detail: "C'est la particularité du vocabulaire du corps. On parle plus souvent de ses <b>mains</b> que de sa <b>main</b> — le pluriel n'est donc pas un supplément, c'est la forme courante.",
+      table: [["das Auge &rarr; die <b>Augen</b>", "les yeux"], ["die Hand &rarr; die <b>Hände</b>", "les mains"], ["der Fuß &rarr; die <b>Füße</b>", "les pieds"], ["der Arm &rarr; die <b>Arme</b>", "les bras"], ["das Bein &rarr; die <b>Beine</b>", "les jambes"]],
+      check: { q: "Le pluriel de <b>die Hand</b> est…", o: ["die Hände", "die Handen", "die Hands", "die Händer"], a: 0, why: "Tréma sur le <b>a</b> et <b>-e</b> à la fin. Le tréma au pluriel n'est pas réservé au masculin : <b>die Hände</b> le prouve." }
+    },
+    {
+      idea: "Pour dire qu'on a mal : <b>weh tun</b>.",
+      detail: "L'allemand ne dit pas « j'ai mal à la tête » mais <b>la tête fait mal</b>. C'est donc la partie du corps qui est sujet — et le verbe s'accorde avec elle, pas avec toi.",
+      table: [["Der Kopf <b>tut</b> weh.", "J'ai mal à la tête."], ["Die Füße <b>tun</b> weh.", "J'ai mal aux pieds."]],
+      check: { q: "Pour « j'ai mal aux pieds », on dit…", o: ["Die Füße tun weh", "Ich habe Füße weh", "Die Füße tut weh"], a: 0, why: "<b>Füße</b> est un pluriel, donc <b>tun</b> et non <b>tut</b>. C'est le pied qui fait mal, pas toi qui as mal." }
+    },
+    {
+      idea: "<b>mein</b> devant le mot, et il s'accorde comme <b>ein</b>.",
+      detail: "Rien de nouveau : <b>mein Kopf</b> au masculin et au neutre, <b>meine Nase</b> au féminin, et <b>meine</b> au pluriel pour tout le monde. C'est exactement la règle du A1, appliquée à un vocabulaire neuf.",
+      check: { q: "Comment dit-on « mes mains » ?", o: ["meine Hände", "mein Hände", "meinen Hände"], a: 0, why: "Au pluriel, c'est toujours <b>meine</b>, quel que soit le genre du singulier." }
+    }
+  ],
+  examples: [
+    { d: "Das ist mein Kopf.", f: "C'est ma tête." },
+    { d: "Ich habe zwei Augen.", f: "J'ai deux yeux." },
+    { d: "Meine Nase ist klein.", f: "Mon nez est petit." },
+    { d: "Der Mund ist rot.", f: "La bouche est rouge." },
+    { d: "Ich habe zwei Ohren.", f: "J'ai deux oreilles." },
+    { d: "Meine Hände sind kalt.", f: "Mes mains sont froides." },
+    { d: "Der Arm ist lang.", f: "Le bras est long." },
+    { d: "Meine Beine sind müde.", f: "Mes jambes sont fatiguées." },
+    { d: "Mein Fuß ist groß.", f: "Mon pied est grand." },
+    { d: "Der Rücken tut weh.", f: "J'ai mal au dos." },
+    { d: "Meine Füße tun weh.", f: "J'ai mal aux pieds." },
+    { d: "Der Kopf tut oft weh.", f: "J'ai souvent mal à la tête." }
+  ],
+  vocab: [
+    { d: "der Kopf", f: "la tête", p: "dèr KOPF" },
+    { d: "das Auge", f: "l'œil", p: "das AO-gue" },
+    { d: "die Nase", f: "le nez", p: "dii NAA-ze" },
+    { d: "der Mund", f: "la bouche", p: "dèr MOUNT" },
+    { d: "das Ohr", f: "l'oreille", p: "das OOR" },
+    { d: "die Hand", f: "la main", p: "dii HANT" },
+    { d: "der Arm", f: "le bras", p: "dèr ARM" },
+    { d: "das Bein", f: "la jambe", p: "das BAÏN" },
+    { d: "der Fuß", f: "le pied", p: "dèr FOUSS" },
+    { d: "der Rücken", f: "le dos", p: "dèr RUU-keun" }
+  ],
+  quiz: [
+    { q: "Le pluriel de <b>der Fuß</b> est…", o: ["die Füße", "die Fuße", "die Fußen", "die Füßer"], a: 0, why: "Tréma et <b>-e</b>. Le <b>ß</b> reste : on écrit <b>Füße</b>, et <b>Fuesse</b> est accepté par l'app." },
+    { q: "<b>Auge</b> est de quel genre ?", o: ["neutre : das Auge", "masculin : der Auge", "féminin : die Auge"], a: 0, why: "<b>das Auge</b>. Comme <b>das Ohr</b> et <b>das Bein</b> — trois parties du corps neutres, à retenir ensemble." },
+    { q: "Pour « j'ai mal à la tête », l'allemand dit…", o: ["Der Kopf tut weh", "Ich habe Kopf weh", "Der Kopf ist weh"], a: 0, why: "C'est la partie du corps qui est SUJET : littéralement « la tête fait mal »." },
+    { q: "Dans <b>Meine Hände sind kalt</b>, pourquoi <b>sind</b> et non <b>ist</b> ?", o: ["parce que Hände est un pluriel", "parce que Hände est féminin", "parce que kalt demande sind"], a: 0, why: "<b>die Hände</b> = les mains, donc pluriel, donc <b>sind</b>." },
+    { q: "Comment dit-on « mes yeux » ?", o: ["meine Augen", "mein Augen", "meinen Augen"], a: 0, why: "Au pluriel, <b>meine</b> pour tous les genres — même si <b>das Auge</b> est neutre au singulier." }
+  ],
+  drills: [
+    { t: "gap", f: "C'est ma tête.", s: "Das ist mein ___.", a: "Kopf",
+      why: "<b>der Kopf</b> est masculin, donc <b>mein</b> sans <b>e</b>." },
+    { t: "gap", f: "J'ai deux yeux.", s: "Ich habe zwei ___.", a: "Augen",
+      why: "Pluriel de <b>das Auge</b> : <b>-n</b>, sans tréma." },
+    { t: "gap", f: "Mon nez est petit.", s: "Meine ___ ist klein.", a: "Nase",
+      why: "<b>die Nase</b> est féminin, d'où <b>meine</b>." },
+    { t: "gap", f: "La bouche est rouge.", s: "Der ___ ist rot.", a: "Mund",
+      why: "<b>der Mund</b>, masculin." },
+    { t: "gap", f: "Mes mains sont froides.", s: "Meine ___ sind kalt.", a: "Hände",
+      why: "Pluriel de <b>die Hand</b> : tréma et <b>-e</b>." },
+    { t: "gap", f: "Le bras est long.", s: "Der ___ ist lang.", a: "Arm",
+      why: "<b>der Arm</b>, pluriel <b>die Arme</b> sans tréma." },
+    { t: "gap", f: "J'ai mal au dos.", s: "Der Rücken tut ___.", a: "weh",
+      why: "<b>weh tun</b> : le mot <b>weh</b> ne change jamais." },
+    { t: "gap", f: "J'ai mal aux pieds.", s: "Meine Füße ___ weh.", a: "tun",
+      why: "<b>Füße</b> est un pluriel, donc <b>tun</b>." },
+
+    { t: "order", f: "C'est ma tête.", a: "Das ist mein Kopf",
+      why: "Sujet, verbe, puis l'attribut — l'ordre du A1 ne bouge pas." },
+    { t: "order", f: "J'ai deux yeux.", a: "Ich habe zwei Augen",
+      why: "<b>haben</b> en deuxième position, comme toujours." },
+    { t: "order", f: "Mes mains sont froides.", a: "Meine Hände sind kalt",
+      why: "Pluriel : <b>meine</b> et <b>sind</b> vont ensemble." },
+    { t: "order", f: "J'ai mal au dos.", a: "Der Rücken tut weh",
+      why: "La partie du corps est le sujet, et <b>weh</b> ferme la phrase." },
+    { t: "order", f: "Mon pied est grand.", a: "Mein Fuß ist groß",
+      why: "<b>der Fuß</b> masculin, donc <b>mein</b> sans terminaison." },
+    { t: "order", f: "J'ai souvent mal à la tête.", a: "Der Kopf tut oft weh",
+      why: "L'adverbe <b>oft</b> se glisse avant <b>weh</b>." },
+
+    { t: "trad", f: "la tête", a: "der Kopf",
+      why: "Masculin. Pluriel : <b>die Köpfe</b>." },
+    { t: "trad", f: "l'œil", a: "das Auge",
+      why: "Neutre, et son pluriel <b>die Augen</b> est bien plus courant." },
+    { t: "trad", f: "le nez", a: "die Nase",
+      why: "Féminin, comme beaucoup de mots en <b>-e</b>." },
+    { t: "trad", f: "la main", a: "die Hand",
+      why: "Féminin. Pluriel <b>die Hände</b>, avec tréma." },
+    { t: "trad", f: "le pied", a: "der Fuß",
+      why: "Masculin. <b>Fuss</b> est accepté : le <b>ß</b> n'est jamais exigé." },
+    { t: "trad", f: "le dos", a: "der Rücken",
+      why: "Masculin, et invariable au pluriel : <b>die Rücken</b>." },
+    { t: "trad", f: "la jambe", a: "das Bein",
+      why: "Neutre. Pluriel <b>die Beine</b>." },
+    { t: "trad", f: "l'oreille", a: "das Ohr",
+      why: "Neutre. Pluriel <b>die Ohren</b>." },
+
+    { t: "trans", inst: "Mets au pluriel.", from: "die Hand", a: "die Hände",
+      why: "Tréma sur le <b>a</b> et <b>-e</b> ajouté." },
+    { t: "trans", inst: "Mets au pluriel.", from: "der Fuß", a: "die Füße",
+      why: "Tréma et <b>-e</b>. L'article devient <b>die</b>, comme tous les pluriels." },
+    { t: "trans", inst: "Mets au pluriel.", from: "das Auge", a: "die Augen",
+      why: "Simple <b>-n</b> : les mots en <b>-e</b> font souvent leur pluriel ainsi." },
+    { t: "trans", inst: "Mets au pluriel.", from: "das Ohr", a: "die Ohren",
+      why: "<b>-en</b> ici, sans tréma." },
+    { t: "trans", inst: "Mets au pluriel.", from: "der Arm", a: "die Arme",
+      why: "<b>-e</b> sans tréma — à ne pas confondre avec <b>die Hände</b>." },
+    { t: "trans", inst: "Mets au pluriel.", from: "das Bein", a: "die Beine",
+      why: "<b>-e</b>, sans tréma." }
+  ]
+},
+
+/* ------------------------------- ÉTAPE 37 -----------------------------
+   Le Perfekt avec haben. LE point du niveau A2 : sans lui on ne peut rien
+   raconter. On le coupe en trois étapes (37 réguliers, 38 irréguliers,
+   39 avec sein) plutôt que d'en faire un mur. */
+{
+  /* ⚠️ Le titre a d'abord été « Le passé de tous les jours ». Il faisait tomber
+     le garde-fou qui interdit le mot « jour » à l'écran — celui qui empêche de
+     revenir à l'ancien « jour N » abandonné au profit de « étape N ». Le
+     garde-fou a raison de ne pas faire d'exception : une règle qui tolère un
+     cas finit par en tolérer dix. C'est le titre qui change. */
+  day: 37, title: "Le passé composé", de: "Das Perfekt",
+  steps: [
+    {
+      idea: "Pour raconter hier, l'allemand a un seul passé à l'oral.",
+      detail: "Il s'appelle le <b>Perfekt</b> et se construit exactement comme notre passé composé : un auxiliaire, puis un participe. <b>Ich habe gespielt</b> = « j'ai joué ». Tout le reste du niveau A2 s'appuie dessus.",
+      gloss: { de: ["Ich", "habe", "Deutsch", "gelernt"], fr: ["J'", "ai", "allemand", "appris"] }
+    },
+    {
+      idea: "Deux morceaux, et ils sont séparés : l'auxiliaire en deuxième position, le participe à la FIN.",
+      detail: "C'est la seule vraie difficulté. En français les deux se collent (« j'ai appris l'allemand ») ; en allemand tout ce qui compte se glisse ENTRE les deux, et le participe attend la fin de la phrase.",
+      table: [["Ich <b>habe</b> Deutsch <b>gelernt</b>.", "J'ai appris l'allemand."], ["Ich <b>habe</b> gestern Fußball <b>gespielt</b>.", "J'ai joué au foot hier."]],
+      check: { q: "Dans une phrase au Perfekt, le participe se place…", o: ["à la fin", "en deuxième position", "juste après le sujet"], a: 0, why: "Toujours à la fin, même si la phrase est longue. L'auxiliaire, lui, reste en deuxième position." }
+    },
+    {
+      idea: "Le participe régulier : <b>ge-</b> devant, <b>-t</b> derrière.",
+      detail: "On prend le radical du verbe — l'infinitif sans <b>-en</b> — et on l'encadre. <b>spielen</b> donne <b>spiel</b>, qui devient <b>ge-spiel-t</b>. La grande majorité des verbes marche ainsi.",
+      table: [["machen", "ge<b>mach</b>t"], ["spielen", "ge<b>spiel</b>t"], ["lernen", "ge<b>lern</b>t"], ["kaufen", "ge<b>kauf</b>t"], ["hören", "ge<b>hör</b>t"]],
+      check: { q: "Le participe de <b>kaufen</b> (acheter) est…", o: ["gekauft", "gekaufen", "kauft", "gekaufte"], a: 0, why: "Radical <b>kauf</b>, encadré par <b>ge-</b> et <b>-t</b>." }
+    },
+    {
+      idea: "Un radical qui finit par <b>t</b> ou <b>d</b> prend <b>-et</b>.",
+      detail: "Sans cela, deux <b>t</b> se colleraient et le mot deviendrait imprononçable. <b>arbeiten</b> ne donne pas « gearbeitt » mais <b>gearbeitet</b>. Même chose pour les radicaux en <b>d</b>.",
+      table: [["arbeiten", "ge<b>arbeit</b>et"], ["warten", "ge<b>wart</b>et"], ["reden", "ge<b>red</b>et"]],
+      check: { q: "Le participe de <b>arbeiten</b> est…", o: ["gearbeitet", "gearbeitt", "gearbeit", "arbeitet"], a: 0, why: "Le radical <b>arbeit</b> finit déjà par un <b>t</b> : on ajoute <b>-et</b> pour pouvoir le prononcer." }
+    },
+    {
+      idea: "L'auxiliaire est <b>haben</b>, conjugué normalement.",
+      detail: "C'est le verbe <b>haben</b> du A1, sans changement : <b>ich habe</b>, <b>du hast</b>, <b>er hat</b>, <b>wir haben</b>. Seul le participe, à la fin, ne bouge jamais — il ne s'accorde avec rien.",
+      table: [["ich <b>habe</b> gespielt", "j'ai joué"], ["du <b>hast</b> gespielt", "tu as joué"], ["er <b>hat</b> gespielt", "il a joué"], ["wir <b>haben</b> gespielt", "nous avons joué"]],
+      check: { q: "« Elle a travaillé » se dit…", o: ["Sie hat gearbeitet", "Sie haben gearbeitet", "Sie hat gearbeitete"], a: 0, why: "<b>hat</b> pour la 3ᵉ personne du singulier, et le participe ne s'accorde jamais." }
+    }
+  ],
+  examples: [
+    { d: "Ich habe Deutsch gelernt.", f: "J'ai appris l'allemand." },
+    { d: "Wir haben Fußball gespielt.", f: "Nous avons joué au foot." },
+    { d: "Hast du das gehört?", f: "As-tu entendu ça ?" },
+    { d: "Er hat ein Buch gekauft.", f: "Il a acheté un livre." },
+    { d: "Sie hat gestern gearbeitet.", f: "Elle a travaillé hier." },
+    { d: "Ich habe nichts gesagt.", f: "Je n'ai rien dit." },
+    { d: "Was hast du gemacht?", f: "Qu'as-tu fait ?" },
+    { d: "Wir haben den Bahnhof gesucht.", f: "Nous avons cherché la gare." },
+    { d: "Er hat mich gefragt.", f: "Il m'a demandé." },
+    { d: "Ich habe gestern Musik gehört.", f: "J'ai écouté de la musique hier." },
+    { d: "Sie haben viel gelernt.", f: "Ils ont beaucoup appris." },
+    { d: "Ich habe das nicht gemacht.", f: "Je n'ai pas fait ça." }
+  ],
+  vocab: [
+    { d: "gemacht", f: "fait", p: "gue-MAKHT" },
+    { d: "gespielt", f: "joué", p: "gue-CHPIILT" },
+    { d: "gelernt", f: "appris", p: "gue-LÈRNT" },
+    { d: "gekauft", f: "acheté", p: "gue-KAOFT" },
+    { d: "gearbeitet", f: "travaillé", p: "gue-AR-baï-teut" },
+    { d: "gehört", f: "entendu", p: "gue-HEURT" },
+    { d: "gesucht", f: "cherché", p: "gue-ZOUKHT" },
+    { d: "gefragt", f: "demandé", p: "gue-FRAAKT" },
+    { d: "gesagt", f: "dit", p: "gue-ZAAKT" },
+    { d: "gestern", f: "hier", p: "GUES-teurn" }
+  ],
+  quiz: [
+    { q: "Dans <b>Ich habe Deutsch gelernt</b>, où se trouve le participe ?", o: ["à la fin de la phrase", "en deuxième position", "juste après le sujet"], a: 0, why: "L'auxiliaire prend la deuxième place, le participe attend la fin. Tout le reste se glisse entre les deux." },
+    { q: "Le participe de <b>spielen</b> est…", o: ["gespielt", "gespielen", "spielt", "gespielte"], a: 0, why: "Radical <b>spiel</b>, encadré par <b>ge-</b> et <b>-t</b>." },
+    { q: "Quel auxiliaire pour <b>machen</b> au passé ?", o: ["haben", "sein", "werden"], a: 0, why: "<b>haben</b> — c'est le cas de la grande majorité des verbes. L'exception se voit à l'étape 39." },
+    { q: "<b>arbeiten</b> donne au participe…", o: ["gearbeitet", "gearbeitt", "gearbeit", "arbeitet"], a: 0, why: "Le radical finit par <b>t</b> : on intercale un <b>e</b> pour pouvoir le prononcer." },
+    { q: "Comment dit-on « Qu'as-tu fait ? »", o: ["Was hast du gemacht?", "Was du hast gemacht?", "Was gemacht hast du?"], a: 0, why: "Dans une question, l'auxiliaire passe devant le sujet — mais le participe reste à la fin." }
+  ],
+  drills: [
+    { t: "gap", f: "J'ai appris l'allemand.", s: "Ich habe Deutsch ___.", a: "gelernt",
+      why: "Radical <b>lern</b>, encadré par <b>ge-</b> et <b>-t</b>." },
+    { t: "gap", f: "Nous avons joué au foot.", s: "Wir haben Fußball ___.", a: "gespielt",
+      why: "Le participe ferme la phrase." },
+    { t: "gap", f: "Elle a travaillé hier.", s: "Sie hat gestern ___.", a: "gearbeitet",
+      why: "Radical en <b>t</b> : la terminaison est <b>-et</b>." },
+    { t: "gap", f: "Il a acheté un livre.", s: "Er hat ein Buch ___.", a: "gekauft",
+      why: "<b>kaufen</b> est régulier." },
+    { t: "gap", f: "As-tu entendu ça ?", s: "___ du das gehört?", a: "Hast",
+      why: "Dans une question, l'auxiliaire passe en tête." },
+    { t: "gap", f: "Je n'ai rien dit.", s: "Ich habe nichts ___.", a: "gesagt",
+      why: "<b>sagen</b> donne <b>gesagt</b>." },
+    { t: "gap", f: "Nous avons cherché la gare.", s: "Wir ___ den Bahnhof gesucht.", a: "haben",
+      why: "<b>wir</b> prend <b>haben</b>, en deuxième position." },
+    { t: "gap", f: "J'ai écouté de la musique hier.", s: "Ich habe gestern Musik ___.", a: "gehört",
+      why: "Le complément de temps se glisse entre l'auxiliaire et le participe." },
+
+    { t: "order", f: "J'ai appris l'allemand.", a: "Ich habe Deutsch gelernt",
+      why: "Auxiliaire en deuxième position, participe à la fin." },
+    { t: "order", f: "Nous avons joué au foot.", a: "Wir haben Fußball gespielt",
+      why: "Le complément se place entre les deux morceaux du verbe." },
+    { t: "order", f: "Il a acheté un livre.", a: "Er hat ein Buch gekauft",
+      why: "<b>hat</b> pour <b>er</b>, et <b>gekauft</b> ferme la phrase." },
+    { t: "order", f: "Elle a travaillé hier.", a: "Sie hat gestern gearbeitet",
+      why: "<b>gestern</b> tient entre l'auxiliaire et le participe." },
+    { t: "order", f: "Je n'ai pas fait ça.", a: "Ich habe das nicht gemacht",
+      why: "<b>nicht</b> se met juste avant le participe." },
+    { t: "order", f: "Ils ont beaucoup appris.", a: "Sie haben viel gelernt",
+      why: "<b>viel</b> précède le participe, comme tout complément." },
+
+    { t: "trad", f: "J'ai joué.", a: "Ich habe gespielt.",
+      why: "Deux mots pour un seul en français : auxiliaire plus participe." },
+    { t: "trad", f: "Tu as appris.", a: "Du hast gelernt.",
+      why: "<b>hast</b> pour <b>du</b>." },
+    { t: "trad", f: "Il a acheté.", a: "Er hat gekauft.",
+      why: "<b>hat</b> pour <b>er</b>." },
+    { t: "trad", f: "Nous avons travaillé.", a: "Wir haben gearbeitet.",
+      why: "<b>gearbeitet</b>, avec le <b>e</b> d'appui." },
+    { t: "trad", f: "Qu'as-tu fait ?", a: "Was hast du gemacht?",
+      why: "Le mot interrogatif d'abord, puis l'auxiliaire, puis le sujet." },
+    { t: "trad", f: "J'ai entendu ça.", a: "Ich habe das gehört.",
+      why: "<b>das</b> se glisse avant le participe." },
+    { t: "trad", f: "Elle a demandé.", a: "Sie hat gefragt.",
+      why: "<b>fragen</b> est régulier : <b>gefragt</b>." },
+    { t: "trad", f: "Nous avons cherché.", a: "Wir haben gesucht.",
+      why: "<b>suchen</b> donne <b>gesucht</b>." },
+
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Ich lerne Deutsch.", a: "Ich habe Deutsch gelernt.",
+      why: "Le verbe se dédouble : <b>habe</b> en deuxième position, <b>gelernt</b> à la fin." },
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Wir spielen Fußball.", a: "Wir haben Fußball gespielt.",
+      why: "<b>spielen</b> devient <b>haben … gespielt</b>." },
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Er kauft ein Buch.", a: "Er hat ein Buch gekauft.",
+      why: "<b>kauft</b> devient <b>hat … gekauft</b>." },
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Sie arbeitet.", a: "Sie hat gearbeitet.",
+      why: "Radical en <b>t</b>, d'où <b>gearbeitet</b>." },
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Ich höre Musik.", a: "Ich habe Musik gehört.",
+      why: "<b>höre</b> devient <b>habe … gehört</b>." },
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Was machst du?", a: "Was hast du gemacht?",
+      why: "Dans une question, l'auxiliaire garde la place qu'occupait le verbe." }
+  ]
+},
+
+/* ------------------------------- ÉTAPE 38 -----------------------------
+   Les participes irréguliers. Rien à comprendre, tout à retenir — d'où une
+   étape entière plutôt qu'un tableau glissé dans la précédente. Les dix
+   choisis sont les plus fréquents, pas les plus spectaculaires. */
+{
+  day: 38, title: "Les participes irréguliers", de: "Unregelmäßige Partizipien",
+  steps: [
+    {
+      idea: "Une famille de verbes ne finit pas en <b>-t</b> mais en <b>-en</b>.",
+      detail: "Ce sont les mêmes verbes qui changeaient déjà de voyelle au présent (<b>du sprichst</b>, <b>er sieht</b>). Au passé ils continuent : <b>sprechen</b> donne <b>gesprochen</b>, pas « gesprecht ». La bonne nouvelle : ils sont peu nombreux.",
+      gloss: { de: ["Ich", "habe", "einen", "Film", "gesehen"], fr: ["J'", "ai", "un", "film", "vu"] }
+    },
+    {
+      idea: "Le moule reste le même : <b>ge-</b> devant, mais <b>-en</b> derrière.",
+      detail: "La structure de la phrase ne change pas d'un pouce — auxiliaire en deuxième position, participe à la fin. Seule la forme du participe est à mémoriser.",
+      table: [["sehen", "ge<b>seh</b>en"], ["lesen", "ge<b>les</b>en"], ["geben", "ge<b>geb</b>en"], ["schlafen", "ge<b>schlaf</b>en"]],
+      check: { q: "Le participe de <b>lesen</b> (lire) est…", o: ["gelesen", "gelest", "geliest", "gelesend"], a: 0, why: "<b>-en</b> à la fin, et la voyelle ne bouge pas ici." }
+    },
+    {
+      idea: "Souvent, la voyelle du milieu change aussi.",
+      detail: "C'est ce qui rend ces verbes irréguliers. Il n'y a pas de règle qui dise laquelle : ces huit-là s'apprennent comme du vocabulaire, et ils reviennent tous les jours.",
+      table: [["trinken", "ge<b>tr<u>u</u>nk</b>en"], ["sprechen", "ge<b>spr<u>o</u>ch</b>en"], ["nehmen", "ge<b>n<u>o</u>mm</b>en"], ["finden", "ge<b>f<u>u</u>nd</b>en"], ["schreiben", "ge<b>schr<u>ie</u>b</b>en"]],
+      check: { q: "Le participe de <b>trinken</b> (boire) est…", o: ["getrunken", "getrinken", "getrankt", "getrunkt"], a: 0, why: "Le <b>i</b> devient <b>u</b>, et la terminaison est <b>-en</b>." }
+    },
+    {
+      idea: "<b>essen</b> double son <b>ge</b> : <b>gegessen</b>.",
+      detail: "C'est le seul de la liste qui surprend vraiment. Le verbe commence déjà par une voyelle, et le participe garde tout de même son <b>ge-</b> : on obtient <b>ge-gessen</b>. Ce n'est pas une faute de frappe.",
+      check: { q: "« J'ai mangé » se dit…", o: ["Ich habe gegessen", "Ich habe geessen", "Ich habe gessen"], a: 0, why: "<b>gegessen</b>, avec les deux <b>ge</b>. C'est irrégulier même parmi les irréguliers." }
+    },
+    {
+      idea: "L'auxiliaire ne change pas : c'est toujours <b>haben</b>.",
+      detail: "Irrégulier ne veut pas dire « avec <b>sein</b> ». Ces dix verbes prennent <b>haben</b> comme les réguliers de l'étape précédente. Les verbes à <b>sein</b> forment une autre famille — c'est l'étape suivante.",
+      table: [["ich <b>habe</b> gesehen", "j'ai vu"], ["du <b>hast</b> getrunken", "tu as bu"], ["wir <b>haben</b> gelesen", "nous avons lu"]],
+      check: { q: "Quel auxiliaire pour <b>sehen</b> au passé ?", o: ["haben", "sein", "les deux au choix"], a: 0, why: "<b>haben</b>. Un participe irrégulier ne dit rien sur l'auxiliaire." }
+    }
+  ],
+  examples: [
+    { d: "Ich habe einen Film gesehen.", f: "J'ai vu un film." },
+    { d: "Wir haben Pizza gegessen.", f: "Nous avons mangé une pizza." },
+    { d: "Er hat Wasser getrunken.", f: "Il a bu de l'eau." },
+    { d: "Ich habe ein Buch gelesen.", f: "J'ai lu un livre." },
+    { d: "Sie hat einen Brief geschrieben.", f: "Elle a écrit une lettre." },
+    { d: "Wir haben Deutsch gesprochen.", f: "Nous avons parlé allemand." },
+    { d: "Ich habe den Bus genommen.", f: "J'ai pris le bus." },
+    { d: "Hast du den Schlüssel gefunden?", f: "As-tu trouvé la clé ?" },
+    { d: "Er hat mir ein Buch gegeben.", f: "Il m'a donné un livre." },
+    { d: "Ich habe gut geschlafen.", f: "J'ai bien dormi." },
+    { d: "Was hast du gestern gegessen?", f: "Qu'as-tu mangé hier ?" },
+    { d: "Wir haben viel gesehen.", f: "Nous avons vu beaucoup de choses." }
+  ],
+  vocab: [
+    { d: "gesehen", f: "vu", p: "gue-ZÉÉ-eun" },
+    { d: "gegessen", f: "mangé", p: "gue-GUÈ-seun" },
+    { d: "getrunken", f: "bu", p: "gue-TROUN-keun" },
+    { d: "gelesen", f: "lu", p: "gue-LÉÉ-zeun" },
+    { d: "geschrieben", f: "écrit", p: "gue-CHRII-beun" },
+    { d: "gesprochen", f: "parlé", p: "gue-CHPRO-kheun" },
+    { d: "genommen", f: "pris", p: "gue-NO-meun" },
+    { d: "gefunden", f: "trouvé", p: "gue-FOUN-deun" },
+    { d: "gegeben", f: "donné", p: "gue-GUÉÉ-beun" },
+    { d: "geschlafen", f: "dormi", p: "gue-CHLAA-feun" }
+  ],
+  quiz: [
+    { q: "Le participe de <b>trinken</b> est…", o: ["getrunken", "getrinken", "getrunkt", "getrankt"], a: 0, why: "La voyelle passe de <b>i</b> à <b>u</b>, et la terminaison est <b>-en</b>." },
+    { q: "« J'ai mangé » se dit…", o: ["Ich habe gegessen", "Ich habe geessen", "Ich habe gessen"], a: 0, why: "<b>essen</b> garde son <b>ge-</b> alors qu'il commence par une voyelle : <b>gegessen</b>." },
+    { q: "Le participe de <b>sprechen</b> est…", o: ["gesprochen", "gesprecht", "gesprichen", "gesprachen"], a: 0, why: "Le <b>e</b> devient <b>o</b> : <b>gesprochen</b>." },
+    { q: "Quel auxiliaire pour <b>nehmen</b> (prendre) ?", o: ["haben", "sein", "cela dépend du sens"], a: 0, why: "<b>haben</b> — être irrégulier ne change rien à l'auxiliaire." },
+    { q: "Comment dit-on « As-tu trouvé la clé ? »", o: ["Hast du den Schlüssel gefunden?", "Hast du gefunden den Schlüssel?", "Du hast den Schlüssel gefunden?"], a: 0, why: "Question : l'auxiliaire en tête, le participe toujours à la fin." }
+  ],
+  drills: [
+    { t: "gap", f: "J'ai vu un film.", s: "Ich habe einen Film ___.", a: "gesehen",
+      why: "<b>sehen</b> donne <b>gesehen</b>, sans changement de voyelle." },
+    { t: "gap", f: "Nous avons mangé une pizza.", s: "Wir haben Pizza ___.", a: "gegessen",
+      why: "Les deux <b>ge</b> de <b>gegessen</b>." },
+    { t: "gap", f: "Il a bu de l'eau.", s: "Er hat Wasser ___.", a: "getrunken",
+      why: "<b>i</b> devient <b>u</b>." },
+    { t: "gap", f: "J'ai lu un livre.", s: "Ich habe ein Buch ___.", a: "gelesen",
+      why: "<b>lesen</b> garde son <b>e</b> au participe." },
+    { t: "gap", f: "Elle a écrit une lettre.", s: "Sie hat einen Brief ___.", a: "geschrieben",
+      why: "<b>ei</b> devient <b>ie</b> : <b>geschrieben</b>." },
+    { t: "gap", f: "Nous avons parlé allemand.", s: "Wir haben Deutsch ___.", a: "gesprochen",
+      why: "<b>e</b> devient <b>o</b>." },
+    { t: "gap", f: "J'ai pris le bus.", s: "Ich habe den Bus ___.", a: "genommen",
+      why: "<b>nehmen</b> donne <b>genommen</b>, avec deux <b>m</b>." },
+    { t: "gap", f: "J'ai bien dormi.", s: "Ich habe gut ___.", a: "geschlafen",
+      why: "<b>schlafen</b> garde son <b>a</b>." },
+
+    { t: "order", f: "J'ai vu un film.", a: "Ich habe einen Film gesehen",
+      why: "Le participe ferme la phrase, comme pour les réguliers." },
+    { t: "order", f: "Il a bu de l'eau.", a: "Er hat Wasser getrunken",
+      why: "<b>hat</b> en deuxième position." },
+    { t: "order", f: "Nous avons parlé allemand.", a: "Wir haben Deutsch gesprochen",
+      why: "Le complément se glisse entre l'auxiliaire et le participe." },
+    { t: "order", f: "Il m'a donné un livre.", a: "Er hat mir ein Buch gegeben",
+      why: "Le datif <b>mir</b> passe avant le complément d'objet." },
+    { t: "order", f: "J'ai bien dormi.", a: "Ich habe gut geschlafen",
+      why: "<b>gut</b> précède le participe." },
+    { t: "order", f: "Nous avons vu beaucoup de choses.", a: "Wir haben viel gesehen",
+      why: "<b>viel</b> se place avant le participe." },
+
+    { t: "trad", f: "J'ai vu.", a: "Ich habe gesehen.",
+      why: "<b>sehen</b> &rarr; <b>gesehen</b>." },
+    { t: "trad", f: "Tu as bu.", a: "Du hast getrunken.",
+      why: "<b>trinken</b> &rarr; <b>getrunken</b>." },
+    { t: "trad", f: "Nous avons mangé.", a: "Wir haben gegessen.",
+      why: "<b>essen</b> &rarr; <b>gegessen</b>, avec le double <b>ge</b>." },
+    { t: "trad", f: "Elle a lu.", a: "Sie hat gelesen.",
+      why: "<b>lesen</b> &rarr; <b>gelesen</b>." },
+    { t: "trad", f: "J'ai écrit.", a: "Ich habe geschrieben.",
+      why: "<b>schreiben</b> &rarr; <b>geschrieben</b>." },
+    { t: "trad", f: "Il a pris.", a: "Er hat genommen.",
+      why: "<b>nehmen</b> &rarr; <b>genommen</b>." },
+    { t: "trad", f: "Nous avons trouvé.", a: "Wir haben gefunden.",
+      why: "<b>finden</b> &rarr; <b>gefunden</b>." },
+    { t: "trad", f: "J'ai dormi.", a: "Ich habe geschlafen.",
+      why: "<b>schlafen</b> &rarr; <b>geschlafen</b>." },
+
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Ich sehe einen Film.", a: "Ich habe einen Film gesehen.",
+      why: "<b>sehe</b> devient <b>habe … gesehen</b>." },
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Er trinkt Wasser.", a: "Er hat Wasser getrunken.",
+      why: "<b>trinkt</b> devient <b>hat … getrunken</b>." },
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Wir essen Pizza.", a: "Wir haben Pizza gegessen.",
+      why: "<b>essen</b> devient <b>haben … gegessen</b>." },
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Sie liest ein Buch.", a: "Sie hat ein Buch gelesen.",
+      why: "<b>liest</b> devient <b>hat … gelesen</b>." },
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Ich nehme den Bus.", a: "Ich habe den Bus genommen.",
+      why: "<b>nehme</b> devient <b>habe … genommen</b>." },
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Wir sprechen Deutsch.", a: "Wir haben Deutsch gesprochen.",
+      why: "<b>sprechen</b> devient <b>haben … gesprochen</b>." }
+  ]
+},
+
+/* ------------------------------- ÉTAPE 39 -----------------------------
+   Le Perfekt avec sein. Ferme le chapitre 13 : après cette étape, on peut
+   raconter une journée entière au passé.
+   Le point d'appui pédagogique est que le français fait presque le même
+   partage (« je suis allé », « je suis resté ») — sauf pour courir et voler,
+   qui sont justement les exemples à montrer. */
+{
+  day: 39, title: "Le passé avec sein", de: "Perfekt mit sein",
+  steps: [
+    {
+      idea: "Une petite famille de verbes prend <b>sein</b> et non <b>haben</b>.",
+      detail: "Ils sont peu nombreux, mais ce sont des verbes qu'on emploie sans arrêt. <b>Ich bin gegangen</b> = « je suis allé ». La construction ne change pas : auxiliaire en deuxième position, participe à la fin.",
+      gloss: { de: ["Ich", "bin", "nach", "Hause", "gegangen"], fr: ["Je", "suis", "à", "la maison", "allé"] }
+    },
+    {
+      idea: "Ce sont les verbes de DÉPLACEMENT.",
+      detail: "Aller, venir, partir, courir, voler, rouler : tout ce qui va d'un endroit à un autre prend <b>sein</b>. C'est la règle qui couvre presque tous les cas.",
+      table: [["gehen", "ich bin ge<b>gangen</b>"], ["kommen", "ich bin ge<b>kommen</b>"], ["fahren", "ich bin ge<b>fahren</b>"], ["laufen", "ich bin ge<b>laufen</b>"], ["fliegen", "ich bin ge<b>flogen</b>"]],
+      check: { q: "« Il est venu » se dit…", o: ["Er ist gekommen", "Er hat gekommen", "Er ist gekommt"], a: 0, why: "<b>kommen</b> est un déplacement : auxiliaire <b>sein</b>, participe <b>gekommen</b>." }
+    },
+    {
+      idea: "Plus <b>bleiben</b>, qui est l'exception à retenir.",
+      detail: "Rester n'est pas un déplacement — c'est même le contraire. <b>bleiben</b> prend pourtant <b>sein</b> : <b>ich bin geblieben</b>. Il faut simplement le savoir, et le français aide ici puisqu'il dit aussi « je suis resté ».",
+      check: { q: "« Elle est restée à la maison » se dit…", o: ["Sie ist zu Hause geblieben", "Sie hat zu Hause geblieben", "Sie ist zu Hause gebleibt"], a: 0, why: "<b>bleiben</b> prend <b>sein</b> malgré l'absence de mouvement, et son participe est <b>geblieben</b>." }
+    },
+    {
+      idea: "Le français ne dit pas toujours la même chose — attention à deux verbes.",
+      detail: "Pour aller, venir et rester, les deux langues sont d'accord. Mais on dit « <b>j'ai</b> couru » et « <b>j'ai</b> volé », là où l'allemand dit <b>ich bin gelaufen</b> et <b>ich bin geflogen</b>. Traduire l'auxiliaire français mot à mot fait donc une faute exactement là.",
+      table: [["j'ai couru", "ich <b>bin</b> gelaufen"], ["j'ai volé", "ich <b>bin</b> geflogen"], ["je suis allé", "ich <b>bin</b> gegangen"]],
+      check: { q: "« Nous avons couru vite » se dit…", o: ["Wir sind schnell gelaufen", "Wir haben schnell gelaufen", "Wir sind schnell gelauft"], a: 0, why: "Le français dit « avons », l'allemand dit <b>sind</b> : c'est un déplacement." }
+    },
+    {
+      idea: "<b>sein</b> se conjugue normalement, et le participe ne s'accorde jamais.",
+      detail: "C'est le <b>sein</b> du A1 : <b>ich bin</b>, <b>du bist</b>, <b>er ist</b>, <b>wir sind</b>. Et contrairement au français, le participe ne prend jamais de <b>e</b> ni de <b>s</b> — <b>sie ist gegangen</b>, même au féminin.",
+      table: [["ich <b>bin</b> gegangen", "je suis allé(e)"], ["du <b>bist</b> gegangen", "tu es allé(e)"], ["wir <b>sind</b> gegangen", "nous sommes allé(e)s"]],
+      check: { q: "« Elles sont venues » se dit…", o: ["Sie sind gekommen", "Sie sind gekommene", "Sie haben gekommen"], a: 0, why: "Le participe allemand ne s'accorde avec rien : <b>gekommen</b> pour tout le monde." }
+    }
+  ],
+  examples: [
+    { d: "Ich bin nach Hause gegangen.", f: "Je suis rentré à la maison." },
+    { d: "Wir sind nach Berlin gefahren.", f: "Nous sommes allés à Berlin." },
+    { d: "Er ist gestern gekommen.", f: "Il est venu hier." },
+    { d: "Sie ist zu Hause geblieben.", f: "Elle est restée à la maison." },
+    { d: "Ich bin nach Wien geflogen.", f: "Je suis allé à Vienne en avion." },
+    { d: "Wir sind schnell gelaufen.", f: "Nous avons couru vite." },
+    { d: "Bist du mit dem Bus gefahren?", f: "Es-tu venu en bus ?" },
+    { d: "Sie sind ins Kino gegangen.", f: "Ils sont allés au cinéma." },
+    { d: "Wann bist du gekommen?", f: "Quand es-tu venu ?" },
+    { d: "Ich bin lange geblieben.", f: "Je suis resté longtemps." },
+    { d: "Der Zug ist schon gefahren.", f: "Le train est déjà parti." },
+    { d: "Wir sind zu Fuß gegangen.", f: "Nous y sommes allés à pied." }
+  ],
+  vocab: [
+    { d: "gegangen", f: "allé", p: "gue-GANG-eun" },
+    { d: "gekommen", f: "venu", p: "gue-KO-meun" },
+    { d: "gefahren", f: "allé (en véhicule)", p: "gue-FAA-reun" },
+    { d: "geblieben", f: "resté", p: "gue-BLII-beun" },
+    { d: "geflogen", f: "allé en avion", p: "gue-FLOO-gueun" },
+    { d: "gelaufen", f: "couru", p: "gue-LAO-feun" },
+    { d: "das Kino", f: "le cinéma", p: "das KII-no" },
+    { d: "der Zug", f: "le train", p: "dèr TSOUK" },
+    { d: "lange", f: "longtemps", p: "LANG-e" },
+    { d: "schon", f: "déjà", p: "CHOON" }
+  ],
+  quiz: [
+    { q: "Quel auxiliaire pour <b>gehen</b> au passé ?", o: ["sein", "haben", "les deux au choix"], a: 0, why: "<b>gehen</b> est un déplacement : <b>ich bin gegangen</b>." },
+    { q: "« Nous avons couru » se dit en allemand…", o: ["Wir sind gelaufen", "Wir haben gelaufen", "Wir sind gelauft"], a: 0, why: "Le français dit « avons », l'allemand dit <b>sind</b> : c'est là qu'on se trompe." },
+    { q: "Quel verbe prend <b>sein</b> sans être un déplacement ?", o: ["bleiben", "kaufen", "lesen", "trinken"], a: 0, why: "<b>bleiben</b> (rester) prend <b>sein</b> : <b>ich bin geblieben</b>. Le français fait pareil." },
+    { q: "Le participe de <b>fliegen</b> est…", o: ["geflogen", "gefliegen", "geflugen", "gefliegt"], a: 0, why: "La voyelle passe de <b>ie</b> à <b>o</b> : <b>geflogen</b>." },
+    { q: "« Elle est venue » se dit…", o: ["Sie ist gekommen", "Sie ist gekommene", "Sie hat gekommen"], a: 0, why: "Auxiliaire <b>sein</b>, et le participe ne s'accorde jamais — pas de <b>e</b> au féminin." }
+  ],
+  drills: [
+    { t: "gap", f: "Je suis rentré à la maison.", s: "Ich ___ nach Hause gegangen.", a: "bin",
+      why: "<b>gehen</b> prend <b>sein</b>, donc <b>bin</b> pour <b>ich</b>." },
+    { t: "gap", f: "Nous sommes allés à Berlin.", s: "Wir sind nach Berlin ___.", a: "gefahren",
+      why: "<b>fahren</b> &rarr; <b>gefahren</b>, sans changement de voyelle." },
+    { t: "gap", f: "Il est venu hier.", s: "Er ___ gestern gekommen.", a: "ist",
+      why: "<b>ist</b> pour <b>er</b>, puisque <b>kommen</b> prend <b>sein</b>." },
+    { t: "gap", f: "Elle est restée à la maison.", s: "Sie ist zu Hause ___.", a: "geblieben",
+      why: "<b>bleiben</b> &rarr; <b>geblieben</b>." },
+    { t: "gap", f: "Nous avons couru vite.", s: "Wir ___ schnell gelaufen.", a: "sind",
+      why: "Le français dit « avons », l'allemand exige <b>sind</b>." },
+    { t: "gap", f: "Ils sont allés au cinéma.", s: "Sie sind ins Kino ___.", a: "gegangen",
+      why: "<b>gehen</b> &rarr; <b>gegangen</b>." },
+    { t: "gap", f: "Je suis allé à Vienne en avion.", s: "Ich bin nach Wien ___.", a: "geflogen",
+      why: "<b>fliegen</b> &rarr; <b>geflogen</b>." },
+    { t: "gap", f: "Le train est déjà parti.", s: "Der Zug ist ___ gefahren.", a: "schon",
+      why: "<b>schon</b> = déjà, placé avant le participe." },
+
+    { t: "order", f: "Je suis rentré à la maison.", a: "Ich bin nach Hause gegangen",
+      why: "Auxiliaire en deuxième position, participe à la fin — rien ne change." },
+    { t: "order", f: "Il est venu hier.", a: "Er ist gestern gekommen",
+      why: "<b>gestern</b> se glisse entre les deux morceaux du verbe." },
+    { t: "order", f: "Elle est restée à la maison.", a: "Sie ist zu Hause geblieben",
+      why: "<b>zu Hause</b> précède le participe." },
+    { t: "order", f: "Nous avons couru vite.", a: "Wir sind schnell gelaufen",
+      why: "<b>sind</b> et non <b>haben</b> : c'est un déplacement." },
+    { t: "order", f: "Ils sont allés au cinéma.", a: "Sie sind ins Kino gegangen",
+      why: "<b>ins Kino</b> indique la direction, donc l'accusatif." },
+    { t: "order", f: "Je suis resté longtemps.", a: "Ich bin lange geblieben",
+      why: "<b>lange</b> se place avant le participe." },
+
+    { t: "trad", f: "Je suis allé.", a: "Ich bin gegangen.",
+      why: "<b>gehen</b> prend <b>sein</b>." },
+    { t: "trad", f: "Tu es venu.", a: "Du bist gekommen.",
+      why: "<b>bist</b> pour <b>du</b>." },
+    { t: "trad", f: "Elle est restée.", a: "Sie ist geblieben.",
+      why: "<b>bleiben</b> prend <b>sein</b>, comme en français." },
+    { t: "trad", f: "Nous avons couru.", a: "Wir sind gelaufen.",
+      why: "Piège : l'allemand dit <b>sind</b> là où le français dit « avons »." },
+    { t: "trad", f: "Le train est parti.", a: "Der Zug ist gefahren.",
+      why: "<b>fahren</b> pour tout ce qui roule." },
+    { t: "trad", f: "Quand es-tu venu ?", a: "Wann bist du gekommen?",
+      why: "Mot interrogatif, auxiliaire, sujet, puis participe à la fin." },
+    { t: "trad", f: "le cinéma", a: "das Kino",
+      why: "Neutre, comme beaucoup de mots venus d'ailleurs." },
+    { t: "trad", f: "le train", a: "der Zug",
+      why: "Masculin. Pluriel <b>die Züge</b>, avec tréma." },
+
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Ich gehe nach Hause.", a: "Ich bin nach Hause gegangen.",
+      why: "<b>gehe</b> devient <b>bin … gegangen</b>." },
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Er kommt heute.", a: "Er ist heute gekommen.",
+      why: "<b>kommt</b> devient <b>ist … gekommen</b>." },
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Wir fahren nach Berlin.", a: "Wir sind nach Berlin gefahren.",
+      why: "<b>fahren</b> devient <b>sind … gefahren</b>." },
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Sie bleibt zu Hause.", a: "Sie ist zu Hause geblieben.",
+      why: "<b>bleibt</b> devient <b>ist … geblieben</b>." },
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Ich laufe schnell.", a: "Ich bin schnell gelaufen.",
+      why: "<b>laufe</b> devient <b>bin … gelaufen</b> — avec <b>sein</b>, pas <b>haben</b>." },
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Der Zug fährt.", a: "Der Zug ist gefahren.",
+      why: "<b>fährt</b> devient <b>ist gefahren</b>." }
+  ]
+},
+
+/* ------------------------------- ÉTAPE 40 -----------------------------
+   Chez le médecin. Ouvre le chapitre 14 et s'appuie DIRECTEMENT sur
+   l'étape 36 : les parties du corps y servent enfin à quelque chose.
+   Le mot composé `Kopf + Schmerzen` est le fil de l'étape — il rend
+   productif un vocabulaire qui était jusqu'ici une simple liste. */
+{
+  day: 40, title: "Chez le médecin", de: "Beim Arzt",
+  steps: [
+    {
+      idea: "Trois mots suffisent pour prendre rendez-vous.",
+      detail: "<b>der Arzt</b> le médecin, <b>die Praxis</b> son cabinet, <b>der Termin</b> le rendez-vous. Avec eux et le <b>ich möchte</b> du A1, on obtient déjà ce qu'on est venu chercher.",
+      gloss: { de: ["Ich", "möchte", "einen", "Termin"], fr: ["Je", "voudrais", "un", "rendez-vous"] }
+    },
+    {
+      idea: "La douleur porte le nom de l'endroit : <b>Kopf</b> + <b>Schmerzen</b>.",
+      detail: "L'allemand colle les deux mots en un seul. C'est ici que le vocabulaire de l'étape 36 devient utile : chaque partie du corps donne sa douleur, sans rien apprendre de neuf.",
+      table: [["der Kopf", "ich habe <b>Kopfschmerzen</b>"], ["der Rücken", "ich habe <b>Rückenschmerzen</b>"], ["die Ohren", "ich habe <b>Ohrenschmerzen</b>"]],
+      check: { q: "« J'ai mal au dos » se dit…", o: ["Ich habe Rückenschmerzen", "Ich habe Rückenschmerz", "Ich habe Rücken Schmerzen"], a: 0, why: "Un seul mot collé, et <b>Schmerzen</b> reste au pluriel — on a rarement une douleur unique." }
+    },
+    {
+      idea: "Deux façons de dire la même chose, et les deux sont justes.",
+      detail: "<b>Mein Kopf tut weh</b> (l'étape 36) et <b>ich habe Kopfschmerzen</b> veulent dire exactement la même chose. La première décrit ce qu'on ressent sur le moment, la seconde est celle qu'on emploie chez le médecin.",
+      table: [["Mein Kopf tut weh.", "sur le moment"], ["Ich habe Kopfschmerzen.", "chez le médecin"]],
+      check: { q: "Laquelle de ces phrases dit « j'ai mal à la tête » ?", o: ["les deux : Mein Kopf tut weh et Ich habe Kopfschmerzen", "seulement Mein Kopf tut weh", "seulement Ich habe Kopfschmerzen"], a: 0, why: "Les deux sont correctes. La seconde est la formule attendue dans un cabinet." }
+    },
+    {
+      idea: "Pour dire qu'on ne va pas bien : <b>krank</b>, et son contraire <b>gesund</b>.",
+      detail: "<b>Ich bin krank</b> = je suis malade. <b>Ich bin gesund</b> = je vais bien. On entend aussi <b>mir geht es nicht gut</b> — remarque le <b>mir</b> : l'allemand dit « à moi ça ne va pas ». Ce petit mot revient en force à l'étape 49.",
+      check: { q: "Le contraire de <b>krank</b> est…", o: ["gesund", "gut", "warm"], a: 0, why: "<b>gesund</b> = en bonne santé. <b>gut</b> veut dire bon ou bien, ce n'est pas la même idée." }
+    },
+    {
+      idea: "En partant : <b>Gute Besserung!</b>",
+      detail: "C'est ce qu'on souhaite à quelqu'un de malade — l'équivalent de « bon rétablissement ». <b>die Besserung</b> est féminin, d'où <b>Gute</b> sans <b>n</b> : exactement la même mécanique que <b>Gute Reise</b> et <b>Gute Nacht</b>, vues au A1.",
+      check: { q: "Pourquoi <b>Gute</b> et non <b>Guten</b> dans <b>Gute Besserung</b> ?", o: ["parce que Besserung est féminin", "parce que c'est un souhait", "parce que le mot est long"], a: 0, why: "Comme <b>Gute Reise</b> et <b>Gute Nacht</b>. On dit en revanche <b>Guten Tag</b>, parce que <b>Tag</b> est masculin." }
+    }
+  ],
+  examples: [
+    { d: "Ich bin krank.", f: "Je suis malade." },
+    { d: "Ich habe Kopfschmerzen.", f: "J'ai mal à la tête." },
+    { d: "Ich habe Fieber.", f: "J'ai de la fièvre." },
+    { d: "Ich möchte einen Termin.", f: "Je voudrais un rendez-vous." },
+    { d: "Wo ist die Praxis?", f: "Où est le cabinet ?" },
+    { d: "Der Arzt ist nicht da.", f: "Le médecin n'est pas là." },
+    { d: "Ich habe eine Erkältung.", f: "J'ai un rhume." },
+    { d: "Mein Rücken tut weh.", f: "J'ai mal au dos." },
+    { d: "Das Medikament ist gut.", f: "Le médicament est bon." },
+    { d: "Ich habe Husten.", f: "Je tousse." },
+    { d: "Ich bin wieder gesund.", f: "Je suis de nouveau en bonne santé." },
+    { d: "Gute Besserung!", f: "Bon rétablissement !" }
+  ],
+  vocab: [
+    { d: "der Arzt", f: "le médecin", p: "dèr ARTST" },
+    { d: "die Praxis", f: "le cabinet médical", p: "dii PRA-ksiss" },
+    { d: "der Termin", f: "le rendez-vous", p: "dèr tèr-MIIN" },
+    { d: "die Schmerzen", f: "les douleurs", p: "dii CHMÈR-tseun" },
+    { d: "das Fieber", f: "la fièvre", p: "das FII-beur" },
+    { d: "die Erkältung", f: "le rhume", p: "dii èr-KÈL-toung" },
+    { d: "das Medikament", f: "le médicament", p: "das mé-di-ka-MENT" },
+    { d: "der Husten", f: "la toux", p: "dèr HOUSS-teun" },
+    { d: "krank", f: "malade", p: "KRANK" },
+    { d: "gesund", f: "en bonne santé", p: "gue-ZOUNT" }
+  ],
+  quiz: [
+    { q: "« J'ai mal au dos » se dit…", o: ["Ich habe Rückenschmerzen", "Ich habe Rücken Schmerzen", "Ich habe Rückenschmerz"], a: 0, why: "Un seul mot collé, et <b>Schmerzen</b> au pluriel." },
+    { q: "Le contraire de <b>krank</b> est…", o: ["gesund", "gut", "kalt", "schön"], a: 0, why: "<b>gesund</b> = en bonne santé. <b>gut</b> ne dit rien de la santé." },
+    { q: "Comment demander un rendez-vous ?", o: ["Ich möchte einen Termin", "Ich möchte eine Praxis", "Ich möchte einen Arzt"], a: 0, why: "<b>der Termin</b> est le rendez-vous. <b>die Praxis</b> est le lieu, <b>der Arzt</b> la personne." },
+    { q: "Dans <b>Gute Besserung</b>, pourquoi <b>Gute</b> sans <b>n</b> ?", o: ["Besserung est féminin", "c'est une exception", "parce qu'on part"], a: 0, why: "Même règle que <b>Gute Reise</b>. Au masculin on dirait <b>Guten</b>, comme dans <b>Guten Tag</b>." },
+    { q: "<b>Ich habe Fieber</b> veut dire…", o: ["j'ai de la fièvre", "j'ai froid", "je suis fatigué"], a: 0, why: "<b>das Fieber</b> = la fièvre. Attention au faux ami : ce n'est pas « fébrile »." }
+  ],
+  drills: [
+    { t: "gap", f: "Je suis malade.", s: "Ich bin ___.", a: "krank",
+      why: "<b>krank</b> ne prend pas de terminaison après <b>sein</b>." },
+    { t: "gap", f: "J'ai mal à la tête.", s: "Ich habe ___.", a: "Kopfschmerzen",
+      why: "<b>Kopf</b> et <b>Schmerzen</b> collés en un seul mot." },
+    { t: "gap", f: "J'ai de la fièvre.", s: "Ich habe ___.", a: "Fieber",
+      why: "<b>das Fieber</b>, sans article dans cette tournure." },
+    { t: "gap", f: "Je voudrais un rendez-vous.", s: "Ich möchte einen ___.", a: "Termin",
+      why: "<b>der Termin</b> est masculin, d'où <b>einen</b> à l'accusatif." },
+    { t: "gap", f: "Où est le cabinet ?", s: "Wo ist die ___?", a: "Praxis",
+      why: "<b>die Praxis</b> est féminin." },
+    { t: "gap", f: "J'ai un rhume.", s: "Ich habe eine ___.", a: "Erkältung",
+      why: "<b>die Erkältung</b> est féminin — comme tous les mots en <b>-ung</b>." },
+    { t: "gap", f: "J'ai mal au dos.", s: "Mein Rücken tut ___.", a: "weh",
+      why: "L'autre façon de le dire, vue à l'étape 36." },
+    { t: "gap", f: "Je suis de nouveau en bonne santé.", s: "Ich bin wieder ___.", a: "gesund",
+      why: "<b>gesund</b> est le contraire de <b>krank</b>." },
+
+    { t: "order", f: "Je voudrais un rendez-vous.", a: "Ich möchte einen Termin",
+      why: "Sujet, verbe, complément à l'accusatif." },
+    { t: "order", f: "J'ai mal à la tête.", a: "Ich habe Kopfschmerzen",
+      why: "Pas d'article : on dit simplement <b>ich habe Kopfschmerzen</b>." },
+    { t: "order", f: "Le médecin n'est pas là.", a: "Der Arzt ist nicht da",
+      why: "<b>nicht</b> se place avant <b>da</b>." },
+    { t: "order", f: "Où est le cabinet ?", a: "Wo ist die Praxis",
+      why: "Question en <b>wo</b> : le verbe suit immédiatement." },
+    { t: "order", f: "J'ai un rhume.", a: "Ich habe eine Erkältung",
+      why: "<b>eine</b> à l'accusatif féminin — identique au nominatif." },
+    { t: "order", f: "Je suis de nouveau en bonne santé.", a: "Ich bin wieder gesund",
+      why: "<b>wieder</b> se glisse avant l'adjectif." },
+
+    { t: "trad", f: "le médecin", a: "der Arzt",
+      why: "Masculin. Au féminin on dit <b>die Ärztin</b>." },
+    { t: "trad", f: "le rendez-vous", a: "der Termin",
+      why: "Masculin. Vaut aussi pour un rendez-vous professionnel." },
+    { t: "trad", f: "la fièvre", a: "das Fieber",
+      why: "Neutre." },
+    { t: "trad", f: "le rhume", a: "die Erkältung",
+      why: "Féminin, comme tous les mots en <b>-ung</b>." },
+    { t: "trad", f: "le médicament", a: "das Medikament",
+      why: "Neutre. Pluriel <b>die Medikamente</b>." },
+    { t: "trad", f: "malade", a: "krank",
+      why: "Adjectif : pas de terminaison après <b>sein</b>." },
+    { t: "trad", f: "Je suis malade.", a: "Ich bin krank.",
+      why: "<b>sein</b> et non <b>haben</b> — l'allemand rejoint le français ici." },
+    { t: "trad", f: "Bon rétablissement !", a: "Gute Besserung!",
+      why: "<b>Besserung</b> est féminin, donc <b>Gute</b> sans <b>n</b>." },
+
+    { t: "trans", inst: "Dis-le autrement, avec Schmerzen.", from: "Mein Kopf tut weh.", a: "Ich habe Kopfschmerzen.",
+      why: "La partie du corps cesse d'être sujet : c'est <b>ich</b> qui prend la place." },
+    { t: "trans", inst: "Dis-le autrement, avec Schmerzen.", from: "Mein Rücken tut weh.", a: "Ich habe Rückenschmerzen.",
+      why: "<b>Rücken</b> et <b>Schmerzen</b> se collent en un mot." },
+    { t: "trans", inst: "Dis-le autrement, avec Schmerzen.", from: "Meine Ohren tun weh.", a: "Ich habe Ohrenschmerzen.",
+      why: "C'est le PLURIEL <b>Ohren</b> qui entre dans le mot composé." },
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Der Arzt kommt.", a: "Der Arzt ist gekommen.",
+      why: "<b>kommen</b> prend <b>sein</b> : <b>ist gekommen</b>." },
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Ich nehme das Medikament.", a: "Ich habe das Medikament genommen.",
+      why: "<b>nehmen</b> prend <b>haben</b>, et son participe est irrégulier." },
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Ich kaufe das Medikament.", a: "Ich habe das Medikament gekauft.",
+      why: "<b>kaufen</b> est régulier : <b>gekauft</b>." }
+  ]
+},
+
+/* ------------------------------- ÉTAPE 41 -----------------------------
+   war et hatte — le prétérit de sein et haben.
+
+   ⚠️⚠️ LA TABLE DE `sein` EST ÉCRITE DE MÉMOIRE, ET IL FAUT LE SAVOIR.
+   Vérifié le 02/08/2026 : `sein` est ABSENT de `reference/verbes-wiktionnaire.csv`
+   (zéro ligne). C'est le même trou que celui déjà noté au A1. `haben`, lui, y
+   est bien — sa ligne donne `Präteritum_ich = hatte`, et c'est de là que vient
+   la table de `hatte` ci-dessous.
+   Si le socle est un jour complété, revérifier `war / warst / waren / wart`. */
+{
+  day: 41, title: "war et hatte", de: "Das Präteritum von sein und haben",
+  steps: [
+    {
+      idea: "Deux verbes ont un passé plus court, et c'est celui qu'on entend.",
+      detail: "Pour presque tous les verbes, l'allemand parlé emploie le passé composé des étapes 37 à 39. Mais <b>sein</b> et <b>haben</b> font exception : on dit <b>ich war</b> et <b>ich hatte</b>, en un seul mot. Ce sont les deux formes de passé les plus fréquentes de la langue.",
+      gloss: { de: ["Gestern", "war", "ich", "krank"], fr: ["Hier", "étais", "je", "malade"] }
+    },
+    {
+      idea: "<b>sein</b> au passé donne <b>war</b>.",
+      detail: "Une seule racine, <b>war</b>, et des terminaisons très légères. Remarque que la 1ʳᵉ et la 3ᵉ personne du singulier sont <b>identiques</b> — comme au présent avec <b>ist</b>, il n'y a rien de neuf à retenir de ce côté.",
+      table: [["ich <b>war</b>", "j'étais"], ["du <b>warst</b>", "tu étais"], ["er/sie/es <b>war</b>", "il / elle était"], ["wir <b>waren</b>", "nous étions"], ["ihr <b>wart</b>", "vous étiez"], ["sie/Sie <b>waren</b>", "ils étaient / vous étiez"]],
+      check: { q: "« Où étais-tu ? » se dit…", o: ["Wo warst du?", "Wo war du?", "Wo wart du?"], a: 0, why: "<b>du</b> prend <b>-st</b> : <b>warst</b>. <b>wart</b> est la forme de <b>ihr</b>." }
+    },
+    {
+      idea: "<b>haben</b> au passé donne <b>hatte</b>.",
+      detail: "Même principe : une racine <b>hatt-</b> et les terminaisons habituelles. Attention à ne pas confondre avec <b>hätte</b>, qui prend un tréma et veut dire « j'aurais » — celui-là arrive à l'étape 60.",
+      table: [["ich <b>hatte</b>", "j'avais"], ["du <b>hattest</b>", "tu avais"], ["er/sie/es <b>hatte</b>", "il / elle avait"], ["wir <b>hatten</b>", "nous avions"], ["ihr <b>hattet</b>", "vous aviez"], ["sie/Sie <b>hatten</b>", "ils avaient / vous aviez"]],
+      check: { q: "Le passé de <b>ich habe</b> est…", o: ["ich hatte", "ich hätte", "ich habte", "ich war"], a: 0, why: "<b>hatte</b> sans tréma. <b>hätte</b> existe aussi mais veut dire « j'aurais »." }
+    },
+    {
+      idea: "Avec ces deux-là, on n'emploie pas le passé composé.",
+      detail: "<b>Ich bin krank gewesen</b> existe, mais personne ne parle ainsi. On dit <b>ich war krank</b>. C'est l'inverse de la règle des étapes précédentes, et c'est justement pour ça que ces deux verbes méritent leur propre étape.",
+      table: [["<b>Ich war krank.</b>", "ce qu'on dit"], ["Ich bin krank gewesen.", "correct, mais rare"]],
+      check: { q: "Pour dire « j'étais malade », on emploie…", o: ["ich war krank", "ich bin krank gewesen", "ich habe krank"], a: 0, why: "Avec <b>sein</b> et <b>haben</b>, la forme courte l'emporte toujours à l'oral." }
+    },
+    {
+      idea: "Le verbe reste en deuxième position, même après un mot de temps.",
+      detail: "Rien de neuf, mais c'est là qu'on se trompe : dès qu'une phrase commence par <b>gestern</b>, <b>damals</b> ou <b>letzte Woche</b>, le sujet passe APRÈS le verbe. On dit <b>gestern war ich krank</b>, jamais « gestern ich war krank ».",
+      table: [["Ich <b>war</b> gestern krank.", "sujet d'abord"], ["Gestern <b>war</b> ich krank.", "temps d'abord, sujet après le verbe"]],
+      check: { q: "Comment dit-on « Hier j'étais fatigué » ?", o: ["Gestern war ich müde", "Gestern ich war müde", "Ich gestern war müde"], a: 0, why: "Le verbe garde sa deuxième place ; c'est le sujet qui recule." }
+    }
+  ],
+  examples: [
+    { d: "Ich war krank.", f: "J'étais malade." },
+    { d: "Gestern war ich müde.", f: "Hier j'étais fatigué." },
+    { d: "Wir waren in Berlin.", f: "Nous étions à Berlin." },
+    { d: "Ich hatte Fieber.", f: "J'avais de la fièvre." },
+    { d: "Er hatte Kopfschmerzen.", f: "Il avait mal à la tête." },
+    { d: "Wo warst du?", f: "Où étais-tu ?" },
+    { d: "Das war sehr gut.", f: "C'était très bien." },
+    { d: "Wir hatten keine Zeit.", f: "Nous n'avions pas le temps." },
+    { d: "Letzte Woche war ich allein.", f: "La semaine dernière j'étais seul." },
+    { d: "Früher war ich oft krank.", f: "Autrefois j'étais souvent malade." },
+    { d: "Hattest du einen Termin?", f: "Avais-tu un rendez-vous ?" },
+    { d: "Damals hatten wir kein Auto.", f: "À l'époque nous n'avions pas de voiture." }
+  ],
+  vocab: [
+    { d: "war", f: "était, j'étais", p: "VAAR" },
+    { d: "waren", f: "étions, étaient", p: "VAA-reun" },
+    { d: "hatte", f: "avait, j'avais", p: "HA-te" },
+    { d: "hatten", f: "avions, avaient", p: "HA-teun" },
+    { d: "früher", f: "autrefois", p: "FRUU-eur" },
+    { d: "damals", f: "à l'époque", p: "DAA-malss" },
+    { d: "vorgestern", f: "avant-hier", p: "FOR-guès-teurn" },
+    { d: "letzte Woche", f: "la semaine dernière", p: "LÈT-ste VO-khe" },
+    { d: "allein", f: "seul", p: "a-LAÏN" },
+    { d: "anders", f: "différent, autrement", p: "AN-deurss" }
+  ],
+  quiz: [
+    { q: "La forme courte du passé de <b>sein</b>, celle qu'on entend, est…", o: ["ich war", "ich bin", "ich hatte", "ich habe"], a: 0, why: "<b>ich war</b>. Le passé composé <b>ich bin gewesen</b> existe, mais personne ne l'emploie à l'oral." },
+    { q: "Le passé de <b>ich habe</b> est…", o: ["ich hatte", "ich hätte", "ich habte", "ich war"], a: 0, why: "<b>hatte</b>, sans tréma. Avec tréma, <b>hätte</b> veut dire « j'aurais »." },
+    { q: "« Où étais-tu ? » se dit…", o: ["Wo warst du?", "Wo war du?", "Wo hattest du?"], a: 0, why: "<b>du</b> prend <b>-st</b> : <b>warst</b>." },
+    { q: "<b>wir</b> au passé de <b>sein</b> donne…", o: ["wir waren", "wir wart", "wir warn", "wir hatten"], a: 0, why: "<b>waren</b>. <b>wart</b> est la forme de <b>ihr</b>." },
+    { q: "Dans <b>Gestern war ich krank</b>, pourquoi <b>war</b> passe-t-il avant <b>ich</b> ?", o: ["parce que le verbe reste en deuxième position", "parce que c'est une question", "parce que gestern est un mot du passé"], a: 0, why: "<b>gestern</b> occupe la première place, donc le sujet recule après le verbe. Règle du A1, toujours valable." }
+  ],
+  drills: [
+    { t: "gap", f: "J'étais malade.", s: "Ich ___ krank.", a: "war",
+      why: "<b>ich war</b> : la 1ʳᵉ personne n'a pas de terminaison." },
+    { t: "gap", f: "Nous étions à Berlin.", s: "Wir ___ in Berlin.", a: "waren",
+      why: "<b>wir</b> prend <b>-en</b> : <b>waren</b>." },
+    { t: "gap", f: "J'avais de la fièvre.", s: "Ich ___ Fieber.", a: "hatte",
+      why: "<b>hatte</b>, sans tréma." },
+    { t: "gap", f: "Il avait mal à la tête.", s: "Er ___ Kopfschmerzen.", a: "hatte",
+      why: "La 3ᵉ personne est identique à la 1ʳᵉ : <b>hatte</b>." },
+    { t: "gap", f: "Où étais-tu ?", s: "Wo ___ du?", a: "warst",
+      why: "<b>du</b> prend <b>-st</b>." },
+    { t: "gap", f: "Nous n'avions pas le temps.", s: "Wir ___ keine Zeit.", a: "hatten",
+      why: "<b>wir hatten</b>, avec <b>-en</b>." },
+    { t: "gap", f: "Hier j'étais fatigué.", s: "Gestern ___ ich müde.", a: "war",
+      why: "Le verbe garde la deuxième place, le sujet passe après." },
+    { t: "gap", f: "À l'époque nous n'avions pas de voiture.", s: "___ hatten wir kein Auto.", a: "Damals",
+      why: "<b>damals</b> = à l'époque, et il fait reculer le sujet." },
+
+    { t: "order", f: "J'étais malade.", a: "Ich war krank",
+      why: "Sujet, verbe, adjectif — l'ordre le plus simple." },
+    { t: "order", f: "Nous étions à Berlin.", a: "Wir waren in Berlin",
+      why: "<b>waren</b> pour <b>wir</b>." },
+    { t: "order", f: "Hier j'étais fatigué.", a: "Gestern war ich müde",
+      why: "Le complément de temps ouvre la phrase, le verbe reste deuxième." },
+    { t: "order", f: "Il avait mal à la tête.", a: "Er hatte Kopfschmerzen",
+      why: "<b>hatte</b> pour <b>er</b>." },
+    { t: "order", f: "La semaine dernière j'étais seul.", a: "Letzte Woche war ich allein",
+      why: "<b>letzte Woche</b> en tête, donc <b>war ich</b> et non « ich war »." },
+    { t: "order", f: "Nous n'avions pas le temps.", a: "Wir hatten keine Zeit",
+      why: "<b>keine</b> devant un féminin, comme au A1." },
+
+    { t: "trad", f: "J'étais.", a: "Ich war.",
+      why: "Un seul mot pour le passé de <b>sein</b>." },
+    { t: "trad", f: "Tu étais.", a: "Du warst.",
+      why: "<b>-st</b> pour <b>du</b>." },
+    { t: "trad", f: "Nous étions.", a: "Wir waren.",
+      why: "<b>-en</b> pour <b>wir</b>." },
+    { t: "trad", f: "J'avais.", a: "Ich hatte.",
+      why: "<b>hatte</b>, à ne pas confondre avec <b>hätte</b>." },
+    { t: "trad", f: "Elle avait.", a: "Sie hatte.",
+      why: "Identique à la 1ʳᵉ personne." },
+    { t: "trad", f: "C'était très bien.", a: "Das war sehr gut.",
+      why: "<b>das war</b> est la tournure la plus courante pour commenter." },
+    { t: "trad", f: "autrefois", a: "früher",
+      why: "Se place en tête de phrase et fait reculer le sujet." },
+    { t: "trad", f: "avant-hier", a: "vorgestern",
+      why: "<b>vor</b> = avant, collé à <b>gestern</b>." },
+
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Ich bin krank.", a: "Ich war krank.",
+      why: "<b>bin</b> devient <b>war</b> — un seul mot, pas de participe." },
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Wir sind in Berlin.", a: "Wir waren in Berlin.",
+      why: "<b>sind</b> devient <b>waren</b>." },
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Ich habe Fieber.", a: "Ich hatte Fieber.",
+      why: "<b>habe</b> devient <b>hatte</b>." },
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Er hat Kopfschmerzen.", a: "Er hatte Kopfschmerzen.",
+      why: "<b>hat</b> devient <b>hatte</b>." },
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Wo bist du?", a: "Wo warst du?",
+      why: "<b>bist</b> devient <b>warst</b>." },
+    { t: "trans", inst: "Mets la phrase au passé.", from: "Hast du einen Termin?", a: "Hattest du einen Termin?",
+      why: "<b>hast</b> devient <b>hattest</b>." }
+  ]
 }
 ];
 
@@ -6263,8 +7086,49 @@ function enrichirDepuisLivre() {}
 
 /* Le niveau A1 du livre compte 35 unités (numérotées 0 à 34, pages 3 à 56).
    Le 30 affiché jusqu'au 01/08/2026 venait du titre commercial du livre
-   (« en 30 Jours ») et ne correspondait à rien dans son sommaire. Voir PLAN-A1.md. */
-const TOTAL_PLANNED = 35; // objectif du niveau A1, en étapes
+   (« en 30 Jours ») et ne correspondait à rien dans son sommaire. Voir PLAN-A1.md.
+
+   ⚠️ LE LIVRE NE COUVRE QUE LE A1, et le libellé de son onglet est donc écrit
+   en dur plus bas. Le niveau A2 ne vient PAS du livre : les photos s'arrêtent à
+   la page 62, et le programme du A2 est de toute façon public (CECRL, Goethe).
+   Voir PLAN-A2.md. Conséquence utile : le contenu A2 est le nôtre, donc
+   publiable — `sans-livre.ps1` n'a rien à en retirer. */
+const LIVRE_NIVEAU = "A1";
+
+/* Les niveaux, dans l'ordre. `prevu` est l'objectif du niveau en étapes ; il
+   sert à l'accueil, qui annonce « 4 / 28 » DANS le niveau en cours et non sur
+   le total des deux. « 4 / 63 » ne dirait rien à personne.
+   `premiere` est la première étape du niveau : elle définit ses bornes avec le
+   niveau suivant, sans avoir à recopier une liste d'étapes. */
+const NIVEAUX = [
+  { id: "A1", prevu: 35, premiere: 1  },
+  { id: "A2", prevu: 28, premiere: 36 }
+];
+
+/* Le niveau d'une étape. Volontairement calculé sur `premiere` plutôt que lu
+   dans le chapitre : une étape peut exister avant que son chapitre soit
+   déclaré (on écrit l'étape, puis on range), et l'accueil ne doit pas tomber
+   en marche pour autant. */
+function niveauDe(stepNo) {
+  let n = NIVEAUX[0];
+  for (let i = 0; i < NIVEAUX.length; i++) {
+    if (stepNo >= NIVEAUX[i].premiere) n = NIVEAUX[i];
+  }
+  return n;
+}
+
+/* Les étapes ÉCRITES d'un niveau, et celles qui y sont terminées. C'est ce
+   couple que l'accueil affiche. */
+function avancementNiveau(niv) {
+  const suivant = NIVEAUX[NIVEAUX.indexOf(niv) + 1];
+  const fin = suivant ? suivant.premiere - 1 : Infinity;
+  const dans = function (n) { return n >= niv.premiere && n <= fin; };
+  return {
+    faites: S.done.filter(dans).length,
+    ecrites: COURSE.filter(function (c) { return dans(c.day); }).length,
+    prevu: niv.prevu
+  };
+}
 
 /* Niveau > Chapitre > Étape.
    Les chapitres regroupent des étapes CONSÉCUTIVES : la progression
@@ -6272,7 +7136,6 @@ const TOTAL_PLANNED = 35; // objectif du niveau A1, en étapes
    présent), regrouper par thème obligerait à la casser.
    Le mot « étape » désigne ici une séance de travail. Les écrans qui la
    composent n'ont pas de nom : ils sont simplement numérotés. */
-const LEVEL = "A1";
 /* Un chapitre par groupe d'unités consécutives du livre. Il s'allonge à
    mesure que les étapes s'écrivent ; on ne déclare que ce qui existe. */
 const CHAPTERS = [
@@ -6287,7 +7150,15 @@ const CHAPTERS = [
   { n: 9, title: "Dates, repas, charpente", steps: [22, 23, 24] },
   { n: 10, title: "Vouloir et pouvoir",     steps: [25, 26, 27] },
   { n: 11, title: "Sortir et se déplacer",  steps: [28, 29, 30] },
-  { n: 12, title: "Nier, situer, voyager",  steps: [31, 32, 33, 34, 35] }
+  { n: 12, title: "Nier, situer, voyager",  steps: [31, 32, 33, 34, 35] },
+  /* --- Niveau A2, à partir de l'étape 36. La numérotation des chapitres est
+     CONTINUE : le niveau se lit à son étiquette, pas au numéro du chapitre.
+     Repartir à 1 ferait deux « chapitre 1 » dans la même liste. --- */
+  { n: 13, title: "Raconter ce qui s'est passé", steps: [36, 37, 38, 39] },
+  /* Le chapitre 14 s'allongera avec les étapes 41 et 42 (war/hatte, puis weil).
+     On ne déclare que ce qui existe : une étape annoncée mais absente ferait
+     échouer l'auto-test, et il aurait raison. */
+  { n: 14, title: "Le corps, la santé, la cause", steps: [40, 41] }
 ];
 
 /* Le chapitre auquel appartient une étape, et son rang à l'intérieur. */
@@ -7268,9 +8139,14 @@ function home() {
          fermer la liste. */
       '<details class="grp tout">',
         '<summary>',
-          '<span class="g-t">Niveau ' + LEVEL + ' &#183; ' + S.done.length + ' / ' +
-            COURSE.length + ' étapes</span>',
-          '<span class="g-n">' + TOTAL_PLANNED + ' prévues</span>',
+          /* Le compte est celui du NIVEAU EN COURS, pas des deux réunis :
+             « 2 / 63 » ne dit rien, « 2 / 28 » situe. Le niveau affiché est
+             celui de l'étape où l'on se trouve, et non le dernier déclaré —
+             sinon on annoncerait « A2 » à quelqu'un qui est à l'étape 4. */
+          '<span class="g-t">Niveau ' + niveauDe(S.day).id + ' &#183; ' +
+            avancementNiveau(niveauDe(S.day)).faites + ' / ' +
+            avancementNiveau(niveauDe(S.day)).ecrites + ' étapes</span>',
+          '<span class="g-n">' + niveauDe(S.day).prevu + ' prévues</span>',
         '</summary>',
         stations,
       '</details>',
@@ -7863,7 +8739,10 @@ const THEME_ETAPE = {
   16: "gens",  17: "couleurs", 18: "quotidien", 19: "nombres", 20: "mots",
   21: "mots",  22: "nombres", 23: "table", 24: "mots", 25: "verbes",
   26: "table", 27: "gens",  28: "table", 29: "voyage", 30: "voyage",
-  31: "mots",  32: "verbes", 33: "mots",  34: "voyage", 35: "voyage"
+  31: "mots",  32: "verbes", 33: "mots",  34: "voyage", 35: "voyage",
+  /* Niveau A2 */
+  36: "corps", 37: "verbes", 38: "verbes", 39: "verbes", 40: "corps",
+  41: "verbes"
 };
 const THEME_DEFAUT = "mots";
 
@@ -7954,7 +8833,37 @@ const THEME_MOT = {};
     "wann", "warum", "wie viele", "gern", "lieber", "Lieblings-", "in der Nähe",
     "wenig", "kein", "mehr", "hier", "nicht", "nichts", "nie", "leider",
     "hoffentlich", "in", "auf", "unter", "hinter", "für", "durch", "bei", "seit",
-    "inbegriffen", "verfügbar"]]
+    "inbegriffen", "verfügbar"]],
+
+  /* ---- Niveau A2 ---- */
+
+  ["corps", ["der Kopf", "das Auge", "die Nase", "der Mund", "das Ohr",
+    "die Hand", "der Arm", "das Bein", "der Fuß", "der Rücken",
+    /* Étape 40 : la santé rejoint le corps plutôt que d'ouvrir un thème à
+       part. Un thème sert à donner un fond de carte qui a du sens ; séparer
+       « le dos » de « le mal de dos » n'en aurait aucun. */
+    "der Arzt", "die Praxis", "der Termin", "die Schmerzen", "das Fieber",
+    "die Erkältung", "das Medikament", "der Husten", "krank", "gesund"]],
+
+  /* Les participes passés vont dans « les verbes » — c'est bien ce qu'ils
+     sont. Les ranger par le sens du verbe (manger &rarr; à table) casserait le
+     seul regroupement qui compte ici : ils s'apprennent en série, parce que
+     c'est la TERMINAISON qu'on retient, pas le sens. */
+  ["verbes", ["gemacht", "gespielt", "gelernt", "gekauft", "gearbeitet",
+    "gehört", "gesucht", "gefragt", "gesagt", "gesehen", "gegessen",
+    "getrunken", "gelesen", "geschrieben", "gesprochen", "genommen",
+    "gefunden", "gegeben", "geschlafen", "gegangen", "gekommen", "gefahren",
+    "geblieben", "geflogen", "gelaufen"]],
+
+  ["quotidien", ["das Kino"]],
+
+  /* Étape 41 : les formes de sein et haben au passé sont des VERBES ; les
+     repères de temps qui les accompagnent vont dans « le temps qui passe ».
+     Les mélanger donnerait un fond de carte qui ne veut rien dire. */
+  ["verbes", ["war", "waren", "hatte", "hatten"]],
+  ["temps", ["früher", "damals", "vorgestern", "letzte Woche"]],
+
+  ["mots", ["gestern", "lange", "schon", "allein", "anders"]]
 ].forEach(function (groupe) {
   groupe[1].forEach(function (mot) { THEME_MOT[mot] = groupe[0]; });
 });
@@ -7966,7 +8875,8 @@ const THEME_NOM = {
   monde: "langues et pays", gens: "les gens", mots: "la langue",
   nombres: "les nombres", temps: "le temps qui passe", verbes: "les verbes",
   couleurs: "décrire", nature: "animaux et nature", quotidien: "la journée",
-  maison: "la maison", table: "à table", voyage: "en déplacement"
+  maison: "la maison", table: "à table", voyage: "en déplacement",
+  corps: "le corps et la santé"
 };
 
 /* Le thème d'une carte : celui du MOT d'abord, celui de l'étape en secours.
@@ -9096,7 +10006,7 @@ function bookView() {
     '<div class="stack">',
       backBar("Accueil"),
       '<div class="stack-s">',
-        '<span class="label">Le livre &#183; niveau ' + LEVEL + ' &#183; ' +
+        '<span class="label">Le livre &#183; niveau ' + LIVRE_NIVEAU + ' &#183; ' +
           finies + ' / ' + BOOK.length + ' unités terminées' +
           (impec ? ' &#183; ' + impec + ' sans faute' : '') + '</span>',
         '<h2>Le livre</h2>',
@@ -9200,7 +10110,7 @@ function unitView() {
     '<div class="stack">',
       '<button class="back" data-go="book">&#8592; Le livre</button>',
       '<div class="stack-s">',
-        '<span class="label">Unité ' + u.n + ' &#183; niveau ' + LEVEL + ' &#183; page ' + esc(u.pages) + '</span>',
+        '<span class="label">Unité ' + u.n + ' &#183; niveau ' + LIVRE_NIVEAU + ' &#183; page ' + esc(u.pages) + '</span>',
         '<h2>' + esc(u.title) + '</h2>',
         u.intro ? '<p class="msg">' + esc(u.intro) + '</p>' : '',
       '</div>',
@@ -9504,8 +10414,10 @@ function reglagesView() {
    son seuil est donc plus exigeant que le vrai, il l'a confirmé en connaissant
    le chiffre. On ne le « corrige » pas en douce.
 
-   Le A2 n'existe pas encore dans l'app. Réussir ce test CERTIFIE le A1 et le
-   dit ; on n'invente pas un déblocage vers un niveau vide. */
+   Réussir ce test valide le A1 et ouvre le A2. ⚠️ L'écran de résultat annonce
+   le nombre d'étapes A2 RÉELLEMENT écrites, calculé sur `COURSE` : tant que le
+   niveau est incomplet, on le dit au lieu de laisser croire à un cours entier.
+   On n'a jamais promis de déblocage vers un niveau vide, et ça ne change pas. */
 const A1_SEUIL = 0.70;
 
 const A1_TEXTE = "Hallo! Ich heiße Lukas. Ich bin fünfundzwanzig Jahre alt und " +
@@ -9688,7 +10600,13 @@ function a1View() {
         '<div class="score"><b>' + bons + '/' + qs.length + '</b><span>' +
           Math.round(part * 100) + ' %. ' +
           (passe
-            ? 'Le niveau A1 est validé. Le A2 n\'existe pas encore dans l\'app — c\'est le prochain chantier.'
+            /* ⚠️ Le compte des étapes A2 est CALCULÉ, jamais écrit à la main.
+               Cet écran a dit « le A2 n'existe pas » jusqu'au 02/08/2026 ; le
+               jour où il a existé, la phrase est devenue fausse en silence.
+               Calculée, elle suit le contenu toute seule. */
+            ? 'Le niveau A1 est validé. Le A2 est ouvert — ' +
+              avancementNiveau(NIVEAUX[1]).ecrites + ' étapes y sont écrites sur ' +
+              NIVEAUX[1].prevu + ' prévues.'
             : 'Il faut ' + Math.ceil(qs.length * A1_SEUIL) + ' bonnes réponses. Revois les épreuves les plus faibles et retente.') +
         '</span></div>',
         '<div class="stack-s"><h3 class="sec">Par épreuve</h3><div class="recs">' + detail + '</div></div>',
@@ -10181,9 +11099,13 @@ function paintOu(name) {
   const w = document.getElementById("wordmark");
   if (!w) return;
   const nom = OU_SUIS_JE[name];
+  /* ⚠️ Le badge du niveau était écrit en dur (« A1 »). Il aurait affiché A1 à
+     quelqu'un rendu à l'étape 40. Il suit désormais l'étape en cours, comme
+     l'accueil — un libellé de niveau ne doit exister qu'à UN endroit calculé,
+     sinon les deux finissent par se contredire. */
   w.innerHTML = nom
     ? '<span class="ou" data-ou="' + att(name) + '">' + esc(nom) + '</span>'
-    : 'Deutsch Täglich <small>A1</small>';
+    : 'Deutsch Täglich <small>' + esc(niveauDe(S.day).id) + '</small>';
 }
 
 function go(name) {
@@ -11549,8 +12471,14 @@ function runTests() {
     eq("test A1 : et le score est enregistré", S.a1 && S.a1.score, qs.length);
     ok("test A1 : le résultat détaille chaque épreuve",
        view.textContent.indexOf("Par épreuve") !== -1);
-    ok("test A1 : et ne promet pas un A2 qui n'existe pas",
-       view.textContent.indexOf("n'existe pas encore") !== -1);
+    /* La règle n'a pas changé, seulement le fait qu'elle constate : l'écran ne
+       doit annoncer QUE des étapes A2 réellement écrites. Le nombre affiché est
+       comparé au contenu, pas à une constante — c'est la seule façon que la
+       phrase reste vraie quand le A2 s'allongera. */
+    ok("test A1 : le A2 annoncé est celui qui existe vraiment",
+       view.textContent.indexOf(avancementNiveau(NIVEAUX[1]).ecrites + " étapes y sont écrites") !== -1);
+    ok("test A1 : et il ne promet pas plus d'étapes qu'il n'en existe",
+       avancementNiveau(NIVEAUX[1]).ecrites <= NIVEAUX[1].prevu);
 
     /* Et l'inverse : tout faux ne doit RIEN valider. Un examen qui se laisse
        arracher un niveau ne sert à rien. */
@@ -12673,7 +13601,26 @@ function runTests() {
      go("home");
   })();
   eq("accueil : une pastille par étape écrite", view.querySelectorAll(".palier").length, COURSE.length);
-  ok("accueil : le niveau est annoncé", view.innerHTML.indexOf("Niveau " + LEVEL) !== -1);
+  ok("accueil : le niveau est annoncé", view.innerHTML.indexOf("Niveau " + niveauDe(S.day).id) !== -1);
+
+  /* Le badge de l'en-tête et l'accueil doivent dire LE MÊME niveau. Ils sont
+     peints par deux fonctions différentes ; c'est exactement la configuration
+     où l'un se met à mentir sans que l'autre bouge. On vérifie donc aux deux
+     bouts du cours, pas seulement là où l'on se trouve par hasard. */
+  (function () {
+    const garde = S.day;
+    [1, 36].forEach(function (d) {
+      if (d > COURSE.length) return;
+      S.day = d;
+      go("home");
+      eq("en-tête : le badge suit le niveau de l'étape " + d,
+         document.getElementById("wordmark").textContent.indexOf(niveauDe(d).id) !== -1, true);
+      ok("accueil : et il dit la même chose que le sommaire à l'étape " + d,
+         view.innerHTML.indexOf("Niveau " + niveauDe(d).id) !== -1);
+    });
+    S.day = garde;
+    go("home");
+  })();
   ok("accueil : le mot « jour » a disparu de l'écran",
      view.innerHTML.toLowerCase().indexOf(">jour") === -1 &&
      view.innerHTML.indexOf(" jours ") === -1);

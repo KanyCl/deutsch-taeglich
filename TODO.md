@@ -1472,3 +1472,140 @@ avoir juste — et rien ne l'aurait signalé.
       ⚠️ À vérifier avant de promettre : l'app est un fichier HTML seul, sans serveur.
       Un vrai dialogue demande une IA derrière — peut-être possible sur la version publiée
       en ligne, pas sur le fichier local.
+
+## 🚀 LE NIVEAU A2 EST OUVERT — 02/08/2026
+
+**Décision d'Exsangue : le A2 ne suit pas le livre.** Deux raisons, dans cet ordre.
+
+1. **La matière manque.** Vérifié ce jour : les 42 photos couvrent les pages **3 à 62**,
+   soit tout le A1 plus les deux premières unités du A2 (*der Körper*, *Vorher und
+   Nachher*). Ensuite elles sautent à la conclusion (p.279-280). Suivre le livre voulait
+   dire s'arrêter à la deuxième étape.
+2. **On n'en a plus besoin.** Le programme du A2 est **public et standardisé** (CECRL,
+   repris tel quel par Goethe, telc et l'ÖSD). Il est relevé dans
+   `~/.claude/skills/allemand/examens.md`, écrit le même jour.
+
+⚠️ **CONSÉQUENCE QUI CHANGE L'OBJECTIF DU PROJET, à ne pas re-découvrir :** le contenu A2
+est **le nôtre**, pas celui du livre. Il n'est donc pas sous copyright et **n'a rien à
+faire dans `sans-livre.ps1`** — seuls `BOOK` et `BOOK_TEST` en sortent. Le A2 est
+publiable dès le premier jour, sans rien retirer.
+
+### Le plan — `PLAN-A2.md`
+
+**28 étapes, numérotées 36 à 63**, réparties en 9 chapitres (13 à 21). Grammaire et
+vocabulaire **alternent**, comme au A1. Le cœur du niveau : on quitte le présent — le
+passé composé, la subordonnée, et l'adjectif décliné.
+
+Les deux unités A2 photographiées ne sont pas perdues : **le corps** ouvre le niveau
+(étape 36) et **avant / après** le referme (étape 63).
+
+### L'architecture — l'app connaît enfin deux niveaux
+
+- [x] **`NIVEAUX`** remplace `TOTAL_PLANNED` et `LEVEL`, qui étaient des constantes
+      uniques. Chaque niveau déclare son `prevu` et sa `premiere` étape ; `niveauDe(n)`
+      calcule le niveau d'une étape à partir de ces bornes, sans recopier de liste.
+- [x] **L'accueil compte DANS le niveau en cours** (`avancementNiveau`) : « 2 / 28 »
+      situe, « 2 / 63 » ne dit rien à personne.
+- [x] **Le libellé du livre reste `A1` en dur** (`LIVRE_NIVEAU`) : le livre transcrit ne
+      couvre que ce niveau, et le figer évite qu'il suive un niveau qu'il ne contient pas.
+- [x] **La numérotation des chapitres est continue** (le A2 démarre au chapitre 13).
+      Repartir à 1 ferait deux « chapitre 1 » dans la même liste.
+
+⚠️ **Deux endroits mentaient sur le niveau, et un seul a été trouvé par un test :**
+
+- **L'écran de fin du test A1** annonçait « le A2 n'existe pas encore ». La phrase est
+  devenue fausse **en silence** le jour où le A2 a existé. Elle est désormais **calculée**
+  (`avancementNiveau(NIVEAUX[1]).ecrites`) : elle suit le contenu toute seule, et la
+  vérification compare l'écran au contenu, plus à une constante.
+- **Le badge de l'en-tête** (`Deutsch Täglich A1`) était écrit **en dur, à deux endroits**.
+  Il aurait affiché « A1 » à quelqu'un rendu à l'étape 40. Trouvé **sur une capture**,
+  pas par un test — comme les trois défauts du 02/08. Il suit maintenant l'étape en cours.
+  Une vérification neuve exige que **l'en-tête et le sommaire disent le même niveau**, et
+  elle le contrôle **aux deux bouts du cours** : ils sont peints par deux fonctions
+  différentes, c'est exactement la configuration où l'un se met à mentir sans l'autre.
+
+### Chapitre 13 « Raconter ce qui s'est passé » — étapes 36 à 39 ✅
+
+- [x] **36 · Le corps** — 10 parties, les trois genres, le pluriel des paires,
+      et `weh tun` (c'est la partie du corps qui est SUJET : *der Kopf tut weh*).
+- [x] **37 · Le passé composé** — `haben` + participe en **ge—t**, l'auxiliaire en
+      deuxième position et le participe rejeté à la fin. Le `-et` d'appui après t/d.
+- [x] **38 · Les participes irréguliers** — les 10 plus fréquents en **ge—en**,
+      dont `gegessen` et son double `ge`.
+- [x] **39 · Le passé avec sein** — les verbes de déplacement, plus `bleiben`.
+      Le point d'appui : le français dit « **j'ai** couru » là où l'allemand dit
+      **ich bin gelaufen** — c'est exactement là qu'on se trompe.
+
+⚠️ **Les 26 participes et leurs auxiliaires ont été relevés dans
+`reference/verbes-wiktionnaire.csv`** (colonnes *Partizip II* et *Hilfsverb*) avant d'être
+écrits. **Aucun n'est de mémoire** — la règle du projet n'a pas d'exception.
+
+- [x] Auto-test : **2674 vérifications**. `verifier.ps1` : 152 articles de vocabulaire et
+      178 articles dans les phrases, **0 écart**. Aucun mot rare ajouté : tout le
+      vocabulaire A2 tombe dans les rangs courants.
+- [x] Thèmes : un thème **`corps`** créé, les 25 participes rangés dans `verbes`.
+      Les ranger par le sens du verbe (*manger* → à table) casserait le seul regroupement
+      qui compte ici — ils s'apprennent en série, pour leur terminaison.
+
+⚠️ **Piège rencontré, à ne pas re-découvrir :** l'étape 37 s'appelait d'abord « Le passé de
+tous les jours ». Ce titre faisait **tomber le garde-fou qui interdit le mot « jour » à
+l'écran** — celui qui empêche de revenir à l'ancien « jour N », abandonné au profit de
+« étape N ». Le garde-fou a raison de ne pas faire d'exception : c'est le titre qui a
+changé. Une règle qui tolère un cas finit par en tolérer dix.
+
+### Chapitre 14 « Le corps, la santé, la cause » — en cours
+
+- [x] **40 · Chez le médecin** ✅ 02/08/2026. Le fil de l'étape est le **mot composé**
+      `Kopf` + `Schmerzen` : c'est lui qui rend enfin PRODUCTIF le vocabulaire de
+      l'étape 36, jusque-là une simple liste. Chaque partie du corps donne sa douleur
+      sans rien apprendre de neuf — `Kopfschmerzen`, `Rückenschmerzen`, et
+      `Ohrenschmerzen` où c'est le **pluriel** `Ohren` qui entre dans le composé.
+      Les deux tournures sont enseignées **comme équivalentes** : `mein Kopf tut weh`
+      (sur le moment) et `ich habe Kopfschmerzen` (chez le médecin). Six exercices de
+      transformation passent de l'une à l'autre — c'est là que l'étape 36 est réactivée.
+      Rappel du A1 réemployé : `Gute Besserung` prend `Gute` sans `n` parce que
+      `die Besserung` est féminin — même mécanique que `Gute Reise` et `Gute Nacht`.
+      ⚠️ `mir geht es nicht gut` est **montré sans être expliqué** : le datif arrive à
+      l'étape 49. L'expliquer ici surchargerait une leçon qui porte sur le vocabulaire.
+- [x] **Le thème `corps` devient « le corps et la santé »** plutôt que d'ouvrir un thème
+      à part. Un thème sert à donner un fond de carte qui a du sens ; séparer « le dos »
+      de « le mal de dos » n'en aurait aucun.
+- [x] Auto-test : **2709 vérifications**. `verifier.ps1` : 159 articles de vocabulaire,
+      188 dans les phrases, **0 écart**. Aucun mot rare ajouté.
+
+- [x] **41 · war et hatte** ✅ 02/08/2026. Le prétérit de `sein` et `haben` — les deux
+      seules formes courtes qu'on emploie vraiment à l'oral. L'étape dit explicitement
+      que c'est **l'inverse de la règle des étapes 37-39** : `ich war krank` et non
+      `ich bin krank gewesen`, qui est correct mais que personne n'emploie.
+      Deux pièges traités de front : `hatte` **sans tréma** (avec, `hätte` veut dire
+      « j'aurais », étape 60), et l'**inversion** après un mot de temps —
+      `gestern war ich krank`, jamais « gestern ich war krank ».
+      Enchaîne naturellement sur l'étape 40 : *j'étais malade, j'avais de la fièvre*.
+
+⚠️⚠️ **`sein` EST ABSENT DU SOCLE — revérifié le 02/08/2026 : zéro ligne dans
+`reference/verbes-wiktionnaire.csv`.** Sa table (`war / warst / waren / wart`) est donc
+écrite **de mémoire**, et c'est **signalé en tête de l'étape dans le code**. `haben`, lui,
+y est : `Präteritum_ich = hatte` vient bien du socle. Si le socle est complété un jour,
+revérifier `sein` en priorité.
+
+- [x] Auto-test : **2744 vérifications**. `verifier.ps1` : **0 écart**. Aucun nom nouveau
+      à l'étape 41 (elle n'apporte que des formes verbales et des repères de temps).
+
+### Reprendre ici
+
+- [ ] **Étape 42 · Dire pourquoi (`weil`)** — et le verbe rejeté à la fin de la
+      subordonnée. Elle ferme le chapitre 14. Puis 43 à 63 selon `PLAN-A2.md`.
+      ⚠️ Le chapitre 14 contient **40 et 41** : l'allonger avec 42.
+      **On ne déclare que ce qui existe**, sinon l'auto-test échoue — et il a raison.
+
+## Mise en ligne du 02/08/2026
+
+- [x] `sans-livre.ps1` : **966 Ko avec le livre, 841 Ko sans**. Les garde-fous
+      structurels (repère `LIVRE-DEBUT`, dialogues témoins, signature `pages: "…"`)
+      sont tous passés.
+- [x] ⚠️ **La version PUBLIÉE a été testée séparément**, et pas seulement celle du
+      disque : **2013 / 2013** sur `docs/index.html`. C'est elle qui tourne sur l'iPhone —
+      tester uniquement `index.html` laisserait un défaut du découpage invisible.
+      (L'écart de nombre est normal : les vérifications du livre sont sous `if (BOOK.length)`.)
+- [ ] **Le test de fin de niveau A2** — en DERNIER, quand les 28 étapes sont là : il doit
+      porter sur ce qui a été enseigné. Tant qu'il n'existe pas, ne rien promettre.
