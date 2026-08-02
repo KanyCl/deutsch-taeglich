@@ -1101,6 +1101,67 @@ est arrivé après elle.
       au moment du geste.
 - [x] Auto-test : **2447 vérifications**.
 
+## Les cartes se retournent pour de vrai ✅ 02/08/2026
+
+Demande d'Exsangue : « je veux que ce soient de vraies cartes avec une animation où ça
+se retourne, et le fond de la carte dans le thème du mot ou de la phrase inscrite ».
+
+- [x] **Deux faces dans le même bloc**, retournées en 3D (`rotateY`, 0,55 s).
+      ⚠️ **Les deux faces vivent en permanence dans le document** — c'est la condition
+      même d'un retournement : on ne peut pas animer un *remplacement*. Elles sont
+      empilées dans **une case de grille** plutôt qu'en absolu, pour que la hauteur suive
+      spontanément la plus haute. En absolu, il aurait fallu figer une hauteur et la face
+      la plus longue aurait débordé.
+- [x] ⚠️ **Le champ et les boutons restent DEHORS.** À l'intérieur, ils partiraient à
+      l'envers avec la face — un champ inversé ne se remplit pas.
+- [x] ⚠️ **`data-autosay` ne va que sur la face visible.** Les deux faces existant en
+      permanence, un `autosay` resté derrière prononcerait la réponse pendant qu'on la
+      cherche encore. Une vérification l'impose.
+- [x] **Le retournement est déclenché à l'image suivante** (`requestAnimationFrame`), pas
+      au rendu : posée d'emblée, la classe ferait naître la carte déjà retournée et il
+      n'y aurait rien à voir. Tout passe par `montreCarte()` — un `show(renderCard())`
+      oublié donnerait une carte juste, mais qui ne se retourne pas.
+
+### Le fond thématique
+
+- [x] **Le thème vient de l'ÉTAPE, pas du mot.** Ce n'est pas un raccourci : chaque étape
+      du livre *est* un thème — les animaux, les boissons, l'hôtel. Étiqueter 350 mots un
+      par un donnerait le même résultat au prix de 350 occasions de se tromper, et il
+      faudrait recommencer à chaque mot ajouté. Table `THEME_ETAPE` à part : on voit d'un
+      coup d'œil qu'aucune étape n'est oubliée, et un test s'en assure.
+- [x] **Dix thèmes**, chacun une teinte posée en **alpha faible** sur la surface : au-dessus
+      du blanc elle donne un pastel, au-dessus du gris sombre une nuance profonde. **Une
+      seule couleur par thème suffit donc pour les deux thèmes de l'app** — pas de table
+      à doubler.
+- [x] ⚠️ **Aucun thème n'est vert ni rouge.** Ces deux couleurs disent le juste et le faux
+      partout ailleurs : une carte au fond verdâtre laisserait croire à une bonne réponse
+      avant même qu'on ait répondu.
+- [x] **Le thème est NOMMÉ** dans la ligne d'état (« langues et pays »). Une couleur qu'on
+      ne sait pas nommer ne veut rien dire — personne ne devinera « la journée » d'après
+      un mauve. Écrit là plutôt que sur la carte : la carte se retourne, cette ligne non.
+- [x] Teinte et disque sont dessinés en **`background-image`**, pas en pseudo-élément :
+      `::before` porte déjà le filigrane de consigne, et empiler deux pseudo-éléments
+      aurait obligé à ranger tout le contenu au-dessus par des `z-index`.
+
+⚠️ **Deux choses vues sur une capture, pas par un test :** le disque du thème percutait le
+filigrane dans le coin bas — il est remonté en haut à droite, chacun son coin. Et le
+`sed` de renommage avait remplacé `show(renderCard())` **à l'intérieur de `montreCarte`
+elle-même**, donc une récursion infinie : écran blanc. Trouvé en lisant la console, pas
+le rapport de test.
+
+**Une règle de test a dû être reformulée** : « la traduction est cachée au départ »
+vérifiait son *absence du document*. Depuis le retournement elle y est forcément. La
+règle juste porte sur ce qu'on VOIT — pas sur la face avant, et carte non retournée.
+
+- [x] Auto-test : **2455 vérifications**.
+
+### Reste à faire sur ce sujet
+
+- [ ] **Étiqueter le vocabulaire par thème**, en plus de l'étape. C'est ce qui permettra
+      d'éviter les suites logiques (*eins, zwei, drei* qui se suivent dans un paquet,
+      où la réponse se devine) — demande déjà notée plus bas. Le thème par étape ne
+      suffit pas pour ça : dans l'étape des nombres, tous les mots sont des nombres.
+
 ### Lot 4 — les onglets « à part » ⬜
 
 Appelés ainsi par Exsangue : ils ne s'enchaînent jamais après une leçon.

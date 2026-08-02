@@ -815,6 +815,82 @@ body.has-tts .say { display: inline-flex; }
 .flash .ask   { font-size: 1.375rem; font-weight: 600; line-height: 1.3; }
 .flash .sol   { font-family: var(--de); font-size: 1.625rem; font-weight: 600; color: var(--accent); }
 
+/* ---------- La carte qui se retourne ----------
+   Demandé par Exsangue le 02/08/2026 : « je veux que ce soient de vraies
+   cartes, avec une animation où ça se retourne ».
+
+   Les DEUX faces sont dans le HTML en même temps — c'est la condition même
+   d'un retournement : on ne peut pas animer un remplacement. Elles sont
+   empilées dans UNE case de grille plutôt que posées en absolu, pour que la
+   hauteur suive spontanément la plus haute des deux. En absolu, il aurait
+   fallu figer une hauteur et la face la plus longue aurait débordé.
+
+   ⚠️ Le champ de saisie et les boutons restent DEHORS. À l'intérieur, ils
+   partiraient à l'envers avec la face — un champ inversé ne se remplit pas. */
+.carte3d { perspective: 1200px; width: 100%; }
+.carte-i {
+  display: grid;
+  transform-style: preserve-3d;
+  transition: transform .55s cubic-bezier(.2, .7, .3, 1);
+}
+.carte-i.retourne { transform: rotateY(180deg); }
+.face {
+  grid-area: 1 / 1;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  min-height: 14rem;
+  padding: 1.5rem 1rem 3rem;
+  text-align: center;
+  border: 2px solid var(--ink);
+  border-radius: var(--edge);
+
+  /* Le fond du THÈME. Un aplat teinté plus un disque, dessinés en
+     `background-image` et non en pseudo-élément : le filigrane de consigne
+     occupe déjà `::before`, et empiler deux pseudo-éléments obligerait à
+     ranger tout le contenu au-dessus par des `z-index` — trois règles de
+     plus pour le même résultat.
+
+     La teinte est en ALPHA FAIBLE sur la surface : au-dessus du blanc elle
+     donne un pastel, au-dessus du gris sombre une nuance profonde. Une seule
+     couleur par thème suffit donc pour les deux thèmes de l'app. */
+  background-color: var(--surface);
+  /* Le disque est en HAUT à droite, pas en bas : le filigrane de consigne
+     occupe le bas de la carte, et les deux se percutaient — vu sur une
+     capture. En haut, chacun a son coin. */
+  background-image:
+    radial-gradient(circle at 92% 12%, rgba(var(--th), .22) 0 3.75rem, transparent 3.75rem),
+    linear-gradient(rgba(var(--th), .10), rgba(var(--th), .10));
+}
+.face.arriere { transform: rotateY(180deg); }
+
+/* Les teintes. Aucune n'est verte ni rouge : ces deux-là disent le juste et
+   le faux, et une carte ne doit pas avoir l'air de répondre à sa place. */
+.carte3d[data-th="monde"]     { --th: 29, 78, 137; }
+.carte3d[data-th="gens"]      { --th: 244, 163, 0; }
+.carte3d[data-th="mots"]      { --th: 110, 110, 106; }
+.carte3d[data-th="nombres"]   { --th: 61, 58, 140; }
+.carte3d[data-th="verbes"]    { --th: 106, 76, 147; }
+.carte3d[data-th="couleurs"]  { --th: 0, 120, 140; }
+.carte3d[data-th="nature"]    { --th: 138, 93, 0; }
+.carte3d[data-th="quotidien"] { --th: 90, 80, 110; }
+.carte3d[data-th="table"]     { --th: 176, 98, 20; }
+.carte3d[data-th="voyage"]    { --th: 40, 110, 120; }
+
+/* Le contenu des faces reprend l'habillage des anciennes boîtes : il n'y a
+   aucune raison qu'un mot s'affiche autrement selon qu'il est sur une carte
+   ou dans un exercice. */
+.face .front { font-family: var(--de); font-size: 1.75rem; font-weight: 600; line-height: 1.25; }
+.face .ask   { font-size: 1.375rem; font-weight: 600; line-height: 1.3; }
+.face .sol   { font-family: var(--de); font-size: 1.625rem; font-weight: 600; color: var(--accent); }
+.face .p     { font-size: .8125rem; color: var(--ink-3); letter-spacing: .02em; }
+.face .trad  { font-size: 1.125rem; color: var(--accent); font-weight: 700; margin-top: .5rem; }
+.face .tip   { font-size: .8125rem; color: var(--ink-2); font-weight: 600; }
+
 /* ---------- Le filigrane de consigne ----------
    Demandé par Exsangue le 02/08/2026 : « quand on va vite parce qu'on
    connaît, on se trompe — on ne voit pas d'un regard ce qu'on doit faire ».
@@ -7379,6 +7455,45 @@ const MAX_PASSES = 5;
    on écrit l'allemand, seul sens qui apprenne l'orthographe. */
 const WRITE_FROM_BOX = 2;
 
+/* ---------- Le thème d'une étape ----------
+   Demandé par Exsangue le 02/08/2026 : « le fond de la carte est dans le
+   thème du mot ou de la phrase inscrite ».
+
+   Le thème vient de l'ÉTAPE, pas du mot. Ce n'est pas un raccourci : chaque
+   étape du livre EST un thème — les animaux, les boissons, l'hôtel. Étiqueter
+   350 mots un par un donnerait la même chose au prix de 350 occasions de se
+   tromper, et il faudrait recommencer à chaque mot ajouté.
+
+   Table à PART plutôt qu'un champ dans les 35 étapes : c'est une information
+   d'affichage, pas de contenu. Groupée ici, on voit d'un coup d'œil qu'aucune
+   étape n'a été oubliée — et une vérification s'en assure.
+
+   ⚠️ Aucun thème n'est vert ni rouge. Ces deux couleurs appartiennent au juste
+   et au faux dans toute l'app : une carte au fond verdâtre laisserait croire
+   à une bonne réponse avant même qu'on ait répondu. */
+const THEME_ETAPE = {
+  1: "monde",  2: "monde",  3: "gens",   4: "gens",   5: "mots",
+  6: "mots",   7: "nombres", 8: "verbes", 9: "verbes", 10: "couleurs",
+  11: "verbes", 12: "verbes", 13: "mots", 14: "nature", 15: "voyage",
+  16: "gens",  17: "couleurs", 18: "quotidien", 19: "nombres", 20: "mots",
+  21: "mots",  22: "nombres", 23: "table", 24: "mots", 25: "verbes",
+  26: "table", 27: "gens",  28: "table", 29: "voyage", 30: "voyage",
+  31: "mots",  32: "verbes", 33: "mots",  34: "voyage", 35: "voyage"
+};
+const THEME_DEFAUT = "mots";
+
+/* Le nom affiché. Il compte autant que la couleur : une teinte qu'on ne sait
+   pas nommer ne veut rien dire, et personne ne devinera « quotidien » d'après
+   un mauve. Il s'écrit dans la ligne d'état, au-dessus de la carte. */
+const THEME_NOM = {
+  monde: "langues et pays", gens: "les gens", mots: "la langue",
+  nombres: "nombres et temps", verbes: "les verbes", couleurs: "décrire",
+  nature: "les animaux", quotidien: "la journée", table: "à table",
+  voyage: "en déplacement"
+};
+
+function themeDe(day) { return THEME_ETAPE[day] || THEME_DEFAUT; }
+
 /* ---------- Ne jamais perdre sa place ----------
    Demandé par Exsangue le 02/08/2026 : « lorsqu'on sort d'un exercice comme
    les cartes, l'oral ou n'importe quel onglet, je veux qu'on puisse reprendre
@@ -7441,6 +7556,20 @@ function practiceView() {
     ? renderCard() : startDeck(practiceCards(PRACTICE_SIZE), true);
 }
 
+/* Affiche la carte, PUIS déclenche le retournement. En deux temps, et c'est
+   toute la condition de l'animation : posée dès le rendu, la classe ferait
+   naître l'élément déjà retourné et il n'y aurait rien à voir.
+   `requestAnimationFrame` attend que le navigateur ait dessiné la face avant.
+
+   Toutes les cartes passent par ici. Un `show(renderCard())` oublié quelque
+   part donnerait une carte juste — mais qui ne se retourne pas. */
+function montreCarte() {
+  show(renderCard());
+  if (!verdict) return;
+  const i = view.querySelector(".carte-i");
+  if (i) requestAnimationFrame(function () { i.classList.add("retourne"); });
+}
+
 function renderCard() {
   if (pos >= deck.length) {
     touchStreak();
@@ -7474,8 +7603,13 @@ function renderCard() {
       '<div class="stack-s">',
         // Pas de total : il grandit en cours de route, puisqu'un mot qui monte
         // de niveau repasse dans la séance. « Encore N » ne ment jamais.
+        /* Le thème est NOMMÉ, pas seulement teinté. Une couleur qu'on ne sait
+           pas nommer ne veut rien dire — personne ne devinera « la journée »
+           d'après un mauve. Écrit ici plutôt que sur la carte : la carte se
+           retourne, cette ligne non. */
         '<span class="label">' + (left > 0 ? 'Encore ' + left : 'Dernière carte') +
-          ' &#183; étape ' + c.day + ' &#183; ' + tag + '</span>',
+          ' &#183; étape ' + c.day + ' &#183; ' +
+          esc(THEME_NOM[themeDe(c.day)] || "") + ' &#183; ' + tag + '</span>',
         '<div class="meter">' + deck.map(function (_, i) { return '<i class="' + (i < pos ? 'on' : '') + '"></i>'; }).join("") + '</div>',
       '</div>',
 
@@ -7491,64 +7625,74 @@ function renderCard() {
    français transformerait un exercice de compréhension en piège orthographique.
    Le bouton d'écoute reste visible : entendre le mot allemand ne donne pas sa
    traduction, et c'est le bon moment pour associer le son au sens. */
+/* Les deux faces d'une carte, dans un seul bloc retournable.
+   `attrsAvant` / `attrsArriere` portent ce qui ne vaut que pour une face —
+   la consigne en filigrane, et surtout `data-autosay`.
+
+   ⚠️ `data-autosay` doit être posé sur la face VISIBLE, et sur elle seule.
+   Les deux faces existant en permanence, un `autosay` resté sur la face
+   cachée prononcerait la réponse pendant qu'on la cherche encore. */
+function carte3d(theme, attrsAvant, avant, attrsArriere, arriere) {
+  return '<div class="carte3d" data-th="' + att(theme) + '">' +
+           '<div class="carte-i">' +
+             '<div class="face avant"' + (attrsAvant || "") + '>' + avant + '</div>' +
+             '<div class="face arriere"' + (attrsArriere || "") + '>' + arriere + '</div>' +
+           '</div>' +
+         '</div>';
+}
+
 function writeFrBody(c) {
-  if (!verdict) {
-    return [
-      // Le mot est prononcé dès qu'il s'affiche : demandé par Exsangue pour
-      // pouvoir travailler à l'oreille autant qu'à l'œil. Sans risque ici,
-      // le mot allemand étant déjà à l'écran — c'est la traduction qu'on
-      // cherche, pas lui.
-      '<div class="flash" data-consigne="En français" data-autosay="' + att(c.d) + '">',
-        '<div class="front">' + esc(c.d) + '</div>',
-        sayBtn(c.d),
-        '<div class="tip">Écris ce que ça veut dire, en français.</div>',
-      '</div>',
-      '<input class="answer" id="answer"' + saisieAttrs("Ta réponse en français") + '>',
-      '<div class="pair">',
-        '<button class="btn" data-act="dunno">Je ne sais pas</button>',
-        '<button class="btn primary" data-act="check-word">Vérifier</button>',
-      '</div>'
-    ].join("");
+  // Le mot est prononcé dès qu'il s'affiche : demandé par Exsangue pour
+  // pouvoir travailler à l'oreille autant qu'à l'œil. Sans risque ici, le
+  // mot allemand étant déjà à l'écran — c'est la traduction qu'on cherche.
+  const avant =
+    '<div class="front">' + esc(c.d) + '</div>' +
+    sayBtn(c.d) +
+    '<div class="tip">Écris ce que ça veut dire, en français.</div>';
+
+  let note = "";
+  if (verdict) {
+    if (verdict.kind === "dunno")      note = "Pas grave — ce mot va revenir vite.";
+    else if (verdict.kind === "empty") note = "Rien d'écrit.";
+    else if (verdict.ok)               note = "Exact.";
+    /* Pas de `fauteOrtho` ici, et c'est voulu : la réponse attendue est
+       FRANÇAISE. Diagnostiquer une lettre sur du français irait contre la
+       règle de `checkFR`, volontairement très indulgente — une traduction
+       s'écrit de dix façons, et la sanctionner transformerait un exercice de
+       compréhension en piège orthographique. */
+    else                               note = "Ce n'était pas ça.";
   }
 
-  let note;
-  if (verdict.kind === "dunno")      note = "Pas grave — ce mot va revenir vite.";
-  else if (verdict.kind === "empty") note = "Rien d'écrit.";
-  else if (verdict.ok)               note = "Exact.";
-  else                               note = "Ce n'était pas ça.";
+  const arriere =
+    '<div class="front">' + esc(c.d) + '</div>' +
+    '<div class="p">' + esc(c.p) + '</div>' +
+    sayBtn(c.d) +
+    '<div class="trad">' + esc(c.f) + '</div>' +
+    (verdict && verdict.typed ? '<div class="tip">Tu as écrit : ' + esc(verdict.typed) + '</div>' : '');
 
-  return [
-    '<div class="flash">',
-      '<div class="front">' + esc(c.d) + '</div>',
-      '<div class="p">' + esc(c.p) + '</div>',
-      sayBtn(c.d),
-      '<div class="trad">' + esc(c.f) + '</div>',
-      verdict.typed ? '<div class="tip">Tu as écrit : ' + esc(verdict.typed) + '</div>' : '',
-    '</div>',
-    '<div class="why ' + (verdict.ok ? "good" : "bad") + '">' + note + '</div>',
-    '<button class="btn primary wide" data-act="card-next">Continuer</button>'
-  ].join("");
+  return carte3d(themeDe(c.day),
+      verdict ? '' : ' data-consigne="En français" data-autosay="' + att(c.d) + '"', avant,
+      '', arriere) +
+    (verdict
+      ? '<div class="why ' + (verdict.ok ? "good" : "bad") + '">' + note + '</div>' +
+        '<button class="btn primary wide" data-act="card-next">Continuer</button>'
+      : '<input class="answer" id="answer"' + saisieAttrs("Ta réponse en français") + '>' +
+        '<div class="pair">' +
+          '<button class="btn" data-act="dunno">Je ne sais pas</button>' +
+          '<button class="btn primary" data-act="check-word">Vérifier</button>' +
+        '</div>');
 }
 
 /* Mot connu : on part du français et on écrit l'allemand. C'est le seul
    sens qui apprenne l'orthographe — et le bouton « écouter » n'apparaît
    qu'après la réponse, sinon il la donnerait. */
 function writeBody(c) {
-  if (!verdict) {
-    return [
-      '<div class="flash" data-consigne="En allemand">',
-        '<div class="ask">' + esc(c.f) + '</div>',
-        '<div class="tip">Écris le mot en allemand.</div>',
-      '</div>',
-      '<input class="answer" id="answer"' + saisieAttrs("Ta réponse en allemand") + '>',
-      '<div class="pair">',
-        '<button class="btn" data-act="dunno">Je ne sais pas</button>',
-        '<button class="btn primary" data-act="check-word">Vérifier</button>',
-      '</div>'
-    ].join("");
-  }
+  const avant =
+    '<div class="ask">' + esc(c.f) + '</div>' +
+    '<div class="tip">Écris le mot en allemand.</div>';
 
-  let note;
+  let note = "";
+  if (verdict) {
   if (verdict.kind === "exact")            note = "Exact.";
   else if (verdict.kind === "autre")       note = "Juste aussi — <b>" + esc(verdict.autre) +
                                                   "</b> traduit bien « " + esc(c.f) +
@@ -7563,20 +7707,30 @@ function writeBody(c) {
      renvoie `null` et on ne prétend pas en savoir plus. */
   else                                     note = fauteOrtho(verdict.typed, c.d) ||
                                                   "Ce n'était pas ça.";
+  }
 
-  return [
-    // On prononce la solution une fois la réponse donnée. Avant, ce serait la
-    // souffler : ici on écrit l'allemand, et c'est justement lui qu'on entend.
-    '<div class="flash" data-autosay="' + att(c.d) + '">',
-      '<div class="ask">' + esc(c.f) + '</div>',
-      '<div class="sol">' + esc(c.d) + '</div>',
-      '<div class="p">' + esc(c.p) + '</div>',
-      sayBtn(c.d),
-      verdict.typed ? '<div class="tip">Tu as écrit : ' + esc(verdict.typed) + '</div>' : '',
-    '</div>',
-    '<div class="why ' + (verdict.ok ? "good" : "bad") + '">' + note + '</div>',
-    '<button class="btn primary wide" data-act="card-next">Continuer</button>'
-  ].join("");
+  const arriere =
+    '<div class="ask">' + esc(c.f) + '</div>' +
+    '<div class="sol">' + esc(c.d) + '</div>' +
+    '<div class="p">' + esc(c.p) + '</div>' +
+    sayBtn(c.d) +
+    (verdict && verdict.typed ? '<div class="tip">Tu as écrit : ' + esc(verdict.typed) + '</div>' : '');
+
+  /* Le son ne part QU'APRÈS la réponse, et donc seulement sur la face
+     arrière. Ici c'est l'allemand qu'on doit écrire : le prononcer avant
+     reviendrait à le souffler. C'est aussi pourquoi le bouton d'écoute ne
+     figure que sur cette face. */
+  return carte3d(themeDe(c.day),
+      verdict ? '' : ' data-consigne="En allemand"', avant,
+      verdict ? ' data-autosay="' + att(c.d) + '"' : '', arriere) +
+    (verdict
+      ? '<div class="why ' + (verdict.ok ? "good" : "bad") + '">' + note + '</div>' +
+        '<button class="btn primary wide" data-act="card-next">Continuer</button>'
+      : '<input class="answer" id="answer"' + saisieAttrs("Ta réponse en allemand") + '>' +
+        '<div class="pair">' +
+          '<button class="btn" data-act="dunno">Je ne sais pas</button>' +
+          '<button class="btn primary" data-act="check-word">Vérifier</button>' +
+        '</div>');
 }
 
 /* Passe à la carte suivante, quel que soit le mode qui a jugé la réponse. */
@@ -7600,7 +7754,7 @@ function advanceCard(ok) {
   }
 
   pos++; revealed = false; verdict = null;
-  show(renderCard());
+  montreCarte();
 }
 
 /* ---------- Quiz ---------- */
@@ -8989,7 +9143,7 @@ view.addEventListener("click", function (e) {
     }
 
     if (t.dataset.act === "check-word") verdict.typed = raw.trim();
-    show(renderCard());
+    montreCarte();
     return;
   }
 
@@ -10050,6 +10204,62 @@ function runTests() {
     ok("quiz : aucune balise ne se lit à l'écran", vus.length === 0, vus.slice(0, 3).join(" | "));
   })();
 
+  /* ---- Les cartes qui se retournent ----
+     Demande d'Exsangue le 02/08/2026 : « de vraies cartes, avec une
+     animation où ça se retourne, et le fond dans le thème du mot ». */
+  (function () {
+    // Aucune étape ne doit être sans thème : une carte sans teinte, au milieu
+    // de cartes teintées, se lirait comme un défaut.
+    const sans = [];
+    for (let n = 1; n <= COURSE.length; n++) {
+      if (!THEME_ETAPE[n]) sans.push(n);
+      else if (!THEME_NOM[THEME_ETAPE[n]]) sans.push(n + " (thème sans nom)");
+    }
+    ok("cartes : chaque étape a son thème, et chaque thème son nom",
+       sans.length === 0, sans.join(", "));
+
+    S = fresh(); S.day = 1; seed(1);
+    oublieSeances();
+    go("cards");
+    ok("cartes : la carte porte deux faces",
+       !!view.querySelector(".face.avant") && !!view.querySelector(".face.arriere"));
+    ok("cartes : et le thème de son étape",
+       !!view.querySelector('.carte3d[data-th="' + themeDe(deck[pos].day) + '"]'));
+    ok("cartes : le thème est aussi écrit en toutes lettres",
+       view.textContent.indexOf(THEME_NOM[themeDe(deck[pos].day)]) !== -1);
+
+    /* ⚠️ `data-autosay` ne doit jamais être sur la face CACHÉE : les deux
+       faces vivent en permanence dans le document, et un `autosay` resté
+       derrière prononcerait la réponse pendant qu'on la cherche. */
+    const cachee = view.querySelector(".face.arriere[data-autosay]");
+    ok("cartes : la face cachée ne parle pas", !cachee);
+
+    /* Le retournement lui-même. Il est déclenché à l'image SUIVANTE — sans
+       quoi la carte naîtrait déjà retournée et il n'y aurait rien à voir.
+       L'auto-test étant synchrone, on remplace `requestAnimationFrame` par un
+       appel immédiat le temps de l'essai, et on le remet ensuite : le laisser
+       modifié fausserait des animations très loin d'ici. */
+    const vraiRAF = window.requestAnimationFrame;
+    let planifie = false;
+    window.requestAnimationFrame = function (fn) { planifie = true; fn(); };
+    try {
+      document.getElementById("answer").value = "n'importe quoi";
+      view.querySelector('[data-act="check-word"]').click();
+      ok("cartes : le retournement est déclenché après la réponse",
+         planifie && !!view.querySelector(".carte-i.retourne"));
+      ok("cartes : et la réponse est bien sur la face arrière",
+         !!view.querySelector(".face.arriere .trad, .face.arriere .sol"));
+    } finally {
+      window.requestAnimationFrame = vraiRAF;
+    }
+
+    // Et la carte suivante repart à l'endroit : une carte qui resterait
+    // retournée montrerait sa réponse d'emblée.
+    view.querySelector('[data-act="card-next"]').click();
+    ok("cartes : la carte suivante se présente à l'endroit",
+       !view.querySelector(".carte-i.retourne"));
+  })();
+
   /* ---- Le chemin vertical ----
      Demande d'Exsangue le 02/08/2026 : « les leçons réussies en vert, en
      orange là où on a des fautes, les prochaines en bas grisées ». Ce qui
@@ -11010,7 +11220,7 @@ function runTests() {
     if (idx !== -1) {
       pos = idx;
       verdict = null;
-      show(renderCard());
+      montreCarte();
       document.getElementById("answer").value = "hier ist";
       view.querySelector('[data-act="check-word"]').click();
       ok("synonyme : la réponse est acceptée", verdict && verdict.ok);
@@ -11162,7 +11372,7 @@ function runTests() {
   (function () {
     S = fresh(); S.day = 1; seed(1);
     go("cards");
-    const front = view.querySelector(".flash[data-autosay]");
+    const front = view.querySelector(".face[data-autosay]");
     ok("son : au niveau 1, le mot est prononcé dès l'affichage", !!front);
     if (front) {
       eq("son : et c'est bien le mot allemand", front.getAttribute("data-autosay"), deck[pos].d);
@@ -11172,12 +11382,12 @@ function runTests() {
     Object.keys(S.cards).forEach(function (id) { S.cards[id].box = WRITE_FROM_BOX; });
     go("cards");
     ok("son : au-dessus du seuil, rien n'est prononcé avant la réponse",
-       !view.querySelector(".flash[data-autosay]"));
+       !view.querySelector(".face[data-autosay]"));
 
     document.getElementById("answer").value = deck[pos].d;
     view.querySelector('[data-act="check-word"]').click();
     ok("son : mais la solution est prononcée une fois la réponse donnée",
-       !!view.querySelector(".flash[data-autosay]"));
+       !!view.querySelector(".face[data-autosay]"));
 
     // Ce bloc a monté tous les mots au niveau d'écriture : on rend un état
     // neuf aux vérifications suivantes, qui repartent d'un mot de niveau 1.
@@ -11190,21 +11400,29 @@ function runTests() {
      reconnaissait. */
   go("cards");
   const firstId = deck[0] ? deck[0].id : null;
-  ok("cartes : une carte est présentée", !!view.querySelector(".flash .front"));
-  ok("cartes : la traduction est cachée au départ", !view.querySelector(".flash .trad"));
+  ok("cartes : une carte est présentée", !!view.querySelector(".face .front"));
+  /* ⚠️ La règle a dû être reformulée le 02/08/2026, quand les cartes se sont
+     mises à se retourner. La réponse est DÉSORMAIS dans le HTML dès le
+     départ — c'est la condition d'un retournement, on ne peut pas animer un
+     remplacement. Ce qui doit rester vrai, c'est qu'elle n'est pas VISIBLE :
+     elle vit sur la face arrière, et la carte n'est pas retournée.
+     Vérifier son absence du document serait devenu un test de la mécanique,
+     pas de ce qu'on voit. */
+  ok("cartes : la traduction n'est pas montrée au départ",
+     !view.querySelector(".face.avant .trad") && !view.querySelector(".carte-i.retourne"));
   ok("cartes : plus aucun bouton « Révéler »", !view.querySelector('[data-act="reveal"]'));
   ok("cartes : au niveau 1, il faut écrire", !!view.querySelector("#answer"));
   ok("cartes : et c'est le français qui est demandé",
      view.innerHTML.indexOf("en français") !== -1);
   ok("cartes : le mot allemand est écoutable avant de répondre",
-     !!view.querySelector(".flash [data-say]"));
+     !!view.querySelector(".face [data-say]"));
 
   /* Une traduction française juste, écrite avec l'indulgence de checkFR. */
   document.getElementById("answer").value = deck[0].f.toUpperCase();
   view.querySelector('[data-act="check-word"]').click();
   ok("cartes : au niveau 1, la casse est pardonnée", verdict && verdict.ok);
-  ok("cartes : la traduction s'affiche après la réponse", !!view.querySelector(".flash .trad"));
-  ok("cartes : et la prononciation aussi", !!view.querySelector(".flash .p"));
+  ok("cartes : la traduction s'affiche après la réponse", !!view.querySelector(".face .trad"));
+  ok("cartes : et la prononciation aussi", !!view.querySelector(".face .p"));
 
   /* `oublieSeances` d'abord : depuis que les séances se reprennent, un simple
      `go("cards")` retomberait sur l'écran de correction laissé juste au-dessus.
@@ -11326,7 +11544,7 @@ function runTests() {
 
   S = fresh(); S.day = 1; seed(1);
   go("practice");
-  ok("entraînement : l'écran s'ouvre sur une carte", !!view.querySelector(".flash .front"));
+  ok("entraînement : l'écran s'ouvre sur une carte", !!view.querySelector(".face .front"));
   const pBox = S.cards[deck[0].id].box, pDue = S.cards[deck[0].id].due, pId = deck[0].id;
   document.getElementById("answer").value = deck[0].f;
   view.querySelector('[data-act="check-word"]').click();
@@ -11386,13 +11604,15 @@ function runTests() {
   eq("saisie : un seul mot est dû", deck.length, 1);
   ok("saisie : le mot connu demande d'écrire", !!view.querySelector("#answer"));
   ok("saisie : plus de bouton « Révéler »", !view.querySelector('[data-act="reveal"]'));
-  eq("saisie : c'est le français qui est montré", view.querySelector(".flash .ask").textContent, cardById(wid).f);
-  ok("saisie : la réponse allemande n'est pas affichée avant de répondre", !view.querySelector(".flash .sol"));
+  eq("saisie : c'est le français qui est montré", view.querySelector(".face.avant .ask").textContent, cardById(wid).f);
+  // Même reformulation : la solution est sur la face arrière, pas montrée.
+  ok("saisie : la réponse allemande n'est pas montrée avant de répondre",
+     !view.querySelector(".face.avant .sol") && !view.querySelector(".carte-i.retourne"));
 
   document.getElementById("answer").value = cardById(wid).d;
   view.querySelector('[data-act="check-word"]').click();
   ok("saisie : la bonne réponse est acceptée", !!view.querySelector(".why.good"));
-  ok("saisie : la solution s'affiche ensuite", !!view.querySelector(".flash .sol"));
+  ok("saisie : la solution s'affiche ensuite", !!view.querySelector(".face .sol"));
   view.querySelector('[data-act="card-next"]').click();
   eq("saisie : le mot monte d'un niveau", S.cards[wid].box, WRITE_FROM_BOX + 1);
   eq("saisie : la réussite est notée au journal", S.cards[wid].hit, 1);
@@ -11400,7 +11620,7 @@ function runTests() {
   const wid2 = soloCard(WRITE_FROM_BOX);
   go("cards");
   view.querySelector('[data-act="dunno"]').click();
-  ok("saisie : « je ne sais pas » montre la réponse", !!view.querySelector(".flash .sol"));
+  ok("saisie : « je ne sais pas » montre la réponse", !!view.querySelector(".face .sol"));
   ok("saisie : et c'est compté comme raté", !!view.querySelector(".why.bad"));
   view.querySelector('[data-act="card-next"]').click();
   eq("saisie : l'erreur est notée au journal", S.cards[wid2].miss, 1);
@@ -11420,8 +11640,9 @@ function runTests() {
   const wid4 = soloCard(WRITE_FROM_BOX - 1);
   go("cards");
   ok("saisie : un mot pas encore acquis demande d'écrire lui aussi", !!view.querySelector("#answer"));
-  eq("saisie : et c'est l'allemand qui est montré", view.querySelector(".flash .front").textContent, cardById(wid4).d);
-  ok("saisie : la traduction n'est pas affichée avant de répondre", !view.querySelector(".flash .trad"));
+  eq("saisie : et c'est l'allemand qui est montré", view.querySelector(".face.avant .front").textContent, cardById(wid4).d);
+  ok("saisie : la traduction n'est pas montrée avant de répondre",
+     !view.querySelector(".face.avant .trad") && !view.querySelector(".carte-i.retourne"));
 
   document.getElementById("answer").value = cardById(wid4).f;
   view.querySelector('[data-act="check-word"]').click();
