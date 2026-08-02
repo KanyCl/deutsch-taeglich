@@ -1,7 +1,8 @@
 # Deutsch Täglich
 
 L'allemand un peu chaque jour. Application web personnelle, sans compte ni serveur.
-Niveau A1 — 4 chapitres, 12 étapes écrites sur 30 prévues.
+**Niveau A1 complet** — 12 chapitres, 35 étapes, 350 mots, plus un test de fin de niveau.
+**Niveau A2 en cours** — 7 étapes écrites sur 28 prévues.
 
 ## Utiliser l'app
 
@@ -35,13 +36,25 @@ sensible dedans : **ta progression ne quitte jamais ton appareil**, elle n'est e
 
 ## Comment le cours est rangé
 
+Sur l'accueil, **un dépliant par niveau** — le A1, puis le A2 en dessous. Chacun ne
+contient que ses propres chapitres, et affiche son avancement à côté de son nom.
+
 ```
-Niveau A1
-└── Chapitre 1 — Les premiers mots
-    ├── Étape 1  Se présenter
-    ├── Étape 2  Der, die, das
-    └── Étape 3  Le présent des verbes
+Niveau A1 · 0 / 35 étapes                    35 prévues
+└── Chapitre 1 — Lire et situer
+    ├── Étape 1  L'alphabet et les sons
+    └── Étape 2  Langues et nationalités
+    …
+Niveau A2 · 0 / 7 étapes                     28 prévues
+└── Chapitre 13 — Raconter ce qui s'est passé
+    ├── Étape 36  Le corps
+    ├── Étape 37  Le passé composé
+    …
 ```
+
+La numérotation des chapitres est **continue** d'un niveau à l'autre : le niveau se lit à
+son étiquette, pas au numéro du chapitre. Repartir à 1 ferait deux « chapitre 1 » dans la
+même liste.
 
 Une **étape** est une séance de travail, pas une journée : rien ne t'oblige à en faire une
 par jour, ni à t'arrêter après une seule. Les écrans qui composent une leçon n'ont pas de
@@ -131,9 +144,13 @@ Les phrases d'exemple en fin de leçon suivent la même règle : 5 tirées parmi
 
 ### Écrire les mots
 
-Au niveau 1, la carte te montre le mot en allemand et tu te testes dans ta tête.
-**À partir du niveau 2**, elle te montre le français et tu dois **écrire l'allemand** —
-c'est le seul sens qui fasse retenir l'orthographe.
+**Il n'y a plus aucune carte passive** — tu écris à tous les niveaux. « Révéler / Je
+savais » mesurait la **reconnaissance**, pas le rappel : on croit savoir parce qu'on
+reconnaît.
+
+Au niveau 1, la carte te montre l'allemand et te demande **la traduction française**
+(correction indulgente). **À partir du niveau 2**, elle te montre le français et tu dois
+**écrire l'allemand** — c'est le seul sens qui fasse retenir l'orthographe.
 
 La correction est tolérante sur la forme et stricte sur le mot :
 
@@ -189,9 +206,13 @@ l'auto-test et affiche le résultat.
 .\test.ps1 -Shots -Dark    # + captures en thème sombre
 ```
 
-Les 240 vérifications couvrent le calcul des dates, la répétition espacée, la série,
+Les vérifications couvrent le calcul des dates, la répétition espacée, la série,
 un parcours de leçon complet (y compris le blocage tant qu'on n'a pas répondu), un
 parcours de quiz complet, les écrans, et **l'intégrité du contenu**.
+
+> Leur **nombre** n'est pas écrit ici volontairement : il change à chaque étape ajoutée,
+> et un chiffre recopié dans une page devient faux sans prévenir. Le compte exact est
+> celui qu'affiche `.\test.ps1`.
 
 C'est cette dernière partie qui rapporte le plus : elle a déjà attrapé, à l'étape 8, une
 mini-question dont deux réponses proposées étaient identiques.

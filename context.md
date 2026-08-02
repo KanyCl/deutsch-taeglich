@@ -1,4 +1,4 @@
-# Contexte — Deutsch Täglich
+﻿# Contexte — Deutsch Täglich
 
 ## Ce que c'est
 
@@ -6,7 +6,12 @@ Une application web personnelle pour apprendre l'allemand un peu chaque jour.
 Usage strictement privé (Exsangue, un seul utilisateur). Pas de compte, pas de serveur,
 pas de publication sur un store.
 
-Adossée au livre papier d'Exsangue : **Werner Dubois & Alvaro Garcia Noble, © 2025,
+⚠️ **LE LIVRE A ÉTÉ RETIRÉ DE L'APP LE 02/08/2026**, à la demande d'Exsangue. Ce qui suit
+décrit le livre qui a servi de **plan** au niveau A1 — il reste utile pour comprendre
+l'ordre des 35 étapes, et pour les numéros de pages si on veut y revenir. Mais l'app ne
+contient plus une ligne de son texte, et le **niveau A2 ne le suit pas** (voir `PLAN-A2.md`).
+
+Le livre papier d'Exsangue : **Werner Dubois & Alvaro Garcia Noble, © 2025,
 tous droits réservés**, 280 pages.
 
 Le livre s'intitule bien **« Apprendre l'Allemand en 30 Jours »** — mais ces « 30 jours »
@@ -33,14 +38,24 @@ Corrigé le 01/08/2026 : `TOTAL_PLANNED` vaut **35**.
 **Photos** dans `~/../livre/lecons/` (42 fichiers, tout le niveau A1) — **hors du dépôt git**,
 qui est public. Elles ne doivent jamais y entrer.
 
-**Usage du livre — changé le 01/08/2026.** L'app est la **copie de travail personnelle**
-d'Exsangue sur son propre livre : dépôt privé, aucune diffusion. On transcrit donc le
-livre **fidèlement** — dialogues, exercices, listes de vocabulaire, règles — unité par
-unité, en y ajoutant des exercices supplémentaires.
+**Usage du livre — la boucle est bouclée le 02/08/2026.** Il y a eu trois régimes
+successifs, et c'est le dernier qui vaut :
 
-⚠️ Cela ne tient que tant que l'app reste privée. Si elle devait être republiée un jour,
-tout le contenu repris du livre devrait en sortir d'abord. La consigne d'avant
-(« rédiger un contenu indépendant ») valait précisément parce que l'app était publique.
+1. *Jusqu'au 01/08* — contenu écrit indépendamment, dépôt public.
+2. *Le 01/08* — le livre est transcrit fidèlement, le dépôt passe en **privé** (le livre
+   est sous copyright : un site public n'est plus une copie personnelle mais une
+   rediffusion). L'iPhone perd l'accès, GitHub Pages ne servant que le public.
+3. *Le 02/08* — **le livre est retiré de l'app.** Le dépôt est **public**, l'iPhone
+   remarche, et `index.html` **entre enfin dans git** — il en était exclu justement
+   parce qu'il contenait le livre.
+
+⚠️ **Règle actuelle : plus une ligne du livre dans l'app.** Le contenu est écrit ici, donc
+publiable sans condition. Si le livre devait revenir un jour, il faudrait **rétablir
+`/index.html` dans `.gitignore` AVANT tout commit** — `publier.ps1` protège la
+publication, pas le dépôt.
+
+Copie de l'app d'avant suppression, hors dépôt :
+`C:\Shared\atelier\livre\index-AVEC-LIVRE-2026-08-02.html`
 
 ## Comment ça marche
 
@@ -80,6 +95,10 @@ l'entraînement et le compteur de « mots fragiles » sur l'accueil.
 | **Mot à mot systématique** (v2) | Un débutant lit une phrase allemande sans savoir quel mot porte quel sens. L'alignement mot par mot rend la mécanique visible. |
 | **Niveau > Chapitre > Étape** (v3.0) | Demandé après usage : « j'ai fait les 12 jours en 30 minutes ». Appeler « jour » une séance de 2 min 30 était un mensonge sur le contrat. Les chapitres regroupent des étapes **consécutives** : la progression est linéaire (l'accusatif suppose le présent), regrouper par thème la casserait. Les écrans d'une leçon perdent leur nom — « étape » étant pris — et sont seulement numérotés. |
 | **Le dépôt est passé en PRIVÉ, et l'app transcrit le livre** (01/08/2026) | Exsangue veut le livre **retranscrit** : mêmes dialogues, mêmes exercices, tout pareil en numérique. Impossible tant que l'app était publiée — le livre est sous copyright (© 2025), et un site public n'est plus une copie personnelle mais une rediffusion. Le dépôt GitHub est donc passé en privé (`gh repo edit --visibility private`), ce qui a coupé GitHub Pages : `kanycl.github.io/deutsch-taeglich` renvoie désormais 404, vérifié. L'app redevient ce qu'elle était censée être — la copie de travail d'Exsangue sur son propre livre. **Conséquence : reste à trouver un hébergement privé pour l'iPhone** (piste : Cloudflare Pages + Access, gratuit, protégé par code). **Et règle nouvelle : on transcrit le livre fidèlement**, ce qui annule la consigne précédente d'écrire un contenu indépendant. |
+| ⚠️ **DÉPASSÉ le 02/08/2026 — le dépôt est REDEVENU PUBLIC.** La ligne ci-dessus décrit un régime qui a duré une journée. Voir « Usage du livre » plus haut. | — |
+| **Le niveau A2 ne suit pas le livre** (02/08/2026) | Deux raisons. **1.** Les 42 photos s'arrêtent à la page 62 : suivre le livre voudrait dire s'arrêter à la deuxième étape. **2.** Le programme du A2 est **public et standardisé** (CECRL, repris par Goethe, telc, ÖSD) — relevé dans `~/.claude/skills/allemand/examens.md`. Conséquence décisive : ce contenu est **le nôtre**, donc hors copyright et publiable sans condition. |
+| **Le livre est retiré de l'app** (02/08/2026) | Demandé par Exsangue, et c'était l'objectif fixé au départ une fois le A1 complet. Gain principal : `index.html` était ignoré par git **parce qu'il** contenait le livre — la source du travail n'était donc sauvegardée nulle part. Elle l'est désormais. `sans-livre.ps1` disparaît, `publier.ps1` le remplace. |
+| **Un dépliant par niveau sur l'accueil** (02/08/2026) | Demandé par Exsangue : le sommaire unique mélangeait A1 et A2, rien ne disait où l'un finissait. Le découpage vient des **bornes de `NIVEAUX`**, jamais d'une étiquette portée par le chapitre — deux sources décrivant la même chose finissent toujours par se contredire. |
 | **Le livre est un plan, pas une autorité** (01/08/2026) | Deux endroits où l'app s'en écarte sciemment, l'app étant publiée et devant enseigner un allemand juste. **1.** Le livre range l'âge du côté de *haben* (unité 7) — vrai en français, en italien et en espagnol, **faux en allemand**, qui dit *ich bin 25 Jahre alt*. L'étape 8 en fait un point d'attention explicite plutôt que de le recopier. **2.** L'âge figurait dans l'ancienne étape des nombres ; il relève de *sein*/*haben*, donc de l'unité 7 — déplacé à l'étape 8. Règle générale : on suit l'**ordre** et le **découpage** du livre, pas ses erreurs de langue. |
 | **L'app suit le livre unité par unité** (décidé le 01/08/2026) | Choix d'Exsangue, une fois le plan réel connu : étape N = unité N−1, pour pouvoir ouvrir le livre et l'app à la même page. Conséquence acceptée : l'ordre des 12 étapes déjà écrites est démonté — le présent des verbes réguliers passe de la 3ᵉ à la 11ᵉ place, la famille de la 12ᵉ à la 16ᵉ. Conséquence **découverte après coup**, plus lourde : la progression étant linéaire (valider l'étape N ouvre la N+1), on ne peut pas laisser de trous. Les 19 unités absentes doivent donc être écrites **dans l'ordre du livre**, en commençant par l'unité 0 — on ne peut pas se contenter de renuméroter ce qui existe. |
 | **Le champ interne reste `day`** (v3.0) | 116 occurrences, aucune valeur pour l'utilisateur. Seul l'affichage passe à « étape ». À renommer un jour, quand ce sera le sujet du moment plutôt qu'une diversion. |
@@ -122,48 +141,54 @@ Deux pièges du harnais, à ne pas re-découvrir :
   (un `background-color` posé en ligne se lit encore à sa valeur d'avant) → le script
   génère une copie de l'app qui applique le thème elle-même avant l'affichage.
 
-## Où ça en est
 
-- ✅ v2 : 12 jours (A1), leçons pas à pas, mot à mot, prononciation écrite, audio.
-- ✅ v2.1 (31/07/2026) : réponses et questions mélangées, navigation entre leçons réparée.
-  Voir `TODO.md` — issu d'un usage réel, 9 retours dont 3 traités.
-- ✅ Vérifiée : 256 tests au vert, écrans relus en clair et sombre à 390 px.
-- ✅ Confirmée utilisable par l'utilisateur (ouverture locale sur le PC).
-- 🔄 **Progression perdue sur iPhone — corrigé, reste à confirmer par l'usage.**
-  Cause : la page publiée tournait dans un cadre inséré dans claude.ai, et iOS refuse
-  le stockage local à une page affichée dans le cadre d'un autre site (protection
-  anti-pistage). Correctif : le fichier est devenu une page autonome, hébergée à sa
-  propre adresse sur GitHub Pages → https://kanycl.github.io/deutsch-taeglich/
-  Aucune ligne de logique changée : c'était un problème d'hébergement, pas de code.
-- ⛔ **Un dialogue avec une IA est impossible dans la page publiée.** Vérifié le 31/07/2026 :
-  une page publiée ne dispose que de `downloads` (proposer un fichier à enregistrer) et
-  `mcp` (appeler les connecteurs du lecteur). Aucun accès à un modèle. Un vrai dialogue
-  demande donc d'héberger l'app ailleurs, avec un petit serveur qui détient la clé d'API.
-- ⬜ Jours 13 à 30 — à écrire.
-- ⬜ Non testé automatiquement : le rendu sur un vrai téléphone (police système, zone
-  sûre), et la qualité réelle de la voix allemande selon l'appareil.
-- ⬜ Le dépôt n'est pas encore sous git (`git init` à faire).
-- ⬜ Piste écartée pour l'instant : l'adjectif épithète décliné (*ein rotes Auto*),
-  volontairement contourné au jour 8 — trop lourd à ce stade.
+## Où ça en est — 02/08/2026
+
+**Niveau A1 : complet.** 35 étapes, 350 mots, 1026 exercices, 12 chapitres, plus un test
+de fin de niveau (24 questions, 4 épreuves, seuil 70 %).
+
+**Niveau A2 : ouvert.** 7 étapes écrites sur 28 prévues (36 à 42), chapitres 13 et 14
+complets. Plan complet dans `PLAN-A2.md`.
+
+- ✅ **En ligne et à jour** : https://kanycl.github.io/deutsch-taeglich/ — dépôt public,
+  publié par `publier.ps1` qui copie la source vers `docs/`.
+- ✅ **Auto-test : 2053 vérifications**, toutes au vert. `verifier.ps1` : 0 écart d'article.
+- ✅ **Le livre est retiré**, `index.html` est suivi par git.
+- ✅ **Deux niveaux dans le sommaire** : un dépliant A1, un dépliant A2 en dessous.
+- ⬜ **Étapes 43 à 63** — à écrire.
+- ⬜ **Test de fin de niveau A2** — en dernier, quand les 28 étapes existent.
+- ⬜ Jamais testé automatiquement : le rendu sur un vrai téléphone (police système, zone
+  sûre) et la qualité de la voix allemande selon l'appareil.
+- ⛔ **Un dialogue avec une IA reste impossible** dans l'app : c'est un fichier HTML seul,
+  sans serveur. Il faudrait un hébergement qui détienne une clé d'API.
+- ⛔ **Ne pas relancer Cloudflare** : il exigeait une carte bancaire, et le besoin a
+  disparu — `publier.ps1` + GitHub Pages suffisent.
+
+### Ce qu'il faut savoir avant de toucher au projet
+
+- ⚠️ **Toute constante lue par `sane()` doit être déclarée AVANT `let S = load()`.**
+  Cette zone morte a cassé l'app trois fois, dont une qui a coûté sa progression à Exsangue.
+- ⚠️ **`reference/` est hors dépôt** (données tierces, ~21 Mo). `verifier.ps1` et le skill
+  `/allemand` en dépendent : sur une machine neuve, il faut le reconstituer.
+  Provenance et licences dans `reference/LISEZMOI.md`.
+- ⚠️ **`sein` est absent du socle du Wiktionnaire.** Sa conjugaison est écrite de mémoire
+  et signalée comme telle dans le code. Ne jamais inventer une autre conjugaison :
+  tout vient de `reference/verbes-wiktionnaire.csv`.
+- ⚠️ **Un repère de découpage doit vivre dans le bloc qu'il découpe.** `verifier.ps1`
+  délimitait le cours avec un repère du LIVRE : il est mort avec lui, en silence.
+- ⚠️ **Quand Exsangue signale un défaut déjà corrigé, vérifier d'abord la version.**
+  Son iPhone sert du cache. La date de version est affichée dans les réglages.
+  Contournement sans risque : ouvrir l'adresse avec `?v=2` à la fin.
+- ⚠️ **Aucun outil ne relit ce que l'app AFFIRME.** `verifier.ps1` contrôle les articles et
+  les mots, pas les règles de grammaire énoncées. Chercher les affirmations absolues
+  (*jamais · toujours · tous · aucun*) et les vérifier une par une.
 
 ## Où reprendre
 
-Les **exercices** sont écrits pour les 12 étapes (339 au total, 27 à 30 chacune).
-Il reste les **phrases d'exemple** : seule l'étape 1 a son réservoir de 12, les étapes
-2 à 12 en ont 3. Le récapitulatif en tire 5 — avec 3 disponibles, il n'y a rien à tirer.
-Voir `TODO.md`, section « REPRENDRE ICI ».
+**Étape 43 · Le logement** — l'appartement, les pièces, les meubles. Elle ouvre le
+**chapitre 15 « Chez soi, et ce qu'on en pense »**, qui n'est pas encore déclaré : le créer
+avec la seule étape 43, puis l'allonger. On ne déclare que ce qui existe, sinon l'auto-test
+échoue — et il a raison.
 
-## Le contenu des étapes 1 à 12
-
-1. Se présenter — pronoms, verbe *sein*
-2. Der / die / das — genres, majuscule des noms, ein/eine
-3. Le présent des verbes réguliers — terminaisons, -e d'appui
-4. Les nombres et l'âge — 0-20, inversion des dizaines
-5. *haben* et la négation — nicht vs kein
-6. L'accusatif — der → den, ein → einen
-7. Poser des questions — mots en W-, verbe en position 2, inversion
-8. Décrire — *sein* + adjectif (invariable), couleurs, *sehr*
-9. Les verbes à changement de voyelle — e→i, e→ie, a→ä
-10. Les jours et le temps — *am* / *um*, heute / morgen / gestern
-11. *können*, *wollen*, *müssen* — l'infinitif rejeté en fin de phrase
-12. *mein* / *dein* et la famille
+Ordre des étapes suivantes dans `PLAN-A2.md`. Détail de la session et pièges rencontrés
+dans `TODO.md`, section « Reprendre ici ».
