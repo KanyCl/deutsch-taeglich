@@ -259,7 +259,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .ou[data-ou="book"],
 .ou[data-ou="unit"],
 .ou[data-ou="booktest"],
-.ou[data-ou="reglages"] { background: var(--surface-2); color: var(--ink-2); }
+.ou[data-ou="reglages"],
+/* Le relais annonce le mode qui ARRIVE — c'est l'aplat en dessous qui porte
+   sa couleur. Un badge coloré en plus dirait deux fois la même chose. */
+.ou[data-ou="relais"]   { background: var(--surface-2); color: var(--ink-2); }
 
 .streak {
   display: inline-flex;
@@ -979,6 +982,82 @@ body.has-tts .say { display: inline-flex; }
 }
 .ordre-b:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
 .ordre-b:disabled { opacity: .3; cursor: not-allowed; }
+
+/* ---------- Le relais entre deux phases ----------
+   Un aplat pleine largeur aux couleurs du mode qui arrive. Il reprend les
+   MÊMES variables que les cases de l'accueil et que le badge d'en-tête :
+   une couleur choisie à la main repeint les trois. Trois jeux de règles
+   séparés se seraient désaccordés au premier changement. */
+.relais {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  padding: 2.5rem 1.25rem;
+  text-align: center;
+  animation: relais-entre .32s ease-out both;
+}
+.relais strong {
+  font-family: var(--display);
+  font-size: 1.875rem;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+.relais-l {
+  font-size: .6875rem;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  opacity: .75;
+}
+.relais-s { font-size: .9375rem; opacity: .85; }
+
+/* Chaque mode ne pose que DEUX valeurs, son fond et son encre. Le bloc et
+   son bouton les lisent tous les deux — le bouton en les échangeant. Écrire
+   les règles du bouton séparément aurait doublé la table, et les deux
+   moitiés auraient fini par se désaccorder. */
+.relais[data-ou="lesson"] { --relais-bg: var(--c-lesson, var(--accent));    --relais-ink: var(--ct-lesson, var(--accent-ink)); }
+.relais[data-ou="quiz"]   { --relais-bg: var(--c-quiz, var(--accent));      --relais-ink: var(--ct-quiz, var(--accent-ink)); }
+.relais[data-ou="cards"]  { --relais-bg: var(--c-cards, var(--amber-bg));   --relais-ink: var(--ct-cards, var(--amber-ink)); }
+.relais[data-ou="oral"]   { --relais-bg: var(--c-oral, var(--ink));         --relais-ink: var(--ct-oral, var(--paper)); }
+.relais[data-ou="drills"] {
+  --relais-bg: var(--c-drills, var(--surface));
+  --relais-ink: var(--ct-drills, var(--ink));
+  outline: 2px solid var(--ct-drills, var(--ink));
+  outline-offset: -2px;
+}
+.relais { background: var(--relais-bg); color: var(--relais-ink); }
+
+/* ⚠️ « Commencer » vit DANS l'aplat, pas en dessous. Vu sur une capture :
+   posé dehors, le bouton bleu de l'app se retrouvait collé sous l'aplat bleu
+   du relais de la leçon et du quiz — deux rectangles de la même couleur,
+   sans limite lisible entre eux. À l'intérieur et en inversé, le bloc
+   devient une seule chose : ce qui arrive, et le geste pour y aller. */
+.relais-go {
+  margin-top: 1rem;
+  align-self: center;
+  background: var(--relais-ink);
+  color: var(--relais-bg);
+  border: 0;
+  border-radius: var(--edge);
+  padding: .75rem 2.25rem;
+  min-height: 2.75rem;
+  font-family: var(--display);
+  font-size: .9375rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+/* L'aplat monte et se révèle. Court — 0,32 s : c'est une respiration entre
+   deux phases, pas un générique. Au-delà, on attend. */
+@keyframes relais-entre {
+  from { opacity: 0; transform: translateY(.75rem); }
+  to   { opacity: 1; transform: none; }
+}
+/* La règle globale `prefers-reduced-motion` du fichier coupe déjà toutes les
+   animations : rien à répéter ici. */
 
 /* La pastille d'une séance en cours : un simple contour, sans animation.
    Ce n'est pas une alerte mais un repère, et une chose qui bouge en
@@ -6506,7 +6585,7 @@ const OU_SUIS_JE = {
   lesson: "La leçon", drills: "Les exercices", cards: "Les cartes",
   practice: "Entraînement", oral: "L'oral", quiz: "Le quiz",
   book: "Le livre", unit: "Le livre", booktest: "Test du livre",
-  reglages: "Réglages"
+  reglages: "Réglages", relais: "La suite"
 };
 
 /* L'étape suivante du parcours, en sautant celles qui n'ont rien à offrir
@@ -6524,12 +6603,61 @@ function apres(mode) {
 }
 
 /* Le bouton qui pousse vers la suite. Rendu en premier et en couleur : c'est
-   le geste attendu, l'accueil reste le second choix. */
+   le geste attendu, l'accueil reste le second choix.
+
+   Il ne mène plus DIRECTEMENT au mode suivant mais à un écran de relais —
+   demandé par Exsangue le 02/08/2026 : « fin de leçon, hop une animation
+   pour dire place à la révision ». La raison de fond : passer d'un écran de
+   score à un écran d'exercice sans rupture, c'est se retrouver en train de
+   répondre avant d'avoir compris qu'on avait changé de mode. */
 function suiteBtn(mode) {
   const s = apres(mode);
   if (!s) return "";
-  return '<button class="btn primary wide" data-go="' + s + '">Suite &#183; ' +
+  return '<button class="btn primary wide" data-relais="' + s + '">Suite &#183; ' +
          PARCOURS_NOM[s] + '</button>';
+}
+
+/* ---------- Le relais entre deux phases ----------
+   Où l'on va, retenu entre le clic et l'écran. Une route ne prend pas
+   d'argument : la garder ici évite d'inventer un système de paramètres pour
+   un seul écran. */
+let relaisVers = null;
+
+/* Ce que le relais annonce. Une phrase, pas un titre : « Place à l'oral »
+   dit qu'on change de terrain, « L'oral » n'aurait fait que nommer. */
+const RELAIS_PHRASE = {
+  drills: "Place aux exercices",
+  cards:  "Place aux cartes",
+  oral:   "Place à l'oral",
+  quiz:   "Place au test",
+  lesson: "Place à la leçon"
+};
+/* Ce qu'on y fera, en une ligne. Le relais est le seul moment où on peut
+   dire à quoi s'attendre sans interrompre quoi que ce soit. */
+const RELAIS_SOUS = {
+  drills: "Quatre formes d'exercices, tirées au sort.",
+  cards:  "Tu écris. Chaque mot monte ou redescend d'un niveau.",
+  oral:   "Aucun texte à l'écran. Tu écoutes, puis tu écris.",
+  quiz:   "Cinq questions. C'est lui qui débloque l'étape suivante.",
+  lesson: "Quelques écrans courts, une idée à la fois."
+};
+
+function relaisView() {
+  const s = RELAIS_PHRASE[relaisVers] ? relaisVers : "quiz";
+  return [
+    '<div class="stack">',
+      '<div class="relais" data-ou="' + att(s) + '">',
+        '<span class="relais-l">Étape ' + S.day + '</span>',
+        '<strong>' + esc(RELAIS_PHRASE[s]) + '</strong>',
+        '<span class="relais-s">' + esc(RELAIS_SOUS[s]) + '</span>',
+        '<button class="relais-go" data-go="' + att(s) + '">Commencer</button>',
+      '</div>',
+      /* L'accueil reste offert ici aussi : on guide, on n'enferme pas. Le
+         relais est le meilleur endroit pour s'arrêter — on vient de finir
+         quelque chose, on n'a rien commencé. */
+      '<button class="btn wide" data-go="home">Plus tard &#183; retour à l\'accueil</button>',
+    '</div>'
+  ].join("");
 }
 function glossHTML(g) {
   const cells = g.de.map(function (w, i) {
@@ -7414,15 +7542,25 @@ function renderQuestion() {
             ? (d < COURSE.length ? 'Étape validée. L\'étape ' + (d + 1) + ' est débloquée.' : 'Étape validée.')
             : 'Il faut ' + need + ' bonnes réponses sur ' + l.quiz.length + ' pour valider. Relis la leçon et retente.') +
         '</span></div>',
+        /* ⚠️ LE TOUR SE FERME ICI, ET IL RAMÈNE AU MENU. Demandé par Exsangue
+           le 02/08/2026 : « une fois un tour terminé on revient au menu pour
+           ne pas se perdre — si on enchaîne les leçons on ne sait plus où on
+           en est en sortant ».
+
+           C'est pourquoi « Accueil » est passé en PREMIER et en couleur,
+           alors que « Leçon suivante » y était. Le geste par défaut n'est
+           plus d'enchaîner mais de reprendre son souffle et de constater où
+           l'on en est. Enchaîner reste possible, d'un doigt — on ne retire
+           rien, on change ce qui est proposé d'abord. */
+        '<button class="btn primary wide" data-go="home">Retour au menu</button>',
         // On repart du jour TESTÉ (d), pas du jour courant : la validation
         // vient peut-être de faire passer S.day au suivant.
         nextOK
           ? '<div class="pair">' +
               '<button class="btn" data-lesson="' + d + '">Revoir l\'étape ' + d + '</button>' +
-              '<button class="btn primary" data-lesson="' + (d + 1) + '">Leçon suivante</button>' +
+              '<button class="btn" data-lesson="' + (d + 1) + '">Leçon suivante</button>' +
             '</div>'
           : '<button class="btn wide" data-lesson="' + d + '">Revoir l\'étape ' + d + '</button>',
-        '<button class="btn' + (nextOK ? '' : ' primary') + ' wide" data-go="home">Accueil</button>',
       '</div>'
     ].join("");
   }
@@ -7626,13 +7764,32 @@ function renderOral() {
   if (oi >= oral.length) {
     touchStreak();
     const good = oral.filter(function (x) { return x.ok; }).length;
+
+    /* Refaire l'oral quand il y a eu trop de fautes — demandé par Exsangue le
+       02/08/2026. Le seuil est la MOITIÉ, le même esprit que le quiz (qui en
+       demande 60 %) mais plus indulgent : à l'oreille, on est légitimement
+       moins bon qu'à la lecture, et un seuil trop haut enfermerait dans une
+       boucle au lieu d'aider.
+
+       On ne FORCE pas la reprise, on la met en premier et en couleur : le
+       parcours passe au second plan, l'accueil reste offert. Enfermer
+       quelqu'un dans un exercice raté est le meilleur moyen qu'il ferme
+       l'app — et les erreurs sont déjà notées, rien ne serait sauvé. */
+    const rate = good / oral.length;
+    const aRefaire = rate < 0.5;
+
     return [
       backBar('Accueil'),
       '<div class="stack">',
         '<div class="score"><b>' + good + '/' + oral.length + '</b><span>à l\'oreille. ' +
           'Le calendrier de révision n\'a pas bougé, mais tes erreurs sont notées.</span></div>',
-        suiteBtn("oral"),
-        '<button class="btn wide" data-go="oral">Encore un tour</button>',
+        aRefaire
+          ? '<div class="why bad">Moins de la moitié. Reprends l\'oral une fois avant ' +
+            'de passer à la suite : ce sont les mêmes mots, tu les entendras mieux.</div>' +
+            '<button class="btn primary wide" data-go="oral">Refaire l\'oral</button>' +
+            suiteBtn("oral")
+          : suiteBtn("oral") +
+            '<button class="btn wide" data-go="oral">Encore un tour</button>',
         '<button class="btn wide" data-go="home">Retour à l\'accueil</button>',
       '</div>'
     ].join("");
@@ -8512,7 +8669,7 @@ const ROUTES = {
   home: home, lesson: lessonView, cards: cardsView,
   practice: practiceView, oral: oralView, drills: drillsView, quiz: quizView,
   book: bookView, unit: unitView, booktest: bookTestView,
-  reglages: reglagesView
+  reglages: reglagesView, relais: relaisView
 };
 
 /* L'écran affiché. Sert au rouage, qui doit savoir s'il ouvre les réglages
@@ -8560,7 +8717,7 @@ if (gearBtn) {
 }
 
 view.addEventListener("click", function (e) {
-  const t = e.target.closest("[data-go],[data-act],[data-pick],[data-grade],[data-day],[data-lesson],[data-say],[data-scheck],[data-chip],[data-unchip],[data-unit],[data-reveal],[data-check],[data-model],[data-send],[data-reset],[data-play],[data-pref],[data-teinte-off]");
+  const t = e.target.closest("[data-go],[data-act],[data-pick],[data-grade],[data-day],[data-lesson],[data-say],[data-scheck],[data-chip],[data-unchip],[data-unit],[data-reveal],[data-check],[data-model],[data-send],[data-reset],[data-play],[data-pref],[data-teinte-off],[data-relais]");
   if (!t) return;
 
   /* Un réglage : on l'enregistre, on l'applique, on redessine l'écran pour
@@ -8745,6 +8902,10 @@ view.addEventListener("click", function (e) {
     go("home");
     return;
   }
+
+  /* Le relais : on retient où l'on va, puis on annonce. Une route ne prenant
+     pas d'argument, la cible passe par cette variable. */
+  if (t.dataset.relais) { relaisVers = t.dataset.relais; go("relais"); return; }
 
   /* Rendre UNE case à la palette. On supprime l'entrée au lieu d'y réécrire
      la couleur du thème : réécrire la figerait, et changer de palette
@@ -9679,6 +9840,108 @@ function runTests() {
     ok("quiz : aucune balise ne se lit à l'écran", vus.length === 0, vus.slice(0, 3).join(" | "));
   })();
 
+  /* ---- Le relais entre deux phases ----
+     Demande d'Exsangue le 02/08/2026 : « fin de leçon, hop une animation
+     pour dire place à la révision, écrire, puis oral, ensuite place au
+     test ». Ce qui est vérifié : on ne saute plus d'un écran de score à un
+     écran d'exercice sans rien entre les deux. */
+  (function () {
+    S = fresh(); S.day = 1; seed(1);
+
+    // Le bouton de suite mène au RELAIS, plus directement au mode.
+    go("lesson");
+    const suite = document.createElement("div");
+    suite.innerHTML = suiteBtn("cards");
+    const b = suite.querySelector("button");
+    ok("relais : le bouton de suite passe par le relais",
+       !!b && b.hasAttribute("data-relais") && !b.hasAttribute("data-go"));
+
+    /* Chaque maillon du parcours doit savoir s'annoncer. Une phrase
+       manquante donnerait un aplat vide — la règle parcourt donc PARCOURS
+       au lieu d'une liste écrite ici, sinon un mode ajouté passerait au
+       travers. */
+    const muets = PARCOURS.filter(function (m) {
+      return !RELAIS_PHRASE[m] || !RELAIS_SOUS[m];
+    });
+    ok("relais : chaque phase du parcours sait s'annoncer",
+       muets.length === 0, muets.join(", "));
+
+    // L'écran lui-même : il annonce, il propose de commencer, et il laisse
+    // partir. Un relais sans issue serait pire que pas de relais.
+    relaisVers = "oral";
+    go("relais");
+    ok("relais : la phrase annonce le mode qui arrive",
+       view.textContent.indexOf("Place à l'oral") !== -1);
+    ok("relais : l'aplat prend la couleur du mode",
+       !!view.querySelector('.relais[data-ou="oral"]'));
+    ok("relais : on peut commencer", !!view.querySelector('[data-go="oral"]'));
+    ok("relais : et on peut partir", !!view.querySelector('[data-go="home"]'));
+
+    // Une cible inconnue ne doit pas donner un écran vide.
+    relaisVers = "licorne";
+    go("relais");
+    ok("relais : une cible inconnue reste un écran utilisable",
+       !!view.querySelector(".relais strong") &&
+       !!view.querySelector(".relais strong").textContent.trim());
+  })();
+
+  /* ---- Le tour se ferme au menu ----
+     « Si on enchaîne les leçons on ne sait plus où on en est en sortant. »
+     Ce qui compte n'est pas que le bouton existe — il existait — mais qu'il
+     soit le PREMIER, donc le geste par défaut. */
+  (function () {
+    S = fresh(); S.day = 1; seed(1);
+    go("quiz");
+    const l = COURSE[0];
+    for (let k = 0; k < l.quiz.length; k++) {
+      const bon = view.querySelector('.opt[data-pick="' + l.quiz[qOrder[qi]].a + '"]');
+      if (bon) bon.click();
+      const suivant = view.querySelector('[data-act="next"]');
+      if (suivant) suivant.click();
+    }
+    const boutons = view.querySelectorAll(".stack > button, .stack > .pair > button");
+    ok("fin du tour : le premier bouton ramène au menu",
+       boutons.length > 0 && boutons[0].getAttribute("data-go") === "home",
+       boutons.length ? boutons[0].textContent : "aucun bouton");
+    ok("fin du tour : et il est mis en avant",
+       boutons.length > 0 && boutons[0].className.indexOf("primary") !== -1);
+    ok("fin du tour : enchaîner reste possible",
+       !!view.querySelector("[data-lesson]"));
+  })();
+
+  /* ---- Refaire l'oral si trop de fautes ----
+     Demande d'Exsangue. On PROPOSE, on ne force pas : enfermer quelqu'un
+     dans un exercice raté est le meilleur moyen qu'il ferme l'app — et ses
+     erreurs sont déjà notées, rien ne serait sauvé. */
+  (function () {
+    if (!TTS.voice) { ok("oral : pas de voix sur cet appareil, rien à vérifier", true); return; }
+
+    S = fresh(); S.day = 1; seed(1);
+    go("oral");
+    if (!oral.length) { ok("oral : aucun élément à tirer, rien à vérifier", true); return; }
+
+    // Toutes fausses : la reprise doit être proposée, et en premier.
+    oral.forEach(function (x) { x.ok = false; });
+    oi = oral.length;
+    show(renderOral());
+    const b1 = view.querySelectorAll(".stack > button")[0];
+    ok("oral : sous la moitié, on propose de refaire",
+       view.textContent.indexOf("Moins de la moitié") !== -1);
+    ok("oral : et refaire est le premier geste proposé",
+       !!b1 && b1.getAttribute("data-go") === "oral" &&
+       b1.className.indexOf("primary") !== -1);
+    ok("oral : la suite du parcours reste offerte",
+       !!view.querySelector("[data-relais]"));
+    ok("oral : et l'accueil aussi", !!view.querySelector('[data-go="home"]'));
+
+    // Toutes justes : rien ne doit être reproché.
+    oral.forEach(function (x) { x.ok = true; });
+    oi = oral.length;
+    show(renderOral());
+    ok("oral : au-dessus de la moitié, aucune reprise imposée",
+       view.textContent.indexOf("Moins de la moitié") === -1);
+  })();
+
   /* ---- Ne jamais perdre sa place ----
      Demande d'Exsangue le 02/08/2026. On vérifie le comportement RÉEL —
      entrer, avancer, sortir, revenir — et non l'état des variables : c'est
@@ -10531,8 +10794,11 @@ function runTests() {
       if (!suivant) break;
       suivant.click();
     }
+    /* Le lien passe désormais par le RELAIS : c'est `data-relais` et non
+       `data-go` qu'il faut chercher. Le test disait vrai — le chemin a
+       changé, pas la destination. */
     ok("parcours : la fin des exercices mène aux cartes",
-       !!view.querySelector('[data-go="cards"]'));
+       !!view.querySelector('[data-relais="cards"]'));
 
     /* Et l'accueil reste accessible partout : on guide, on n'enferme pas. */
     ok("parcours : l'accueil reste proposé", !!view.querySelector('[data-go="home"]'));

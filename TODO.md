@@ -987,10 +987,47 @@ existe, c'est ce procédé-là. Il est en cours de normalisation en skill.
   il disait exactement ce qui se passait.
 
 - [x] Auto-test : **2416 vérifications**.
-- [ ] **Transitions annoncées** entre les phases (« place à l'oral »), et **retour
-      au menu à la fin du tour** au lieu d'enchaîner : « si on enchaîne les leçons
-      on ne sait plus où on en est ».
-- [ ] **Refaire l'oral** si le taux de fautes y dépasse un seuil.
+- [x] **Le relais entre deux phases** — « fin de leçon, hop une animation pour dire
+      place à la révision, écrire, puis oral, ensuite place au test ».
+      Un écran s'intercale : un aplat pleine largeur aux couleurs du mode qui arrive,
+      « Place à l'oral », ce qu'on va y faire en une ligne, et **Commencer**.
+      La raison de fond : passer d'un écran de score à un écran d'exercice sans rupture,
+      c'est se retrouver en train de répondre avant d'avoir compris qu'on avait changé
+      de mode.
+      L'animation dure **0,32 s** — une respiration, pas un générique. Au-delà, on attend.
+      `prefers-reduced-motion` est déjà coupé globalement dans le fichier.
+      **On guide, on n'enferme pas** : « Plus tard · retour à l'accueil » est là aussi.
+      Le relais est même le meilleur endroit pour s'arrêter — on vient de finir quelque
+      chose, on n'a rien commencé.
+- [x] **Le tour se ferme au menu.** « Si on enchaîne les leçons on ne sait plus où on en
+      est en sortant. » Le bouton existait déjà ; ce qui change, c'est qu'il est
+      désormais **le premier et en couleur**, là où « Leçon suivante » l'était.
+      Enchaîner reste possible d'un doigt — on ne retire rien, on change ce qui est
+      proposé d'abord.
+- [x] **Refaire l'oral sous la moitié.** Seuil à **50 %**, plus indulgent que le quiz
+      (60 %) : à l'oreille on est légitimement moins bon qu'à la lecture, et un seuil
+      trop haut enfermerait dans une boucle au lieu d'aider.
+      ⚠️ **On propose, on ne force pas.** « Refaire l'oral » passe en premier et en
+      couleur, la suite du parcours reste offerte juste dessous. Enfermer quelqu'un dans
+      un exercice raté est le meilleur moyen qu'il ferme l'app — et ses erreurs sont
+      déjà notées, rien ne serait sauvé.
+
+⚠️ **Deux choses vues sur une capture, pas par un test :**
+
+- **Le bouton « Commencer » se confondait avec l'aplat.** Posé sous le relais, le bouton
+  bleu de l'app se retrouvait collé sous l'aplat bleu du relais de la leçon et du quiz —
+  deux rectangles de la même couleur sans limite lisible. Il vit maintenant **dans**
+  l'aplat, en inversé : le bloc devient une seule chose, ce qui arrive et le geste pour
+  y aller.
+- Chaque mode ne déclare que **deux valeurs** (`--relais-bg`, `--relais-ink`). Le bloc et
+  son bouton les lisent tous les deux, le bouton en les échangeant. Des règles séparées
+  auraient doublé la table et fini par se désaccorder.
+
+Un test disait « la fin des exercices mène aux cartes » en cherchant `data-go` : le
+chemin passe désormais par `data-relais`. Il avait raison de crier — la destination n'a
+pas changé, le chemin si.
+
+- [x] Auto-test : **2427 vérifications**.
 
 ### Lot 3 — la carte de progression ⬜
 
