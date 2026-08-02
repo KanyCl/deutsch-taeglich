@@ -21,6 +21,18 @@
 /public/
 /deploy/
 
+# Le socle de reference : ~21 Mo de donnees TIERCES (Wiktionnaire, liste de
+# frequence tiree de sous-titres). Choix d'Exsangue le 02/08/2026 : hors depot.
+#
+# Deux raisons : le depot est public, et ces fichiers ne sont pas de nous.
+# Rien n'est perdu pour autant -- leur provenance et leurs licences sont
+# notees dans reference\LISEZMOI.md, et ils se retelechargent.
+#
+# ⚠️ Consequence a connaitre : verifier.ps1 et le skill /allemand LISENT ce
+# dossier. Sur une machine neuve, il faudra le reconstituer avant de pouvoir
+# controler le contenu allemand. L'auto-test, lui, n'en depend pas.
+reference/
+
 # Captures d'ecran : regenerees a la demande par .\test.ps1 -Shots
 captures/
 
