@@ -980,6 +980,16 @@ body.has-tts .say { display: inline-flex; }
 .ordre-b:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
 .ordre-b:disabled { opacity: .3; cursor: not-allowed; }
 
+/* La pastille d'une séance en cours : un simple contour, sans animation.
+   Ce n'est pas une alerte mais un repère, et une chose qui bouge en
+   permanence sur l'accueil finit par se lire comme un défaut.
+   Le contour prend `currentColor`, donc la couleur du texte de la case :
+   il reste visible quelle que soit la teinte choisie à la main. */
+.chip.encours {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
 .pas-bauhaus { background: #1D4E89; }
 .pas-indigo  { background: #3D3A8C; }
 .pas-prune   { background: #6A4C93; }
@@ -5923,6 +5933,15 @@ function ordreModes() {
   return sortie;
 }
 
+/* ⚠️ DÉCLARÉ ICI, avant `let S = load()`, et non près de son mode d'emploi.
+   `load` appelle `fresh`, qui remet cette table à zéro. Déclarée plus bas —
+   même de deux lignes — elle serait encore en **zone morte temporelle** au
+   moment de cet appel, et l'accès lèverait une erreur : écran blanc, sans
+   message. Le fichier connaît déjà ce piège pour les tables de réglages ;
+   il s'est reproduit ici, et il a fallu deux tentatives pour le placer assez
+   haut. Le mode d'emploi complet est près de `reprend`. */
+const seanceDe = { cards: 0, practice: 0, oral: 0, drills: 0, quiz: 0 };
+
 let storageOK = true;
 let S = load();
 
@@ -5934,9 +5953,23 @@ function fresh() {
   // unit  : la dernière unité du livre ouverte dans l'onglet « Le livre ».
   // bookq : le PREMIER verdict de chaque question du livre, 1 juste / 0 faux.
   // prefs : les réglages, voir PREFS_DEFAUT.
+  /* ⚠️ Une progression neuve n'a AUCUNE séance en cours. Sans cette ligne,
+     les séances survivaient au remplacement de l'état : « Tout effacer »
+     rendait la progression vierge, puis rouvrir « les cartes » reprenait la
+     séance d'avant — des mots venus d'une progression qui n'existait plus.
+     Même chose après avoir restauré une sauvegarde.
+     C'est un test des cartes qui l'a révélé, pas un raisonnement : il
+     attendait un champ de saisie et tombait sur un écran de correction. */
+  oublieSeances();
   return { day: 1, done: [], cards: {}, streak: 0, last: null,
            scores: {}, qmiss: {}, oral: {}, dseen: {}, unit: 0, bookq: {},
            prefs: Object.assign({}, PREFS_DEFAUT) };
+}
+
+/* Elle ne touche qu'aux MARQUEURS : les paquets eux-mêmes seront remplacés
+   au prochain passage, puisque plus aucun ne sera reconnu. */
+function oublieSeances() {
+  Object.keys(seanceDe).forEach(function (m) { seanceDe[m] = 0; });
 }
 function load() {
   try {
@@ -6665,11 +6698,17 @@ function home() {
             }
           }[id];
           if (!bloc) return "";
+          /* L'autre moitié de la demande d'Exsangue : « je veux qu'on puisse
+             savoir dans lequel on était ». Sans marque, une séance reprise
+             serait une surprise — on rouvrirait « les cartes » en croyant
+             repartir à zéro et on tomberait au milieu. La marque prévient. */
+          const enCours = seanceEnCours(bloc.go);
           return '<button class="mode" data-go="' + bloc.go + '" data-pos="' + (rang + 1) + '"' +
                    (bloc.inactif ? ' disabled' : '') + '>' +
                    '<div class="txt"><strong>' + esc(bloc.titre) + '</strong>' +
-                     '<span>' + esc(bloc.sous) + '</span></div>' +
-                   '<span class="chip' + (bloc.classeChip || "") + '">' + esc(bloc.chip) + '</span>' +
+                     '<span>' + esc(enCours || bloc.sous) + '</span></div>' +
+                   '<span class="chip' + (enCours ? " encours" : (bloc.classeChip || "")) + '">' +
+                     esc(bloc.chip) + '</span>' +
                  '</button>';
         }).join(""),
       '</div>',
@@ -7103,6 +7142,44 @@ const MAX_PASSES = 5;
    on écrit l'allemand, seul sens qui apprenne l'orthographe. */
 const WRITE_FROM_BOX = 2;
 
+/* ---------- Ne jamais perdre sa place ----------
+   Demandé par Exsangue le 02/08/2026 : « lorsqu'on sort d'un exercice comme
+   les cartes, l'oral ou n'importe quel onglet, je veux qu'on puisse reprendre
+   sa progression exactement au même point ».
+
+   Une séance vit déjà dans des variables de module — `deck`/`pos`, `oral`/`oi`,
+   `drills`/`di`, le quiz. Elles SURVIVENT à un changement d'écran : c'est une
+   page unique, rien n'est rechargé. Le seul obstacle était que chaque vue
+   REDÉMARRAIT sa séance en entrant. On ne redémarre donc plus que lorsqu'il
+   n'y a rien à reprendre : séance finie, ou séance d'une autre étape.
+
+   ⚠️ Portée exacte, à ne pas surestimer. Cela couvre la NAVIGATION dans
+   l'app. Fermer complètement l'app repart sur une séance neuve — mais rien
+   n'est perdu pour autant : les erreurs sont comptées **à chaque réponse**
+   (`hit` / `miss`, `S.qmiss`), jamais en fin de séance. Recommencer n'efface
+   donc aucune faute, ce qu'Exsangue demandait dans la même phrase. */
+function reprend(mode, enCours) {
+  if (enCours && seanceDe[mode] === S.day) return true;
+  seanceDe[mode] = S.day;
+  return false;
+}
+
+/* Ce que l'accueil affiche sur une case dont la séance est en cours — ou une
+   chaîne vide. Le calcul est ICI, à côté de `reprend`, et pas dans l'accueil :
+   les deux doivent répondre la même chose, sinon la case annoncerait une
+   reprise que l'écran ne ferait pas (ou l'inverse, plus déroutant encore). */
+function seanceEnCours(mode) {
+  if (seanceDe[mode] !== S.day) return "";
+  const reste =
+    mode === "cards"    ? (!training && deck.length > 0 ? deck.length - pos : 0) :
+    mode === "practice" ? ( training && deck.length > 0 ? deck.length - pos : 0) :
+    mode === "oral"     ? (oral.length > 0 ? oral.length - oi : 0) :
+    mode === "drills"   ? (drills.length > 0 ? drills.length - di : 0) :
+    mode === "quiz"     ? (qOrder.length > 0 ? qOrder.length - qi : 0) : 0;
+  if (reste <= 0) return "";
+  return "Séance en cours — encore " + reste;
+}
+
 function startDeck(cards, isTraining) {
   deck = cards;
   pos = 0;
@@ -7115,8 +7192,17 @@ function startDeck(cards, isTraining) {
   deckCap = cards.length * 4 + 8;
   return renderCard();
 }
-function cardsView()    { return startDeck(dueCards(), false); }
-function practiceView() { return startDeck(practiceCards(PRACTICE_SIZE), true); }
+/* Les cartes et l'entraînement partagent `deck` : c'est `training` qui les
+   distingue. Passer de l'un à l'autre repart donc de zéro, et c'est juste —
+   ce ne sont pas les mêmes mots. Le test le dit explicitement. */
+function cardsView() {
+  return reprend("cards", deck.length > 0 && pos < deck.length && !training)
+    ? renderCard() : startDeck(dueCards(), false);
+}
+function practiceView() {
+  return reprend("practice", deck.length > 0 && pos < deck.length && training)
+    ? renderCard() : startDeck(practiceCards(PRACTICE_SIZE), true);
+}
 
 function renderCard() {
   if (pos >= deck.length) {
@@ -7289,6 +7375,10 @@ let qOrder = [], qPerm = [];
 
 function quizView() {
   const l = COURSE[S.day - 1];
+  /* Le quiz aussi se reprend — c'est même le plus important : c'est lui qui
+     valide l'étape, et le recommencer effacerait les mauvaises réponses
+     déjà données. Reprendre est donc à la fois plus commode et plus juste. */
+  if (reprend("quiz", qOrder.length > 0 && qi < l.quiz.length)) return renderQuestion();
   qi = 0; qScore = 0; qLog = []; answered = false;
   qOrder = shuffleIdx(l.quiz.length);
   qPerm = qOrder.map(function (src) { return shuffleIdx(l.quiz[src].o.length); });
@@ -7505,6 +7595,7 @@ function oralItems(n) {
 }
 
 function oralView() {
+  if (reprend("oral", oral.length > 0 && oi < oral.length)) return renderOral();
   oral = oralItems(ORAL_SIZE);
   oi = 0;
   oralVerdict = null;
@@ -7661,6 +7752,7 @@ function drillSeen(i) {
 }
 
 function drillsView() {
+  if (reprend("drills", drills.length > 0 && di < drills.length)) return renderDrill();
   drills = drawDrills(DRILL_SESSION);
   // On note tout de suite ce qui est servi : même si la séance est abandonnée,
   // la prochaine proposera autre chose.
@@ -9587,6 +9679,73 @@ function runTests() {
     ok("quiz : aucune balise ne se lit à l'écran", vus.length === 0, vus.slice(0, 3).join(" | "));
   })();
 
+  /* ---- Ne jamais perdre sa place ----
+     Demande d'Exsangue le 02/08/2026. On vérifie le comportement RÉEL —
+     entrer, avancer, sortir, revenir — et non l'état des variables : c'est
+     le trajet qui l'intéresse, pas la mécanique. */
+  (function () {
+    S = fresh(); S.day = 1; seed(1);
+
+    go("drills");
+    const total = drills.length;
+    if (total > 1) {
+      di = 1;                                    // comme si on avait répondu une fois
+      const premier = drills[0].key;
+      go("home");
+      go("drills");
+      eq("reprise : les exercices reprennent où on les a laissés", di, 1);
+      eq("reprise : et sur les MÊMES exercices", drills[0].key, premier);
+    }
+
+    /* Une séance TERMINÉE ne se reprend pas : rouvrir l'onglet doit donner
+       une séance neuve, sans quoi on resterait bloqué sur l'écran de fin. */
+    di = drills.length;
+    go("home"); go("drills");
+    ok("reprise : une séance finie repart à zéro", di === 0);
+
+    /* Et une séance appartenant à une AUTRE étape ne se reprend pas non
+       plus — ce ne sont plus les mêmes exercices. */
+    go("drills");
+    di = 1;
+    S.day = 2; seed(2);
+    go("drills");
+    eq("reprise : changer d'étape donne une séance neuve", di, 0);
+
+    // L'accueil doit ANNONCER la séance en cours : la reprendre sans
+    // prévenir ferait tomber au milieu sans comprendre.
+    S = fresh(); S.day = 1; seed(1);
+    go("drills");
+    if (drills.length > 1) {
+      di = 1;
+      go("home");
+      ok("reprise : l'accueil signale la séance en cours",
+         view.textContent.indexOf("Séance en cours") !== -1);
+      ok("reprise : et la pastille le marque aussi",
+         !!view.querySelector(".chip.encours"));
+    }
+
+    // Rien ne doit être annoncé quand aucune séance ne court.
+    S = fresh(); S.day = 1; seed(1);
+    seanceDe.drills = 0; seanceDe.cards = 0; seanceDe.oral = 0;
+    seanceDe.quiz = 0; seanceDe.practice = 0;
+    go("home");
+    ok("reprise : rien n'est annoncé sans séance en cours",
+       view.textContent.indexOf("Séance en cours") === -1);
+
+    /* Les cartes et l'entraînement partagent `deck`. Passer de l'un à
+       l'autre DOIT repartir de zéro : ce ne sont pas les mêmes mots, et
+       reprendre l'un dans l'autre servirait des cartes du mauvais paquet. */
+    S = fresh(); S.day = 1; seed(1);
+    go("cards");
+    const nCartes = deck.length;
+    go("practice");
+    ok("reprise : l'entraînement ne reprend pas la séance des cartes",
+       training === true);
+    go("cards");
+    ok("reprise : et les cartes ne reprennent pas celle de l'entraînement",
+       training === false && deck.length === nCartes);
+  })();
+
   /* ---- Expliquer l'erreur ----
      Demande d'Exsangue le 02/08/2026 : « donne l'explication de l'erreur,
      la règle, ou dis-moi quelle faute d'orthographe ». Le risque n'est pas
@@ -10134,6 +10293,10 @@ function runTests() {
   let firstCount = 0, orderCount = 0;
   const ROUNDS = 40;
   for (let k = 0; k < ROUNDS; k++) {
+    /* Il faut 40 parties NEUVES pour juger d'un tirage. Depuis que le quiz
+       se reprend, `go("quiz")` seul rejouerait 40 fois la même — le test
+       mesurerait alors une partie, et conclurait qu'elle ne varie pas. */
+    oublieSeances();
     go("quiz");
     const q0 = l1.quiz[qOrder[0]];
     const btns = view.querySelectorAll(".opts .opt");
@@ -10430,6 +10593,10 @@ function runTests() {
   ok("cartes : la traduction s'affiche après la réponse", !!view.querySelector(".flash .trad"));
   ok("cartes : et la prononciation aussi", !!view.querySelector(".flash .p"));
 
+  /* `oublieSeances` d'abord : depuis que les séances se reprennent, un simple
+     `go("cards")` retomberait sur l'écran de correction laissé juste au-dessus.
+     Ce test-ci veut mesurer un paquet NEUF, il doit donc le demander. */
+  oublieSeances();
   go("cards");
   const sizeBefore = deck.length;
   document.getElementById("answer").value = "n'importe quoi du tout";
@@ -11027,6 +11194,9 @@ function runTests() {
   const tours = Math.ceil(total / DRILL_SESSION);
   const vus = {};
   for (let k = 0; k < tours; k++) {
+    // Même raison qu'au quiz : on veut des séances SUCCESSIVES, pas une
+    // seule séance reprise `tours` fois.
+    oublieSeances();
     drillsView();
     drills.forEach(function (d) { vus[d.key] = true; });
   }
@@ -11038,6 +11208,7 @@ function runTests() {
        S = fresh(); S.day = 1; seed(1);
        drillsView();
        const dejaVus = drills.map(function (d) { return d.key; });
+       oublieSeances();          // une DEUXIÈME séance, pas la reprise de la première
        drillsView();
        // Aucun des exercices de la 1re séance ne doit revenir tant qu'il
        // reste des exercices jamais servis.

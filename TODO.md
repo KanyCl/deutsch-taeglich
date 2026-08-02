@@ -952,9 +952,41 @@ existe, c'est ce procédé-là. Il est en cours de normalisation en skill.
       Aux exercices, la **faute** vient avant la **règle** : on regarde d'abord son
       erreur, on comprend la règle ensuite.
 - [x] Auto-test : **2407 vérifications**.
-- [ ] **Reprise exacte** : sortir des cartes / de l'oral / des exercices et y
-      revenir doit reprendre au même point, pas au début. Les erreurs restent
-      comptées, aucun reset possible.
+- [x] **Reprise exacte** — « quand on sort d'un exercice, je veux reprendre exactement
+      au même point ». Les séances vivaient déjà dans des variables de module qui
+      **survivent** à un changement d'écran (page unique, rien n'est rechargé) : le seul
+      obstacle était que chaque vue **redémarrait** sa séance en entrant. On ne redémarre
+      plus que s'il n'y a rien à reprendre — séance finie, ou séance d'une autre étape.
+      Vaut pour les cartes, l'entraînement, l'oral, les exercices **et le quiz** — ce
+      dernier étant le plus important : le recommencer effacerait les mauvaises réponses
+      déjà données.
+      **L'accueil l'annonce** : « Séance en cours — encore N », et la pastille se cercle.
+      Sans marque, reprendre serait une surprise : on rouvrirait « les cartes » en croyant
+      repartir à zéro et on tomberait au milieu.
+      ⚠️ **Portée exacte** : cela couvre la navigation dans l'app. Fermer complètement
+      l'app repart sur une séance neuve — mais rien n'est perdu, les erreurs sont comptées
+      **à chaque réponse**, jamais en fin de séance. Recommencer n'efface donc aucune
+      faute, l'autre moitié de la demande.
+
+⚠️ **Trois pièges rencontrés là-dessus, à ne pas re-découvrir :**
+
+- **Un vrai bug, révélé par un test des cartes** : les séances survivaient au
+  remplacement de l'état. « Tout effacer » rendait la progression vierge, puis rouvrir
+  « les cartes » **reprenait la séance d'avant** — des mots venus d'une progression qui
+  n'existait plus. Idem après avoir restauré une sauvegarde. `fresh()` appelle désormais
+  `oublieSeances()`. Le test attendait un champ de saisie et tombait sur un écran de
+  correction : c'est lui qui a trouvé, pas un raisonnement.
+- **Zone morte temporelle, encore.** `const seanceDe` doit être déclaré **avant**
+  `let S = load()` — `load` appelle `fresh`, qui y touche. Déclaré même deux lignes plus
+  bas, l'accès lève une erreur et donne un **écran blanc sans message**. Il a fallu deux
+  tentatives pour le placer assez haut. Le fichier connaissait déjà ce piège pour les
+  tables de réglages.
+- **Trois tests mesuraient désormais une seule séance reprise** au lieu de N séances
+  successives — le tirage du quiz sur 40 parties, et deux sur le réservoir d'exercices.
+  Ils appellent maintenant `oublieSeances()` entre deux tours. Le test ne mentait pas :
+  il disait exactement ce qui se passait.
+
+- [x] Auto-test : **2416 vérifications**.
 - [ ] **Transitions annoncées** entre les phases (« place à l'oral »), et **retour
       au menu à la fin du tour** au lieu d'enchaîner : « si on enchaîne les leçons
       on ne sait plus où on en est ».
