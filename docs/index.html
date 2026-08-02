@@ -6408,7 +6408,22 @@ function ordreModes() {
    haut. Le mode d'emploi complet est près de `reprend`. */
 const seanceDe = { cards: 0, practice: 0, oral: 0, drills: 0, quiz: 0 };
 
+/* ⚠️ DÉCLARÉ ICI, au-dessus de `load()`, et pour la troisième fois dans ce
+   fichier : `sane()` s'en sert, et `load()` appelle `sane()`. Déclaré plus
+   bas — il l'était 3 000 lignes plus loin — la constante est en **zone morte
+   temporelle** au moment de l'appel, l'accès lève une erreur, et le `catch`
+   de `load()` l'avalait en concluant à tort que le stockage était bloqué.
+   Résultat pour Exsangue le 02/08/2026 : progression apparemment perdue à
+   chaque ouverture, et un message qui accusait son navigateur.
+   Toute constante lue par `sane()` doit vivre ici. */
+const CHRONO_RECORDS = 5;        // combien de records du contre-la-montre on garde
+
 let storageOK = true;
+/* Le texte d'une sauvegarde qu'on n'a PAS su relire. Distinct de
+   `storageOK` : un stockage bloqué et une sauvegarde illisible sont deux
+   pannes différentes, et les confondre envoie chercher au mauvais endroit. */
+let sauveIllisible = null;
+
 let S = load();
 
 function fresh() {
@@ -6439,12 +6454,55 @@ function fresh() {
 function oublieSeances() {
   Object.keys(seanceDe).forEach(function (m) { seanceDe[m] = 0; });
 }
+/* ⚠️ DEUX PANNES DIFFÉRENTES, ET IL FAUT LES SÉPARER.
+
+   La version d'avant enveloppait tout dans un seul `try` : lire le stockage,
+   analyser le texte, et le passer à `sane()`. N'importe laquelle des trois
+   étapes échouait, et on affichait « ton navigateur bloque le stockage ».
+
+   Le 02/08/2026, c'est `sane()` qui levait une erreur (une constante en zone
+   morte temporelle). Le message envoyait donc Exsangue chercher du côté de
+   la navigation privée, et l'app repartait d'une progression vierge — que
+   la première action venait ensuite ÉCRIRE PAR-DESSUS la vraie. La faute
+   n'est pas d'avoir eu un bug : c'est de l'avoir mal nommé, puis d'avoir
+   détruit la sauvegarde en croyant bien faire.
+
+   Deux garanties désormais :
+     - on distingue « le stockage refuse » de « le texte est illisible » ;
+     - un texte qu'on n'a pas su relire est RECOPIÉ AILLEURS avant toute
+       chose. Même si l'app repart à zéro, les octets survivent et se
+       restaurent depuis les réglages. */
+const KEY_SECOURS = KEY + "-secours";
+
+/* La copie de secours laissée par une lecture ratée, s'il y en a une. Elle
+   survit à la fermeture de l'app : quelqu'un qui découvre le problème le
+   lendemain doit pouvoir récupérer sa progression, pas seulement dans la
+   minute qui suit. */
+function secoursEnAttente() {
+  try { return localStorage.getItem(KEY_SECOURS) || ""; }
+  catch (e) { return ""; }
+}
+
 function load() {
+  let raw = null;
   try {
-    const raw = localStorage.getItem(KEY);
-    if (raw) return sane(Object.assign(fresh(), JSON.parse(raw)));
-  } catch (e) { storageOK = false; }
-  return fresh();
+    raw = localStorage.getItem(KEY);
+  } catch (e) {
+    // Là, c'est vraiment le stockage : navigation privée, quota, blocage.
+    storageOK = false;
+    return fresh();
+  }
+  if (!raw) return fresh();
+
+  try {
+    return sane(Object.assign(fresh(), JSON.parse(raw)));
+  } catch (e) {
+    /* Le stockage marche — c'est le CONTENU qu'on n'a pas su relire. On met
+       les octets à l'abri avant de rendre la main, puis on le dit. */
+    sauveIllisible = raw;
+    try { localStorage.setItem(KEY_SECOURS, raw); } catch (e2) {}
+    return fresh();
+  }
 }
 
 /* Garde-fou : une sauvegarde peut désigner une étape qui n'existe plus.
@@ -7320,7 +7378,19 @@ function home() {
 
       finished ? '<div class="card"><span class="label">Fin de la série</span><p class="msg" style="margin:.5rem 0 0">Tu as terminé les ' + COURSE.length + ' étapes écrites. Demande-moi la suite — le contenu s\'ajoute dans un seul fichier.</p></div>' : '',
 
-      !storageOK ? '<p class="warn">Ton navigateur bloque le stockage local : la progression ne sera pas conservée après fermeture. Essaie hors navigation privée.</p>' : '',
+      /* Deux messages, parce que ce sont deux pannes différentes. Le second
+         est celui qui manquait le 02/08/2026 : on annonçait un stockage
+         bloqué alors que le stockage marchait très bien — c'était la
+         sauvegarde qu'on ne savait plus relire. Un message qui désigne le
+         mauvais coupable fait chercher au mauvais endroit. */
+      !storageOK
+        ? '<p class="warn">Ton navigateur bloque le stockage local : la progression ne sera pas conservée après fermeture. Essaie hors navigation privée.</p>'
+        : '',
+      sauveIllisible
+        ? '<p class="warn">Ta sauvegarde n\'a pas pu être relue — le stockage, lui, fonctionne. ' +
+          'Elle a été <b>mise de côté intacte</b> : ouvre les réglages, ' +
+          '« Sauvegarde sans fichier », et restaure-la.</p>'
+        : '',
 
       /* « Ma progression » et ses quatre outils vivaient ici, en bas de
          l'accueil. Déplacés dans le rouage le 01/08/2026 à la demande
@@ -9152,10 +9222,15 @@ function reglagesView() {
              `textarea`. Ce qui compte est gardé — pas de correction
              automatique ni de majuscule sur du JSON, où un caractère changé
              rend la sauvegarde illisible. */
+          /* Le cadre est PRÉ-REMPLI avec la sauvegarde mise de côté quand on
+             n'a pas su la relire. Sans ça, on dirait à quelqu'un « ta
+             progression est à l'abri » en le laissant chercher où. Ici il
+             n'a qu'à appuyer sur Restaurer. */
           '<textarea class="sauve" id="sauve-in" rows="3"' +
             ' autocomplete="rien-a-remplir" autocorrect="off"' +
             ' autocapitalize="off" spellcheck="false"' +
-            ' aria-label="Colle ici une sauvegarde"></textarea>' +
+            ' aria-label="Colle ici une sauvegarde">' +
+            esc(sauveIllisible || secoursEnAttente() || "") + '</textarea>' +
           '<button class="btn wide" data-act="coller">Restaurer depuis le texte</button>' +
         '</div>' +
       '</details>',
@@ -9510,7 +9585,9 @@ function verbeRepond() {
    espacer les révisions fausserait le calendrier. */
 const CHRONO_DUREE = 300;        // en dixièmes de seconde : 30,0 s
 const CHRONO_COMBO_BONUS = 3;    // à partir de ce combo, on gagne du temps
-const CHRONO_RECORDS = 5;        // combien de records on garde
+// CHRONO_RECORDS est déclaré tout en haut, avec `storageOK` : `sane()` s'en
+// sert, et `sane()` court avant que ce bloc n'existe. Voir le commentaire
+// là-bas — c'est le piège qui a fait perdre sa progression à Exsangue.
 
 let chronoEtat = "pret";         // pret | joue | fini
 let chronoReste = 0;
@@ -10996,6 +11073,64 @@ function runTests() {
       }
     }
     ok("quiz : aucune balise ne se lit à l'écran", vus.length === 0, vus.slice(0, 3).join(" | "));
+  })();
+
+  /* ---- La progression survit au rechargement ----
+     Écrit le 02/08/2026 APRÈS avoir cassé la sauvegarde d'Exsangue, et
+     surtout après avoir constaté que 2 501 vérifications étaient au vert
+     pendant que l'app repartait de zéro à chaque ouverture.
+
+     Pourquoi rien ne l'a vu : `load()` court UNE fois, au démarrage, bien
+     avant les tests. Son échec était avalé par un `catch`, et au moment où
+     les tests s'exécutaient la constante fautive existait — tout marchait.
+     Un bug qui ne se produit qu'à l'instant du chargement ne se teste pas en
+     rejouant la fonction : il faut regarder ce que le chargement a LAISSÉ. */
+  (function () {
+    /* Le contrôle le plus bête, et celui qui manquait : au démarrage, dans un
+       navigateur normal, la lecture doit avoir réussi. Ces deux témoins
+       auraient crié dès la première seconde. */
+    ok("sauvegarde : le stockage a répondu au démarrage", storageOK === true);
+    ok("sauvegarde : et la sauvegarde a été relue sans erreur",
+       sauveIllisible === null,
+       sauveIllisible ? String(sauveIllisible).slice(0, 60) : "");
+
+    /* Le trajet complet : on écrit, on relit, on retrouve. C'est ce que fait
+       l'app à chaque ouverture. On remet le contenu d'origine en partant —
+       un test ne doit pas coûter sa progression à qui lance l'auto-test. */
+    let avant = null;
+    try { avant = localStorage.getItem(KEY); } catch (e) {}
+    try {
+      const temoin = Object.assign(fresh(), { day: 4, streak: 9, done: [1, 2, 3] });
+      localStorage.setItem(KEY, JSON.stringify(temoin));
+      const relu = load();
+      eq("sauvegarde : l'étape survit au rechargement", relu.day, 4);
+      eq("sauvegarde : la série aussi", relu.streak, 9);
+      eq("sauvegarde : et les étapes validées", relu.done.length, 3);
+      ok("sauvegarde : une relecture réussie ne déclenche aucune alerte",
+         sauveIllisible === null && storageOK === true);
+
+      /* ⚠️ ET SURTOUT : une sauvegarde ILLISIBLE ne doit jamais disparaître.
+         C'est ce qui a coûté sa progression à Exsangue — l'app repartait à
+         zéro, puis la première action écrivait par-dessus l'original. Les
+         octets sont désormais mis à l'abri avant tout. */
+      localStorage.removeItem(KEY_SECOURS);
+      localStorage.setItem(KEY, "{ceci n'est pas du JSON");
+      const apres = load();
+      ok("sauvegarde : une sauvegarde illisible ne fait pas planter l'app", !!apres);
+      ok("sauvegarde : elle est signalée comme telle", sauveIllisible !== null);
+      eq("sauvegarde : et mise à l'abri intacte",
+         localStorage.getItem(KEY_SECOURS), "{ceci n'est pas du JSON");
+      ok("sauvegarde : sans accuser le stockage à tort", storageOK === true);
+
+      localStorage.removeItem(KEY_SECOURS);
+      sauveIllisible = null;
+    } catch (e) {
+      ok("sauvegarde : le trajet complet a pu être joué", false, String(e));
+    }
+    try {
+      if (avant === null) localStorage.removeItem(KEY);
+      else localStorage.setItem(KEY, avant);
+    } catch (e) {}
   })();
 
   /* ---- Les verbes irréguliers ----

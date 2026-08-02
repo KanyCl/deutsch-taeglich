@@ -1235,6 +1235,51 @@ la vérifier** : il n'y a pas de clavier dans un navigateur sans fenêtre.
       faces se mesure alors sur rien. Vu sur une capture : le bloc prenait bien la place,
       mais la carte restait petite au milieu d'un grand vide.
 
+## 🔴 J'AI CASSÉ LA SAUVEGARDE D'EXSANGUE — 02/08/2026
+
+**Le plus grave de la journée.** À l'ouverture, l'app annonçait « le stockage local n'est
+pas possible » et repartait d'une progression vierge.
+
+**La chaîne exacte :** `CHRONO_RECORDS` était déclaré 3 000 lignes SOUS `let S = load()`.
+`load()` appelle `sane()`, qui lit cette constante → **zone morte temporelle** → erreur →
+avalée par le `catch` de `load()` → `storageOK = false` et retour d'un état neuf. La
+première action venait ensuite **écrire par-dessus la vraie sauvegarde**.
+
+**Trois fautes, et la première n'est pas le bug :**
+
+1. **Un `catch` trop large.** Il enveloppait *lire le stockage*, *analyser le texte* et
+   *valider les données*. N'importe laquelle échouait, et on accusait le navigateur —
+   envoyant chercher du côté de la navigation privée alors que le stockage marchait
+   parfaitement. **Un message qui désigne le mauvais coupable fait perdre plus de temps
+   qu'une absence de message.**
+2. **On écrasait ce qu'on n'avait pas su lire.** C'est ça qui détruit, pas le bug.
+3. **Zone morte temporelle, TROISIÈME occurrence dans ce fichier.** Déjà documentée pour
+   les tables de réglages et pour `seanceDe`. Toute constante lue par `sane()` doit être
+   déclarée au-dessus de `let S = load()` — c'est écrit là-bas maintenant.
+
+- [x] **Les deux pannes sont séparées** : « le stockage refuse » ≠ « le texte est
+      illisible », avec deux messages distincts.
+- [x] **Une sauvegarde illisible est recopiée sous `KEY-secours` AVANT toute chose.**
+      Même si l'app repart à zéro, les octets survivent — et à la fermeture aussi, pour
+      qui découvre le problème le lendemain.
+- [x] **Le cadre de restauration est pré-rempli** avec cette copie : dire « ta
+      progression est à l'abri » en laissant chercher où ne vaut guère mieux que rien.
+
+### ⚠️ Pourquoi 2 501 tests étaient au vert pendant ce temps
+
+**`load()` ne court qu'une fois, au démarrage, bien avant les tests.** Son échec était
+avalé, et à l'heure des tests la constante existait — tout marchait. **Un bug qui ne se
+produit qu'à l'instant du chargement ne se teste pas en rejouant la fonction : il faut
+regarder ce que le chargement a LAISSÉ.**
+
+- [x] Deux témoins ajoutés, et ils sont bêtes exprès : au démarrage, `storageOK` doit
+      être vrai et `sauveIllisible` nul. Ils auraient crié à la première seconde.
+- [x] Le trajet complet est joué : écrire, relire, retrouver. Puis une sauvegarde
+      volontairement illisible, pour vérifier qu'elle est **mise à l'abri** et que le
+      stockage n'est **pas** accusé à tort. L'état d'origine est remis en partant — un
+      test ne doit pas coûter sa progression à qui lance l'auto-test.
+- [x] Auto-test : **2511 vérifications**.
+
 ## ⚠️ `dvh` NE VOIT PAS LE CLAVIER — l'erreur qui a coûté deux tentatives
 
 **À ne jamais re-découvrir.** Exsangue a dû signaler trois fois que rien ne changeait
