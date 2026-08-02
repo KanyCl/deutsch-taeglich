@@ -239,12 +239,19 @@ button { font: inherit; color: inherit; cursor: pointer; }
   padding: .3125rem .625rem;
   border: 2px solid transparent;
 }
-.ou[data-ou="lesson"],
-.ou[data-ou="quiz"]     { background: var(--accent);  color: var(--accent-ink); }
-.ou[data-ou="cards"],
-.ou[data-ou="practice"] { background: var(--amber-bg); color: var(--amber-ink); }
-.ou[data-ou="oral"]     { background: var(--ink);      color: var(--paper); }
-.ou[data-ou="drills"]   { background: var(--surface);  color: var(--ink); border-color: var(--ink); }
+/* Mêmes variables que les cases de l'accueil, et c'est tout l'intérêt : une
+   couleur choisie à la main repeint le bloc ET son badge. Deux jeux de
+   règles séparés se seraient désaccordés au premier changement. */
+.ou[data-ou="lesson"]   { background: var(--c-lesson, var(--accent));    color: var(--ct-lesson, var(--accent-ink)); }
+.ou[data-ou="quiz"]     { background: var(--c-quiz, var(--accent));      color: var(--ct-quiz, var(--accent-ink)); }
+.ou[data-ou="cards"]    { background: var(--c-cards, var(--amber-bg));   color: var(--ct-cards, var(--amber-ink)); }
+.ou[data-ou="practice"] { background: var(--c-practice, var(--amber-bg));color: var(--ct-practice, var(--amber-ink)); }
+.ou[data-ou="oral"]     { background: var(--c-oral, var(--ink));         color: var(--ct-oral, var(--paper)); }
+.ou[data-ou="drills"]   {
+  background: var(--c-drills, var(--surface));
+  color: var(--ct-drills, var(--ink));
+  border-color: var(--ct-drills, var(--ink));
+}
 /* Le livre et les réglages ne sont pas des étapes du parcours : un aplat
    sourd les distingue des cinq modes sans inventer une sixième couleur —
    or chaque couleur de plus est une couleur de moins qui veut dire quelque
@@ -290,10 +297,29 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* L'icône est en traits : `fill: currentColor` la remplirait et la rendrait
    illisible. C'est le `stroke` du SVG qui suit la couleur du texte. */
 .gear svg { width: 1.5rem; height: 1.5rem; }
-.gear.on svg { transform: rotate(45deg); }
+/* Le quart de tour dit « ouvert ». Il ne vaut que pour un dessin dont la
+   rotation se voit : les trois points empilés et les trois curseurs
+   tourneraient sans qu'on comprenne pourquoi. La couleur, elle, suffit
+   partout — c'est elle qui porte l'état, la rotation n'est qu'un bonus. */
+.gear[data-dessin="rouage"].on svg,
+.gear[data-dessin="carre"].on svg { transform: rotate(45deg); }
 .gear svg { transition: transform .2s ease; }
 .gear:hover { color: var(--accent); }
 .gear.on { color: var(--accent); }
+
+/* Le mot à la place du dessin. Il lui faut son propre cadre : une icône
+   tient dans un carré, un mot non. */
+.gear-mot {
+  font-family: var(--display);
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  border: 2px solid currentColor;
+  padding: .25rem .5rem;
+  white-space: nowrap;
+}
+.gear.gear-texte { min-width: 0; padding: .25rem .125rem; }
 
 .back {
   background: none;
@@ -506,12 +532,27 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* Les couleurs sont COMMUNES aux deux formes : seule la disposition change.
    Les mêler à la grille obligerait à tout redéclarer pour les cercles, et
    les deux jeux finiraient par diverger. */
-.modes-home .mode[data-go="lesson"]   { background: var(--accent);   color: var(--accent-ink); }
-.modes-home .mode[data-go="cards"],
-.modes-home .mode[data-go="practice"] { background: var(--amber-bg); color: var(--amber-ink); }
-.modes-home .mode[data-go="oral"]     { background: var(--ink);      color: var(--paper); }
-.modes-home .mode[data-go="drills"]   { background: var(--surface);  color: var(--ink); border: 2px solid var(--ink); }
-.modes-home .mode[data-go="quiz"]     { background: var(--accent);   color: var(--accent-ink); }
+/* Chaque case lit d'abord SA variable, puis retombe sur le jeton du thème.
+   C'est ce repli qui permet aux deux réglages de cohabiter : tant
+   qu'Exsangue n'a pas choisi de couleur, `--c-lesson` n'existe pas et la
+   case suit la palette (bauhaus / indigo / prune / encre). Dès qu'il en
+   choisit une, elle gagne — pour cette case-là seulement.
+   `--ct-…` est l'encre CALCULÉE à partir de la teinte : c'est elle qui
+   garantit que le nom de la case reste lisible sur n'importe quel fond. */
+.modes-home .mode[data-go="lesson"]   { background: var(--c-lesson, var(--accent));    color: var(--ct-lesson, var(--accent-ink)); }
+.modes-home .mode[data-go="cards"]    { background: var(--c-cards, var(--amber-bg));   color: var(--ct-cards, var(--amber-ink)); }
+.modes-home .mode[data-go="practice"] { background: var(--c-practice, var(--amber-bg));color: var(--ct-practice, var(--amber-ink)); }
+.modes-home .mode[data-go="oral"]     { background: var(--c-oral, var(--ink));         color: var(--ct-oral, var(--paper)); }
+.modes-home .mode[data-go="quiz"]     { background: var(--c-quiz, var(--accent));      color: var(--ct-quiz, var(--accent-ink)); }
+/* Les exercices gardent leur trait : leur case est claire par défaut, et
+   sans bordure elle se confondrait avec le fond. Le trait prend la couleur
+   du TEXTE plutôt que l'encre du thème — sinon une teinte sombre choisie à
+   la main lui donnerait un contour noir invisible. */
+.modes-home .mode[data-go="drills"] {
+  background: var(--c-drills, var(--surface));
+  color: var(--ct-drills, var(--ink));
+  border: 2px solid var(--ct-drills, var(--ink));
+}
 
 /* ---------- La disposition en CERCLES ----------
    Le cercle est l'une des trois formes primaires du Bauhaus, avec le carré
@@ -948,6 +989,50 @@ body.has-tts .say { display: inline-flex; }
 .pas-prune   { background: #6A4C93; }
 .pas-encre   { background: #111111; }
 
+/* ---------- Les couleurs choisies à la main ----------
+   Une ligne par case, avec la vraie pastille du système : c'est celle du
+   téléphone, avec toutes les teintes, et elle ne coûte pas une ligne de
+   code. Sur un appareil trop ancien pour la connaître, le navigateur la
+   rend en champ de texte — on peut alors y taper un code du genre #1D4E89.
+   Dégradé, mais jamais bloqué. */
+.teintes { display: flex; flex-direction: column; gap: .375rem; }
+.teinte-l {
+  display: flex;
+  align-items: center;
+  gap: .625rem;
+  background: var(--surface);
+  border: 2px solid var(--line);
+  padding: .375rem .5rem;
+}
+.teinte-l b { flex: 1; font-size: .875rem; font-weight: 600; }
+.teinte-e {
+  font-size: .6875rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+/* La pastille système est habillée d'un cadre : sans lui, une teinte claire
+   posée sur une carte blanche n'aurait plus de contour visible. */
+.teinte-p {
+  width: 2.75rem;          /* la cible tactile, encore : 44 px */
+  height: 2.25rem;
+  padding: 0;
+  border: 2px solid var(--ink);
+  background: none;
+  cursor: pointer;
+  flex: none;
+}
+.teinte-p::-webkit-color-swatch-wrapper { padding: 2px; }
+.teinte-p::-webkit-color-swatch { border: 0; }
+
+/* L'aperçu du bouton dans son propre réglage : on voit ce qu'on choisit
+   avant de le choisir, plutôt qu'un nom à traduire mentalement en dessin. */
+.bpv { display: block; margin-bottom: .25rem; }
+.bpv svg { width: 1.375rem; height: 1.375rem; }
+.bpv .gear-mot { font-size: .5625rem; padding: .125rem .25rem; border-width: 1px; }
+.segb.boutonb { flex-direction: column; gap: 0; line-height: 1.15; }
+
 .why {
   font-size: .875rem;
   color: var(--ink-2);
@@ -1196,7 +1281,7 @@ const COURSE = [
   ],
   quiz: [
     { q: "Combien de lettres en plus du français l'allemand a-t-il ?", o: ["quatre : ä, ö, ü, ß", "deux : ä et ß", "aucune", "six"], a: 0, why: "Trois voyelles à tréma — <b>ä ö ü</b> — et le <b>ß</b>." },
-    { q: "Le <b>w</b> allemand se prononce…", o: ["comme notre v", "comme notre ou", "comme notre w", "il est muet"], a: 0, why: "<b>Wasser</b> se dit « vasser ». Notre son v s'écrit toujours <b>w</b> en allemand." },
+    { q: "Le <b>w</b> allemand se prononce…", o: ["comme notre v", "comme notre ou", "comme notre w", "il est muet"], a: 0, why: "<b>Wasser</b> se dit « vasser ». Dans les mots allemands, notre son v s'écrit <b>w</b> — et le <b>v</b> allemand, lui, se dit « f » : <b>Vater</b> se prononce « FA-teur »." },
     { q: "<b>Zeit</b> commence par le son…", o: ["ts", "z", "s", "tch"], a: 0, why: "Le <b>z</b> allemand est un <b>ts</b> — comme dans « tsé-tsé »." },
     { q: "On peut toujours remplacer <b>ß</b> par…", o: ["ss", "s", "z", "sch"], a: 0, why: "<b>ß</b> et <b>ss</b> notent le même son dur. La Suisse n'écrit d'ailleurs que <b>ss</b>." },
     { q: "Quel mot contient le son « aï » ?", o: ["Zeit", "vier", "Schule", "grün"], a: 0, why: "<b>ei</b> se lit « aï ». Attention à ne pas le confondre avec <b>ie</b>, qui fait « ii »." }
@@ -1838,10 +1923,15 @@ const COURSE = [
       check: { q: "Le pluriel de <b>das Haus</b> est…", o: ["die Häuser", "die Hause", "die Hausen"], a: 0, why: "Neutre → <b>-er</b>, et le <b>a</b> prend un tréma : <b>Häuser</b>." }
     },
     {
-      idea: "Le féminin ajoute -n ou -en, et jamais de tréma.",
-      detail: "C'est le moule le plus régulier des trois, et donc le plus reposant. Les mots en <b>-e</b> prennent simplement <b>-n</b> ; les autres prennent <b>-en</b>.",
+      /* Corrigé le 02/08/2026, dans la foulée de la question fausse signalée
+         par Exsangue. Ce qui était écrit — « le féminin ajoute -n ou -en, et
+         jamais de tréma » — portait la MÊME erreur : die Hand → die Hände.
+         La règle vraie ne porte pas sur le genre mais sur la TERMINAISON, et
+         l'exception vient après la règle, jamais avant. */
+      idea: "Le féminin ajoute le plus souvent -n ou -en.",
+      detail: "C'est le moule le plus régulier des trois, et donc le plus reposant. Les mots en <b>-e</b> prennent simplement <b>-n</b> ; les autres prennent <b>-en</b>. Et un pluriel en <b>-n</b> ou <b>-en</b> ne prend <u>jamais</u> de tréma — ça, c'est sans exception. Quelques féminins courts font autrement, avec <b>-e</b> et un tréma : <b>die Hand → die Hände</b>, <b>die Nacht → die Nächte</b>, <b>die Stadt → die Städte</b>.",
       table: [["die Blume", "die Blumen"], ["die Lampe", "die Lampen"], ["die Frau", "die Frauen"], ["die Zeitung", "die Zeitungen"]],
-      check: { q: "Le pluriel de <b>die Frau</b> est…", o: ["die Frauen", "die Fraue", "die Fräuen"], a: 0, why: "Féminin sans <b>-e</b> final → <b>-en</b>. Et jamais de tréma au féminin." }
+      check: { q: "Le pluriel de <b>die Frau</b> est…", o: ["die Frauen", "die Fraue", "die Fräuen"], a: 0, why: "Féminin sans <b>-e</b> final → <b>-en</b>. Et un pluriel en <b>-en</b> ne prend jamais de tréma." }
     },
     {
       idea: "Deux moules à part : ceux qui ne bougent pas, et ceux en -s.",
@@ -1885,7 +1975,15 @@ const COURSE = [
     { q: "Au pluriel, l'article est toujours…", o: ["die", "der", "das", "den"], a: 0, why: "Quel que soit le genre au singulier, le pluriel prend <b>die</b>." },
     { q: "Le pluriel de <b>das Kind</b> est…", o: ["die Kinder", "die Kinde", "die Kinden", "die Kinds"], a: 0, why: "Neutre → <b>-er</b>." },
     { q: "Le pluriel de <b>die Blume</b> est…", o: ["die Blumen", "die Blumer", "die Blume", "die Blumes"], a: 0, why: "Féminin en <b>-e</b> → on ajoute simplement <b>-n</b>." },
-    { q: "Quel genre ne prend JAMAIS de tréma au pluriel ?", o: ["le féminin", "le masculin", "le neutre", "tous en prennent"], a: 0, why: "Masculin et neutre en prennent souvent ; le féminin, jamais." },
+    /* Cette question en remplace une FAUSSE, signalée par Exsangue le
+       02/08/2026 : « quel genre ne prend jamais de tréma au pluriel ? »,
+       dont la réponse attendue était « le féminin ». C'est faux — die Hand →
+       die Hände, die Nacht → die Nächte, die Stadt → die Städte. Les trois
+       genres prennent le tréma. L'app se contredisait d'ailleurs elle-même :
+       l'étape 34 enseigne « Nacht prend un tréma au pluriel ».
+       La vraie règle porte sur la TERMINAISON, pas sur le genre — et
+       celle-ci, elle, ne souffre pas d'exception. */
+    { q: "Quelle terminaison de pluriel ne prend <b>jamais</b> de tréma ?", o: ["-en / -n", "-e", "-er", "aucune : le tréma est libre"], a: 0, why: "Un pluriel en <b>-en</b> ou <b>-n</b> n'a jamais de tréma : <b>die Frau → die Frauen</b>, <b>die Blume → die Blumen</b>. Les pluriels en <b>-e</b> et <b>-er</b>, eux, en prennent souvent — et dans <b>les trois genres</b> : <b>die Nacht → die Nächte</b> est féminin, <b>das Buch → die Bücher</b> est neutre." },
     { q: "Le pluriel de <b>das Auto</b> est…", o: ["die Autos", "die Autoer", "die Auten", "die Auto"], a: 0, why: "Mot venu de l'étranger → <b>-s</b>, comme en français." }
   ],
   drills: [
@@ -2496,7 +2594,7 @@ const COURSE = [
       idea: "Six terminaisons, et c'est tout.",
       detail: "Apprends-les une fois, elles resserviront pour des centaines de verbes. Deux se répètent : <b>wir</b> et <b>sie/Sie</b> reprennent l'infinitif, et <b>er</b> et <b>ihr</b> partagent le <b>-t</b>.",
       table: [["ich", "-e"], ["du", "-st"], ["er / sie / es", "-t"], ["wir", "-en"], ["ihr", "-t"], ["sie / Sie", "-en"]],
-      check: { q: "Avec <b>du</b>, la terminaison est…", o: ["-st", "-t", "-en"], a: 0, why: "<b>du spielst</b>, <b>du lernst</b>, <b>du kaufst</b> — toujours <b>-st</b>." }
+      check: { q: "Avec <b>du</b>, la terminaison est…", o: ["-st", "-t", "-en"], a: 0, why: "<b>du spielst</b>, <b>du lernst</b>, <b>du kaufst</b> — la marque de <b>du</b>, c'est <b>-st</b>. Un verbe dont la racine finit déjà par un son « s » ne garde que le <b>-t</b> : <b>du heißt</b>." }
     },
     {
       idea: "Voici le moule appliqué à trois verbes.",
@@ -2543,7 +2641,7 @@ const COURSE = [
   ],
   quiz: [
     { q: "Comment trouve-t-on la racine d'un verbe ?", o: ["on retire le -en de l'infinitif", "on retire la première lettre", "on ajoute -e", "on met une majuscule"], a: 0, why: "<b>spielen</b> moins <b>-en</b> donne <b>spiel-</b>. C'est cette racine qui ne bouge plus." },
-    { q: "Complète : Du ___ oft im Park. (spielen)", o: ["spielst", "spielt", "spielen", "spiele"], a: 0, why: "Avec <b>du</b>, toujours <b>-st</b>." },
+    { q: "Complète : Du ___ oft im Park. (spielen)", o: ["spielst", "spielt", "spielen", "spiele"], a: 0, why: "Avec <b>du</b>, la marque est <b>-st</b>." },
     { q: "Quelles deux personnes partagent la même forme ?", o: ["wir et sie/Sie", "ich et du", "du et ihr", "er et wir"], a: 0, why: "<b>wir</b> et <b>sie/Sie</b> reprennent l'infinitif. Ça vaut pour presque tous les verbes." },
     { q: "« Tu travailles » se dit…", o: ["du arbeitest", "du arbeitst", "du arbeitet", "du arbeite"], a: 0, why: "La racine finit par <b>t</b> : il faut le <b>-e</b> d'appui, sinon c'est imprononçable." },
     { q: "« Ich kaufe morgen ein Buch » veut dire…", o: ["J'achèterai un livre demain", "J'ai acheté un livre hier", "J'achète des livres le matin", "Je voudrais acheter un livre"], a: 0, why: "Le présent allemand sert aussi au futur proche. <b>morgen</b> suffit à situer." }
@@ -3518,7 +3616,7 @@ const COURSE = [
     },
     {
       idea: "L'heure pleine est la plus simple : le nombre, puis Uhr.",
-      detail: "<b>Es ist drei Uhr</b> — il est trois heures. <b>Uhr</b> ne prend jamais de marque de pluriel : on dit <b>zwei Uhr</b>, jamais « zwei Uhren ». Et pour donner un rendez-vous, on met <b>um</b> devant : <b>um acht Uhr</b>.",
+      detail: "<b>Es ist drei Uhr</b> — il est trois heures. Quand il donne l'heure, <b>Uhr</b> reste au singulier : on dit <b>zwei Uhr</b>, jamais « zwei Uhren ». Le mot a bien un pluriel — <b>die Uhren</b>, les montres — mais pas dans ce sens-là. Et pour donner un rendez-vous, on met <b>um</b> devant : <b>um acht Uhr</b>.",
       table: [["Es ist drei Uhr.", "Il est trois heures."], ["um acht Uhr", "à huit heures"], ["Mittag", "midi"], ["Mitternacht", "minuit"]],
       check: { q: "« À sept heures » se dit…", o: ["um sieben Uhr", "in sieben Uhr", "an sieben Uhr"], a: 0, why: "<b>um</b> introduit une heure précise." }
     },
@@ -3581,7 +3679,7 @@ const COURSE = [
   ],
   drills: [
     { t: "gap", f: "Quelle heure est-il ?", s: "Wie ___ ist es?", a: "spät", why: "Mot à mot « comment tard »." },
-    { t: "gap", f: "Il est trois heures.", s: "Es ist drei ___.", a: "Uhr", why: "<b>Uhr</b> ne prend jamais de pluriel." },
+    { t: "gap", f: "Il est trois heures.", s: "Es ist drei ___.", a: "Uhr", why: "Pour donner l'heure, <b>Uhr</b> reste au singulier." },
     { t: "gap", f: "1 h 30", s: "___ zwei", a: "halb", why: "L'allemand vise l'heure à venir." },
     { t: "gap", f: "2 h 15", s: "Viertel ___ zwei", a: "nach", why: "Le quart est passé." },
     { t: "gap", f: "9 h 45", s: "Viertel ___ zehn", a: "vor", why: "Le quart manque encore." },
@@ -3712,7 +3810,7 @@ const COURSE = [
     { t: "gap", f: "Je vais à l'école maintenant.", s: "Ich gehe ___ zur Schule.", a: "jetzt", why: "Adverbe de temps." },
     { t: "gap", f: "Le chat dort là-bas.", s: "Die Katze schläft ___.", a: "dort", why: "Adverbe de lieu." },
     { t: "gap", f: "Il est très aimable.", s: "Er ist ___ freundlich.", a: "sehr", why: "<b>sehr</b> devant un adjectif." },
-    { t: "gap", f: "Je travaille beaucoup.", s: "Ich arbeite ___.", a: "viel", why: "<b>viel</b> avec un verbe, jamais <b>sehr</b>." },
+    { t: "gap", f: "Je travaille beaucoup.", s: "Ich arbeite ___.", a: "viel", why: "<b>viel</b> dit la <b>quantité</b> d'une action — <b>ich arbeite viel</b>. <b>sehr</b> dit l'<b>intensité</b>, surtout devant un adjectif : <b>sehr gut</b>." },
     { t: "gap", f: "Nous mangeons toujours à sept heures.", s: "Wir essen ___ um sieben Uhr.", a: "immer", why: "Adverbe de fréquence, juste après le verbe." },
     { t: "gap", f: "Elle lit rarement des livres.", s: "Sie liest ___ Bücher.", a: "selten", why: "Le contraire de <b>oft</b>." },
     { t: "gap", f: "Je comprends un peu l'allemand.", s: "Ich verstehe ___ ___ Deutsch.", a: "ein bisschen", why: "Deux mots inséparables." },
@@ -4284,7 +4382,7 @@ const COURSE = [
   day: 25, title: "Pouvoir, vouloir, devoir", de: "Ich kann schwimmen.",
   steps: [
     {
-      idea: "Un modal ne vit jamais seul : il entraîne un autre verbe.",
+      idea: "Un modal entraîne presque toujours un autre verbe.",
       detail: "Et cet autre verbe reste à l'infinitif, tout au bout de la phrase. C'est la parenthèse verbale de l'étape 24, appliquée aux modaux : <b>Ich kann Deutsch <u>sprechen</u></b>.",
       gloss: { de: ["Ich", "kann", "Deutsch", "sprechen"], fr: ["Je", "sais", "l'allemand", "parler"] },
       check: { q: "Où va le second verbe ?", o: ["à la fin de la phrase", "juste après le modal", "avant le sujet"], a: 0, why: "<b>Ich muss heute viel arbeiten</b> — <b>arbeiten</b> ferme la phrase." }
@@ -5780,6 +5878,35 @@ const MODES = [
 ];
 const MODES_IDS = MODES.map(function (m) { return m.id; });
 
+/* ---------- Les couleurs choisies à la main ----------
+   Demandé par Exsangue le 02/08/2026 : « je veux pouvoir choisir et designer
+   moi-même ». Donc une vraie pastille de couleur, pas une liste de teintes
+   toutes prêtes.
+
+   La table dit de QUEL jeton chaque case tire sa couleur quand on n'en a
+   choisi aucune. C'est ce détour qui permet aux deux réglages de coexister :
+   `couleur` (bauhaus / indigo / prune / encre) continue de repeindre les
+   cases restées d'origine, et seules celles qu'Exsangue a touchées lui
+   échappent. Enregistrer un hexadécimal pour les cinq d'emblée aurait
+   silencieusement débranché l'autre réglage.
+
+   ⚠️ Conséquence à connaître : une couleur choisie à la main ne s'inverse
+   PAS en thème sombre. Les jetons de l'app, eux, s'inversent. C'est le prix
+   du choix libre, et il est écrit dans l'écran des réglages. La LISIBILITÉ,
+   elle, reste garantie : l'encre est recalculée pour chaque teinte. */
+const TEINTE_SOURCE = {
+  lesson: "--accent", cards: "--amber-bg", oral: "--ink",
+  drills: "--surface", quiz: "--accent"
+};
+/* Le filet de sécurité si le jeton est illisible (valeur non hexadécimale,
+   feuille de style pas encore appliquée). Jamais consulté en marche normale. */
+const TEINTE_SECOURS = {
+  lesson: "#1d4e89", cards: "#f4a300", oral: "#111111",
+  drills: "#ffffff", quiz: "#1d4e89"
+};
+
+const BOUTONS = ["curseurs", "rouage", "mot", "points", "carre"];
+
 const PREFS_DEFAUT = {
   voix: "posee",       // vitesse de la voix allemande
   theme: "auto",       // auto = on suit le réglage du téléphone
@@ -5789,7 +5916,11 @@ const PREFS_DEFAUT = {
   forme: "carre",      // cases rectangulaires ou disques
   taille: "normale",   // hauteur des cases de l'accueil
   ordre: MODES_IDS.slice(),  // l'ordre des cinq modes sur l'accueil
-  sonAuto: true        // le mot se prononce-t-il tout seul à l'affichage
+  sonAuto: true,       // le mot se prononce-t-il tout seul à l'affichage
+  bouton: "curseurs",  // le dessin du bouton des réglages, voir BOUTONS
+  /* Vide au départ, et c'est le point : une case sans entrée ici suit la
+     palette du thème. On n'enregistre que ce qui a été choisi à la main. */
+  teintes: {}
 };
 
 /* L'ordre à utiliser, toujours COMPLET et sans doublon, quoi qu'il y ait dans
@@ -5855,6 +5986,22 @@ function sane(s) {
   if (THEMES.indexOf(p.theme) === -1) p.theme = PREFS_DEFAUT.theme;
   if (FORMES.indexOf(p.forme) === -1) p.forme = PREFS_DEFAUT.forme;
   if (TAILLES.indexOf(p.taille) === -1) p.taille = PREFS_DEFAUT.taille;
+  if (BOUTONS.indexOf(p.bouton) === -1) p.bouton = PREFS_DEFAUT.bouton;
+
+  /* Les teintes choisies à la main. On ne garde que ce qui est à la fois un
+     mode connu ET un hexadécimal complet : une valeur inventée irait droit
+     dans un `style` et donnerait une case sans couleur du tout, donc du
+     texte sur du vide. Ce qui est écarté RETOMBE sur la palette du thème,
+     qui est toujours lisible — jamais sur du blanc. */
+  p.teintes = (function () {
+    const src = (p.teintes && typeof p.teintes === "object") ? p.teintes : {};
+    const propre = {};
+    MODES_IDS.forEach(function (id) {
+      const v = String(src[id] || "").trim().toLowerCase();
+      if (/^#[0-9a-f]{6}$/.test(v)) propre[id] = v;
+    });
+    return propre;
+  })();
   // L'ordre est remis d'aplomb par `ordreModes`, mais on le range aussi ici :
   // ce qui est enregistré doit être valide, pas seulement ce qui est affiché.
   s.prefs = p;
@@ -5874,6 +6021,56 @@ function sane(s) {
 /* Rend les réglages effectifs. Appelée au démarrage et à chaque changement.
    Tout passe par la racine du document : les composants n'ont donc RIEN à
    savoir des préférences, ils continuent de lire leurs jetons habituels. */
+/* ---------- Lisibilité d'une couleur choisie à la main ----------
+   Le garde-fou promis à Exsangue : quelle que soit la teinte qu'il pose, le
+   texte reste lisible dessus. Ce n'est pas un confort, c'est ce qui rend le
+   choix libre acceptable — sans lui, un jaune clair effacerait le nom de la
+   case et il faudrait deviner sur quoi on appuie.
+
+   La formule est celle du WCAG : on linéarise chaque canal, on en tire la
+   luminance relative, puis on compare le contraste obtenu avec du noir et
+   avec du blanc, et on garde le meilleur. Un simple seuil sur la moyenne des
+   canaux se trompe sur les couleurs saturées — un bleu vif et un jaune vif
+   ont la même moyenne et appellent des encres opposées. */
+function luminance(hex) {
+  const c = String(hex).replace("#", "");
+  const canal = function (i) {
+    const v = parseInt(c.substr(i, 2), 16) / 255;
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * canal(0) + 0.7152 * canal(2) + 0.0722 * canal(4);
+}
+/* ⚠️ Noir PUR et blanc PUR, et non l'encre `#111` du reste de l'app. Ce
+   n'est pas un détail de goût, c'est ce qui rend la promesse tenable :
+
+   le pire cas est le gris moyen, où le noir et le blanc contrastent aussi
+   mal l'un que l'autre. Avec du noir pur, ce minimum vaut 4,58 pour 1 —
+   au-dessus du seuil lisible du WCAG (4,5). Avec `#111`, il tombe à 4,16 :
+   sous le seuil. Autrement dit, `#111` laissait exister des teintes sur
+   lesquelles le nom de la case devenait pénible à lire, quelle que soit
+   l'encre choisie. L'auto-test l'a attrapé sur `#767676`. */
+function encrePour(hex) {
+  const L = luminance(hex);
+  const avecNoir  = (L + 0.05) / 0.05;
+  const avecBlanc = 1.05 / (L + 0.05);
+  return avecNoir >= avecBlanc ? "#000000" : "#ffffff";
+}
+
+/* La couleur EFFECTIVE d'une case : celle choisie à la main si elle existe,
+   sinon celle que le thème lui donne. On lit le jeton dans la feuille de
+   style plutôt que de recopier sa valeur ici — sans quoi la pastille
+   afficherait le bleu Bauhaus alors que la case serait prune. */
+function teinteDe(id) {
+  const perso = S.prefs.teintes && S.prefs.teintes[id];
+  if (perso) return perso;
+  let v = "";
+  try {
+    v = getComputedStyle(document.documentElement)
+          .getPropertyValue(TEINTE_SOURCE[id] || "").trim().toLowerCase();
+  } catch (e) { v = ""; }
+  return /^#[0-9a-f]{6}$/.test(v) ? v : (TEINTE_SECOURS[id] || "#1d4e89");
+}
+
 function applyPrefs() {
   const p = S.prefs;
   const root = document.documentElement;
@@ -5904,8 +6101,92 @@ function applyPrefs() {
   // boutons restés petits.
   root.style.setProperty("--zoom", TEXTE[p.texte]);
 
+  /* Les teintes choisies à la main. On pose UNIQUEMENT celles qui existent,
+     et on retire les autres : la feuille de style prévoit un repli
+     (`var(--c-lesson, var(--accent))`), donc une variable absente vaut
+     « suis le thème ». Poser la couleur du thème ici la figerait, et
+     changer de palette n'aurait plus d'effet sur cette case.
+     `--ct-…` est l'encre calculée : jamais choisie, toujours déduite. */
+  MODES_IDS.forEach(function (id) {
+    const perso = p.teintes && p.teintes[id];
+    if (perso) {
+      root.style.setProperty("--c-" + id, perso);
+      root.style.setProperty("--ct-" + id, encrePour(perso));
+    } else {
+      root.style.removeProperty("--c-" + id);
+      root.style.removeProperty("--ct-" + id);
+    }
+  });
+  /* L'entraînement libre partage la case des cartes : il prend donc la même
+     couleur. Le déclarer à part dans les réglages laisserait croire à un
+     sixième mode, alors que c'est le même bouton qui change de rôle. */
+  if (p.teintes && p.teintes.cards) {
+    root.style.setProperty("--c-practice", p.teintes.cards);
+    root.style.setProperty("--ct-practice", encrePour(p.teintes.cards));
+  } else {
+    root.style.removeProperty("--c-practice");
+    root.style.removeProperty("--ct-practice");
+  }
+
+  dessineBouton();
+
   DRILL_SESSION = SEANCES[p.seance];
   ORAL_SIZE = SEANCES[p.seance];
+}
+
+/* ---------- Le bouton des réglages ----------
+   Exsangue trouvait le rouage « horrible » et m'a demandé comment choisir.
+   La réponse la plus honnête : que ce soit LUI qui choisisse, dans l'app,
+   sur son téléphone — plutôt que moi qui devine à partir d'une capture.
+
+   Les dessins sont en SVG et non en caractères (⚙, ⋮) : sur iPhone ceux-ci
+   s'affichent en emoji couleur, qui jureraient et ne suivraient pas le
+   thème. Tout est en traits, donc rien à accorder au fond. */
+const DESSINS_BOUTON = {
+  curseurs:
+    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+      '<g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">' +
+        '<path d="M3 7h18M3 12h18M3 17h18"/>' +
+        '<circle cx="8" cy="7" r="2.4" fill="var(--paper)"/>' +
+        '<circle cx="16" cy="12" r="2.4" fill="var(--paper)"/>' +
+        '<circle cx="10" cy="17" r="2.4" fill="var(--paper)"/>' +
+      '</g></svg>',
+  rouage:
+    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+      '<g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">' +
+        '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.7"/>' +
+        '<path d="M12 2.2v2.6M12 19.2v2.6M21.8 12h-2.6M4.8 12H2.2' +
+                ' M18.93 5.07l-1.84 1.84M6.91 17.09l-1.84 1.84' +
+                ' M18.93 18.93l-1.84-1.84M6.91 6.91L5.07 5.07"/>' +
+      '</g></svg>',
+  points:
+    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+      '<g fill="currentColor">' +
+        '<circle cx="12" cy="5" r="2.1"/><circle cx="12" cy="12" r="2.1"/>' +
+        '<circle cx="12" cy="19" r="2.1"/>' +
+      '</g></svg>',
+  carre:
+    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+      '<g fill="none" stroke="currentColor" stroke-width="2">' +
+        '<rect x="3" y="3" width="18" height="18"/>' +
+        '<path d="M3 12h18M12 3v18"/>' +
+        '<rect x="3" y="3" width="9" height="9" fill="currentColor"/>' +
+      '</g></svg>',
+  // Le seul sans dessin : le mot lui-même. Le Bauhaus tenait la typographie
+  // pour une forme, et aucune icône n'est aussi claire qu'un mot.
+  mot: '<span class="gear-mot">Réglages</span>'
+};
+
+function dessineBouton() {
+  const g = document.getElementById("gear");
+  if (!g) return;
+  const choix = DESSINS_BOUTON[S.prefs.bouton] ? S.prefs.bouton : PREFS_DEFAUT.bouton;
+  g.innerHTML = DESSINS_BOUTON[choix];
+  // Le mot n'est pas une icône : il n'a ni la même largeur ni le même cadre.
+  g.classList.toggle("gear-texte", choix === "mot");
+  // Lu par la feuille de style : seuls les dessins dont la rotation SE VOIT
+  // prennent le quart de tour à l'ouverture.
+  g.setAttribute("data-dessin", choix);
 }
 function persist() {
   try { localStorage.setItem(KEY, JSON.stringify(S)); }
@@ -7075,7 +7356,20 @@ function renderQuestion() {
         }).join("") + '</div>',
       '</div>',
 
-      '<p class="q">' + esc(q.q) + '</p>',
+      /* L'énoncé est du HTML, pas du texte échappé — et c'est un DÉFAUT
+         corrigé le 02/08/2026, trouvé en enquêtant sur la question fausse
+         signalée par Exsangue. 88 énoncés emploient <b> pour détacher le mot
+         allemand du français qui l'entoure ; `esc` les affichait en clair,
+         « Le <b>w</b> allemand se prononce… » balises comprises.
+
+         Ce n'est pas une brèche : le contenu de `quiz` est écrit dans ce
+         fichier, il ne vient ni du réseau ni de l'utilisateur. Les OPTIONS,
+         elles, restent échappées — aucune n'a jamais eu besoin de balise, et
+         la règle « ce qui n'a pas besoin de HTML n'en reçoit pas » vaut d'être
+         gardée là où elle ne coûte rien.
+         ⚠️ Le livre reste sur l'autre règle : ses énoncés sont échappés, et
+         une vérification l'impose. Les deux tableaux n'ont pas le même auteur. */
+      '<p class="q">' + q.q + '</p>',
       '<div class="opts">' + opts + '</div>',
       answered ? '<div class="why">' + q.why + '</div>' : '',
       answered ? '<button class="btn primary wide" data-act="next">' + (qi + 1 >= l.quiz.length ? 'Voir le résultat' : 'Question suivante') + '</button>' : '',
@@ -8021,6 +8315,48 @@ function reglagesView() {
                  '<i class="pas pas-' + c + '"></i>' + noms[c] + '</button>';
         }).join("") + '</div>'),
 
+      /* Demandé par Exsangue le 02/08/2026 : « je veux pouvoir choisir et
+         designer moi-même ». D'où une vraie pastille libre et non une
+         nouvelle liste de teintes toutes faites. */
+      bloc('Tes couleurs',
+        'Une pastille par case : appuie dessus et prends la couleur que tu ' +
+        'veux. Le nom de la case passe tout seul en noir ou en blanc pour ' +
+        'rester lisible, quelle que soit la teinte — c\'est calculé, tu ne ' +
+        'peux pas te tromper. ' +
+        '<b>Une case laissée d\'origine suit la palette juste au-dessus ; ' +
+        'une case que tu as peinte n\'en dépend plus</b> et garde ta couleur ' +
+        'même en thème sombre.',
+        '<div class="teintes">' + MODES.map(function (m) {
+          const perso = !!(p.teintes && p.teintes[m.id]);
+          return '<div class="teinte-l">' +
+                   '<input type="color" class="teinte-p" data-teinte="' + m.id + '"' +
+                     ' value="' + att(teinteDe(m.id)) + '"' +
+                     ' aria-label="Couleur de ' + att(m.nom) + '">' +
+                   '<b>' + esc(m.nom) + '</b>' +
+                   '<span class="teinte-e">' + (perso ? 'à toi' : "d'origine") + '</span>' +
+                   (perso
+                     ? '<button class="ordre-b" data-teinte-off="' + m.id + '"' +
+                       ' aria-label="Rendre ' + att(m.nom) + ' à la palette">&#10005;</button>'
+                     : '') +
+                 '</div>';
+        }).join("") + '</div>' +
+        '<button class="btn wide" data-act="teintes-reset">Rendre toutes les cases à la palette</button>'),
+
+      bloc('Le bouton des réglages',
+        'Celui d\'en haut à droite, celui sur lequel tu viens d\'appuyer. ' +
+        'Le changement se voit tout de suite, au-dessus.',
+        '<div class="seg">' + BOUTONS.map(function (b) {
+          const noms = {
+            curseurs: "Curseurs", rouage: "Rouage", mot: "Le mot",
+            points: "Trois points", carre: "Carré"
+          };
+          return '<button class="segb boutonb' + (b === p.bouton ? ' on' : '') + '"' +
+                 ' data-pref="bouton" data-val="' + b + '"' +
+                 ' aria-pressed="' + (b === p.bouton) + '">' +
+                 '<i class="bpv">' + DESSINS_BOUTON[b] + '</i>' + esc(noms[b]) +
+                 '</button>';
+        }).join("") + '</div>'),
+
       bloc('La forme des cases',
         'En cercles, le sous-titre de chaque case disparaît — il ne tient pas ' +
         'dans un disque sans couper les mots n\'importe où. Le compte, lui, reste.',
@@ -8128,7 +8464,7 @@ if (gearBtn) {
 }
 
 view.addEventListener("click", function (e) {
-  const t = e.target.closest("[data-go],[data-act],[data-pick],[data-grade],[data-day],[data-lesson],[data-say],[data-scheck],[data-chip],[data-unchip],[data-unit],[data-reveal],[data-check],[data-model],[data-send],[data-reset],[data-play],[data-pref]");
+  const t = e.target.closest("[data-go],[data-act],[data-pick],[data-grade],[data-day],[data-lesson],[data-say],[data-scheck],[data-chip],[data-unchip],[data-unit],[data-reveal],[data-check],[data-model],[data-send],[data-reset],[data-play],[data-pref],[data-teinte-off]");
   if (!t) return;
 
   /* Un réglage : on l'enregistre, on l'applique, on redessine l'écran pour
@@ -8314,13 +8650,41 @@ view.addEventListener("click", function (e) {
     return;
   }
 
+  /* Rendre UNE case à la palette. On supprime l'entrée au lieu d'y réécrire
+     la couleur du thème : réécrire la figerait, et changer de palette
+     n'aurait plus d'effet sur cette case — elle serait « d'origine » à
+     l'écran tout en étant peinte dans le fichier. */
+  if (t.dataset.teinteOff) {
+    delete S.prefs.teintes[t.dataset.teinteOff];
+    persist();
+    applyPrefs();
+    go("reglages");
+    return;
+  }
+  if (t.dataset.act === "teintes-reset") {
+    S.prefs.teintes = {};
+    persist();
+    applyPrefs();
+    go("reglages");
+    toolMsg("Les cinq cases suivent de nouveau la palette.");
+    return;
+  }
+
   if (t.dataset.act === "export") { exportData(); return; }
   if (t.dataset.act === "import") { importData(); return; }
   /* Remettre les réglages d'origine ne touche PAS à la progression : ce sont
      deux choses sans rapport, et confondre les deux ferait de ce bouton un
      piège. « Tout effacer », lui, est ailleurs et demande confirmation. */
   if (t.dataset.act === "prefs-reset") {
-    S.prefs = Object.assign({}, PREFS_DEFAUT);
+    /* Les champs composés sont RECOPIÉS, pas partagés. `Object.assign` ne
+       copie que la surface : sans ces deux lignes, `S.prefs.teintes` et
+       `PREFS_DEFAUT.teintes` seraient le même objet, et peindre une case
+       après un retour aux réglages d'origine modifierait la valeur par
+       défaut elle-même — donc pour toujours, y compris au prochain reset. */
+    S.prefs = Object.assign({}, PREFS_DEFAUT, {
+      teintes: {},
+      ordre: MODES_IDS.slice()
+    });
     persist();
     applyPrefs();
     go("reglages");
@@ -8333,6 +8697,37 @@ view.addEventListener("click", function (e) {
     }
     return;
   }
+});
+
+/* ---------- La pastille de couleur ----------
+   Elle n'émet pas de clic exploitable : c'est `input` pendant qu'on déplace
+   le doigt, et `change` quand on referme le sélecteur. D'où un écouteur à
+   part, et deux comportements distincts :
+
+     - `input`  → on applique la couleur SANS redessiner l'écran. Redessiner
+                  à chaque mouvement arracherait le sélecteur des mains.
+                  C'est ce qui donne l'aperçu en direct sur le badge d'en-tête.
+     - `change` → là seulement on enregistre et on redessine, pour que la
+                  ligne passe de « d'origine » à « à toi » et gagne sa croix.
+
+   Posé sur `view` par délégation, comme les clics : l'écran des réglages est
+   reconstruit à chaque changement, un écouteur par pastille ne survivrait
+   pas au premier redessin. */
+function poseTeinte(cible, redessiner) {
+  const id = cible && cible.dataset && cible.dataset.teinte;
+  if (!id || MODES_IDS.indexOf(id) === -1) return;
+  const v = String(cible.value || "").trim().toLowerCase();
+  if (!/^#[0-9a-f]{6}$/.test(v)) return;   // rien ne vaut mieux qu'une case sans fond
+  if (!S.prefs.teintes || typeof S.prefs.teintes !== "object") S.prefs.teintes = {};
+  S.prefs.teintes[id] = v;
+  applyPrefs();
+  if (redessiner) { persist(); go("reglages"); }
+}
+view.addEventListener("input", function (e) {
+  if (e.target && e.target.dataset && e.target.dataset.teinte) poseTeinte(e.target, false);
+});
+view.addEventListener("change", function (e) {
+  if (e.target && e.target.dataset && e.target.dataset.teinte) poseTeinte(e.target, true);
 });
 
 /* Entrée : valider, puis enchaîner.
@@ -9153,6 +9548,41 @@ function runTests() {
        fautifs.length === 0, fautifs.join(" | "));
   })();
 
+  /* Aucune balise ne doit se LIRE à l'écran. Défaut trouvé le 02/08/2026 :
+     les énoncés du quiz passaient par `esc`, alors que 88 d'entre eux
+     emploient <b> pour détacher le mot allemand. Résultat à l'écran :
+     « Le <b>w</b> allemand se prononce… ».
+
+     La vérification porte sur le TEXTE RENDU, jamais sur la source — un test
+     qui compare une chaîne à elle-même est d'accord avec lui-même, c'est
+     exactement ce qui avait laissé passer `&#183;` en juillet. On parcourt
+     donc les 35 étapes et on lit ce qui s'affiche vraiment. */
+  (function () {
+    const vus = [];
+    for (let d = 1; d <= COURSE.length; d++) {
+      S = fresh(); S.day = d; seed(d);
+      go("quiz");
+      for (let tour = 0; tour < COURSE[d - 1].quiz.length; tour++) {
+        const txt = view.textContent;
+        if (/<\/?[a-z]/i.test(txt) || txt.indexOf("&lt;") !== -1) {
+          vus.push("étape " + d + " : " + txt.slice(0, 60));
+          break;
+        }
+        const opt = view.querySelector(".opt");
+        if (!opt) break;
+        opt.click();                                   // répond, pour voir aussi le « pourquoi »
+        if (/<\/?[a-z]/i.test(view.textContent)) {
+          vus.push("étape " + d + " (explication) : " + view.textContent.slice(0, 60));
+          break;
+        }
+        const suivant = view.querySelector('[data-act="next"]');
+        if (!suivant) break;
+        suivant.click();
+      }
+    }
+    ok("quiz : aucune balise ne se lit à l'écran", vus.length === 0, vus.slice(0, 3).join(" | "));
+  })();
+
   /* Le filigrane de consigne — demande d'Exsangue le 02/08/2026 : « on ne
      voit pas d'un regard ce qu'on doit faire ». Un mode où l'on répond sans
      consigne visible est précisément ce qui le faisait se tromper. */
@@ -9236,9 +9666,120 @@ function runTests() {
      saisieAttrs("x").match(/name="([^"]+)"/)[1] !==
      saisieAttrs("x").match(/name="([^"]+)"/)[1]);
 
+  /* ---- Les couleurs choisies à la main ----
+     Demande d'Exsangue le 02/08/2026. Le point sensible n'est pas que la
+     couleur s'applique — c'est que la LISIBILITÉ tienne quoi qu'il choisisse,
+     et que le réglage de palette continue de fonctionner à côté. */
+  (function () {
+    // Le garde-fou : l'encre est celle qui contraste le plus, pas un seuil
+    // approximatif. Un jaune vif et un bleu vif ont des canaux comparables
+    // et appellent pourtant des encres opposées.
+    eq("couleurs : encre noire sur un fond clair", encrePour("#ffffff"), "#000000");
+    eq("couleurs : encre blanche sur un fond sombre", encrePour("#111111"), "#ffffff");
+    eq("couleurs : encre noire sur un jaune vif", encrePour("#f4a300"), "#000000");
+    eq("couleurs : encre blanche sur un bleu profond", encrePour("#1d4e89"), "#ffffff");
+    /* Le rouge pur appelle du NOIR, pas du blanc — c'est contre-intuitif et
+       ce test s'est d'abord trompé, pas le code. Sa luminance (0,21) le place
+       du côté clair de la bascule : noir 5,25 pour 1, blanc seulement 4,0. */
+    eq("couleurs : encre noire sur un rouge pur", encrePour("#ff0000"), "#000000");
+
+    /* Et le contraste obtenu doit VRAIMENT passer le seuil lisible du WCAG
+       (4,5:1 pour du texte courant). Vérifier que la fonction renvoie du
+       noir ou du blanc ne dit rien : encore faut-il que ce soit suffisant.
+       On balaie donc un éventail de teintes, dont les pires cas — les gris
+       moyens, où aucune des deux encres n'est confortable. */
+    const durs = [];
+    ["#808080", "#7f7f7f", "#00ff00", "#ff0000", "#0000ff", "#ffff00",
+     "#767676", "#8a8a8a", "#c0c0c0", "#404040"].forEach(function (h) {
+      const e = encrePour(h);
+      const a = luminance(h), b = luminance(e);
+      const ratio = (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+      if (ratio < 4.5) durs.push(h + " → " + e + " (" + ratio.toFixed(2) + ":1)");
+    });
+    ok("couleurs : l'encre choisie reste lisible sur toutes les teintes",
+       durs.length === 0, durs.join(" | "));
+
+    // Une teinte posée s'applique à la case ET à son badge — les deux lisent
+    // la même variable, c'est justement ce qui les empêche de diverger.
+    S = fresh(); S.day = 1; seed(1);
+    S.prefs.teintes = { oral: "#ff0000" };
+    applyPrefs();
+    const racine = document.documentElement;
+    eq("couleurs : la teinte choisie est posée sur la racine",
+       racine.style.getPropertyValue("--c-oral").trim(), "#ff0000");
+    eq("couleurs : son encre est calculée, pas choisie",
+       racine.style.getPropertyValue("--ct-oral").trim(), "#000000");
+
+    // L'entraînement libre partage la case des cartes : il doit suivre.
+    S.prefs.teintes = { cards: "#00ff00" };
+    applyPrefs();
+    eq("couleurs : l'entraînement suit la couleur des cartes",
+       racine.style.getPropertyValue("--c-practice").trim(), "#00ff00");
+
+    /* Le point le plus facile à casser : une case SANS couleur choisie ne
+       doit poser aucune variable. Si on y écrivait la couleur du thème, elle
+       serait figée et le réglage de palette n'aurait plus d'effet dessus —
+       la case se dirait « d'origine » tout en étant peinte. */
+    S.prefs.teintes = {};
+    applyPrefs();
+    ok("couleurs : une case d'origine ne fige rien",
+       !racine.style.getPropertyValue("--c-oral") &&
+       !racine.style.getPropertyValue("--c-practice"));
+
+    // Une valeur inventée dans une sauvegarde ne doit pas donner une case
+    // sans fond : elle est écartée, et la case retombe sur la palette.
+    const abime = sane(Object.assign(fresh(), {
+      prefs: Object.assign({}, PREFS_DEFAUT, {
+        teintes: { oral: "rouge", quiz: "#12ab", lesson: "#1D4E89", inconnu: "#000000" }
+      })
+    }));
+    ok("couleurs : une teinte illisible est écartée",
+       !abime.prefs.teintes.oral && !abime.prefs.teintes.quiz);
+    eq("couleurs : une teinte valable est gardée, en minuscules",
+       abime.prefs.teintes.lesson, "#1d4e89");
+    ok("couleurs : un mode inconnu est écarté", !abime.prefs.teintes.inconnu);
+
+    /* Le retour aux réglages d'origine ne doit pas PARTAGER l'objet des
+       teintes avec la valeur par défaut. `Object.assign` ne copie que la
+       surface : sans recopie, peindre une case après un reset modifierait
+       le défaut lui-même, définitivement. */
+    S = fresh(); S.day = 1; seed(1); applyPrefs();
+    go("reglages");
+    view.querySelector('[data-act="prefs-reset"]').click();
+    S.prefs.teintes.oral = "#123456";
+    ok("couleurs : le retour aux réglages d'origine ne partage pas ses objets",
+       !PREFS_DEFAUT.teintes.oral);
+    delete S.prefs.teintes.oral;
+  })();
+
+  /* ---- Le bouton des réglages ----
+     Exsangue trouvait le rouage horrible : c'est lui qui choisit, dans
+     l'app. Chaque choix doit donc produire un dessin, et aucun ne doit
+     laisser le bouton vide. */
+  (function () {
+    S = fresh(); S.day = 1; seed(1);
+    const vides = [];
+    BOUTONS.forEach(function (b) {
+      S.prefs.bouton = b;
+      applyPrefs();
+      const g = document.getElementById("gear");
+      if (!g.innerHTML.trim()) vides.push(b);
+      if (g.getAttribute("data-dessin") !== b) vides.push(b + " : data-dessin");
+    });
+    ok("bouton : chaque choix donne un dessin", vides.length === 0, vides.join(", "));
+
+    // Un choix inconnu venu d'une sauvegarde ne doit pas vider le bouton.
+    S.prefs.bouton = "licorne";
+    applyPrefs();
+    ok("bouton : un choix inconnu retombe sur le dessin par défaut",
+       document.getElementById("gear").getAttribute("data-dessin") === PREFS_DEFAUT.bouton);
+    S.prefs.bouton = PREFS_DEFAUT.bouton;
+    applyPrefs();
+  })();
+
   S = fresh(); S.day = 1; seed(1); applyPrefs();
   go("reglages");
-  ["voix", "sonAuto", "theme", "texte", "couleur", "forme", "seance"].forEach(function (cle) {
+  ["voix", "sonAuto", "theme", "texte", "couleur", "forme", "seance", "bouton"].forEach(function (cle) {
     const boutons = view.querySelectorAll('[data-pref="' + cle + '"]');
     ok("réglages : « " + cle + " » propose au moins deux choix", boutons.length >= 2);
     eq("réglages : « " + cle + " » en marque exactement un",

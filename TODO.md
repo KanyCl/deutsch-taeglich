@@ -821,6 +821,94 @@ Rangées en quatre lots, du plus rentable à l'heure passée au plus lourd.
 Conséquence : `test.ps1` photographie maintenant aussi l'écran **`drills`**, le seul
 qui porte un filigrane dans une boîte courte.
 
+## ⚠️ DU CONTENU FAUX — signalé par Exsangue le 02/08/2026
+
+**Il avait raison, et il faut le dire franchement : l'app lui a enseigné une chose
+fausse.** Question du quiz de l'étape 6 : « Quel genre ne prend JAMAIS de tréma au
+pluriel ? », réponse attendue « le féminin ». C'est **faux** — *die Hand → die Hände*,
+*die Nacht → die Nächte*, *die Stadt → die Städte*. Les trois genres prennent le tréma.
+
+**L'app se contredisait elle-même** : l'étape 34 enseigne « *Nacht* prend un tréma au
+pluriel », et *die Nacht* est féminin. Deux affirmations opposées dans le même fichier.
+
+- [x] **Question remplacée** par une vraie règle, qui porte sur la **terminaison** et non
+      sur le genre : *un pluriel en `-en` ou `-n` ne prend jamais de tréma*. Celle-là ne
+      souffre aucune exception.
+- [x] **La même erreur trouvée deux fois de plus**, non signalée, dans la leçon de
+      l'étape 6 : « Le féminin ajoute -n ou -en, et jamais de tréma » et « jamais de
+      tréma au féminin ». Corrigées, avec l'exception donnée **après** la règle.
+- [x] **Quatre affirmations trop absolues** corrigées dans la foulée. Le tri s'est fait
+      en cherchant les mots *jamais · toujours · tous · aucun · sans exception* : c'est
+      la famille de phrases où ce genre de faute se loge.
+      · « *Uhr* ne prend jamais de pluriel » → faux, *die Uhren* existe (les montres) ;
+        c'est vrai **pour dire l'heure** seulement.
+      · « notre son v s'écrit toujours *w* » → faux, *die Vase* se dit « VA-ze ».
+      · « *viel* avec un verbe, jamais *sehr* » → *ich danke dir sehr* est correct ;
+        c'est quantité contre intensité, pas verbe contre adjectif.
+      · « avec *du*, toujours *-st* » → *du heißt*, que l'app enseigne elle-même.
+      · « un modal ne vit jamais seul » → *ich kann Deutsch* se dit très bien.
+
+### Ce que ça apprend sur le harnais — à ne pas oublier
+
+`verifier.ps1` était **au vert** pendant tout ce temps, et il le reste. C'est normal et
+ce n'est pas un défaut : il croise les **articles** et les **mots** avec le socle de
+référence, il ne lit pas les **affirmations de grammaire**. Il le dit lui-même en bas de
+son rapport. Autrement dit : **aucun outil du projet ne relisait ce que l'app affirme.**
+Le seul contrôle possible reste la lecture — et le meilleur détecteur aura été Exsangue.
+
+## 🐛 Un défaut trouvé en enquêtant : les balises visibles
+
+- [x] **88 énoncés de quiz affichaient leurs balises en clair.** `renderQuestion` passait
+      l'énoncé par `esc`, alors que 88 d'entre eux emploient `<b>` pour détacher le mot
+      allemand du français. À l'écran : « Le \<b\>w\</b\> allemand se prononce… ».
+      L'énoncé n'est plus échappé — le contenu de `quiz` est écrit dans le fichier, il ne
+      vient ni du réseau ni de l'utilisateur. Les **options**, elles, restent échappées :
+      aucune n'a jamais eu besoin d'une balise.
+      ⚠️ **Le livre garde l'autre règle** (énoncés échappés, vérification à l'appui) :
+      les deux tableaux n'ont pas le même auteur.
+- [x] **Vérification ajoutée** : elle parcourt les 35 étapes, répond à chaque question et
+      lit le **texte rendu** — jamais la source. Un test qui compare une chaîne à
+      elle-même est d'accord avec lui-même : c'est ce qui avait laissé passer `&#183;`.
+
+## Le rouage et les couleurs ✅ 02/08/2026
+
+Deux demandes d'Exsangue, dont une restée en plan la veille.
+
+- [x] **Le bouton des réglages se choisit dans l'app.** Il trouvait le rouage « horrible »
+      et demandait comment choisir : la réponse honnête est que ce soit **lui** qui
+      choisisse, sur son téléphone, plutôt que moi qui devine depuis une capture.
+      Cinq dessins : curseurs (défaut), rouage, le mot « Réglages », trois points, carré
+      divisé. Tous en SVG — le caractère ⚙ s'affiche en emoji couleur sur iPhone, qui
+      jurerait et ne suivrait pas le thème.
+      ⚠️ Le quart de tour à l'ouverture ne vaut que pour le rouage et le carré : les trois
+      points et les curseurs tourneraient sans qu'on comprenne pourquoi. C'est la
+      **couleur** qui porte l'état partout.
+- [x] **Chaque case se peint à la main** — « je veux pouvoir choisir et designer
+      moi-même ». Une vraie pastille système par mode, avec toutes les teintes.
+- [x] **Le garde-fou de lisibilité.** L'encre du nom est **calculée**, jamais choisie :
+      on compare le contraste obtenu avec du noir et avec du blanc (formule WCAG) et on
+      garde le meilleur. Un simple seuil sur la moyenne des canaux se trompe sur les
+      couleurs saturées — un bleu vif et un jaune vif ont des canaux comparables et
+      appellent des encres opposées.
+      ⚠️ **Noir PUR, pas le `#111` de l'app**, et l'auto-test l'a imposé : sur un gris
+      moyen (`#767676`), `#111` ne donne que 4,16:1, sous le seuil lisible du WCAG. Le
+      noir pur garantit **4,58:1 au minimum, quelle que soit la teinte**.
+- [x] **Une case non peinte ne fige rien.** On ne pose aucune variable CSS pour elle : la
+      feuille de style prévoit un repli (`var(--c-lesson, var(--accent))`). C'est ce qui
+      permet aux deux réglages de coexister — la palette (bauhaus / indigo / prune /
+      encre) continue de repeindre les cases restées d'origine. Y écrire la couleur du
+      thème l'aurait figée : la case se serait dite « d'origine » tout en étant peinte.
+- [x] **Le badge d'onglet suit les mêmes variables** que les cases : peindre « l'oral »
+      repeint son bloc ET son bandeau. Deux jeux de règles séparés auraient divergé.
+- [x] Défaut préexistant corrigé au passage : **`prefs-reset` partageait ses objets** avec
+      `PREFS_DEFAUT`. `Object.assign` ne copie que la surface — peindre une case après un
+      retour aux réglages d'origine aurait modifié la valeur par défaut elle-même,
+      définitivement.
+- ⚠️ **Conséquence assumée** : une couleur choisie à la main ne s'inverse pas en thème
+      sombre, là où les jetons de l'app le font. C'est le prix du choix libre, et c'est
+      écrit dans l'écran des réglages. La lisibilité, elle, reste garantie.
+- [x] Auto-test : **2396 vérifications**. `verifier.ps1` : aucun écart d'article.
+
 ### Lot 2 — le parcours ⬜
 
 - [ ] **Expliquer chaque erreur** : dire *pourquoi* c'est faux — la règle de
