@@ -7983,6 +7983,36 @@ const streakEl = document.getElementById("streak");
 function esc(s) {
   return String(s).replace(/[<>&]/g, function (c) { return { "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]; });
 }
+
+/* ---------- Le SEUL rendu autorise pour le contenu du cours ----------
+
+   Defaut signale par Exsangue le 11/08/2026 : « Le corps se dit <b>der Körper</b> »
+   s affichait tel quel a l ecran. La cause n etait pas une etourderie mais une
+   absence de regle : idea passait par esc(), detail non ; check.q par esc(),
+   quiz.q non. Deux champs voisins, deux traitements, aucune decision ecrite.
+
+   La decision, maintenant ecrite : le contenu emploie un balisage MINUSCULE et
+   volontaire — <b> pour faire ressortir le mot allemand dans une phrase francaise
+   (2802 emplois), <i>, <u>, et trois entites. Tout le reste doit s afficher tel quel.
+
+   L ordre compte : on echappe TOUT, PUIS on reautorise cette liste. L inverse
+   laisserait passer ce qu on veut precisement neutraliser.
+
+   ⚠️ Aucun champ de contenu ne doit etre concatene sans passer par ici. Une
+   verification balaie tout le cours et refuse toute balise hors de cette liste. */
+const RICHE_BALISES = ["b", "i", "u"];
+const RICHE_ENTITES = { "rarr": "→", "mdash": "—", "#9888": "⚠", "middot": "·", "hellip": "…", "nbsp": " " };
+function rich(s) {
+  let out = esc(s == null ? "" : s);
+  RICHE_BALISES.forEach(function (t) {
+    out = out.split("&lt;" + t + "&gt;").join("<" + t + ">");
+    out = out.split("&lt;/" + t + "&gt;").join("</" + t + ">");
+  });
+  Object.keys(RICHE_ENTITES).forEach(function (nom) {
+    out = out.split("&amp;" + nom + ";").join(RICHE_ENTITES[nom]);
+  });
+  return out;
+}
 function att(s) {
   return esc(s).replace(/"/g, "&quot;");
 }
@@ -8199,7 +8229,7 @@ function glossHTML(g) {
 }
 function tableHTML(rows) {
   return '<div class="scroll-x"><table class="conj"><tbody>' +
-    rows.map(function (r) { return '<tr><td>' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td></tr>'; }).join("") +
+    rows.map(function (r) { return '<tr><td>' + rich(r[0]) + '</td><td>' + rich(r[1]) + '</td></tr>'; }).join("") +
     '</tbody></table></div>';
 }
 
@@ -8523,8 +8553,8 @@ function renderStep() {
   const st = l.steps[stepIdx];
   const answered = stepPick !== null;
 
-  let body = '<p class="step-idea">' + esc(st.idea) + '</p>';
-  if (st.detail) body += '<p class="step-detail">' + st.detail + '</p>';
+  let body = '<p class="step-idea">' + rich(st.idea) + '</p>';
+  if (st.detail) body += '<p class="step-detail">' + rich(st.detail) + '</p>';
   if (st.gloss)  body += glossHTML(st.gloss);
   if (st.table)  body += tableHTML(st.table);
 
@@ -8537,14 +8567,14 @@ function renderStep() {
         if (i === st.check.a) cls += " right";
         else if (i === stepPick) cls += " wrong";
       }
-      return '<button class="' + cls + '" data-scheck="' + i + '"' + (answered ? " disabled" : "") + '>' + esc(st.check.o[i]) + '</button>';
+      return '<button class="' + cls + '" data-scheck="' + i + '"' + (answered ? " disabled" : "") + '>' + rich(st.check.o[i]) + '</button>';
     }).join("");
     quest = [
       '<div class="card">',
         '<h3 class="sec">À toi</h3>',
-        '<p class="q" style="margin-top:.75rem">' + esc(st.check.q) + '</p>',
+        '<p class="q" style="margin-top:.75rem">' + rich(st.check.q) + '</p>',
         '<div class="opts" style="margin-top:.75rem">' + opts + '</div>',
-        answered ? '<div class="why" style="margin-top:.75rem">' + st.check.why + '</div>' : '',
+        answered ? '<div class="why" style="margin-top:.75rem">' + rich(st.check.why) + '</div>' : '',
       '</div>'
     ].join("");
   }
@@ -9443,7 +9473,7 @@ function renderQuestion() {
       if (i === q.a) cls += " right";
       else if (i === picked) cls += " wrong";
     }
-    return '<button class="' + cls + '" data-pick="' + i + '"' + (answered ? " disabled" : "") + '>' + esc(q.o[i]) + '</button>';
+    return '<button class="' + cls + '" data-pick="' + i + '"' + (answered ? " disabled" : "") + '>' + rich(q.o[i]) + '</button>';
   }).join("");
 
   return [
@@ -9469,9 +9499,9 @@ function renderQuestion() {
          gardée là où elle ne coûte rien.
          ⚠️ Le livre reste sur l'autre règle : ses énoncés sont échappés, et
          une vérification l'impose. Les deux tableaux n'ont pas le même auteur. */
-      '<p class="q">' + q.q + '</p>',
+      '<p class="q">' + rich(q.q) + '</p>',
       '<div class="opts">' + opts + '</div>',
-      answered ? '<div class="why">' + q.why + '</div>' : '',
+      answered ? '<div class="why">' + rich(q.why) + '</div>' : '',
       answered ? '<button class="btn primary wide" data-act="next">' + (qi + 1 >= l.quiz.length ? 'Voir le résultat' : 'Question suivante') + '</button>' : '',
     '</div>'
   ].join("");
@@ -15091,6 +15121,106 @@ function runTests() {
   /* --- P. Robustesse --- */
   ok("sécurité : le HTML des contenus est échappé", esc("<b>&</b>") === "&lt;b&gt;&amp;&lt;/b&gt;");
   ok("sécurité : les guillemets sont échappés dans les attributs", att('a"b') === "a&quot;b");
+
+  /* ---------- Le rendu du contenu ----------
+     Défaut signalé par Exsangue le 11/08/2026 : « Le corps se dit <b>der Körper</b> »
+     s'affichait tel quel à l'écran. ⚠️ Le test juste au-dessus passait pendant ce
+     temps-là : il mesure esc() en vase clos, pas ce que l'écran montre. C'est la
+     famille de test qui rassure sans rien garantir. On vérifie donc les deux :
+     la fonction, le contenu, ET le DOM. */
+  /* ⚠️ PIÈGE, à ne pas re-découvrir : la barre oblique de la balise fermante est
+     échappée volontairement (barre obliqué précédée d'un antislash). L'analyseur
+     HTML ne sait pas qu'il lit une chaîne JavaScript : une balise fermante de
+     script écrite telle quelle referme le bloc ICI MÊME, et tout le reste du
+     fichier devient du texte. Écran blanc, app morte.
+     Le 11/08/2026 ça s'est produit DEUX fois de suite — la seconde dans le
+     commentaire qui expliquait la première. Ne jamais écrire la séquence, même
+     en prose. Et test.ps1 annonçait « Tout passe » pendant ce temps : il lisait
+     le code source, pas l'écran. Le harnais a été corrigé dans la foulée. */
+  ok("rendu : rich() neutralise ce qui n'est pas dans la liste blanche",
+     rich("<script>x<\/script>") === "&lt;script&gt;x&lt;\/script&gt;");
+  ok("rendu : rich() garde le gras, qui porte le mot allemand",
+     rich("le <b>Körper</b>") === "le <b>Körper</b>");
+  ok("rendu : rich() garde l'italique et le souligné",
+     rich("<i>a</i><u>b</u>") === "<i>a</i><u>b</u>");
+  ok("rendu : rich() convertit les entités déclarées", rich("a &rarr; ä") === "a → ä");
+  ok("rendu : une entité non déclarée reste visible plutôt que d'être devinée",
+     rich("&copy;").indexOf("&amp;copy;") === 0);
+  ok("rendu : un attribut n'accepte toujours aucune balise", att("<b>") === "&lt;b&gt;");
+
+  /* Balayage de TOUT le cours. Écrit à la main sur 42 étapes, ce contrôle finirait
+     faux quelque part ; calculé, il reste juste quand le contenu change. */
+  (function () {
+    const balisesOK = /^<\/?(b|i|u)>$/;
+    const entitesOK = new RegExp("^&(" + Object.keys(RICHE_ENTITES).join("|") + ");$");
+    const horsListe = [], platsBalises = [];
+    /* Les champs « riches » traversent rich() ; les « plats » traversent esc() et
+       ne doivent donc porter AUCUNE balise — elle s'y afficherait en clair. */
+    function riche(s, ou) {
+      if (typeof s !== "string") return;
+      (s.match(/<[^>]*>/g) || []).forEach(function (b) {
+        if (!balisesOK.test(b)) horsListe.push(ou + " : " + b);
+      });
+      (s.match(/&[a-zA-Z#0-9]{1,8};/g) || []).forEach(function (e) {
+        if (!entitesOK.test(e)) horsListe.push(ou + " : " + e);
+      });
+    }
+    function plat(s, ou) {
+      if (typeof s !== "string") return;
+      if (/<[^>]*>|&[a-zA-Z#0-9]{1,8};/.test(s)) platsBalises.push(ou + " : " + s.slice(0, 40));
+    }
+    COURSE.forEach(function (l) {
+      const e = "étape " + l.day;
+      plat(l.title, e + " titre"); plat(l.de, e + " phrase-titre");
+      (l.steps || []).forEach(function (s, j) {
+        const o = e + " écran " + (j + 1);
+        riche(s.idea, o + " idea"); riche(s.detail, o + " detail");
+        (s.table || []).forEach(function (r) { riche(r[0], o + " table"); riche(r[1], o + " table"); });
+        if (s.check) {
+          riche(s.check.q, o + " check.q"); riche(s.check.why, o + " check.why");
+          (s.check.o || []).forEach(function (x) { riche(x, o + " check.o"); });
+        }
+        if (s.gloss) {
+          (s.gloss.de || []).forEach(function (w) { plat(w, o + " gloss.de"); });
+          (s.gloss.fr || []).forEach(function (w) { plat(w, o + " gloss.fr"); });
+        }
+      });
+      (l.quiz || []).forEach(function (q, j) {
+        const o = e + " quiz " + (j + 1);
+        riche(q.q, o + ".q"); riche(q.why, o + ".why");
+        (q.o || []).forEach(function (x) { riche(x, o + ".o"); });
+      });
+      (l.vocab || []).forEach(function (v) { plat(v.de, e + " vocab.de"); plat(v.fr, e + " vocab.fr"); plat(v.pron, e + " vocab.pron"); });
+      (l.examples || []).forEach(function (x) { plat(x.de, e + " exemple.de"); plat(x.fr, e + " exemple.fr"); });
+      (l.drills || []).forEach(function (d) {
+        plat(d.f, e + " drill.f"); plat(d.from, e + " drill.from");
+        plat(d.s, e + " drill.s"); plat(d.a, e + " drill.a");
+      });
+    });
+    ok("contenu : aucune balise ni entité hors de la liste blanche",
+       horsListe.length === 0, horsListe.slice(0, 5).join(" · "));
+    ok("contenu : les champs rendus par esc() ne portent aucune balise",
+       platsBalises.length === 0, platsBalises.slice(0, 5).join(" · "));
+  })();
+
+  /* ⚠️ LA vérification qui aurait attrapé le défaut : on regarde le DOM.
+     Pas de numéro d'étape en dur — il tomberait au prochain remaniement. */
+  (function () {
+    let etape = -1, ecran = -1;
+    COURSE.forEach(function (l, i) {
+      (l.steps || []).forEach(function (s, j) {
+        if (etape === -1 && s.idea && s.idea.indexOf("<b>") !== -1) { etape = i; ecran = j; }
+      });
+    });
+    if (etape === -1) { ok("rendu à l'écran : une idée emploie le gras quelque part", false); return; }
+    S = fresh(); S.day = etape + 1; seed(S.day);
+    go("lesson"); setStep(ecran); show(renderStep());
+    const p = view.querySelector(".step-idea");
+    ok("rendu à l'écran : le gras d'une idée est une vraie balise",
+       !!p && p.querySelectorAll("b").length > 0);
+    ok("rendu à l'écran : aucune balise ne s'affiche en clair dans la leçon",
+       !!p && p.textContent.indexOf("<b>") === -1, p ? p.textContent.slice(0, 60) : "pas d'idée affichée");
+  })();
   eq("mobile : le double-tap ne déclenche pas le zoom",
      getComputedStyle(document.body).touchAction, "manipulation");
   ok("mobile : le champ de saisie fait au moins 16px, sinon iOS zoome au focus",

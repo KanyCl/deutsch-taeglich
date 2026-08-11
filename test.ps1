@@ -32,13 +32,34 @@ Write-Output ""
 # ---- 1. L'auto-test ----------------------------------------------------
 $dom = & $chrome @common --dump-dom "$url#test" | Out-String
 
-$score = [regex]::Match($dom, '<div class="t-sum"[^>]*>\s*([^<]+?)\s*</div>').Groups[1].Value
+# ATTENTION : --dump-dom rend AUSSI le code source de l'app, dans ses balises
+# <script>. Ce code contient des chaines qui RESSEMBLENT au rapport, puisque
+# c'est lui qui le fabrique ('<div class="t-sum" ...').
+#
+# Le 11/08/2026, une erreur de syntaxe a tue l'app : ecran blanc, plus une
+# ligne de rapport. test.ps1 a lu les chaines du code source et a annonce
+# "Tout passe" sur une app morte. Le garde-fou "pas de rapport" existait
+# deja et n'a rien vu : il cherchait dans un texte qui contenait le motif.
+#
+# On retire donc les blocs <script> AVANT toute analyse. Ce qui reste est ce
+# que l'ecran montre reellement -- la seule chose qu'on ait le droit de croire.
+$rendu = [regex]::Replace($dom, '(?s)<script\b[^>]*>.*?</script\s*>', '')
+
+$score = [regex]::Match($rendu, '<div class="t-sum"[^>]*>\s*([^<]+?)\s*</div>').Groups[1].Value
 if (-not $score) {
   Write-Output "ECHEC : la page n'a pas produit de rapport. Le JavaScript a probablement plante."
+  Write-Output "        (ouvre index.html#test dans un navigateur et regarde la console)"
   exit 1
 }
 
-$ko = [regex]::Matches($dom, '(?s)<span class="t-tag ko">KO</span><span>(.*?)</span></div>')
+# Le score doit avoir la forme "N / N". Toute autre forme signifie qu'on lit
+# autre chose que le compteur -- on prefere echouer que rassurer a tort.
+if ($score -notmatch '^\s*\d+\s*/\s*\d+\s*$') {
+  Write-Output "ECHEC : le rapport est illisible (lu : « $score »)."
+  exit 1
+}
+
+$ko = [regex]::Matches($rendu, '(?s)<span class="t-tag ko">KO</span><span>(.*?)</span></div>')
 
 Write-Output "=== AUTO-TEST : $score ==="
 if ($ko.Count -eq 0) {
