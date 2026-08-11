@@ -7739,6 +7739,19 @@ function touchStreak() {
   paintStreak();
 }
 
+/* Fait entrer le vocabulaire d une etape dans le paquet de cartes.
+
+   ⚠️ UN SEUL ENDROIT L APPELLE HORS DES TESTS : lessonView(). C est la regle,
+   et elle a ete posee apres un defaut signale par Exsangue le 11/08/2026.
+   Un mot n entre dans le paquet QUE lorsque sa lecon a ete ouverte — jamais
+   avant. Appeler seed() depuis l accueil, depuis le demarrage ou en validant
+   le quiz mettait dans le paquet des mots jamais presentes : ils tombaient dus
+   le jour meme, on les ratait tous, et chaque erreur ajoute deux cartes.
+   Le paquet grossissait plus vite qu on ne le vidait.
+
+   context.md l affirmait deja (« le mot a deja ete presente dans la lecon avant
+   d arriver aux cartes ») : c est desormais vrai dans le code aussi.
+   seed() est son propre journal — une carte qui existe dit que la lecon est lue. */
 function seed(dayNo) {
   const lesson = COURSE[dayNo - 1];
   if (!lesson) return;
@@ -7748,6 +7761,25 @@ function seed(dayNo) {
     if (!S.cards[id]) { S.cards[id] = { box: 1, due: today(), hit: 0, miss: 0 }; added = true; }
   });
   if (added) persist();
+}
+
+/* Retire du paquet les cartes semees par l ancien defaut : celles d etapes
+   situees APRES la derniere etape validee et sur lesquelles on n a JAMAIS
+   travaille (ni reussite ni echec). Tout ce qui porte une trace de travail est
+   garde, quelle que soit son etape — on ne jette pas l historique de quelqu un.
+   Tourne une fois au demarrage ; les mots reviendront d eux-memes a l ouverture
+   de leur lecon. Renvoie le nombre de cartes retirees. */
+function nettoieCartesJamaisVues() {
+  const faites = (S.done || []).filter(function (n) { return typeof n === "number"; });
+  const limite = faites.length ? Math.max.apply(null, faites) : 0;
+  let retirees = 0;
+  Object.keys(S.cards).forEach(function (id) {
+    const etape = Number(id.split(":")[0]);
+    const c = S.cards[id] || {};
+    if (etape > limite && !(c.hit || 0) && !(c.miss || 0)) { delete S.cards[id]; retirees++; }
+  });
+  if (retirees) persist();
+  return retirees;
 }
 
 /* Fragilité d'un mot, entre 0 (toujours su) et 1 (toujours raté).
@@ -8194,8 +8226,8 @@ function reachable(n) {
 
 /* ---------- Accueil ---------- */
 function home() {
-  seed(S.day);
-
+  /* Pas de seed() ici : passer par l accueil n est pas avoir lu la lecon.
+     Voir la note sur seed() — un mot n entre dans le paquet qu une fois presente. */
   const lesson = COURSE[S.day - 1];
   const due = dueCards().length;
   const doneToday = S.done.indexOf(S.day) !== -1;
@@ -9359,7 +9391,10 @@ function renderQuestion() {
       // On n'avance que si c'était le jour le plus avancé (pas en rejouant un ancien).
       if (d === Math.max.apply(null, S.done) && d < COURSE.length) {
         S.day = d + 1;
-        seed(S.day);
+        /* Surtout PAS de seed(S.day) ici. C etait le defaut signale par Exsangue :
+           valider une etape faisait entrer les 10 mots de la SUIVANTE dans le paquet,
+           dus le jour meme, alors que sa lecon n a jamais ete ouverte. On enchainait
+           les erreurs, et chaque erreur ajoute deux cartes (le mot + un mot facile). */
       }
     }
     persist();
@@ -11841,9 +11876,17 @@ function eq(name, got, want) {
 }
 
 function runTests() {
-  let backup = null;
-  try { backup = localStorage.getItem(KEY); } catch (e) {}
+  /* La vraie progression est mise de cote AVANT tout, et remise en place dans le
+     "finally" plus bas : les tests ecrivent pour de vrai dans le stockage (grade()
+     appelle persist()), donc une exception en cours de route laisserait l etat de
+     test a la place de la vraie sauvegarde. C est arrive le 02/08/2026.
+     "lu" distingue "il n y avait rien" de "je n ai pas pu lire" : sans ce drapeau,
+     un getItem qui echoue ferait EFFACER la sauvegarde par le removeItem. */
+  let backup = null, lu = false;
+  try { backup = localStorage.getItem(KEY); lu = true; } catch (e) {}
   T = [];
+
+  try {
 
   /* --- A. Intégrité du contenu --- */
   COURSE.forEach(function (l, i) {
@@ -13965,7 +14008,25 @@ function runTests() {
   eq("quiz réussi : score plein", S.scores[1], l1.quiz.length);
   ok("quiz réussi : le jour 1 est marqué fait", S.done.indexOf(1) !== -1);
   eq("quiz réussi : le jour 2 devient le jour courant", S.day, 2);
-  ok("quiz réussi : le vocabulaire du jour 2 est chargé", !!S.cards["2:0"]);
+  /* ⚠️ Ce test disait l'inverse jusqu'au 11/08/2026 : il exigeait que le vocabulaire
+     du jour 2 soit chargé en validant le jour 1. Il encodait le défaut signalé par
+     Exsangue — on tombait sur des mots jamais vus dès la première carte. Retourné. */
+  ok("quiz réussi : le vocabulaire du jour 2 n'entre PAS encore dans le paquet", !S.cards["2:0"]);
+  go("lesson");
+  ok("le vocabulaire du jour 2 entre à l'ouverture de sa leçon", !!S.cards["2:0"]);
+
+  /* Le nettoyage des paquets abîmés par l'ancien défaut. */
+  S = fresh(); S.day = 3; S.done = [1, 2];
+  seed(1); seed(2); seed(3);
+  S.cards["3:1"].hit = 4;                      // une carte réellement travaillée
+  const avant = Object.keys(S.cards).length;
+  const retirees = nettoieCartesJamaisVues();
+  ok("nettoyage : les mots jamais vus au-delà des étapes faites sont retirés", retirees > 0);
+  ok("nettoyage : le vocabulaire des étapes validées est intact", !!S.cards["1:0"] && !!S.cards["2:0"]);
+  ok("nettoyage : une carte déjà travaillée est gardée même hors des étapes faites", !!S.cards["3:1"]);
+  ok("nettoyage : et les cartes vierges de la même étape sont parties", !S.cards["3:0"]);
+  eq("nettoyage : le compte annoncé correspond", Object.keys(S.cards).length, avant - retirees);
+  eq("nettoyage : repasser dessus ne retire plus rien", nettoieCartesJamaisVues(), 0);
 
   S = fresh(); S.day = 1; seed(1);
   go("quiz");
@@ -15044,13 +15105,23 @@ function runTests() {
   ok("audio : ne plante pas quand aucune voix allemande n'est disponible",
      (function () { try { speak("Guten Tag"); return true; } catch (e) { return false; } })());
 
-  /* --- Restauration de la vraie progression --- */
-  try {
-    if (backup === null) localStorage.removeItem(KEY);
-    else localStorage.setItem(KEY, backup);
-  } catch (e) {}
-  S = load();
-  paintStreak();
+  } catch (e) {
+    /* Un test qui plante ne doit pas emporter le rapport avec lui : on le consigne
+       comme un echec ordinaire, et report() s affiche quand meme. Sans ca, l ecran
+       reste vide et rien ne dit que la progression a ete touchee. */
+    ok("l'auto-test est allé jusqu'au bout", false,
+       "interrompu par une erreur : " + ((e && e.message) ? e.message : String(e)));
+  } finally {
+    /* --- Restauration de la vraie progression, quoi qu il arrive --- */
+    if (lu) {
+      try {
+        if (backup === null) localStorage.removeItem(KEY);
+        else localStorage.setItem(KEY, backup);
+      } catch (e) {}
+    }
+    S = load();
+    paintStreak();
+  }
   report();
 }
 
@@ -15087,7 +15158,9 @@ initTTS();
 // être posés sur la racine sinon le premier écran clignote dans les réglages
 // d'origine avant de prendre les tiens.
 applyPrefs();
-seed(S.day);
+/* Plus de seed(S.day) ici : arriver sur l app n est pas avoir lu la lecon.
+   A la place, on repare une fois les paquets abimes par l ancien defaut. */
+nettoieCartesJamaisVues();
 paintStreak();
 
 const entry = (window.location.hash || "").replace("#", "");
