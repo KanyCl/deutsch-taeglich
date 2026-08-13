@@ -113,10 +113,10 @@ const CHAPTERS = [
      Repartir à 1 ferait deux « chapitre 1 » dans la même liste. --- */
   { n: 13, title: "Raconter ce qui s'est passé", steps: [36, 37, 38, 39] },
   { n: 14, title: "Le corps, la santé, la cause", steps: [40, 41, 42] },
-  /* Le chapitre 15 s'allongera avec les étapes 44 et 45 (datif ou accusatif,
-     puis dass). On ne déclare que ce qui existe : une étape annoncée mais
-     absente ferait échouer l'auto-test, et il aurait raison. */
-  { n: 15, title: "Chez soi, et ce qu'on en pense", steps: [43] }
+  /* Le chapitre 15 s'allongera avec l'étape 45 (dass). On ne déclare que ce
+     qui existe : une étape annoncée mais absente ferait échouer l'auto-test,
+     et il aurait raison. */
+  { n: 15, title: "Chez soi, et ce qu'on en pense", steps: [43, 44] }
 ];
 
 /* Le chapitre auquel appartient une étape, et son rang à l'intérieur. */
@@ -2022,7 +2022,7 @@ const THEME_ETAPE = {
   31: "mots",  32: "verbes", 33: "mots",  34: "voyage", 35: "voyage",
   /* Niveau A2 */
   36: "corps", 37: "verbes", 38: "verbes", 39: "verbes", 40: "corps",
-  41: "verbes", 42: "mots", 43: "maison"
+  41: "verbes", 42: "mots", 43: "maison", 44: "mots"
 };
 const THEME_DEFAUT = "mots";
 
@@ -2151,7 +2151,14 @@ const THEME_MOT = {};
      le nom affiché du thème `couleurs`. */
   ["mots", ["gestern", "lange", "schon", "allein", "anders",
     "weil", "der Grund", "vielleicht", "natürlich", "endlich", "genug"]],
-  ["couleurs", ["wichtig", "schlecht", "traurig", "sicher"]]
+  ["couleurs", ["wichtig", "schlecht", "traurig", "sicher"]],
+
+  /* Étape 44 : les prépositions et le mot interrogatif vont dans « la langue »
+     (thème `mots`), les deux paires de position dans « les verbes », et les
+     deux noms rejoignent la maison — c'est là qu'on les emploie. */
+  ["mots", ["wohin", "an", "neben", "über", "zwischen"]],
+  ["verbes", ["stehen", "stellen", "liegen"]],
+  ["maison", ["die Wand", "der Boden"]]
 ].forEach(function (groupe) {
   groupe[1].forEach(function (mot) { THEME_MOT[mot] = groupe[0]; });
 });

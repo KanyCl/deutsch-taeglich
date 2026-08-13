@@ -1655,13 +1655,15 @@ les deux niveaux et rien ne disait où l'un finissait.
 
 - [x] **Étape 43 · Le logement** ✅ **écrite le 14/08/2026** — voir la section « L'étape 43 »
       en bas. Le **chapitre 15 « Chez soi, et ce qu'on en pense »** est créé avec elle seule.
-- [ ] **Étape 44 · Datif ou accusatif ?** (les prépositions mixtes : *in der Küche* /
-      *in die Küche*), puis 45 à 63 selon `PLAN-A2.md`. Allonger le chapitre 15 au fur et à
-      mesure. **On ne déclare que ce qui existe**, sinon l'auto-test échoue — et il a raison.
-      ⚠️ **L'étape 43 lui a préparé le terrain et le dit à l'écran** : elle décrit ce qu'un
-      logement *contient* (`haben` + accusatif, déjà connu) et annonce que dire *où* se
-      trouve un meuble demande un cas qu'on verra ensuite. Le vocabulaire des pièces est
-      donc déjà en place pour servir d'exemples.
+- [x] **Étape 44 · Datif ou accusatif ?** ✅ **écrite le 14/08/2026** — voir la section
+      « L'étape 44 » en bas. Le chapitre 15 passe à `[43, 44]`.
+- [ ] **Étape 45 · Rapporter une pensée** (`dass` — *ich denke, dass…*), puis 46 à 63 selon
+      `PLAN-A2.md`. Allonger le chapitre 15, qui sera alors complet.
+      **On ne déclare que ce qui existe**, sinon l'auto-test échoue — et il a raison.
+      ⚠️ **Terrain déjà préparé par l'étape 42** : `weil` a posé le verbe rejeté à la fin.
+      `dass` suit exactement la même mécanique — l'étape 45 devrait donc s'appuyer dessus et
+      porter sur ce qui DIFFÈRE (les verbes qui l'introduisent : *denken*, *glauben*,
+      *sagen*, *wissen*), pas re-expliquer la subordonnée.
 
 ## Mise en ligne du 02/08/2026
 
@@ -2312,6 +2314,64 @@ côté** — qui, à spécificité égale et écrite plus bas, gagnait quand mê
 test.**
 
 Auto-test : **2150 / 2150**.
+
+## L'étape 44 · Datif ou accusatif ? ✅ 14/08/2026
+
+Deuxième étape du chapitre 15. Densité à la cible : 5 écrans, 12 phrases, 10 mots,
+5 questions, 28 exercices.
+
+### ⚠️ Le vrai travail a été de ne PAS refaire l'étape 33
+
+Le plan annonçait « les prépositions mixtes ». Mais **l'étape 33 (A1) enseigne déjà la
+règle** — « est-ce que ça bouge ? », avec `in`, `auf`, `unter`, `hinter` et les
+contractions `im` / `ins`. Écrire l'étape 44 sans la relire aurait produit un doublon, et
+Exsangue aurait eu l'impression de reculer.
+
+L'étape 44 **ajoute quatre choses, et ne répète rien** :
+
+- ⚠️ **Les deux mots qui posent la question : `wo?` et `wohin?`.** L'étape 33 donnait la
+  règle en français (« est-ce que ça bouge ? ») sans jamais nommer l'outil allemand. Or
+  **le français n'a qu'un seul « où » pour les deux**, et c'est précisément la raison de
+  l'hésitation. Nommer `wohin` donne un crochet mental que « ça bouge » n'offre pas.
+- ⚠️ **Le féminin, là où ça se joue vraiment.** Tous les exemples de l'étape 33 sont
+  masculins ou neutres (`dem` / `den`, `im` / `ins`) — c'est-à-dire les cas où les deux
+  formes ne se ressemblent pas. Au féminin c'est `der` contre `die`, et **`der` ressemble
+  au masculin de base** : on lit `in der Küche` et on croit à une faute. C'est l'exemple
+  qu'avait choisi le `PLAN-A2`, et il avait raison.
+- **Les neuf au complet.** L'étape 33 en donnait quatre. Les cinq nouvelles — `an`,
+  `neben`, `über`, `vor`, `zwischen` — sont marquées comme telles dans le tableau.
+- **Les paires de verbes** `liegen`/`legen` et `stehen`/`stellen` : le verbe dit déjà si ça
+  bouge, donc **le choix ne se fait qu'une fois**. `legen` était déjà au vocabulaire ; il
+  retrouve son partenaire.
+
+### Le tableau des articles, corrigé par l'auto-test — et amélioré au passage
+
+Premier jet : une matrice (une ligne « datif », une ligne « accusatif », quatre genres en
+colonnes) avec une **cellule d'en-tête vide**. L'auto-test l'a refusée — les tableaux
+doivent avoir deux cellules **pleines**, sans quoi l'écran affiche une colonne blanche.
+
+Il avait raison au-delà de sa lettre : la matrice était **illisible sur un téléphone**,
+quatre genres tassés dans une cellule. Refaite en **une ligne par genre**, chaque ligne
+portant ses deux cas. ⚠️ **Un test de forme a attrapé un défaut de fond** — c'est arrivé
+plusieurs fois sur ce projet, ça vaut d'être noté.
+
+### Contraintes tenues
+
+- **Les 10 mots sont réellement neufs** — vérifié un par un avant d'écrire : `hinter`,
+  `legen`, `auf`, `unter` et `in` étaient **déjà** au vocabulaire, ils ne sont donc pas
+  re-servis comme nouveautés.
+- **`vor` volontairement PAS ajouté au vocabulaire** : il y figure déjà comme préposition
+  de temps (« il y a trois semaines »). Il apparaît dans le tableau des neuf, à sa place
+  spatiale, sans créer un doublon d'entrée.
+- **Aucun exercice impossible à rater** : les six `trans` font basculer une phrase entière
+  d'un cas à l'autre (`Ich bin in der Küche.` → `Ich gehe in die Küche.`).
+
+**Contrôles** : auto-test **2218 / 2218** · `verifier.ps1` **0 écart d'article, 0 mot
+absent du socle** · balises : `<b>` et `<i>` seuls, aucune entité — et les trois `<i>`
+entourent bien du **français**, selon la convention posée le 13/08.
+
+⚠️ **Non vérifié, comme pour l'étape 43 : le rendu à l'écran.** Les captures partent d'une
+progression neuve.
 
 ## L'étape 43 · Le logement ✅ 14/08/2026
 
