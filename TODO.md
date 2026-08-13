@@ -318,6 +318,11 @@ livre lui-même : ses leçons, ses dialogues, ses exercices, et son test final.
       sont échappés à l'affichage — elles se seraient vues en clair. Une vérification
       passe désormais sur **tous** les énoncés du livre.
 
+⚠️ **PÉRIMÉ depuis le 13/08/2026 — `enrichirDepuisLivre` n'existe plus** (retiré au §3,
+il était vide et sans appelant depuis le retrait du livre). Le paragraphe qui suit décrit
+un mécanisme disparu ; il est gardé parce qu'il redeviendrait vrai si le livre revenait un
+jour, et parce que la règle des 3 colonnes vaut toujours pour toute reprise de photos.
+
 ⚠️ **À SAVOIR — décalage entre le livre et les étapes.** `enrichirDepuisLivre` verse le
 vocabulaire de l'unité N dans l'étape N+1. Or `COURSE` s'arrête à l'étape 10 (unité 9) :
 **les unités 10 et au-delà n'ont pas encore d'étape**, donc leur vocabulaire ne descend
@@ -1754,10 +1759,14 @@ expliquait la première.
       **ajouté** là où la réponse n'en attend aucun : *der Hund* est validé quand on attend
       *Hund*. Sur une app dont l'argument est « strict sur le genre », c'est la mauvaise
       direction.
-- [ ] **§3 · Les 3 265 lignes de tests sont toujours livrées en production.**
-      Vérifié : `docs/index.html` fait exactement le même poids que la source (888 815 o).
+- [x] **§3 · Les 3 265 lignes de tests sont toujours livrées en production.** ✅ **réglé le
+      13/08/2026 par le découpage**, et **revérifié le 13/08/2026 au soir** : `docs/` ne
+      contient aucun dossier `tests`, et `docs/index.html` ne cite pas `tests/tests.js`.
+      L'écart avec la source est de **40 octets** — exactement la balise retirée.
+      Vérifié : `docs/index.html` faisait exactement le même poids que la source (888 815 o).
       20 % du poids téléchargé par l'utilisateur, et c'est le vecteur du §1.3.
-- [ ] **§3 · Code mort** : `enrichirDepuisLivre` n'est jamais appelé (le livre est parti) ;
+- [x] **§3 · Code mort** ✅ **fait le 13/08/2026** — voir la section « Le ménage » en bas.
+      `enrichirDepuisLivre` n'est jamais appelé (le livre est parti) ;
       `revele` est déclaré, commenté sur 6 lignes, jamais lu.
 - [x] **§4 · `lang="de"`** ✅ 13/08/2026 — voir la section dédiée plus bas.
 - [x] **§4 · Aucun service worker** ✅ **fait le 13/08/2026** — voir la section « Le
@@ -2298,6 +2307,51 @@ côté** — qui, à spécificité égale et écrite plus bas, gagnait quand mê
 test.**
 
 Auto-test : **2150 / 2150**.
+
+## Le ménage — §3 ✅ 13/08/2026
+
+- [x] **`enrichirDepuisLivre` retiré.** Il était déjà réduit à `function
+      enrichirDepuisLivre() {}` — une coquille vide, sans un seul appelant depuis le
+      retrait du livre. Garder une fonction vide ne préserve rien : si le livre revenait,
+      elle serait à réécrire de toute façon. Le mécanisme reste décrit plus haut dans ce
+      fichier et dans l'historique git.
+- [x] **`revele` retiré.** « Quand la carte courante a été retournée » — plus rien ne le
+      lisait depuis que **les cartes ne se retournent plus** (« plus aucune carte
+      passive », 01/08/2026). Il empêchait qu'un double appui valide « Je savais » juste
+      après le retournement : un bouton qui n'existe plus. La variable, elle, était restée,
+      et **son commentaire décrivait un mécanisme disparu à qui lisait le fichier**.
+- [x] **Un fossile voisin, trouvé en passant.** L'en-tête d'`app.js` disait « Généré par
+      `sans-livre.ps1` : **ne pas modifier à la main** ». Or `sans-livre.ps1` a été supprimé
+      le 02/08/2026, remplacé par `publier.ps1`, qui ne génère plus rien — il copie.
+      **La consigne interdisait donc de toucher au fichier au nom d'un script qui n'existe
+      plus.** C'est le §3 sous une autre forme : du mort qui donne encore des ordres, et
+      c'est plus nuisible qu'une fonction vide — une variable morte ne fait rien, une
+      consigne morte fait faire.
+- [x] **Les tests en production : revérifié, c'est réglé.** `docs/` ne contient aucun
+      dossier `tests`, `docs/index.html` ne cite pas `tests/tests.js`, et l'écart de poids
+      avec la source est de **40 octets** — exactement la balise retirée. Le point datait
+      d'avant le découpage du 13/08.
+
+### ⚠️ Le rapport ne nommait que deux exemples — on a cherché le reste
+
+Clore un point « code mort » sur deux noms cités deux jours plus tôt, c'est le fermer sur
+la parole d'un autre. Balayage fait sur tout le fichier :
+
+- **138 fonctions déclarées**, chacune comptée dans `app.js`, `tests/tests.js` et
+  `demarrage.js` → **aucune sans appelant** ;
+- **81 variables de racine** (la famille de `revele`), comptées en plus dans `index.html`
+  → **aucune sans lecteur**.
+
+Auto-test : **2150 / 2150**, inchangé — c'est le signe attendu quand on retire du mort.
+
+### 🔎 Ce qui n'est PAS du code mort, et qui reste à trancher par Exsangue
+
+`BOOK`, `BOOK_GROUPS` et `BOOK_TEST` sont des tableaux **vides mais toujours interrogés
+23 fois** : tout l'onglet du livre est encore là, inerte, et s'efface tout seul par
+`BOOK.length`. Ce n'est donc pas du code mort au sens du §3 — c'est un **onglet désactivé**.
+Le supprimer est l'objectif déjà écrit plus haut (« une fois l'app autonome, supprimer
+l'onglet du livre ») et **c'est une décision de produit, pas de ménage** : elle se prend,
+elle ne se déduit pas. Le A1 étant complet, elle est mûre.
 
 ⚠️ **Vérifié au passage, et sans suite : la flèche gauche a la même forme** (écouteur sur
 `document`, sortie sur `INPUT`/`TEXTAREA` seulement). Elle est inoffensive parce que les
