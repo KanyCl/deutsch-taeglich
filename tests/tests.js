@@ -776,6 +776,141 @@ function runTests() {
   ok("langue : la page reste déclarée en français",
      document.documentElement.lang === "fr", "lu : " + document.documentElement.lang);
 
+  /* ---- §2.1 · Des réglages neufs sont vraiment neufs ----
+     Le symptôme visible était : après « Tout effacer », les couleurs
+     personnalisées revenaient. La cause : `fresh()` partageait `ordre` et
+     `teintes` avec `PREFS_DEFAUT`, donc les écrire abîmait la constante.
+     ⚠️ La vérification porte sur la CONSTANTE, pas sur la copie — c'est elle
+     qui était corrompue, et une copie a toujours l'air correcte. */
+  (function () {
+    S = fresh();
+    S.prefs.teintes["cards"] = "#123456";
+    S.prefs.ordre.reverse();
+    ok("réglages : peindre une case n'écrit pas dans les valeurs par défaut",
+       PREFS_DEFAUT.teintes.cards === undefined,
+       "PREFS_DEFAUT.teintes = " + JSON.stringify(PREFS_DEFAUT.teintes));
+    ok("réglages : réordonner les cases n'écrit pas dans les valeurs par défaut",
+       PREFS_DEFAUT.ordre.join() === MODES_IDS.join(),
+       "PREFS_DEFAUT.ordre = " + PREFS_DEFAUT.ordre.join());
+    /* Et deux progressions neuves ne se partagent pas leurs réglages. */
+    const a = fresh(), b = fresh();
+    a.prefs.teintes["quiz"] = "#abcdef";
+    ok("réglages : deux progressions neuves sont indépendantes",
+       b.prefs.teintes.quiz === undefined);
+  })();
+
+  /* ---- §2.2 · Une carte abîmée ne peut plus dérégler le calendrier ----
+     C'est l'objet le plus exposé de la sauvegarde, et le seul chemin qui
+     l'écrase entièrement (restaurer un fichier) ne demande aucune
+     confirmation. Un `box` non numérique ne plante pas : il rend le mot
+     jamais dû, ou toujours dû, EN SILENCE. */
+  (function () {
+    const abime = fresh();
+    abime.cards = {
+      "1:0": { box: "beaucoup", due: "2026-01-01", hit: 3, miss: 1 },
+      "1:1": { box: 99,   due: "2026-02-31", hit: -5, miss: "x" },
+      "1:2": { box: 3,    due: "pas une date", hit: 2, miss: 0 },
+      "1:3": "je ne suis pas un objet",
+      "1:4": null,
+      "1:5": { box: 4, due: "2026-03-15", hit: 1, miss: 2 }
+    };
+    const propre = sane(abime).cards;
+    ok("cartes : un niveau non numérique retombe à 1", propre["1:0"].box === 1);
+    ok("cartes : un niveau hors bornes retombe à 1", propre["1:1"].box === 1);
+    ok("cartes : une date qui n'existe pas est remplacée",
+       propre["1:1"].due !== "2026-02-31" && dateValide(propre["1:1"].due));
+    ok("cartes : une date illisible est remplacée", dateValide(propre["1:2"].due));
+    ok("cartes : un journal négatif ou illisible retombe à 0",
+       propre["1:1"].hit === 0 && propre["1:1"].miss === 0);
+    ok("cartes : ce qui n'est pas un objet disparaît",
+       propre["1:3"] === undefined && propre["1:4"] === undefined);
+    /* Le point qui compte autant que le nettoyage : on BORNE, on ne jette pas.
+       Le journal d'une carte mal notée est du travail réel. */
+    ok("cartes : le journal d'une carte bornée est conservé",
+       propre["1:0"].hit === 3 && propre["1:0"].miss === 1);
+    ok("cartes : une carte saine traverse sans être touchée",
+       propre["1:5"].box === 4 && propre["1:5"].due === "2026-03-15" &&
+       propre["1:5"].hit === 1 && propre["1:5"].miss === 2);
+    ok("dates : le 31 février est refusé", !dateValide("2026-02-31"));
+    ok("dates : une vraie date est acceptée", dateValide("2026-02-28"));
+  })();
+
+  /* ---- §1.2 · Les flèches de l'ordre des cases ----
+     Elles étaient dessinées et inertes. La vérification CLIQUE dessus et
+     regarde l'ordre obtenu : vérifier que le gestionnaire existe ne prouve
+     rien, puisque le défaut était que le clic n'arrivait jamais jusqu'à lui
+     (le bouton manquait dans la liste des cibles cliquables). */
+  (function () {
+    S = fresh();
+    const avant = ordreModes().slice();
+    go("reglages");
+    const bas = view.querySelector('[data-monte="' + avant[1] + '"]');
+    ok("ordre : les flèches sont bien dessinées", !!bas);
+    if (bas) {
+      bas.click();
+      const apres = ordreModes();
+      ok("ordre : monter une case l'échange avec celle du dessus",
+         apres[0] === avant[1] && apres[1] === avant[0],
+         "avant " + avant.join(",") + " · après " + apres.join(","));
+      ok("ordre : aucune case n'est perdue ni dupliquée",
+         apres.length === MODES_IDS.length &&
+         apres.slice().sort().join() === MODES_IDS.slice().sort().join());
+
+      /* Et le contraire : redescendre rend l'ordre initial. */
+      go("reglages");
+      const haut = view.querySelector('[data-descend="' + avant[1] + '"]');
+      if (haut) {
+        haut.click();
+        ok("ordre : descendre annule le mouvement inverse",
+           ordreModes().join() === avant.join());
+      }
+    }
+    /* La flèche du haut de liste et celle du bas sont désactivées : sans ça,
+       un clic sortirait de la liste et perdrait une case. */
+    go("reglages");
+    const premier = view.querySelector('[data-monte="' + ordreModes()[0] + '"]');
+    const dernier = view.querySelector('[data-descend="' + ordreModes()[MODES_IDS.length - 1] + '"]');
+    ok("ordre : on ne peut pas monter la première case", !!premier && premier.disabled);
+    ok("ordre : on ne peut pas descendre la dernière", !!dernier && dernier.disabled);
+  })();
+
+  /* ⚠️ Aucun bouton dessiné ne doit être SOURD au clic.
+     La liste `CIBLES_CLIC` décide de ce qui est résolu ; un bouton porteur
+     d'un `data-` absent de cette liste ne reçoit jamais rien, comme les
+     flèches jusqu'au 13/08/2026.
+
+     ⚠️ Cette vérification emploie `CIBLES_CLIC` elle-même, JAMAIS une copie.
+     Sa première version recopiait le sélecteur : elle est restée muette
+     pendant qu'on amputait le vrai, parce qu'elle était d'accord avec
+     elle-même. C'est le même piège que l'ancienne « sécurité : le HTML est
+     échappé », et il se déguise à chaque fois autrement.
+
+     On balaie tous les écrans, pas seulement les réglages : un bouton sourd
+     peut naître n'importe où. */
+  (function () {
+    const sourds = [];
+    ["home", "lesson", "cards", "quiz", "practice", "drills", "oral", "verbes",
+     "chrono", "reglages"].forEach(function (ecran) {
+      S = fresh(); S.day = 1; seed(1);
+      go(ecran);
+      const boutons = view.querySelectorAll("button, [role='button']");
+      for (let i = 0; i < boutons.length; i++) {
+        const b = boutons[i];
+        /* Un bouton sans `data-` n'attend rien du gestionnaire global — le
+           champ de saisie et les liens de retour ont leur propre chemin. */
+        let porteur = false;
+        for (let k = 0; k < b.attributes.length; k++) {
+          if (b.attributes[k].name.indexOf("data-") === 0) { porteur = true; break; }
+        }
+        if (!porteur) continue;
+        if (b.closest(CIBLES_CLIC)) continue;
+        sourds.push(ecran + " · " + (b.getAttribute("aria-label") || b.className || b.textContent.trim().slice(0, 20)));
+      }
+    });
+    ok("clic : aucun bouton dessiné n'est sourd", sourds.length === 0,
+       sourds.slice(0, 4).join(" | "));
+  })();
+
   (function () {
     const policeDE = getComputedStyle(document.documentElement)
       .getPropertyValue("--de").trim();

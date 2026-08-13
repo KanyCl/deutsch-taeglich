@@ -1727,7 +1727,8 @@ expliquait la première.
 
 ### Ce qui RESTE du rapport — revérifié dans le code le 13/08/2026
 
-- [ ] **§2.1 · `fresh()` partage ses objets avec `PREFS_DEFAUT`** (ligne 7467,
+- [x] **§2.1 · `fresh()` partage ses objets avec `PREFS_DEFAUT`** ✅ **fait le 13/08/2026**
+      — voir la section « Trois défauts du rapport corrigés » en bas. (ligne 7467,
       `Object.assign` = copie de **surface**). `S.prefs.teintes` et `S.prefs.ordre` sont le
       même objet que la constante, et `poseTeinte` mute en place → **on écrit dans les
       valeurs par défaut**. Symptôme visible : après « Tout effacer », des couleurs
@@ -1735,7 +1736,8 @@ expliquait la première.
       ouverture, stockage bloqué, sauvegarde illisible, « Tout effacer » — tous retournent
       `fresh()` sans passer par `sane()`, seul endroit qui reconstruit `teintes`.
       → **Copie profonde.**
-- [ ] **§2.2 · `sane()` ne valide pas `cards`.**
+- [x] **§2.2 · `sane()` ne valide pas `cards`.** ✅ **fait le 13/08/2026** — voir la section
+      « Trois défauts du rapport corrigés » en bas.
 - [ ] **§2.3 · Restaurer par fichier n'a aucune confirmation** (le collage par texte, si).
       Le fichier écrase directement. Et `URL.revokeObjectURL` est appelé de façon synchrone
       juste après `a.click()` (11869) — plusieurs navigateurs annulent le téléchargement ;
@@ -2010,3 +2012,57 @@ phrase.**
 ⚠️ **La règle est maintenant sans exception, et c'est ce qui la rend tenable :
 `<b>` = mot allemand, `<i>` = insistance en français.** Une règle qui tolère un cas finit
 par en tolérer dix — c'est déjà écrit plus haut à propos du garde-fou du mot « jour ».
+
+## Trois défauts du rapport corrigés ✅ 13/08/2026
+
+Les trois se tenaient par le même fil : **quelque chose était annoncé et n'était pas
+tenu** — des réglages « neufs » qui ne l'étaient pas, une validation de sauvegarde qui
+sautait l'objet le plus précieux, des boutons dessinés que personne n'écoutait.
+
+- [x] **§2.1 · Des réglages neufs, vraiment neufs.** `Object.assign({}, PREFS_DEFAUT)` est
+      une copie de **surface** : `ordre` et `teintes` restaient le tableau et l'objet de la
+      constante, et `S.prefs.teintes[id] = v` **écrivait dans les valeurs par défaut**. La
+      constante n'en était plus une, elle dérivait au fil de la session. `prefsNeuves()`
+      recopie les deux à neuf.
+      ⚠️ **Pourquoi ça ne se voyait pas toujours :** `sane()` reconstruit `teintes` et
+      `ordre`. Mais **quatre chemins retournent `fresh()` sans passer par `sane()`** —
+      première ouverture, stockage bloqué, sauvegarde illisible, « Tout effacer ». Le défaut
+      ne vivait que là, ce qui explique le symptôme intermittent qu'Exsangue voyait :
+      des couleurs personnalisées qui **revenaient après « Tout effacer »**.
+
+- [x] **§2.2 · Une carte abîmée ne peut plus dérégler le calendrier.** `cards`, c'est LA
+      progression, et le seul chemin qui l'écrase entièrement (restaurer un fichier) ne
+      demande aucune confirmation — voir §2.3, toujours ouvert.
+      ⚠️ **Ce qu'une carte abîmée provoquait, en silence :** un `box` non numérique donne
+      `Math.min(5, NaN + 1)` → NaN → `INTERVALS[NaN]` → undefined → une date invalide. Le
+      mot n'est alors **plus jamais dû, ou l'est toujours**. Rien ne plante, rien ne
+      s'affiche en rouge : le calendrier de révision ment sans le dire, ce qui est le pire
+      des deux mondes pour une app dont c'est le cœur.
+      **On BORNE plutôt que de jeter** : une carte au niveau fantaisiste garde son journal
+      `hit`/`miss`, qui représente du travail réel. Seul ce qui n'a aucun sens — une entrée
+      qui n'est pas un objet — disparaît.
+      `dateValide()` refuse aussi **les dates qui n'existent pas** : `2026-02-31` passe une
+      simple expression régulière et `shift()` en ferait silencieusement le 3 mars. On
+      reconstruit la date et on vérifie qu'elle revient identique.
+
+- [x] **§1.2 · Les flèches de l'ordre des cases étaient inertes.** Dessinées dans les
+      réglages, avec leur `aria-label` et leur état désactivé en haut et en bas de liste…
+      et aucun écouteur. Tout le reste du mécanisme existait pourtant : `prefs.ordre` était
+      enregistré, `ordreModes()` le lisait, l'accueil le respectait. Il ne manquait que le
+      branchement. **Un bouton inerte est pire qu'un bouton absent : il promet quelque chose.**
+      ⚠️ **Les deux défauts se tenaient** : brancher les flèches AVANT la copie profonde du
+      §2.1 aurait réordonné les valeurs par défaut de l'app, puisque `prefs.ordre` *était*
+      le tableau de `PREFS_DEFAUT`. L'ordre des corrections comptait.
+      L'échange part de `ordreModes()` et non de `prefs.ordre` brut : c'est la liste
+      complète et sans doublon, donc **la même que celle affichée**. Agir sur autre chose
+      que ce qui est à l'écran donnerait un déplacement qui ne correspond pas au clic.
+
+⚠️ **La liste des éléments cliquables est sortie en constante (`CIBLES_CLIC`).** Un `data-`
+traité dans le gestionnaire mais absent de cette liste ne sera **jamais** résolu : le bouton
+existe, il est dessiné, et le clic tombe dans le vide. C'est la famille de défauts du §1.2.
+La vérification « aucun bouton dessiné n'est sourd » emploie désormais **cette** constante :
+sa première version portait sa propre copie du sélecteur et **elle est restée muette pendant
+que le vrai était amputé**. Un test qui recopie ce qu'il contrôle ne contrôle plus rien —
+une seule source, ou pas de source du tout.
+
+Auto-test : **2096 / 2096**, tout au vert.
