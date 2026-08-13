@@ -211,6 +211,27 @@ const PREFS_DEFAUT = {
   teintes: {}
 };
 
+/* ⚠️ DES RÉGLAGES NEUFS, VRAIMENT NEUFS — signalé par le mentor (§2.1),
+   et le symptôme était visible : après « Tout effacer », les couleurs
+   personnalisées choisies plus tôt REVENAIENT.
+
+   `Object.assign({}, PREFS_DEFAUT)` est une copie de SURFACE. `ordre` et
+   `teintes` restaient donc le même tableau et le même objet que ceux de la
+   constante — et `S.prefs.teintes[id] = v` écrivait dans les valeurs par
+   défaut. La constante n'en était plus une : elle dérivait au fil de la
+   session, et chaque remise à zéro repartait de l'état dérivé.
+
+   Pourquoi ça ne se voyait pas toujours : `sane()` reconstruit `teintes` et
+   `ordre` à neuf. Mais QUATRE chemins retournent `fresh()` sans passer par
+   `sane()` — première ouverture, stockage bloqué, sauvegarde illisible, et
+   « Tout effacer ». C'est exactement là que le défaut vivait. */
+function prefsNeuves() {
+  const p = Object.assign({}, PREFS_DEFAUT);
+  p.ordre = PREFS_DEFAUT.ordre.slice();
+  p.teintes = Object.assign({}, PREFS_DEFAUT.teintes);
+  return p;
+}
+
 /* L'ordre à utiliser, toujours COMPLET et sans doublon, quoi qu'il y ait dans
    la sauvegarde. Un ordre amputé ferait disparaître un mode de l'accueil sans
    aucun message — on ne saurait même pas que « l'oral » existe. On repart donc
@@ -275,7 +296,7 @@ function fresh() {
   return { day: 1, done: [], cards: {}, streak: 0, last: null,
            scores: {}, qmiss: {}, oral: {}, dseen: {}, unit: 0, bookq: {},
            chrono: { records: [] }, a1: null,
-           prefs: Object.assign({}, PREFS_DEFAUT) };
+           prefs: prefsNeuves() };
 }
 
 /* Elle ne touche qu'aux MARQUEURS : les paquets eux-mêmes seront remplacés
@@ -344,6 +365,48 @@ function sane(s) {
   const max = COURSE.length;
   if (!(s.day >= 1 && s.day <= max)) s.day = Math.min(Math.max(1, s.day | 0 || 1), max);
   s.done = (Array.isArray(s.done) ? s.done : []).filter(function (n) { return n >= 1 && n <= max; });
+
+  /* ⚠️ LES CARTES — signalé par le mentor (§2.2), et c'est l'objet le plus
+     exposé de toute la sauvegarde : c'est LA progression, et le seul chemin
+     qui l'écrase entièrement (restaurer un fichier) ne demande aucune
+     confirmation.
+
+     Ce qu'une carte abîmée provoque, et pourquoi ça ne se voit pas tout de
+     suite : un `box` non numérique fait `Math.min(5, NaN + 1)` → NaN, puis
+     `INTERVALS[NaN]` → undefined, puis `shift(today(), undefined)` → une date
+     invalide. Le mot n'est alors PLUS JAMAIS dû, ou l'est toujours. Rien ne
+     plante, rien ne s'affiche en rouge : le calendrier de révision ment en
+     silence, ce qui est le pire des deux mondes pour une app dont c'est le
+     cœur. Et une entrée qui n'est pas un objet fait carrément écran blanc à
+     la première lecture de `.box`.
+
+     On BORNE plutôt que de jeter : une carte au `box` fantaisiste garde son
+     journal (hit/miss), qui représente du travail réel. Seul ce qui n'a aucun
+     sens — une entrée qui n'est pas un objet — disparaît. */
+  s.cards = (function () {
+    const src = (s.cards && typeof s.cards === "object") ? s.cards : {};
+    const propre = {};
+    const auj = today();
+    const entier = function (v) {
+      const n = Math.floor(Number(v));
+      return isFinite(n) && n >= 0 ? n : 0;
+    };
+    Object.keys(src).forEach(function (id) {
+      const c = src[id];
+      if (!c || typeof c !== "object") return;
+      const box = Math.floor(Number(c.box));
+      propre[id] = {
+        box: (isFinite(box) && box >= 1 && box <= 5) ? box : 1,
+        /* La date doit être une vraie date ISO ET une date qui existe :
+           `2026-02-31` passe une simple expression régulière et donnerait un
+           jour décalé au premier `shift`. */
+        due: dateValide(c.due) ? c.due : auj,
+        hit: entier(c.hit),
+        miss: entier(c.miss)
+      };
+    });
+    return propre;
+  })();
 
   /* Les records du contre-la-montre. Une sauvegarde d'une version antérieure
      n'en a pas, et une sauvegarde abîmée pourrait en avoir de faux : on ne
@@ -539,6 +602,17 @@ function shift(iso, days) {
   const [y, m, d] = iso.split("-").map(Number);
   const dt = new Date(y, m - 1, d + days);
   return dt.getFullYear() + "-" + String(dt.getMonth() + 1).padStart(2, "0") + "-" + String(dt.getDate()).padStart(2, "0");
+}
+/* Une date ISO qui EXISTE. Une simple expression régulière laisserait passer
+   `2026-02-31` — que `shift()` transformerait silencieusement en 3 mars. Une
+   carte due un jour qui n'existe pas, c'est un calendrier qui a glissé sans
+   que rien ne le dise. On reconstruit donc la date et on vérifie qu'elle est
+   revenue identique. */
+function dateValide(v) {
+  if (typeof v !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(v)) return false;
+  const [y, m, d] = v.split("-").map(Number);
+  const dt = new Date(y, m - 1, d);
+  return dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d;
 }
 
 function touchStreak() {
@@ -4296,8 +4370,26 @@ if (gearBtn) {
   });
 }
 
+/* ⚠️ CE QUI EST CLIQUABLE — et c'est une liste qui a déjà menti.
+   Un `data-` traité dans le gestionnaire mais absent d'ici ne sera JAMAIS
+   résolu : le bouton existe, il est dessiné, et le clic tombe dans le vide.
+   C'est exactement ce qui rendait les flèches de l'ordre des cases inertes
+   (§1.2 du rapport du 11/08) — le gestionnaire manquait, mais même écrit, il
+   n'aurait rien reçu.
+
+   Sortie en constante le 13/08/2026 pour que la vérification emploie CETTE
+   liste et non une copie. Un test qui recopie ce qu'il contrôle ne contrôle
+   plus rien : la première version de cette vérification portait sa propre
+   copie du sélecteur, et elle est restée muette pendant que le vrai était
+   amputé. Une seule source, ou pas de source du tout. */
+const CIBLES_CLIC =
+  "[data-go],[data-act],[data-pick],[data-grade],[data-day],[data-lesson]," +
+  "[data-say],[data-scheck],[data-chip],[data-unchip],[data-unit],[data-reveal]," +
+  "[data-check],[data-model],[data-send],[data-reset],[data-play],[data-pref]," +
+  "[data-teinte-off],[data-relais],[data-a1pick],[data-monte],[data-descend]";
+
 view.addEventListener("click", function (e) {
-  const t = e.target.closest("[data-go],[data-act],[data-pick],[data-grade],[data-day],[data-lesson],[data-say],[data-scheck],[data-chip],[data-unchip],[data-unit],[data-reveal],[data-check],[data-model],[data-send],[data-reset],[data-play],[data-pref],[data-teinte-off],[data-relais],[data-a1pick]");
+  const t = e.target.closest(CIBLES_CLIC);
   if (!t) return;
 
   /* Un réglage : on l'enregistre, on l'applique, on redessine l'écran pour
@@ -4536,6 +4628,38 @@ view.addEventListener("click", function (e) {
   /* Le relais : on retient où l'on va, puis on annonce. Une route ne prenant
      pas d'argument, la cible passe par cette variable. */
   if (t.dataset.relais) { relaisVers = t.dataset.relais; go("relais"); return; }
+
+  /* ⚠️ LES FLÈCHES DE L'ORDRE DES CASES — signalé par le mentor (§1.2).
+     Elles étaient DESSINÉES dans les réglages, avec leur `aria-label`, leur
+     état désactivé en haut et en bas de liste... et personne ne les écoutait.
+     Rien ne se passait au clic. Tout le reste du mécanisme existait pourtant :
+     `prefs.ordre` était enregistré, `ordreModes()` le lisait, l'accueil le
+     respectait — il ne manquait que ces huit lignes.
+
+     Un bouton inerte est pire qu'un bouton absent : il promet quelque chose.
+
+     ⚠️ Ne pas brancher ça AVANT la copie profonde de `fresh()` : `prefs.ordre`
+     était le tableau de `PREFS_DEFAUT` lui-même, et l'échange ci-dessous aurait
+     réordonné les valeurs par défaut de l'app. Les deux défauts se tenaient. */
+  if (t.dataset.monte || t.dataset.descend) {
+    const monte = !!t.dataset.monte;
+    const id = monte ? t.dataset.monte : t.dataset.descend;
+    /* On repart de `ordreModes()` et non de `prefs.ordre` brut : c'est la
+       liste COMPLÈTE et sans doublon, donc la même que celle affichée. Agir
+       sur autre chose que ce qui est à l'écran donnerait un déplacement qui
+       ne correspond pas au clic. */
+    const ordre = ordreModes();
+    const i = ordre.indexOf(id);
+    const j = monte ? i - 1 : i + 1;
+    if (i !== -1 && j >= 0 && j < ordre.length) {
+      ordre[i] = ordre[j];
+      ordre[j] = id;
+      S.prefs.ordre = ordre;
+      persist();
+      go("reglages");
+    }
+    return;
+  }
 
   /* Rendre UNE case à la palette. On supprime l'entrée au lieu d'y réécrire
      la couleur du thème : réécrire la figerait, et changer de palette
