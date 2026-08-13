@@ -152,6 +152,69 @@ function runTests() {
        !view.querySelector('[data-act="card-next"]'));
   })();
 
+  /* ---- §2.4 · Entrée n'est plus volée aux autres boutons ----
+     L'écouteur est sur `document`, il voit donc TOUTES les touches Entrée, y
+     compris celles destinées au bouton qui a le focus. Il tombait sur la
+     branche « valider » et faisait `preventDefault()` : le bouton focalisé ne
+     recevait jamais son clic, et un autre agissait à sa place.
+
+     Ce qui est vérifié n'est pas « le bon bouton s'active » — une touche
+     envoyée par programme n'active nativement rien, seul un vrai navigateur le
+     fait. C'est l'inverse, et c'est ce qui compte : **l'app ne fait rien et ne
+     mange pas la touche**, donc le navigateur peut faire son travail. */
+  S = fresh(); S.day = 1; seed(1);
+  go("cards");
+  (function () {
+    const abandon = view.querySelector('[data-act="dunno"]');
+    ok("Entrée : la carte offre bien un autre bouton que « valider »", !!abandon);
+    if (!abandon) return;
+
+    const ev = new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true });
+    abandon.dispatchEvent(ev);
+    ok("Entrée : sur un autre bouton, elle ne valide pas la carte",
+       !view.querySelector('[data-act="card-next"]'));
+    /* ⚠️ LA VÉRIFICATION QUI PORTE VRAIMENT. `preventDefault()` n'agit pas
+       « en plus » du comportement normal du clavier : il agit À LA PLACE.
+       Tant qu'il est appelé, le bouton focalisé reste inerte quoi qu'on
+       fasse — c'est la cause du §2.4, pas son symptôme. */
+    ok("Entrée : et elle laisse le navigateur activer ce bouton",
+       ev.defaultPrevented === false);
+  })();
+
+  /* Le rouage vit dans l'en-tête, hors de `view`. Focalisé, il validait une
+     carte : la touche traversait tout l'écran pour agir ailleurs. */
+  S = fresh(); S.day = 1; seed(1);
+  go("cards");
+  (function () {
+    const rouage = document.getElementById("gear");
+    ok("Entrée : le rouage est là pour l'essai", !!rouage);
+    if (!rouage) return;
+    const ev = new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true });
+    rouage.dispatchEvent(ev);
+    ok("Entrée : depuis le rouage, elle ne valide aucune carte",
+       !view.querySelector('[data-act="card-next"]'));
+    ok("Entrée : le rouage garde sa touche", ev.defaultPrevented === false);
+  })();
+
+  /* ⚠️ ET LE CHEMIN NORMAL, qui ne doit RIEN perdre au passage : une fois la
+     réponse validée, l'écran est redessiné, le champ disparaît et le focus
+     retombe sur la page. C'est là — et seulement là — qu'Entrée enchaîne.
+     Sans cette vérification, « ne rien voler » se règlerait en ne faisant
+     plus rien du tout. */
+  S = fresh(); S.day = 1; seed(1);
+  go("cards");
+  (function () {
+    const champ = view.querySelector("#answer");
+    if (!champ) return;
+    champ.value = "n'importe quoi";
+    entree(champ);
+    ok("Entrée : elle valide toujours depuis le champ",
+       !!view.querySelector('[data-act="card-next"]'));
+    entree();
+    ok("Entrée : et enchaîne toujours depuis la page",
+       !view.querySelector('[data-act="card-next"]'));
+  })();
+
   /* La flèche gauche vaut « Je ne sais pas » depuis que les cartes s'écrivent
      toutes — elle visait « Raté », qui n'existe plus. */
   S = fresh(); S.day = 1; seed(1);

@@ -1743,7 +1743,8 @@ expliquait la première.
       texte, si). Le fichier écrase directement. Et `URL.revokeObjectURL` est appelé de
       façon synchrone juste après `a.click()` (11869) — plusieurs navigateurs annulent le
       téléchargement ; le `<a>` n'est jamais inséré dans le document non plus.
-- [ ] **§2.4 · Entrée détourne l'activation des autres boutons.** Le gestionnaire est posé
+- [x] **§2.4 · Entrée détourne l'activation des autres boutons.** ✅ **fait le 13/08/2026**
+      — voir la section « Entrée n'est plus volée » en bas. Le gestionnaire est posé
       sur `document` : si le focus est sur un bouton quelconque, on tombe sur la branche
       `check-word`, qui fait `preventDefault()` et **valide à la place du bouton focalisé**.
       Toute la navigation clavier hors champ de saisie est faussée.
@@ -2118,3 +2119,47 @@ remettant les deux défauts (révocation immédiate, lien détaché, confirmatio
 ne prouve rien.
 
 Auto-test : **2113 / 2113**.
+
+## Entrée n'est plus volée — §2.4 ✅ 13/08/2026
+
+L'écouteur d'Entrée est posé sur `document` — il le faut, sinon la touche n'atteindrait
+plus rien une fois le champ disparu de l'écran. Mais il voyait donc **toutes** les touches
+Entrée, y compris celles destinées au bouton qui a le focus : il tombait sur la branche
+« valider » et faisait `preventDefault()`.
+
+- [x] **Le symptôme, concret** : tabuler jusqu'à « Je ne sais pas » et appuyer sur Entrée
+      **validait la carte**. Le rouage des réglages, focalisé, validait une carte aussi.
+      Toute la navigation au clavier hors champ de saisie était faussée — c'est-à-dire
+      toute l'app pour qui ne se sert pas d'une souris.
+- [x] **La correction tient en une ligne** : si l'élément focalisé sait déjà répondre à
+      Entrée (`button`, `a[href]`, `summary`, `select`), on se retire.
+      ⚠️ **`preventDefault()` est le vrai coupable, pas la branche « valider ».** Il n'agit
+      pas *en plus* du comportement normal du clavier, il agit **à la place**. Tant qu'il
+      est appelé, le bouton focalisé reste inerte quoi qu'on fasse.
+- [x] **Ce qui continue de marcher, et c'est le point** : après une validation, l'écran est
+      redessiné, le champ disparaît, le focus retombe sur la page — qui n'active rien.
+      Entrée est alors libre, et c'est là qu'on enchaîne. La règle est donc générale et ne
+      nomme aucun écran.
+
+⚠️ **La règle est écrite en termes de « ce qui répond nativement à Entrée », pas en liste
+d'exceptions du projet.** L'app ne contient aujourd'hui aucun `<select>` ni `<a href>` —
+mais quatre `<summary>`, eux, existent et étaient bel et bien concernés. Une liste d'écrans
+ou de boutons aurait été fausse au premier ajout.
+
+**Vérifications** : quatre neuves, dont deux qui regardent `defaultPrevented` — l'app ne
+doit pas *manger* la touche. Une touche envoyée par programme n'active nativement rien
+(seul un vrai navigateur le fait) : on ne peut donc pas vérifier que le bon bouton s'active,
+mais on peut vérifier **que rien n'empêche le navigateur de le faire**. Quatre autres
+gardent le chemin normal — sans elles, « ne rien voler » se réglerait en ne faisant plus
+rien du tout.
+
+**Éprouvé sur une copie volontairement cassée** : en retirant la ligne, **4 vérifications
+tombent**, et les quatre du chemin normal restent vertes.
+
+Auto-test : **2121 / 2121**.
+
+⚠️ **Vérifié au passage, et sans suite : la flèche gauche a la même forme** (écouteur sur
+`document`, sortie sur `INPUT`/`TEXTAREA` seulement). Elle est inoffensive parce que les
+flèches n'activent aucun bouton nativement, et que l'app n'a ni `<select>` ni boutons radio
+— les deux seuls endroits où une flèche a un sens natif. **Si l'un des deux apparaît un
+jour, ce garde-fou-là sera à écrire.**
