@@ -112,10 +112,11 @@ const CHAPTERS = [
      CONTINUE : le niveau se lit à son étiquette, pas au numéro du chapitre.
      Repartir à 1 ferait deux « chapitre 1 » dans la même liste. --- */
   { n: 13, title: "Raconter ce qui s'est passé", steps: [36, 37, 38, 39] },
-  /* Le chapitre 14 s'allongera avec les étapes 41 et 42 (war/hatte, puis weil).
-     On ne déclare que ce qui existe : une étape annoncée mais absente ferait
-     échouer l'auto-test, et il aurait raison. */
-  { n: 14, title: "Le corps, la santé, la cause", steps: [40, 41, 42] }
+  { n: 14, title: "Le corps, la santé, la cause", steps: [40, 41, 42] },
+  /* Le chapitre 15 s'allongera avec les étapes 44 et 45 (datif ou accusatif,
+     puis dass). On ne déclare que ce qui existe : une étape annoncée mais
+     absente ferait échouer l'auto-test, et il aurait raison. */
+  { n: 15, title: "Chez soi, et ce qu'on en pense", steps: [43] }
 ];
 
 /* Le chapitre auquel appartient une étape, et son rang à l'intérieur. */
@@ -2021,7 +2022,7 @@ const THEME_ETAPE = {
   31: "mots",  32: "verbes", 33: "mots",  34: "voyage", 35: "voyage",
   /* Niveau A2 */
   36: "corps", 37: "verbes", 38: "verbes", 39: "verbes", 40: "corps",
-  41: "verbes", 42: "mots"
+  41: "verbes", 42: "mots", 43: "maison"
 };
 const THEME_DEFAUT = "mots";
 
@@ -2066,7 +2067,7 @@ const THEME_MOT = {};
     "pünktlich", "spannend", "die Farbe", "weiß", "schwarz", "rot", "blau", "gelb",
     "grau", "braun", "die Lieblingsfarbe", "Angst haben", "frisch", "groß", "klein",
     "neu", "bunt", "sportlich", "schnell", "leise", "wunderschön", "friedlich",
-    "lustig", "klasse", "langweilig"]],
+    "lustig", "klasse", "langweilig", "hell"]],
 
   ["nature", ["der Bär", "die Blume", "die Blumen", "die Katze", "der Hund",
     "die Maus", "der Elefant", "der Knochen", "der Hase", "das Pferd", "die Kuh",
@@ -2075,7 +2076,10 @@ const THEME_MOT = {};
 
   ["maison", ["das Haus", "der Tisch", "das Buch", "die Bücher", "die Häuser",
     "die Tische", "zu Hause", "das Bett", "der Raum", "der Eingang", "die Tasche",
-    "die Möbel", "nach Hause", "das Fenster", "der Korb"]],
+    "die Möbel", "nach Hause", "das Fenster", "der Korb",
+    /* Étape 43 · Le logement */
+    "die Wohnung", "die Küche", "das Bad", "das Schlafzimmer", "das Wohnzimmer",
+    "der Stuhl", "der Schrank", "die Tür", "die Treppe"]],
 
   ["quotidien", ["die Schule", "die Zeitung", "der Pullover", "die Jacke",
     "das Konzert", "die Hand", "die Arbeit", "der Spaziergang", "einkaufen",

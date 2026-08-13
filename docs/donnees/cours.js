@@ -5522,5 +5522,133 @@ const COURSE = [
     { t: "trans", inst: "Relie les deux phrases avec weil.", from: "Wir bleiben hier. Wir sind müde.", a: "Wir bleiben hier, weil wir müde sind.",
       why: "<b>sind</b> descend au bout." }
   ]
+},
+{
+  day: 43, title: "Le logement", de: "Die Wohnung",
+  steps: [
+    {
+      idea: "<b>die Wohnung</b>, c'est l'appartement.",
+      detail: "<b>das Haus</b>, tu le connais depuis l'étape 1 : c'est la maison. <b>die Wohnung</b> est l'appartement — un logement dans un immeuble. Et <b>das Zimmer</b>, croisé à l'hôtel à l'étape 34, c'est la pièce : une <b>Wohnung</b> contient plusieurs <b>Zimmer</b>. Le verbe qui va avec est <b>wohnen</b>, habiter.",
+      gloss: { de: ["Ich", "wohne", "in", "Berlin"], fr: ["J'", "habite", "à", "Berlin"] }
+    },
+    {
+      idea: "⚠️ Un mot composé prend le genre du DERNIER mot.",
+      detail: "L'allemand colle les mots bout à bout — l'étape 34 t'a déjà montré <b>das Einzelzimmer</b>. La règle du genre est simple et sans exception : c'est le dernier morceau qui décide, jamais le premier. <b>das Zimmer</b> étant neutre, tout ce qui finit par <b>-zimmer</b> est neutre.",
+      table: [["schlafen + das Zimmer", "<b>das</b> Schlafzimmer — la chambre"], ["wohnen + das Zimmer", "<b>das</b> Wohnzimmer — le salon"], ["das Haus + die Tür", "<b>die</b> Haustür — la porte d'entrée"]],
+      check: { q: "Le genre d'un mot composé est donné par…", o: ["le dernier mot", "le premier mot", "le plus long des deux"], a: 0, why: "Toujours le dernier. <b>die Haustür</b> est féminine à cause de <b>die Tür</b>, alors qu'elle commence par <b>das Haus</b>." }
+    },
+    {
+      idea: "Les pièces d'un logement.",
+      detail: "Quatre à retenir. Les deux premières sont des mots simples ; les deux autres sont des composés que tu sais maintenant lire — et dont tu peux deviner le genre tout seul.",
+      table: [["die Küche", "la cuisine"], ["das Bad", "la salle de bain"], ["das Schlafzimmer", "la chambre"], ["das Wohnzimmer", "le salon"]],
+      check: { q: "« la cuisine » se dit…", o: ["die Küche", "der Küche", "das Küche"], a: 0, why: "<b>die Küche</b>, féminin. Son pluriel est <b>die Küchen</b>." }
+    },
+    {
+      idea: "Les meubles, et un pluriel qui ne se devine pas.",
+      detail: "<b>der Tisch</b> et <b>das Bett</b>, tu les connais déjà. Ajoute <b>der Stuhl</b> et <b>der Schrank</b>. ⚠️ Leur pluriel prend un tréma — mais pas tous : <b>die Tische</b> n'en a pas, et <b>die Zimmer</b> ne change même pas. Le tréma au pluriel ne se déduit d'aucune règle : il s'apprend mot par mot.",
+      table: [["der Tisch", "die Tische — sans tréma"], ["der Stuhl", "die Stühle — avec"], ["der Schrank", "die Schränke — avec"], ["das Zimmer", "die Zimmer — rien ne change"]],
+      check: { q: "Le pluriel de <b>der Stuhl</b> est…", o: ["die Stühle", "die Stuhle", "die Stuhlen"], a: 0, why: "Tréma et <b>-e</b>. Au pluriel l'article est toujours <b>die</b>, quel que soit le genre du singulier." }
+    },
+    {
+      idea: "Décrire son logement avec ce que tu sais déjà.",
+      detail: "Aucune règle neuve ici : <b>haben</b> et l'accusatif suffisent pour dire ce qu'un logement contient. ⚠️ Dire <b>où</b> se trouve un meuble — « dans la cuisine » — demande un cas qu'on verra à l'étape suivante. Ici on dit ce qu'il y a, pas encore où.",
+      table: [["Die Wohnung <b>hat</b> drei Zimmer.", "L'appartement a trois pièces."], ["Wir <b>haben</b> einen Tisch.", "Nous avons une table."]],
+      check: { q: "« L'appartement a trois pièces » se dit…", o: ["Die Wohnung hat drei Zimmer", "Die Wohnung haben drei Zimmer", "Die Wohnung ist drei Zimmer"], a: 0, why: "<b>die Wohnung</b> est un singulier : <b>hat</b>, pas <b>haben</b>." }
+    }
+  ],
+  examples: [
+    { d: "Das ist meine Wohnung.", f: "Voici mon appartement." },
+    { d: "Die Wohnung hat drei Zimmer.", f: "L'appartement a trois pièces." },
+    { d: "Wo wohnst du?", f: "Où habites-tu ?" },
+    { d: "Ich wohne in Berlin.", f: "J'habite à Berlin." },
+    { d: "Die Küche ist klein.", f: "La cuisine est petite." },
+    { d: "Das Bad ist neu.", f: "La salle de bain est neuve." },
+    { d: "Wir haben einen Tisch und vier Stühle.", f: "Nous avons une table et quatre chaises." },
+    { d: "Das Schlafzimmer ist hell.", f: "La chambre est claire." },
+    { d: "Der Schrank ist alt.", f: "L'armoire est vieille." },
+    { d: "Das Wohnzimmer ist schön.", f: "Le salon est beau." },
+    { d: "Die Tür ist neu.", f: "La porte est neuve." },
+    { d: "Die Treppe ist alt.", f: "L'escalier est vieux." }
+  ],
+  vocab: [
+    { d: "die Wohnung", f: "l'appartement", p: "dii VOO-noung" },
+    { d: "die Küche", f: "la cuisine", p: "dii KUU-khe" },
+    { d: "das Bad", f: "la salle de bain", p: "das BAAT" },
+    { d: "das Schlafzimmer", f: "la chambre", p: "das CHLAAF-tsi-meur" },
+    { d: "das Wohnzimmer", f: "le salon", p: "das VOON-tsi-meur" },
+    { d: "der Stuhl", f: "la chaise", p: "dèr CHTOUL" },
+    { d: "der Schrank", f: "l'armoire", p: "dèr CHRANK" },
+    { d: "die Tür", f: "la porte", p: "dii TUUR" },
+    { d: "die Treppe", f: "l'escalier", p: "dii TRÈ-pe" },
+    { d: "hell", f: "clair", p: "HÈL" }
+  ],
+  quiz: [
+    { q: "Le genre d'un mot composé vient…", o: ["du dernier mot", "du premier mot", "du plus long des deux"], a: 0, why: "Sans exception. <b>das Haus</b> + <b>die Tür</b> donne <b>die Haustür</b>." },
+    { q: "« le salon » se dit…", o: ["das Wohnzimmer", "der Wohnzimmer", "die Wohnzimmer"], a: 0, why: "Il finit par <b>-zimmer</b>, donc neutre comme <b>das Zimmer</b>." },
+    { q: "Le pluriel de <b>der Stuhl</b> est…", o: ["die Stühle", "die Stuhlen", "die Stuhle"], a: 0, why: "Tréma et <b>-e</b>. Le tréma ne se devine pas : <b>die Tische</b> n'en prend pas." },
+    { q: "<b>Wohnung</b> est féminin parce que…", o: ["il finit en -ung", "il désigne un lieu", "c'est une exception"], a: 0, why: "Tout nom en <b>-ung</b> est féminin — la règle vue à l'étape 5, l'une des plus sûres de l'allemand." },
+    { q: "Combien de pièces contient une <b>Wohnung</b> de trois <b>Zimmer</b> ?", o: ["trois", "une", "quatre"], a: 0, why: "<b>das Zimmer</b> est la pièce ; <b>die Wohnung</b> est le logement entier qui les contient." }
+  ],
+  drills: [
+    { t: "gap", f: "L'appartement a trois pièces.", s: "Die ___ hat drei Zimmer.", a: "Wohnung",
+      why: "<b>die Wohnung</b> — féminin, comme tous les noms en <b>-ung</b>." },
+    { t: "gap", f: "La cuisine est petite.", s: "Die ___ ist klein.", a: "Küche",
+      why: "<b>die Küche</b>, féminin." },
+    { t: "gap", f: "La salle de bain est neuve.", s: "Das ___ ist neu.", a: "Bad",
+      why: "<b>das Bad</b>, neutre. Pluriel <b>die Bäder</b>, avec tréma." },
+    { t: "gap", f: "Où habites-tu ?", s: "Wo ___ du?", a: "wohnst",
+      why: "<b>wohnen</b> à la deuxième personne : <b>du wohnst</b>." },
+    { t: "gap", f: "L'armoire est vieille.", s: "Der ___ ist alt.", a: "Schrank",
+      why: "<b>der Schrank</b>, masculin. Pluriel <b>die Schränke</b>." },
+    { t: "gap", f: "La chambre est claire.", s: "Das Schlafzimmer ist ___.", a: "hell",
+      why: "Adjectif après <b>sein</b> : aucune terminaison à ajouter." },
+    { t: "gap", f: "La porte est neuve.", s: "Die ___ ist neu.", a: "Tür",
+      why: "<b>die Tür</b>, féminin. Pluriel <b>die Türen</b>." },
+    { t: "gap", f: "L'escalier est vieux.", s: "Die ___ ist alt.", a: "Treppe",
+      why: "<b>die Treppe</b> est féminine en allemand, là où « escalier » est masculin en français." },
+
+    { t: "order", f: "L'appartement a trois pièces.", a: "Die Wohnung hat drei Zimmer",
+      why: "Sujet, verbe en deuxième position, puis le complément." },
+    { t: "order", f: "La cuisine est petite.", a: "Die Küche ist klein",
+      why: "L'adjectif reste nu après <b>sein</b>." },
+    { t: "order", f: "Nous avons une table et quatre chaises.", a: "Wir haben einen Tisch und vier Stühle",
+      why: "<b>einen</b> : <b>der Tisch</b> passe à l'accusatif après <b>haben</b>." },
+    { t: "order", f: "La chambre est claire.", a: "Das Schlafzimmer ist hell",
+      why: "Le composé garde le genre de <b>das Zimmer</b>." },
+    { t: "order", f: "Le salon est beau.", a: "Das Wohnzimmer ist schön",
+      why: "Même règle : neutre à cause de <b>-zimmer</b>." },
+    { t: "order", f: "Où habites-tu ?", a: "Wo wohnst du",
+      why: "Le mot interrogatif d'abord, puis le verbe, puis le sujet." },
+
+    { t: "trad", f: "l'appartement", a: "die Wohnung",
+      why: "Féminin — terminaison <b>-ung</b>." },
+    { t: "trad", f: "la cuisine", a: "die Küche",
+      why: "Féminin." },
+    { t: "trad", f: "la salle de bain", a: "das Bad",
+      why: "Neutre. Le mot dit littéralement « le bain »." },
+    { t: "trad", f: "la chambre", a: "das Schlafzimmer",
+      why: "Mot à mot « la pièce pour dormir ». Neutre, comme <b>das Zimmer</b>." },
+    { t: "trad", f: "le salon", a: "das Wohnzimmer",
+      why: "Mot à mot « la pièce où l'on habite »." },
+    { t: "trad", f: "l'armoire", a: "der Schrank",
+      why: "Masculin." },
+    { t: "trad", f: "la porte", a: "die Tür",
+      why: "Féminin. Le tréma s'entend : « tuur »." },
+    { t: "trad", f: "L'appartement a trois pièces.", a: "Die Wohnung hat drei Zimmer.",
+      why: "<b>hat</b> : le sujet est un singulier." },
+
+    { t: "trans", inst: "Mets au pluriel, avec son article.", from: "der Stuhl", a: "die Stühle",
+      why: "Tréma et <b>-e</b>. Au pluriel, l'article devient <b>die</b> pour tout le monde." },
+    { t: "trans", inst: "Mets au pluriel, avec son article.", from: "der Schrank", a: "die Schränke",
+      why: "Même schéma que <b>Stuhl</b> : tréma et <b>-e</b>." },
+    { t: "trans", inst: "Mets au pluriel, avec son article.", from: "das Zimmer", a: "die Zimmer",
+      why: "Le mot ne bouge pas du tout — seul l'article change. C'est le cas de beaucoup de noms en <b>-er</b>." },
+    { t: "trans", inst: "Mets au pluriel, avec son article.", from: "die Tür", a: "die Türen",
+      why: "<b>-en</b>, et l'article ne change pas puisqu'il était déjà <b>die</b>." },
+    { t: "trans", inst: "Compose le mot, avec son article.", from: "schlafen + das Zimmer", a: "das Schlafzimmer",
+      why: "Le genre vient du dernier morceau : <b>das Zimmer</b>, donc <b>das</b>." },
+    { t: "trans", inst: "Compose le mot, avec son article.", from: "wohnen + das Zimmer", a: "das Wohnzimmer",
+      why: "Même règle, et le verbe perd sa terminaison en se collant." }
+  ]
 }
 ];
