@@ -19,6 +19,14 @@ applyPrefs();
 nettoieCartesJamaisVues();
 paintStreak();
 
+/* Le hors-ligne (§4). L'inscription est SILENCIEUSE en cas d'échec : elle ne
+   conditionne rien: l'app marche exactement pareil sans elle, elle gagne
+   seulement de fonctionner sans réseau la fois d'après. Un message d'erreur
+   ici inquiéterait pour une fonction que l'utilisateur n'a pas demandée. */
+if (doitEnregistrerSW(window.location, navigator)) {
+  navigator.serviceWorker.register("sw.js").catch(function () {});
+}
+
 const entry = (window.location.hash || "").replace("#", "");
 
 /* #unite3 ouvre directement l'unité 3 du livre. Ajouté le 01/08/2026 :
