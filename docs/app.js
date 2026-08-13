@@ -21,20 +21,25 @@
    est rédigé indépendamment et peut être publié sans rien retirer.
    C'est exactement pour ça que le livre vit dans son propre onglet et
    dans ses propres tableaux : la frontière doit rester nette. */
-/* Version publiee : le livre a ete retire.
+/* Le livre a été retiré — son contenu (Werner Dubois et Alvaro Garcia Noble,
+   2025) est sous copyright et ne vit que dans la copie de travail personnelle,
+   sur le disque. Cette version-ci est en ligne : elle ne contient que du
+   contenu rédigé indépendamment.
 
-   Le contenu du livre (Werner Dubois et Alvaro Garcia Noble, 2025) ne vit
-   que dans la copie de travail personnelle, sur le disque. Cette version-ci
-   est en ligne : elle ne contient que du contenu redige independamment.
+   Les tableaux restent déclarés mais VIDES, et c'est volontaire : le reste du
+   code les interroge par `BOOK.length` et s'adapte tout seul. Les supprimer
+   obligerait à retoucher 23 endroits pour un gain nul.
 
-   Les tableaux restent declares mais vides. Le reste du code les interroge
-   par BOOK.length et s adapte tout seul.
-
-   Genere par sans-livre.ps1 : ne pas modifier a la main. */
+   ⚠️ CE FICHIER S'ÉDITE À LA MAIN. Le bandeau qui vivait ici jusqu'au
+   13/08/2026 disait « Généré par sans-livre.ps1 : ne pas modifier à la main ».
+   Or `sans-livre.ps1` a été supprimé le 02/08/2026, remplacé par
+   `publier.ps1`, qui ne génère plus rien — il copie. La consigne interdisait
+   donc de toucher au fichier au nom d'un script qui n'existe plus. C'est le
+   §3 du rapport du mentor sous une autre forme : du mort qui donne encore des
+   ordres. */
 const BOOK = [];
 const BOOK_GROUPS = [];
 const BOOK_TEST = { pages: "", title: "", exercises: [] };
-function enrichirDepuisLivre() {}
 
 /* Le niveau A1 du livre compte 35 unités (numérotées 0 à 34, pages 3 à 56).
    Le 30 affiché jusqu'au 01/08/2026 venait du titre commercial du livre
@@ -4908,8 +4913,14 @@ view.addEventListener("change", function (e) {
 
    L'ordre compte : on valide d'abord s'il y a quelque chose à valider, on
    passe à la suite seulement sinon. L'inverse ferait sauter une carte à
-   chaque fois qu'on appuie deux fois un peu vite. */
-let revele = 0; // quand la carte courante a été retournée
+   chaque fois qu'on appuie deux fois un peu vite.
+
+   ⚠️ `revele` vivait ici — « quand la carte courante a été retournée ». Retiré
+   le 13/08/2026 (§3) : plus rien ne le lisait depuis que les cartes ne se
+   retournent plus (« plus aucune carte passive », 01/08/2026). Il servait à
+   empêcher qu'un double appui trop rapide valide « Je savais » juste après le
+   retournement — un bouton qui n'existe plus. La variable, elle, était restée,
+   et son commentaire décrivait un mécanisme disparu à qui lisait le fichier. */
 
 document.addEventListener("keydown", function (e) {
   if (e.key !== "Enter") return;
