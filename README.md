@@ -202,9 +202,14 @@ l'auto-test et affiche le résultat.
 
 ```
 .\test.ps1                 # l'auto-test seul
+.\test.ps1 -Publie         # l'auto-test sur .\docs\, ce qui part réellement en ligne
 .\test.ps1 -Shots          # + captures en thème clair
 .\test.ps1 -Shots -Dark    # + captures en thème sombre
 ```
+
+> `-Publie` existe parce que les tests **ne sont plus publiés** depuis le 13/08/2026.
+> Il les repose dans `docs\` le temps d'une exécution, dans une page à part, puis efface.
+> Sans lui, on ne pourrait plus vérifier ce qui est réellement en ligne.
 
 Les vérifications couvrent le calcul des dates, la répétition espacée, la série,
 un parcours de leçon complet (y compris le blocage tant qu'on n'a pas répondu), un
@@ -228,7 +233,7 @@ mini-question dont deux réponses proposées étaient identiques.
 
 ## Ajouter un jour de cours
 
-Tout le contenu est dans le tableau `COURSE`, au début du `<script>` de `index.html`.
+Tout le contenu est dans le tableau `COURSE`, seul habitant de `donnees/cours.js`.
 Un jour = un objet :
 
 ```js
@@ -265,17 +270,28 @@ Règles que l'auto-test fait respecter — inutile de les retenir, il les rappel
 `detail`, `gloss`, `table` et `check` sont tous facultatifs — une étape peut n'avoir
 qu'une `idea`. Vise 4 à 5 étapes par jour : au-delà, ça redevient un mur de texte.
 
-## Structure du fichier
+## Structure des fichiers
 
-`index.html` contient tout, dans cet ordre :
+Jusqu'au 13/08/2026, tout tenait dans `index.html` — 15 315 lignes. C'est fini :
 
-1. Les **tokens** CSS — couleurs et polices, thème clair et thème sombre
-2. Le **style** des composants
-3. `COURSE` — le contenu du cours
-4. L'**état** — progression, dates, méthode Leitner
-5. La **voix** — prononciation par le navigateur, sans fichier audio
-6. Le **rendu** — une fonction par écran
-7. La **navigation** — un seul écouteur de clic
-8. La **sauvegarde** et l'**auto-test**
+| Fichier | Rôle |
+|---|---|
+| `index.html` | la coquille HTML, les tokens CSS et le style des composants |
+| `donnees/cours.js` | `COURSE` — le contenu du cours, et rien d'autre |
+| `app.js` | l'état, la voix, le rendu, la navigation, la sauvegarde |
+| `tests/tests.js` | l'auto-test — **jamais publié** |
+| `demarrage.js` | l'amorce, chargée en dernier |
 
-Aucune dépendance, aucune étape de construction.
+L'**ordre de chargement porte le sens** : données → code → tests → démarrage.
+`demarrage.js` est un fichier à part pour cette seule raison — il appelle `runTests()`, qui
+vit ailleurs, et un script classique ne peut appeler que ce qui est déjà chargé.
+
+Ce sont des **scripts classiques**, pas des modules ES : un module ne se charge pas quand
+la page est ouverte en `file://`, ce que fait `test.ps1`. Les `const` et `let` de premier
+niveau restent visibles d'un fichier à l'autre, ce qui suffit à ce stade.
+
+**Toujours aucune dépendance, aucune étape de construction.** `publier.ps1` ne fait que
+copier — en retirant les tests.
+
+Le découpage suivant (`moteur/`, `ecrans/`) est planifié dans `TODO.md`, section
+« L'architecture ».

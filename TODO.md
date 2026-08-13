@@ -1836,8 +1836,83 @@ installer, pas besoin d'admin.
 
 ### L'ordre du chantier
 
-- [ ] **1. Sortir `COURSE` et `runTests` du fichier** — mécanique, aucune fonction touchée.
-      Livre `donnees/` et `tests/`, et retire au passage les tests du fichier publié (§3).
-- [ ] **2. `serveur.ps1`** + `test.ps1` qui passe par lui.
-- [ ] **3. Découper `moteur/` puis `ecrans/`** — là seulement on touche au code.
-- [ ] **4. Ensuite : `lang="de"`, service worker, et les §2.x du rapport.**
+- [x] **1. Sortir `COURSE` et `runTests` du fichier** ✅ 13/08/2026 — voir ci-dessous.
+- [ ] **2. Découper `moteur/` puis `ecrans/`** — là seulement on touche au code, et là
+      seulement les modules ES (donc `serveur.ps1`) deviennent nécessaires.
+- [ ] **3. Ensuite : `lang="de"`, service worker, et les §2.x du rapport.**
+
+### ✅ La première coupe — 13/08/2026
+
+**Un fichier de 15 315 lignes est devenu cinq.** Aucune fonction n'a été touchée : la coupe
+est purement mécanique, et l'auto-test rend **exactement le même score qu'avant** (2070).
+
+| Fichier | Lignes | Rôle |
+|---|---:|---|
+| `index.html` | 1 686 | la coquille et le CSS |
+| `donnees/cours.js` | 5 525 | le contenu du cours, données pures |
+| `app.js` | 4 704 | **tout le code réellement maintenu** |
+| `tests/tests.js` | 3 385 | l'auto-test — **plus jamais publié** |
+| `demarrage.js` | 32 | l'amorce, chargée en dernier |
+
+Le chiffre annoncé se vérifie : **4 704 lignes de code**, le reste était du contenu et des
+tests. La version publiée passe de **868 à 719 Ko** — 147 Ko de tests que l'utilisateur
+téléchargeait pour rien.
+
+⚠️ **SCRIPTS CLASSIQUES, PAS MODULES ES — et c'est une correction de l'arbitrage du 11/08.**
+Vérifié empiriquement le 13/08 sur une page d'essai minimale, dans le Chrome de la machine :
+
+| | ouvert en `file://` |
+|---|---|
+| `<script src="app.js">` | **se charge** ✅ |
+| `<script type="module">` + `import` | **ne se charge pas** ❌ |
+
+`test.ps1` ouvre l'app en `file://`. Passer aux modules maintenant aurait donc imposé
+d'écrire `serveur.ps1` **dans la même opération**, pour un gain nul à ce stade : les
+`const` et `let` de premier niveau d'un script classique restent visibles d'un fichier à
+l'autre, ce qui est précisément ce dont cette coupe avait besoin. Les modules deviendront
+utiles à l'étape 2, quand il faudra déclarer qui dépend de qui — et le serveur avec eux.
+
+**L'ordre de chargement porte le sens** : données → code → tests → démarrage. `demarrage.js`
+existe comme fichier séparé pour cette seule raison — il appelle `runTests()`, qui vit
+ailleurs, et un script classique ne peut appeler que ce qui est déjà chargé.
+
+### Trois contrôles cassaient en silence, et c'est la leçon du 02/08 qui les a fait chercher
+
+Un outil qui pointe un fichier survit à la disparition de ce fichier **sans rien dire**.
+Les trois ont été repérés en se demandant *« qui lit `index.html` ? »* avant de couper —
+et non après.
+
+- [x] **`verifier.ps1` lisait `COURSE` dans `index.html`.** Il pointe désormais
+      `donnees/cours.js`, et **refuse de se rabattre sur `index.html`** si le fichier
+      manque : un repli silencieux ferait passer le contrôle à côté du cours entier, ce qui
+      est exactement l'accident du 02/08.
+- [x] **`publier.ps1` ne scrutait qu'`index.html`** pour le garde-fou copyright. Le code
+      étant sorti du HTML, il ne voyait plus rien passer. **Il scrute maintenant tous les
+      fichiers publiés.** *Un contrôle doit suivre ce qu'il contrôle, jamais l'endroit où il
+      se trouvait au départ.*
+- [x] **`test.ps1 -Dark` écrivait sa copie dans `%TEMP%`**, où les `.js` ne sont plus à
+      côté : la page se serait affichée vide et la capture aurait montré une app morte sans
+      que rien ne le signale. La copie reste dans le dossier du projet, et est effacée après.
+
+### La garantie qu'on a failli perdre — `test.ps1 -Publie`
+
+Sortir les tests de la production fait **disparaître la possibilité de tester ce qui est
+réellement publié** — une garantie que le projet appliquait depuis le 02/08 (« la version
+publiée a été testée séparément »). La perdre en silence aurait été exactement le reproche
+du mentor : une garantie annoncée quelque part, et plus tenue nulle part.
+
+`test.ps1 -Publie` la reconstitue : il repose les tests dans `docs\` le temps d'une
+exécution, dans une page à part, puis efface. **Le ménage a lieu avant toute analyse**,
+donc avant tout `exit` — rien de temporaire ne peut survivre dans `docs\`, qui part tel quel
+sur GitHub Pages. Il refuse aussi de tourner si `docs\index.html` contient **déjà** les
+tests : ce serait la preuve que `publier.ps1` a échoué à les retirer.
+
+**Vérifié le 13/08 :** `2070 / 2070` sur la source **et** sur la version publiée, `docs\`
+propre après coup, et la version publiée démarre bien **sans** fichier de tests — `#test`
+y retombe sur l'accueil au lieu de tuer l'app (garde `typeof runTests === "function"`).
+
+⚠️ **Piège rencontré pendant la coupe, déjà documenté et re-rencontré quand même :
+PowerShell 5.1 lit les `.ps1` en ANSI.** Le script de découpage contenait des tirets longs
+et des guillemets français dans les en-têtes qu'il écrivait — ils sont ressortis en
+`â€"` dans les cinq fichiers produits. Corrigés à la main. **Un `.ps1` reste en ASCII pur**,
+et c'est écrit en tête de `publier.ps1` depuis le 02/08.

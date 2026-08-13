@@ -36,5 +36,12 @@ reference/
 # Captures d'ecran : regenerees a la demande par .\test.ps1 -Shots
 captures/
 
+# Pages de travail fabriquees par test.ps1, effacees par lui a la fin.
+# Elles sont ignorees ici pour le cas ou une execution s'interrompt en cours :
+# _verif.html vit dans docs\, qui part TEL QUEL sur GitHub Pages.
+_sombre.html
+docs/_verif.html
+docs/tests/
+
 # Sauvegardes de progression exportees depuis l'app
 allemand-progression-*.json

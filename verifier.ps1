@@ -91,7 +91,21 @@ Write-Output ("  " + $genres.psbase.Keys.Count + " noms, " + $verbes.psbase.Keys
 Write-Output ""
 
 # --- Le cours --------------------------------------------------------------
-$html = Get-Content (Join-Path $src "index.html") -Raw -Encoding utf8
+#
+# Le cours a quitte index.html le 13/08/2026 : il vit dans donnees\cours.js,
+# un fichier qui ne contient QUE lui. La delimitation ci-dessous devient donc
+# une simple precaution -- mais on la garde, parce qu'elle est ce qui a permis
+# de detecter la panne silencieuse du 02/08/2026.
+#
+# On refuse de retomber sur index.html si le fichier manque : un repli
+# "silencieux" ferait passer le controle a cote du cours sans rien dire, et
+# c'est exactement l'accident qu'on a deja eu.
+$fcours = Join-Path $src "donnees\cours.js"
+if (-not (Test-Path $fcours)) {
+  Write-Output "ECHEC : donnees\cours.js introuvable. Le cours a-t-il ete deplace ?"
+  exit 1
+}
+$html = Get-Content $fcours -Raw -Encoding utf8
 $deb = $html.IndexOf("const COURSE = [")
 
 # La fin de COURSE etait reperee par "/* LIVRE-DEBUT". Ce repere a DISPARU le
@@ -111,7 +125,7 @@ if ($deb -ge 0) {
   }
 }
 if ($deb -lt 0 -or $fin -le $deb) {
-  Write-Output "ECHEC : impossible de delimiter COURSE dans index.html."
+  Write-Output "ECHEC : impossible de delimiter COURSE dans donnees\cours.js."
   Write-Output "Attendu : 'const COURSE = [' puis un '];' en debut de ligne."
   exit 1
 }

@@ -86,7 +86,7 @@ l'entraînement et le compteur de « mots fragiles » sur l'accueil.
 | Décision | Raison |
 |---|---|
 | PWA / page web plutôt qu'Android natif | Le compte `franky` est standard : impossible d'installer Android Studio + JDK 17 sans l'admin. Une page web ne demande rien. |
-| ~~Un seul fichier `index.html`~~ — **dépassé le 11/08/2026** | La contrainte d'origine (zéro build, zéro dépendance, zéro `npm install`) reste valable ; la conclusion « donc un seul fichier » était le mauvais raccourci. Les navigateurs lisent nativement les **modules ES** : on découpe en vrais fichiers sans build. Décision et plan de découpage dans `TODO.md`, section « L'architecture ». |
+| ~~Un seul fichier `index.html`~~ — **abandonné le 13/08/2026** | La contrainte d'origine (zéro build, zéro dépendance, zéro `npm install`) reste valable ; la conclusion « donc un seul fichier » était le mauvais raccourci. On découpe en vrais fichiers **sans build**, et la contrainte est intacte. ⚠️ En **scripts classiques**, pas en modules ES : vérifié le 13/08, un module ne se charge pas en `file://`, ce que fait `test.ps1`. Les modules viendront avec le découpage de `moteur/` et `ecrans/`, et le `serveur.ps1` qu'ils imposent. |
 | **Un seul endroit décide du rendu du contenu** (11/08/2026) | `idea` était échappé et `detail` non ; `check.q` échappé et `quiz.q` non. Ce n'était pas une politique, c'était un oubli — et l'écran affichait `<b>der Körper</b>` en clair. `rich()` échappe TOUT puis réautorise une liste blanche (`b`, `i`, `u`, six entités). L'ordre compte : l'inverse laisserait passer ce qu'on neutralise. Le gras est employé **2 802 fois** dans le cours pour faire ressortir le mot allemand — l'échappement total aurait détruit la pédagogie. |
 | **`seed()` n'est appelé que par `lessonView()`** (11/08/2026) | Quatre appelants, dont la validation du quiz qui ensemençait l'étape **suivante** : le mode cartes servait des mots jamais vus, on les ratait tous, et chaque erreur ajoutant deux cartes, le paquet grossissait plus vite qu'on ne le vidait. `context.md` affirmait déjà « le mot a déjà été présenté dans la leçon avant d'arriver aux cartes » — c'est vrai dans le code depuis seulement cette date. |
 | Contenu écrit à la main dans `COURSE` | Pas de base de données ni d'API à maintenir. Ajouter un jour = ajouter un objet au tableau. |
@@ -151,7 +151,33 @@ Deux pièges du harnais, à ne pas re-découvrir :
   génère une copie de l'app qui applique le thème elle-même avant l'affichage.
 
 
-## Où ça en est — 11/08/2026
+## L'app n'est plus un fichier — 13/08/2026
+
+```
+index.html          la coquille + le CSS                    1 686 lignes
+donnees/cours.js    le contenu du cours, données pures      5 525
+app.js              tout le code maintenu                   4 704
+tests/tests.js      l'auto-test — JAMAIS publié             3 385
+demarrage.js        l'amorce, chargée en dernier               32
+```
+
+**Scripts classiques, pas modules ES** — vérifié le 13/08 : un module ne se charge pas
+quand la page est ouverte en `file://`, ce que fait `test.ps1` ; un script classique, si,
+et ses `const`/`let` de premier niveau restent visibles d'un fichier à l'autre. Les modules
+(et le `serveur.ps1` qu'ils imposent) attendront le découpage de `moteur/` et `ecrans/`.
+
+L'ordre de chargement porte le sens : **données → code → tests → démarrage**.
+
+⚠️ **`tests/tests.js` n'est pas publié** (147 Ko), et `demarrage.js` garde
+`typeof runTests === "function"` avant de l'appeler. Retirer cette garde ferait mourir la
+version en ligne sur `#test`.
+
+⚠️ **Un outil qui pointe un fichier survit à la disparition de ce fichier sans rien dire.**
+Trois contrôles ont dû être recâblés lors de la coupe (`verifier.ps1`, `publier.ps1`,
+`test.ps1 -Dark`) — trouvés en se demandant « qui lit `index.html` ? » **avant** de couper.
+Détail dans `TODO.md`.
+
+## Où ça en est — 13/08/2026
 
 **Niveau A1 : complet.** 35 étapes, 350 mots, 1026 exercices, 12 chapitres, plus un test
 de fin de niveau (24 questions, 4 épreuves, seuil 70 %).
@@ -165,6 +191,10 @@ complets. Plan complet dans `PLAN-A2.md`.
   `verifier.ps1` : 0 écart d'article.
 - ✅ **Audit externe passé le 11/08/2026** (le mentor d'Exsangue) — deux bloquants corrigés
   le soir même, le reste est une liste ouverte dans `TODO.md`, section « Audit externe ».
+- ✅ **Première coupe du découpage faite le 13/08/2026** : cinq fichiers au lieu d'un, tests
+  hors production (**868 → 719 Ko** publiés), `2070 / 2070` inchangé. Voir ci-dessus.
+- ✅ **`.\test.ps1 -Publie`** teste ce qui part réellement en ligne, tests reposés le temps
+  d'une exécution puis effacés.
 - ✅ **Le livre est retiré**, `index.html` est suivi par git.
 - ✅ **Deux niveaux dans le sommaire** : un dépliant A1, un dépliant A2 en dessous.
 - ⬜ **Étapes 43 à 63** — à écrire.
