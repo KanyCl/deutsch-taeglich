@@ -5650,5 +5650,134 @@ const COURSE = [
     { t: "trans", inst: "Compose le mot, avec son article.", from: "wohnen + das Zimmer", a: "das Wohnzimmer",
       why: "Même règle, et le verbe perd sa terminaison en se collant." }
   ]
+},
+{
+  day: 44, title: "Datif ou accusatif ?", de: "Wo oder wohin?",
+  steps: [
+    {
+      idea: "Deux questions, et le cas se choisit tout seul : <b>wo?</b> et <b>wohin?</b>",
+      detail: "L'étape 33 t'a donné la règle — « est-ce que ça bouge ? ». Voici les deux mots qui la posent en allemand. <b>wo?</b> demande où l'on <i>est</i> : réponse au <b>datif</b>. <b>wohin?</b> demande où l'on <i>va</i> : réponse à l'<b>accusatif</b>. Le français n'a qu'un « où » pour les deux, et c'est exactement pour ça qu'on hésite.",
+      table: [["<b>Wo</b> bist du?", "Ich bin in der Küche. — datif"], ["<b>Wohin</b> gehst du?", "Ich gehe in die Küche. — accusatif"]],
+      check: { q: "<b>wohin?</b> appelle une réponse…", o: ["à l'accusatif", "au datif", "au nominatif"], a: 0, why: "<b>wohin</b> contient l'idée d'aller vers. Qui dit mouvement dit accusatif." }
+    },
+    {
+      idea: "⚠️ C'est au FÉMININ que ça se joue vraiment.",
+      detail: "Au masculin et au neutre, les deux cas ne se ressemblent pas : <b>dem</b> contre <b>den</b>, <b>dem</b> contre <b>das</b>. Au féminin, c'est <b>der</b> contre <b>die</b> — et <b>der</b> ressemble à s'y méprendre au masculin de base. Beaucoup d'apprenants lisent <b>in der Küche</b> et croient à une faute. C'est pourtant la forme juste : <b>der</b> est aussi le datif féminin.",
+      table: [["in <b>der</b> Küche", "on y est — datif féminin"], ["in <b>die</b> Küche", "on y va — accusatif féminin"], ["auf <b>dem</b> Tisch", "on y est — datif masculin"], ["auf <b>den</b> Tisch", "on y va — accusatif masculin"]],
+      check: { q: "« Je suis dans la cuisine » se dit…", o: ["Ich bin in der Küche", "Ich bin in die Küche", "Ich bin in dem Küche"], a: 0, why: "On y est → datif. Au féminin, le datif est <b>der</b> — ce n'est pas une faute d'impression." }
+    },
+    {
+      idea: "Elles sont NEUF à poser la question. L'étape 33 t'en a donné quatre.",
+      detail: "Voici la liste complète. Les cinq du bas sont nouvelles ; les quatre du haut, tu les connais. Aucune autre préposition allemande ne fonctionne comme ça : les neuf s'apprennent en bloc, une fois pour toutes.",
+      table: [["in · auf · unter · hinter", "déjà vues à l'étape 33"], ["<b>an</b>", "à, contre — Das Bett steht an der Wand."], ["<b>neben</b>", "à côté de — neben dem Bett"], ["<b>über</b>", "au-dessus de — über dem Tisch"], ["<b>vor</b>", "devant — vor dem Haus"], ["<b>zwischen</b>", "entre — zwischen dem Tisch und dem Bett"]],
+      check: { q: "Combien de prépositions changent de cas selon le mouvement ?", o: ["neuf", "quatre", "toutes"], a: 0, why: "Neuf, pas une de plus. Les autres ont un cas fixe — <b>mit</b> est toujours datif, <b>für</b> toujours accusatif." }
+    },
+    {
+      idea: "Le tableau qui règle tout.",
+      detail: "Une ligne par genre, et il n'y a rien d'autre à savoir. ⚠️ Regarde la dernière : au datif pluriel, l'article devient <b>den</b> <i>et le nom prend un</i> <b>-n</b> — <b>den Kindern</b>, <b>den Tischen</b>. C'est le seul cas où le nom lui-même change, et c'est la marque la plus souvent oubliée.",
+      table: [["masculin", "on y est <b>dem</b> · on y va <b>den</b>"], ["féminin", "on y est <b>der</b> · on y va <b>die</b>"], ["neutre", "on y est <b>dem</b> · on y va <b>das</b>"], ["pluriel", "on y est <b>den</b> + un <b>-n</b> au nom · on y va <b>die</b>"]],
+      check: { q: "Au datif pluriel, on écrit…", o: ["den Tischen", "die Tische", "der Tische"], a: 0, why: "<b>den</b> et un <b>-n</b> ajouté au nom. C'est la marque la plus oubliée de l'allemand." }
+    },
+    {
+      idea: "Le verbe dit déjà si ça bouge — par paires.",
+      detail: "L'allemand a deux verbes là où le français en a un. <b>liegen</b> / <b>stehen</b> décrivent une position : ils appellent le datif. <b>legen</b> / <b>stellen</b> décrivent qu'on pose quelque chose : ils appellent l'accusatif. Une fois le bon verbe choisi, le cas suit tout seul — le choix n'est plus à faire deux fois.",
+      table: [["Das Buch <b>liegt</b> auf dem Tisch.", "il y est — datif"], ["Ich <b>lege</b> das Buch auf den Tisch.", "je l'y pose — accusatif"], ["Der Schrank <b>steht</b> neben dem Bett.", "il y est — datif"], ["Ich <b>stelle</b> den Stuhl in die Küche.", "je l'y mets — accusatif"]],
+      check: { q: "Avec <b>stellen</b>, on emploie…", o: ["l'accusatif", "le datif", "l'un ou l'autre"], a: 0, why: "<b>stellen</b>, c'est poser quelque chose quelque part : il y a mouvement, donc accusatif." }
+    }
+  ],
+  examples: [
+    { d: "Wo bist du?", f: "Où es-tu ?" },
+    { d: "Ich bin in der Küche.", f: "Je suis dans la cuisine." },
+    { d: "Wohin gehst du?", f: "Où vas-tu ?" },
+    { d: "Ich gehe in die Küche.", f: "Je vais dans la cuisine." },
+    { d: "Das Buch liegt auf dem Tisch.", f: "Le livre est sur la table." },
+    { d: "Ich lege das Buch auf den Tisch.", f: "Je mets le livre sur la table." },
+    { d: "Der Schrank steht neben dem Bett.", f: "L'armoire est à côté du lit." },
+    { d: "Das Bett steht an der Wand.", f: "Le lit est contre le mur." },
+    { d: "Die Tasche liegt auf dem Boden.", f: "Le sac est par terre." },
+    { d: "Der Stuhl steht zwischen dem Tisch und dem Bett.", f: "La chaise est entre la table et le lit." },
+    { d: "Wohin stellst du den Stuhl?", f: "Où mets-tu la chaise ?" },
+    { d: "Ich bin im Wohnzimmer.", f: "Je suis dans le salon." }
+  ],
+  vocab: [
+    { d: "wohin", f: "où (vers où)", p: "vo-HIN" },
+    { d: "an", f: "à, contre", p: "AN" },
+    { d: "neben", f: "à côté de", p: "NÉ-beun" },
+    { d: "über", f: "au-dessus de", p: "UU-beur" },
+    { d: "zwischen", f: "entre", p: "TSVI-cheun" },
+    { d: "stehen", f: "être debout, se trouver", p: "CHTÉ-eun" },
+    { d: "stellen", f: "poser debout", p: "CHTÈ-leun" },
+    { d: "liegen", f: "être couché, se trouver", p: "LII-gueun" },
+    { d: "die Wand", f: "le mur", p: "dii VANT" },
+    { d: "der Boden", f: "le sol", p: "dèr BOO-deun" }
+  ],
+  quiz: [
+    { q: "« Je suis dans la cuisine » se dit…", o: ["Ich bin in der Küche", "Ich bin in die Küche", "Ich bin in dem Küche"], a: 0, why: "On y est → datif. Au féminin, le datif est <b>der</b>." },
+    { q: "« Je vais dans la cuisine » se dit…", o: ["Ich gehe in die Küche", "Ich gehe in der Küche", "Ich gehe in das Küche"], a: 0, why: "On y va → accusatif. Au féminin, l'accusatif est <b>die</b>, comme le nominatif." },
+    { q: "<b>wo?</b> appelle une réponse…", o: ["au datif", "à l'accusatif", "au nominatif"], a: 0, why: "<b>wo</b> demande la position. Rien ne bouge, donc datif." },
+    { q: "Au datif pluriel, l'article et le nom deviennent…", o: ["den Tischen", "die Tische", "dem Tisch"], a: 0, why: "<b>den</b>, et un <b>-n</b> ajouté au nom. La marque la plus souvent oubliée." },
+    { q: "Quel verbe appelle l'accusatif ?", o: ["stellen", "stehen", "liegen"], a: 0, why: "<b>stellen</b> = poser quelque chose. Il y a mouvement. <b>stehen</b> et <b>liegen</b> décrivent une position." }
+  ],
+  drills: [
+    { t: "gap", f: "Je suis dans la cuisine.", s: "Ich bin in ___ Küche.", a: "der",
+      why: "On y est → datif. Au féminin, le datif est <b>der</b>." },
+    { t: "gap", f: "Je vais dans la cuisine.", s: "Ich gehe in ___ Küche.", a: "die",
+      why: "On y va → accusatif. Au féminin, <b>die</b>." },
+    { t: "gap", f: "Le livre est sur la table.", s: "Das Buch liegt auf ___ Tisch.", a: "dem",
+      why: "<b>liegen</b> décrit une position → datif masculin." },
+    { t: "gap", f: "Je mets le livre sur la table.", s: "Ich lege das Buch auf ___ Tisch.", a: "den",
+      why: "<b>legen</b>, c'est poser → accusatif masculin." },
+    { t: "gap", f: "Où vas-tu ?", s: "___ gehst du?", a: "Wohin",
+      why: "La question du mouvement. <b>wo</b> seul demanderait où tu es." },
+    { t: "gap", f: "L'armoire est à côté du lit.", s: "Der Schrank steht ___ dem Bett.", a: "neben",
+      why: "<b>neben</b> + datif : l'armoire ne bouge pas." },
+    { t: "gap", f: "Le lit est contre le mur.", s: "Das Bett steht an ___ Wand.", a: "der",
+      why: "<b>die Wand</b> est féminine, et on y est → <b>der</b>." },
+    { t: "gap", f: "La chaise est entre la table et le lit.", s: "Der Stuhl steht ___ dem Tisch und dem Bett.", a: "zwischen",
+      why: "<b>zwischen</b> demande les deux compléments au datif ici — rien ne bouge." },
+
+    { t: "order", f: "Je vais dans la cuisine.", a: "Ich gehe in die Küche",
+      why: "Mouvement → accusatif féminin." },
+    { t: "order", f: "Je suis dans la cuisine.", a: "Ich bin in der Küche",
+      why: "Position → datif féminin." },
+    { t: "order", f: "Le chien est sous la table.", a: "Der Hund liegt unter dem Tisch",
+      why: "<b>liegen</b> → datif." },
+    { t: "order", f: "L'armoire est à côté du lit.", a: "Der Schrank steht neben dem Bett",
+      why: "<b>stehen</b> → datif." },
+    { t: "order", f: "Je mets la chaise dans la cuisine.", a: "Ich stelle den Stuhl in die Küche",
+      why: "Deux accusatifs : <b>den Stuhl</b> est le complément, <b>die Küche</b> la destination." },
+    { t: "order", f: "Où mets-tu la chaise ?", a: "Wohin stellst du den Stuhl",
+      why: "Le mot interrogatif, le verbe, le sujet, puis le complément." },
+
+    { t: "trad", f: "où (vers où)", a: "wohin",
+      why: "La question qui appelle l'accusatif." },
+    { t: "trad", f: "à côté de", a: "neben",
+      why: "Comme les huit autres, son cas dépend du mouvement." },
+    { t: "trad", f: "entre", a: "zwischen",
+      why: "Suivi de deux compléments reliés par <b>und</b>." },
+    { t: "trad", f: "au-dessus de", a: "über",
+      why: "À ne pas confondre avec <b>auf</b>, qui suppose un contact." },
+    { t: "trad", f: "le mur", a: "die Wand",
+      why: "Féminin — d'où <b>an der Wand</b>." },
+    { t: "trad", f: "le sol", a: "der Boden",
+      why: "Masculin — <b>auf dem Boden</b>, par terre." },
+    { t: "trad", f: "Je suis dans la cuisine.", a: "Ich bin in der Küche.",
+      why: "Datif : on y est." },
+    { t: "trad", f: "Je vais dans la cuisine.", a: "Ich gehe in die Küche.",
+      why: "Accusatif : on y va." },
+
+    { t: "trans", inst: "Passe de « on y est » à « on y va ».", from: "Ich bin in der Küche.", a: "Ich gehe in die Küche.",
+      why: "Le verbe change, et le datif <b>der</b> devient l'accusatif <b>die</b>." },
+    { t: "trans", inst: "Passe de « on y est » à « on y va ».", from: "Ich bin im Wohnzimmer.", a: "Ich gehe ins Wohnzimmer.",
+      why: "<b>im</b> (in dem) devient <b>ins</b> (in das) — les contractions de l'étape 33." },
+    { t: "trans", inst: "Passe de « on y est » à « on y va ».", from: "Ich bin im Bad.", a: "Ich gehe ins Bad.",
+      why: "Même bascule : <b>im</b> pour la position, <b>ins</b> pour la destination." },
+    { t: "trans", inst: "Passe de « on y va » à « on y est ».", from: "Ich gehe in die Küche.", a: "Ich bin in der Küche.",
+      why: "Dans l'autre sens : l'accusatif <b>die</b> redevient le datif <b>der</b>." },
+    { t: "trans", inst: "Dis où la chose se trouve, une fois posée.", from: "Ich stelle den Stuhl an die Wand.", a: "Der Stuhl steht an der Wand.",
+      why: "<b>stellen</b> devient <b>stehen</b>, et l'accusatif <b>die</b> devient le datif <b>der</b>." },
+    { t: "trans", inst: "Dis où la chose se trouve, une fois posée.", from: "Ich lege das Buch auf den Tisch.", a: "Das Buch liegt auf dem Tisch.",
+      why: "<b>legen</b> devient <b>liegen</b>, et <b>den</b> devient <b>dem</b>." }
+  ]
 }
 ];
