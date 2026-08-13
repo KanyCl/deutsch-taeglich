@@ -4806,6 +4806,27 @@ document.addEventListener("keydown", function (e) {
   // Un texte long se saisit sur plusieurs lignes : Entrée doit y rester Entrée.
   if (cible && cible.tagName === "TEXTAREA") return;
 
+  /* ⚠️ ON NE VOLE PAS ENTRÉE À CELUI QUI L'ATTEND — signalé par le mentor
+     (§2.4), et c'est le prix de l'écouteur posé sur `document`.
+
+     Le navigateur active DÉJÀ le bouton qui a le focus quand on appuie sur
+     Entrée : c'est le fonctionnement normal du clavier, celui dont dépend
+     quiconque ne se sert pas d'une souris. On tombait pourtant sur la branche
+     « valider », qui faisait `preventDefault()` — donc le bouton focalisé ne
+     recevait jamais son clic, et un autre agissait à sa place. Concrètement :
+     tabuler jusqu'à « Je ne sais pas » et appuyer sur Entrée VALIDAIT la
+     carte, et le rouage des réglages, focalisé, validait une carte aussi.
+
+     La règle est simple : si l'élément focalisé sait déjà répondre à Entrée,
+     on se retire. `preventDefault()` est le vrai coupable ici — ce n'est pas
+     « en plus » du comportement normal, c'est À LA PLACE.
+
+     Ce qui suit continue de marcher, et c'est le point : après une validation
+     l'écran est redessiné, le champ disparaît, le focus retombe sur la page
+     (`body`) — qui n'active rien. Entrée est alors libre, et c'est là qu'on
+     enchaîne. */
+  if (cible && cible.closest && cible.closest('button,a[href],summary,select')) return;
+
   // Dans une question du livre, Entrée envoie la réponse — sans la dévoiler.
   if (cible && cible.dataset && cible.dataset.in) {
     const envoi = view.querySelector('[data-send="' + cible.dataset.in + '"]');
