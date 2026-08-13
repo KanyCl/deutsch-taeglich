@@ -1653,10 +1653,15 @@ les deux niveaux et rien ne disait où l'un finissait.
 
 ### Reprendre ici
 
-- [ ] **Étape 43 · Le logement** (l'appartement, les pièces, les meubles), puis 44 à 63
-      selon `PLAN-A2.md`. Elle ouvre le **chapitre 15 « Chez soi, et ce qu'on en pense »**,
-      qui n'est pas encore déclaré — le créer avec la seule étape 43, puis l'allonger.
-      **On ne déclare que ce qui existe**, sinon l'auto-test échoue — et il a raison.
+- [x] **Étape 43 · Le logement** ✅ **écrite le 14/08/2026** — voir la section « L'étape 43 »
+      en bas. Le **chapitre 15 « Chez soi, et ce qu'on en pense »** est créé avec elle seule.
+- [ ] **Étape 44 · Datif ou accusatif ?** (les prépositions mixtes : *in der Küche* /
+      *in die Küche*), puis 45 à 63 selon `PLAN-A2.md`. Allonger le chapitre 15 au fur et à
+      mesure. **On ne déclare que ce qui existe**, sinon l'auto-test échoue — et il a raison.
+      ⚠️ **L'étape 43 lui a préparé le terrain et le dit à l'écran** : elle décrit ce qu'un
+      logement *contient* (`haben` + accusatif, déjà connu) et annonce que dire *où* se
+      trouve un meuble demande un cas qu'on verra ensuite. Le vocabulaire des pièces est
+      donc déjà en place pour servir d'exemples.
 
 ## Mise en ligne du 02/08/2026
 
@@ -2307,6 +2312,63 @@ côté** — qui, à spécificité égale et écrite plus bas, gagnait quand mê
 test.**
 
 Auto-test : **2150 / 2150**.
+
+## L'étape 43 · Le logement ✅ 14/08/2026
+
+Première étape du **chapitre 15 « Chez soi, et ce qu'on en pense »**, créé avec elle seule.
+Densité à la cible du `PLAN-A2.md` : 5 écrans, 12 phrases, 10 mots, 5 questions, 28 exercices
+(8 `gap` · 6 `order` · 8 `trad` · 6 `trans`).
+
+### Ce que l'étape enseigne vraiment
+
+Le plan l'annonçait comme une étape de **vocabulaire** (« l'appartement, les pièces, les
+meubles »). Elle en profite pour poser **une règle de grammaire qui rapporte gros et ne
+coûte rien** : ⚠️ **un mot composé prend le genre de son DERNIER morceau.** L'étape 34 avait
+déjà montré `das Einzelzimmer` sans donner la règle ; elle est ici, avec `das Zimmer` →
+`das Schlafzimmer`, `das Wohnzimmer`, et le contre-exemple `das Haus` + `die Tür` = **die**
+Haustür. C'est une des rares règles allemandes sans exception : elle rend le genre de
+milliers de mots **déductible** au lieu d'être à retenir.
+
+Second point, moins joyeux mais honnête : ⚠️ **le tréma du pluriel ne se déduit d'aucune
+règle.** `der Stuhl` → `die Stühle` et `der Schrank` → `die Schränke` en prennent un,
+`der Tisch` → `die Tische` non, et `das Zimmer` → `die Zimmer` ne bouge pas du tout. Le
+tableau les montre côte à côte, et le texte dit que ça s'apprend mot par mot. Prétendre
+qu'il existe une règle serait la faute que `verifier.ps1` ne sait pas attraper.
+
+### Les contraintes du plan, tenues et vérifiées
+
+- **Vocabulaire déjà rencontré, plus le sien.** Mesuré avant d'écrire : `der Tisch`,
+  `das Bett` et `das Zimmer` **étaient déjà** au vocabulaire (étapes antérieures et
+  étape 34). Ils servent donc de matière connue dans les phrases, et **les 10 mots neufs
+  sont réellement neufs** — vérifié un par un dans `cours.js` avant de les choisir.
+- **Aucune règle non encore vue.** ⚠️ Le piège de cette étape était l'envie de dire *où* :
+  `in der Küche` est du **datif**, c'est-à-dire l'étape 44. L'étape s'en tient donc à
+  `haben` + accusatif et **annonce à l'écran** ce qui manque, au lieu de l'employer en
+  douce. Décrire un logement sans jamais dire « dans » demande un peu de gymnastique ;
+  c'était le prix à payer pour ne pas casser la progression linéaire.
+- **Aucun exercice impossible à rater.** Les six `trans` sont des pluriels et des composés,
+  jamais une recopie : `das Zimmer` → `die Zimmer` ne change *que* l'article, et
+  `checkAnswer` le refuse quand même (`bad-article`).
+
+### Ce que l'auto-test a attrapé, et qu'on aurait publié sans lui
+
+Deux vérifications ont échoué au premier passage, et elles avaient raison :
+
+- **`43` n'avait pas de thème** (`THEME_ETAPE`) ;
+- **les 10 mots neufs n'étaient rangés dans aucun thème** (`THEME_MOT`) — le test les a
+  **nommés un par un**.
+
+Sans elles, les cartes de l'étape seraient sorties avec le fond par défaut et personne ne
+l'aurait vu avant Exsangue. Les neuf noms sont allés dans le thème **maison** (qui existait
+déjà, avec `das Haus`, `der Tisch`, `das Bett`), et `hell` dans le groupe des qualificatifs.
+
+**Contrôles** : auto-test **2184 / 2184** · `verifier.ps1` **0 écart d'article, 0 mot absent
+du socle** · balayage des balises : `<b>` seul, aucune entité `&#…`.
+
+⚠️ **Ce qui n'a PAS été vérifié : l'étape à l'écran.** Les captures de `test.ps1 -Shots`
+partent d'une progression neuve, donc de l'étape 1 — voir une étape 43 demanderait d'avoir
+validé les 42 précédentes. C'est exactement le genre d'angle mort qui a déjà livré trois
+défauts visuels ici. **À regarder par Exsangue à la première ouverture.**
 
 ## Le ménage — §3 ✅ 13/08/2026
 
