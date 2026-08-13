@@ -26,7 +26,7 @@ const COURSE = [
   steps: [
     {
       idea: "L'allemand s'écrit avec les mêmes 26 lettres que le français.",
-      detail: "Tu sais donc déjà tout lire — ou presque. Il n'y a que <b>quatre signes en plus</b> : <b>ä</b>, <b>ö</b>, <b>ü</b> et <b>ß</b>. On les voit dans les écrans suivants, un par un."
+      detail: "Tu sais donc déjà tout lire — ou presque. Il n'y a que <i>quatre signes en plus</i> : <b>ä</b>, <b>ö</b>, <b>ü</b> et <b>ß</b>. On les voit dans les écrans suivants, un par un."
     },
     {
       idea: "Les deux points sur une voyelle changent le son.",
@@ -300,7 +300,7 @@ const COURSE = [
     },
     {
       idea: "Demander le nom : tout dépend de qui est en face.",
-      detail: "L'allemand tranche là où le français hésite. Avec un proche, <b>du</b>. Avec un inconnu ou un supérieur, <b>Sie</b> — et il prend <b>toujours</b> une majuscule. C'est cette majuscule qui le distingue à l'écrit de <b>sie</b>, « elle ».",
+      detail: "L'allemand tranche là où le français hésite. Avec un proche, <b>du</b>. Avec un inconnu ou un supérieur, <b>Sie</b> — et il prend <i>toujours</i> une majuscule. C'est cette majuscule qui le distingue à l'écrit de <b>sie</b>, « elle ».",
       table: [["Wie heißt du?", "à un proche"], ["Wie heißen Sie?", "à un inconnu, poli"]],
       check: { q: "Tu te présentes à ton futur patron. Tu demandes…", o: ["Wie heißen Sie?", "Wie heißt du?", "Wie heißt Sie?"], a: 0, why: "Avec <b>Sie</b>, le verbe garde la forme longue <b>heißen</b> — et la majuscule est obligatoire." }
     },
@@ -594,13 +594,13 @@ const COURSE = [
     },
     {
       idea: "Et deux terminaisons annoncent le neutre — dont une piège les débutants.",
-      detail: "<b>-chen</b> et <b>-lein</b> forment les diminutifs, et un diminutif est <b>toujours</b> neutre. C'est pour ça que <b>das Mädchen</b>, la jeune fille, est neutre : c'est le diminutif de <b>die Magd</b>. Le sens ne commande pas le genre — la forme, si.",
+      detail: "<b>-chen</b> et <b>-lein</b> forment les diminutifs, et un diminutif est <i>toujours</i> neutre. C'est pour ça que <b>das Mädchen</b>, la jeune fille, est neutre : c'est le diminutif de <b>die Magd</b>. Le sens ne commande pas le genre — la forme, si.",
       table: [["-chen", "das Mädchen, la jeune fille"], ["-lein", "das Ringlein, le petit anneau"], ["Ge-", "das Gebäude, le bâtiment"], ["-um", "das Museum, le musée"]],
       check: { q: "Pourquoi <b>das Mädchen</b> est-il neutre ?", o: ["parce que -chen est un diminutif", "parce que c'est une exception", "parce que les filles sont neutres en allemand"], a: 0, why: "La terminaison l'emporte sur le sens : tout mot en <b>-chen</b> est neutre." }
     },
     {
       idea: "Enfin : « un » et « une » suivent le même genre.",
-      detail: "Et au pluriel, bonne nouvelle : <b>tout</b> devient <b>die</b>, quel que soit le genre de départ. <b>der Mann</b> → <b>die Männer</b>, <b>das Buch</b> → <b>die Bücher</b>. Un souci de moins.",
+      detail: "Et au pluriel, bonne nouvelle : <i>tout</i> devient <b>die</b>, quel que soit le genre de départ. <b>der Mann</b> → <b>die Männer</b>, <b>das Buch</b> → <b>die Bücher</b>. Un souci de moins.",
       table: [["masculin", "ein Mann"], ["féminin", "eine Frau"], ["neutre", "ein Kind"]],
       check: { q: "« une femme » se dit…", o: ["eine Frau", "ein Frau", "einen Frau"], a: 0, why: "Féminin → <b>eine</b>, avec un <b>e</b>. Masculin et neutre partagent <b>ein</b>." }
     }
@@ -782,7 +782,7 @@ const COURSE = [
        l'étape 34 enseigne « Nacht prend un tréma au pluriel ».
        La vraie règle porte sur la TERMINAISON, pas sur le genre — et
        celle-ci, elle, ne souffre pas d'exception. */
-    { q: "Quelle terminaison de pluriel ne prend <b>jamais</b> de tréma ?", o: ["-en / -n", "-e", "-er", "aucune : le tréma est libre"], a: 0, why: "Un pluriel en <b>-en</b> ou <b>-n</b> n'a jamais de tréma : <b>die Frau → die Frauen</b>, <b>die Blume → die Blumen</b>. Les pluriels en <b>-e</b> et <b>-er</b>, eux, en prennent souvent — et dans <b>les trois genres</b> : <b>die Nacht → die Nächte</b> est féminin, <b>das Buch → die Bücher</b> est neutre." },
+    { q: "Quelle terminaison de pluriel ne prend <i>jamais</i> de tréma ?", o: ["-en / -n", "-e", "-er", "aucune : le tréma est libre"], a: 0, why: "Un pluriel en <b>-en</b> ou <b>-n</b> n'a jamais de tréma : <b>die Frau → die Frauen</b>, <b>die Blume → die Blumen</b>. Les pluriels en <b>-e</b> et <b>-er</b>, eux, en prennent souvent — et dans <i>les trois genres</i> : <b>die Nacht → die Nächte</b> est féminin, <b>das Buch → die Bücher</b> est neutre." },
     { q: "Le pluriel de <b>das Auto</b> est…", o: ["die Autos", "die Autoer", "die Auten", "die Auto"], a: 0, why: "Mot venu de l'étranger → <b>-s</b>, comme en français." }
   ],
   drills: [
@@ -1657,7 +1657,7 @@ const COURSE = [
     },
     {
       idea: "L'accusatif, c'est celui qui subit. Et voici la bonne nouvelle.",
-      detail: "<b>Seul le masculin change.</b> <b>der</b> devient <b>den</b>, <b>ein</b> devient <b>einen</b>. Le féminin, le neutre et le pluriel ne bougent pas d'un cheveu. Sur les quatre formes, une seule est à retenir.",
+      detail: "<i>Seul le masculin change.</i> <b>der</b> devient <b>den</b>, <b>ein</b> devient <b>einen</b>. Le féminin, le neutre et le pluriel ne bougent pas d'un cheveu. Sur les quatre formes, une seule est à retenir.",
       table: [["masculin", "der &rarr; <b>den</b> · ein &rarr; <b>einen</b>"], ["féminin", "die &rarr; die — inchangé"], ["neutre", "das &rarr; das — inchangé"], ["pluriel", "die &rarr; die — inchangé"]],
       check: { q: "« Je vois la femme » se dit…", o: ["Ich sehe die Frau", "Ich sehe den Frau", "Ich sehe der Frau"], a: 0, why: "Le féminin ne change pas à l'accusatif : <b>die Frau</b> reste <b>die Frau</b>." }
     },
@@ -2153,7 +2153,7 @@ const COURSE = [
   steps: [
     {
       idea: "Commençons par la position facile : après le verbe être.",
-      detail: "Là, l'adjectif ne change <b>jamais</b>. <b>Das Auto ist rot</b>, <b>die Blume ist rot</b>, <b>die Autos sind rot</b>. Masculin, féminin, pluriel : <b>rot</b> reste <b>rot</b>. Et c'est déjà de quoi décrire presque tout ce que tu veux dire.",
+      detail: "Là, l'adjectif ne change <i>jamais</i>. <b>Das Auto ist rot</b>, <b>die Blume ist rot</b>, <b>die Autos sind rot</b>. Masculin, féminin, pluriel : <b>rot</b> reste <b>rot</b>. Et c'est déjà de quoi décrire presque tout ce que tu veux dire.",
       gloss: { de: ["Der", "Hund", "ist", "groß"], fr: ["Le", "chien", "est", "grand"] },
       check: { q: "« Les fleurs sont belles » se dit…", o: ["Die Blumen sind schön", "Die Blumen sind schöne", "Die Blumen sind schönen"], a: 0, why: "Après <b>sein</b>, aucune terminaison — même au pluriel." }
     },
@@ -2692,7 +2692,7 @@ const COURSE = [
     },
     {
       idea: "Et le point qui fait toute la différence : les verbes composés.",
-      detail: "Quand le verbe est en deux morceaux — particule séparable ou infinitif après un modal — le second morceau part <b>à la fin</b>. <b>Machst du das Fenster <u>auf</u>?</b>, <b>Wann fährt der Zug <u>ab</u>?</b>. C'est ce qui distingue une question naturelle d'une question de débutant.",
+      detail: "Quand le verbe est en deux morceaux — particule séparable ou infinitif après un modal — le second morceau part <i>à la fin</i>. <b>Machst du das Fenster <u>auf</u>?</b>, <b>Wann fährt der Zug <u>ab</u>?</b>. C'est ce qui distingue une question naturelle d'une question de débutant.",
       gloss: { de: ["Wann", "fährt", "der Zug", "ab"], fr: ["Quand", "part", "le train", "—"] },
       check: { q: "« Quand part le train ? » se dit…", o: ["Wann fährt der Zug ab?", "Wann abfährt der Zug?", "Wann ab fährt der Zug?"], a: 0, why: "La particule <b>ab</b> se détache et va en fin de phrase." }
     }
@@ -3072,7 +3072,7 @@ const COURSE = [
     },
     {
       idea: "Et la seconde règle : la deuxième partie du verbe part à la fin.",
-      detail: "Participe passé, infinitif après un modal, particule séparable — tout ce qui reste du verbe file en bout de phrase. Le verbe encadre alors la phrase : conjugué en place 2, le reste tout au bout. On appelle ça la <b>parenthèse verbale</b>.",
+      detail: "Participe passé, infinitif après un modal, particule séparable — tout ce qui reste du verbe file en bout de phrase. Le verbe encadre alors la phrase : conjugué en place 2, le reste tout au bout. On appelle ça la <i>parenthèse verbale</i>.",
       table: [["Ich rufe dich heute an.", "particule — anrufen"], ["Ich habe ein Brötchen gegessen.", "participe passé"], ["Morgen muss sie arbeiten.", "infinitif après un modal"]],
       check: { q: "Où va l'infinitif après un verbe modal ?", o: ["à la fin de la phrase", "juste après le modal", "en première position"], a: 0, why: "<b>Morgen muss sie mit ihrem Chef sprechen</b> — <b>sprechen</b> ferme la phrase." }
     },
@@ -3188,7 +3188,7 @@ const COURSE = [
     },
     {
       idea: "Ils se conjuguent tous sur le même moule bizarre.",
-      detail: "Deux choses à voir : la voyelle change au singulier, et surtout <b>ich</b> et <b>er</b> ont la <b>même forme</b>, sans terminaison. C'est unique aux modaux — partout ailleurs <b>er</b> prend un <b>-t</b>.",
+      detail: "Deux choses à voir : la voyelle change au singulier, et surtout <b>ich</b> et <b>er</b> ont la <i>même forme</i>, sans terminaison. C'est unique aux modaux — partout ailleurs <b>er</b> prend un <b>-t</b>.",
       table: [["ich kann · du kannst · er kann", "pouvoir, savoir"], ["ich will · du willst · er will", "vouloir"], ["ich muss · du musst · er muss", "devoir"]],
       check: { q: "« Il peut » se dit…", o: ["er kann", "er kannt", "er könnt"], a: 0, why: "Aux modaux, <b>ich</b> et <b>er</b> partagent la même forme, sans <b>-t</b>." }
     },
@@ -3331,7 +3331,7 @@ const COURSE = [
     },
     {
       idea: "Et le mot qui change tout : le contenant.",
-      detail: "On ne commande pas « un vin » mais <b>un verre de vin</b> : <b>ein Glas Wein</b>. Pas de <b>von</b>, pas d'article entre les deux — les deux mots se suivent. Pareil pour <b>eine Tasse Kaffee</b>, une tasse de café.",
+      detail: "On ne commande pas « un vin » mais <i>un verre de vin</i> : <b>ein Glas Wein</b>. Pas de <b>von</b>, pas d'article entre les deux — les deux mots se suivent. Pareil pour <b>eine Tasse Kaffee</b>, une tasse de café.",
       gloss: { de: ["ein", "Glas", "Wein"], fr: ["un", "verre", "de vin"] },
       check: { q: "« Un verre de vin » se dit…", o: ["ein Glas Wein", "ein Glas von Wein", "ein Glas des Weins"], a: 0, why: "Les deux mots se suivent, sans rien entre eux." }
     }
@@ -4088,7 +4088,7 @@ const COURSE = [
     },
     {
       idea: "Un repère simple pour ne pas hésiter.",
-      detail: "S'il y a <b>déjà un complément</b> après le verbe — les mains, un livre, un film — alors le pronom passe au datif : <b>mir</b>, <b>dir</b>. S'il n'y en a pas, c'est <b>mich</b>, <b>dich</b>. Une seule question à se poser.",
+      detail: "S'il y a <i>déjà un complément</i> après le verbe — les mains, un livre, un film — alors le pronom passe au datif : <b>mir</b>, <b>dir</b>. S'il n'y en a pas, c'est <b>mich</b>, <b>dich</b>. Une seule question à se poser.",
       check: { q: "« Tu te laves les cheveux » — quel pronom ?", o: ["dir, car les cheveux sont le complément", "dich", "sich"], a: 0, why: "Il y a déjà un complément — <b>die Haare</b> — donc le pronom passe au datif." }
     }
   ],
@@ -4189,7 +4189,7 @@ const COURSE = [
   steps: [
     {
       idea: "La question à se poser : est-ce que ça bouge ?",
-      detail: "C'est toute la règle. <b>Si tu vas quelque part</b> → accusatif. <b>Si tu y es déjà</b> → datif. Une seule question, et neuf prépositions se rangent d'elles-mêmes.",
+      detail: "C'est toute la règle. <i>Si tu vas quelque part</i> → accusatif. <i>Si tu y es déjà</i> → datif. Une seule question, et neuf prépositions se rangent d'elles-mêmes.",
       table: [["Ich gehe ins Kino.", "j'y vais → accusatif"], ["Ich bin im Kino.", "j'y suis → datif"]],
       check: { q: "« Je suis au cinéma » se dit…", o: ["Ich bin im Kino", "Ich bin ins Kino", "Ich bin in das Kino"], a: 0, why: "On y est, rien ne bouge → datif → <b>im</b>." }
     },
@@ -4603,7 +4603,7 @@ const COURSE = [
     },
     {
       idea: "Pour dire qu'on a mal : <b>weh tun</b>.",
-      detail: "L'allemand ne dit pas « j'ai mal à la tête » mais <b>la tête fait mal</b>. C'est donc la partie du corps qui est sujet — et le verbe s'accorde avec elle, pas avec toi.",
+      detail: "L'allemand ne dit pas « j'ai mal à la tête » mais <i>la tête fait mal</i>. C'est donc la partie du corps qui est sujet — et le verbe s'accorde avec elle, pas avec toi.",
       table: [["Der Kopf <b>tut</b> weh.", "J'ai mal à la tête."], ["Die Füße <b>tun</b> weh.", "J'ai mal aux pieds."]],
       check: { q: "Pour « j'ai mal aux pieds », on dit…", o: ["Die Füße tun weh", "Ich habe Füße weh", "Die Füße tut weh"], a: 0, why: "<b>Füße</b> est un pluriel, donc <b>tun</b> et non <b>tut</b>. C'est le pied qui fait mal, pas toi qui as mal." }
     },

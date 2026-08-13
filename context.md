@@ -197,10 +197,13 @@ complets. Plan complet dans `PLAN-A2.md`.
 - ✅ **`.\test.ps1 -Publie`** teste ce qui part réellement en ligne, tests reposés le temps
   d'une exécution puis effacés.
 - ✅ **`lang="de"` posé le 13/08/2026** — le §4 de l'audit. Auto-test **2076 / 2076**.
-- ⬜ **16 gras français** (sur 2 802) sont désormais annoncés avec une voix allemande : la
-  convention « gras = mot allemand » n'est pas tenue partout. Liste et arbitrage en attente
-  dans `TODO.md`. ⚠️ Chaque cas doit être **lu dans sa phrase** — un comptage automatique en
-  annonce 46 en confondant les suffixes allemands `-en`/`-et` avec le mot français « en ».
+- ✅ **La règle du gras est redevenue sans exception le 13/08/2026** : `<b>` = mot allemand,
+  `<i>` = insistance en français. 16 gras français sont passés en italique (2 802 → 2 786),
+  choix d'Exsangue. Comme `<i>` ne porte pas `var(--de)`, la distinction est **visible**
+  autant qu'audible. ⚠️ Pour retrouver un tel cas, **lire chaque gras dans sa phrase** — un
+  comptage automatique en annonce 46 en prenant les suffixes allemands `-en`/`-et` pour le
+  mot français « en », `au` (diphtongue) pour la préposition, `des` (génitif) pour l'article,
+  et `les` pour un morceau de `ge**les**en`.
 - ✅ **Le livre est retiré**, `index.html` est suivi par git.
 - ✅ **Deux niveaux dans le sommaire** : un dépliant A1, un dépliant A2 en dessous.
 - ⬜ **Étapes 43 à 63** — à écrire.

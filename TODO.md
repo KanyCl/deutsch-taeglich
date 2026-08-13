@@ -1994,9 +1994,19 @@ phrase.**
 | 33 | Si tu vas quelque part · Si tu y es déjà |
 | 36 | la tête fait mal |
 
-- [ ] **Trancher avec Exsangue.** Le correctif évident est de passer ces 16 en `<i>`, déjà
-      dans la liste blanche de `rich()` — mais **c'est un changement visuel** (le gras
-      insiste plus que l'italique), donc son choix, pas le mien.
+- [x] **Tranché par Exsangue le 13/08/2026 : les 16 passent en `<i>`.** ✅
+      Fait. `<b>` : **2 802 → 2 786**, exactement 16 de moins, aucune collatérale — chaque
+      chaîne a été comptée avant d'être remplacée, et les 14 motifs distincts totalisaient
+      bien 16 occurrences.
+      **Le gain n'est pas la voix, c'est que le gras redevienne un signal fiable :** il ne
+      veut plus dire qu'une seule chose. Et comme `<i>` ne porte pas `var(--de)`, le
+      français revient dans la police française — la distinction est désormais **visible**
+      autant qu'audible. Vérifié sur capture (étape 1) : *quatre signes en plus* en italique
+      maigre, **ä ö ü ß** en gras serif à côté.
       ⛔ **Ne PAS ajouter d'attribut `lang` dans le contenu** : `rich()` n'accepte que des
       balises nues, et lui faire accepter des attributs rouvrirait exactement la brèche
-      refermée le 11/08.
+      refermée le 11/08. C'est pourquoi le correctif passe par le CHOIX DE LA BALISE.
+
+⚠️ **La règle est maintenant sans exception, et c'est ce qui la rend tenable :
+`<b>` = mot allemand, `<i>` = insistance en français.** Une règle qui tolère un cas finit
+par en tolérer dix — c'est déjà écrit plus haut à propos du garde-fou du mot « jour ».
