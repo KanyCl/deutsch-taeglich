@@ -827,6 +827,63 @@ function rich(s) {
 function att(s) {
   return esc(s).replace(/"/g, "&quot;");
 }
+
+/* ===============================================================
+   LA LANGUE DU TEXTE ALLEMAND — `lang="de"`
+   ===============================================================
+   Signalé par le mentor d'Exsangue le 11/08/2026, et c'était le point
+   d'accessibilité le plus lourd de son rapport : la page est déclarée
+   `lang="fr"` (elle a raison, l'interface est en français), donc un lecteur
+   d'écran prononçait *der Körper* avec une voix française. Sur une app
+   d'apprentissage des langues, c'est le défaut qui coûte le plus cher.
+
+   ⚠️ D'OÙ VIENT LA LISTE DES ÉLÉMENTS ALLEMANDS : DE LA FEUILLE DE STYLE.
+   L'app marque déjà l'allemand visuellement, par la police `var(--de)`.
+   Recopier ces sélecteurs dans une constante JavaScript aurait créé une
+   seconde source de vérité, et le projet a déjà payé deux fois pour savoir
+   que deux sources décrivant la même chose finissent par se contredire (le
+   badge de l'en-tête, l'écran de fin du test A1). Ici, une règle CSS neuve
+   qui porte la police allemande est marquée toute seule, sans que personne
+   ait à y penser.
+
+   L'EXCEPTION, et elle est réelle : `.answer`, le champ de saisie. Il porte
+   la police allemande dans TOUS les exercices, y compris ceux qui attendent
+   une réponse en FRANÇAIS. Sa langue dépend de la question posée, pas de son
+   style — elle est donc décidée à la source, dans `saisieAttrs`. */
+const SANS_LANGUE = [".answer"];
+let selDE = null;
+
+function selecteursAllemands() {
+  if (selDE !== null) return selDE;
+  const pris = [];
+  for (let i = 0; i < document.styleSheets.length; i++) {
+    let regles;
+    /* Une feuille venue d'ailleurs lève une exception à la lecture. Il n'y en
+       a aucune ici — zéro dépendance — mais on ne veut pas qu'une extension
+       de navigateur puisse tuer l'affichage. */
+    try { regles = document.styleSheets[i].cssRules; } catch (e) { continue; }
+    for (let j = 0; j < regles.length; j++) {
+      const r = regles[j];
+      if (!r.style || !r.selectorText) continue;
+      if (r.style.fontFamily !== "var(--de)") continue;
+      if (SANS_LANGUE.indexOf(r.selectorText) >= 0) continue;
+      pris.push(r.selectorText);
+    }
+  }
+  selDE = pris.join(", ");
+  return selDE;
+}
+
+/* Pose `lang="de"` sur tout ce qui, dans `racine`, porte la police allemande.
+   Appelée après CHAQUE injection de HTML — un écran reconstruit repart d'un
+   DOM neuf, et l'attribut ne survit pas à `innerHTML`. */
+function marqueAllemand(racine) {
+  const sel = selecteursAllemands();
+  if (!sel || !racine) return;
+  if (racine.matches && racine.matches(sel)) racine.lang = "de";
+  const trouves = racine.querySelectorAll(sel);
+  for (let i = 0; i < trouves.length; i++) trouves[i].lang = "de";
+}
 function sayBtn(text) {
   return '<button class="say" data-say="' + att(text) + '" aria-label="Écouter">&#9654;</button>';
 }
@@ -853,9 +910,14 @@ function sayBtn(text) {
    ici, c'est le bandeau « Remplissage automatique » et ses propositions de
    contact — pas les prédictions de mots. */
 let nSaisie = 0;
-function saisieAttrs(label) {
+/* `enAllemand` : ce que le champ ATTEND, pas ce qu'il affiche. Le style ne
+   peut pas le dire — `.answer` porte la police allemande même quand la
+   réponse demandée est en français. Sans ce paramètre, un lecteur d'écran
+   relirait « la sœur » avec une voix allemande. */
+function saisieAttrs(label, enAllemand) {
   nSaisie++;
-  return ' type="text" enterkeyhint="done"' +
+  return (enAllemand ? ' lang="de"' : "") +
+    ' type="text" enterkeyhint="done"' +
     ' name="rep-' + nSaisie + '-' + Math.random().toString(36).slice(2, 8) + '"' +
     ' autocomplete="rien-a-remplir"' +
     ' autocorrect="off" autocapitalize="off" spellcheck="false"' +
@@ -890,6 +952,7 @@ function show(html, versLeHaut) {
   stopLecture();
   const y = window.scrollY;
   view.innerHTML = html;
+  marqueAllemand(view);
 
   /* Remettre la position APRÈS le remplacement : le navigateur peut l'avoir
      écrêtée si la nouvelle page est plus courte, et c'est très bien ainsi.
@@ -2111,7 +2174,11 @@ function writeFrBody(c) {
     (verdict
       ? '<div class="why ' + (verdict.ok ? "good" : "bad") + '">' + note + '</div>' +
         '<button class="btn primary wide" data-act="card-next">Continuer</button>'
-      : '<input class="answer" id="answer"' + saisieAttrs("Ta réponse en français") + '>' +
+      /* ⚠️ LE SEUL CHAMP QUI RESTE EN FRANÇAIS — ne pas « corriger ».
+         C'est la carte du niveau 1, qui montre l'allemand et demande le sens.
+         Il porte la police allemande comme tous les autres : le style ne peut
+         donc pas décider ici, seule la question le peut. */
+      : '<input class="answer" id="answer"' + saisieAttrs("Ta réponse en français", false) + '>' +
         '<div class="pair">' +
           '<button class="btn" data-act="dunno">Je ne sais pas</button>' +
           '<button class="btn primary" data-act="check-word">Vérifier</button>' +
@@ -2161,7 +2228,7 @@ function writeBody(c) {
     (verdict
       ? '<div class="why ' + (verdict.ok ? "good" : "bad") + '">' + note + '</div>' +
         '<button class="btn primary wide" data-act="card-next">Continuer</button>'
-      : '<input class="answer" id="answer"' + saisieAttrs("Ta réponse en allemand") + '>' +
+      : '<input class="answer" id="answer"' + saisieAttrs("Ta réponse en allemand", true) + '>' +
         '<div class="pair">' +
           '<button class="btn" data-act="dunno">Je ne sais pas</button>' +
           '<button class="btn primary" data-act="check-word">Vérifier</button>' +
@@ -2536,7 +2603,7 @@ function renderOral() {
                   : 'Écris en allemand ce que tu entends.'))
           : 'Écris en français ce que ça veut dire.') + '</div>',
       '</div>',
-      '<input class="answer" id="answer"' + saisieAttrs("Ce que tu entends") + '>',
+      '<input class="answer" id="answer"' + saisieAttrs("Ce que tu entends", it.task === "write") + '>',
       '<div class="pair">',
         '<button class="btn" data-act="oral-dunno">Je ne sais pas</button>',
         '<button class="btn primary" data-act="oral-check">Vérifier</button>',
@@ -2745,7 +2812,7 @@ function renderDrill() {
             }).join("") +
           '</div>'
         ].join("")
-      : '<input class="answer" id="answer"' + saisieAttrs("Ta réponse") + '>';
+      : '<input class="answer" id="answer"' + saisieAttrs("Ta réponse", true) + '>';
 
     return head + saisie + [
       '<div class="pair">',
@@ -2920,7 +2987,10 @@ function askItem(it, id, indice) {
       indice ? '<p class="ask-ou">' + esc(indice) + '</p>' : '',
       ouverte
         ? '<button class="btn" data-model="' + att(id) + '">Voir une réponse possible</button>'
-        : '<input class="answer" data-in="' + att(id) + '"' + saisieAttrs("Ta réponse") + '>' +
+        /* Les exercices du livre étaient en allemand. Ce chemin est DORMANT
+           depuis que le livre a été retiré (`BOOK` est vide) : on ne peut plus
+           le vérifier à l'écran, seulement dans l'historique. */
+        : '<input class="answer" data-in="' + att(id) + '"' + saisieAttrs("Ta réponse", true) + '>' +
           '<div class="pair">' +
             '<button class="btn primary" data-send="' + att(id) + '">Envoyer</button>' +
             '<button class="btn" data-check="' + att(id) + '">Voir la réponse</button>' +
@@ -2995,6 +3065,7 @@ function gradeItem(id, reveal) {
   if (fb) {
     fb.className = "ask-fb" + classe;
     fb.innerHTML = note;
+    marqueAllemand(fb);
     fb.hidden = false;
   }
   return v.ok;
@@ -3679,7 +3750,7 @@ function a1View() {
         ? '<div class="why ' + (a1Log[a1i] ? "good" : "bad") + '">' +
             (a1Log[a1i] ? "Exact. " : "La réponse attendue : ") +
             '<b>' + esc(it.ecrit) + '</b></div>'
-        : '<input class="answer" id="answer"' + saisieAttrs("Ta réponse en allemand") + '>' +
+        : '<input class="answer" id="answer"' + saisieAttrs("Ta réponse en allemand", true) + '>' +
           '<button class="btn primary wide" data-act="a1-check">Valider</button>');
 
   return [
@@ -3858,7 +3929,7 @@ function verbesView() {
     return '<div class="conj-q">' +
              '<label for="vf' + i + '">' + esc(PRONOMS[i]) + '</label>' +
              '<input class="answer" id="vf' + i + '" data-vf="' + i + '"' +
-               saisieAttrs("Forme pour " + PRONOMS[i]) + '>' +
+               saisieAttrs("Forme pour " + PRONOMS[i], true) + '>' +
            '</div>';
   }).join("");
 
@@ -4069,7 +4140,7 @@ function chronoView() {
         '<div class="card" data-consigne="En allemand">',
           '<div class="chrono-mot">' + esc(chronoMot ? chronoMot.f : "") + '</div>',
         '</div>',
-        '<input class="answer" id="answer"' + saisieAttrs("Écris le mot en allemand") + '>',
+        '<input class="answer" id="answer"' + saisieAttrs("Écris le mot en allemand", true) + '>',
         '<div class="pair">',
           '<button class="btn" data-act="chrono-passe">Passer</button>',
           '<button class="btn primary" data-act="chrono-check">Valider</button>',
@@ -4147,9 +4218,11 @@ function paintOu(name) {
      quelqu'un rendu à l'étape 40. Il suit désormais l'étape en cours, comme
      l'accueil — un libellé de niveau ne doit exister qu'à UN endroit calculé,
      sinon les deux finissent par se contredire. */
+  /* Le nom de l'app est ALLEMAND, et un lecteur d'écran le disait en français.
+     Le niveau (« A2 ») reste hors de la marque : c'est un code, pas un mot. */
   w.innerHTML = nom
     ? '<span class="ou" data-ou="' + att(name) + '">' + esc(nom) + '</span>'
-    : 'Deutsch Täglich <small>' + esc(niveauDe(S.day).id) + '</small>';
+    : '<span lang="de">Deutsch Täglich</span> <small>' + esc(niveauDe(S.day).id) + '</small>';
 }
 
 function go(name) {
@@ -4274,7 +4347,10 @@ view.addEventListener("click", function (e) {
     const fb = view.querySelector('[data-fb="' + t.dataset.model + '"]');
     if (it && fb) {
       fb.className = "ask-fb";
-      fb.innerHTML = "Une réponse possible : <b>" + esc(it.model) + "</b>";
+      /* `lang` écrit à la main : ce `<b>` ne porte pas la police allemande,
+         il échappe donc à la déduction par la feuille de style. C'est bien
+         de l'allemand — la réponse modèle de l'exercice. */
+      fb.innerHTML = 'Une réponse possible : <b lang="de">' + esc(it.model) + "</b>";
       fb.hidden = false;
       t.remove();
     }

@@ -761,6 +761,79 @@ function runTests() {
     ok("quiz : aucune balise ne se lit à l'écran", vus.length === 0, vus.slice(0, 3).join(" | "));
   })();
 
+  /* ---- La langue du texte allemand — `lang="de"` ----
+     Point le plus lourd de l'audit du 11/08/2026 : la page est en français, et
+     un lecteur d'écran prononçait donc *der Körper* avec une voix française.
+
+     ⚠️ CE CONTRÔLE NE REGARDE PAS `marqueAllemand`, IL REGARDE L'ÉCRAN.
+     Vérifier la fonction avec la liste de sélecteurs qu'elle emploie
+     reviendrait à la comparer à elle-même — exactement le défaut de l'ancienne
+     « sécurité : le HTML des contenus est échappé », qui mesurait `esc()` en
+     vase clos et passait pendant que l'écran était cassé.
+     Ici on lit le STYLE CALCULÉ : tout ce qui s'affiche dans la police
+     allemande doit être annoncé en allemand. Une règle CSS neuve qui oublierait
+     la marque tombe donc toute seule, même si personne n'a pensé à ce test. */
+  ok("langue : la page reste déclarée en français",
+     document.documentElement.lang === "fr", "lu : " + document.documentElement.lang);
+
+  (function () {
+    const policeDE = getComputedStyle(document.documentElement)
+      .getPropertyValue("--de").trim();
+    ok("langue : la police allemande est bien définie", policeDE.length > 0);
+
+    function enPoliceDE(el) {
+      return getComputedStyle(el).fontFamily.trim() === policeDE;
+    }
+
+    const muets = [];
+    ["home", "lesson", "cards", "quiz", "practice", "drills", "oral", "verbes",
+     "chrono", "reglages"].forEach(function (ecran) {
+      S = fresh(); S.day = 1; seed(1);
+      go(ecran);
+      const tous = view.querySelectorAll("*");
+      for (let i = 0; i < tous.length; i++) {
+        const el = tous[i];
+        if (!enPoliceDE(el)) continue;
+        /* Le champ de saisie est le seul cas où le style ne décide pas : il
+           porte la police allemande même quand la réponse attendue est en
+           français. Il est vérifié juste en dessous, à la source. */
+        if (el.matches(".answer")) continue;
+        /* Un descendant hérite de la police ET de la langue : seul l'endroit
+           où la police COMMENCE doit porter la marque. */
+        if (el.parentElement && el.parentElement !== view && enPoliceDE(el.parentElement)) continue;
+        if (!el.textContent.trim()) continue;
+        if (el.closest('[lang="de"]')) continue;
+        muets.push(ecran + " · " + (el.className || el.tagName) +
+                   " « " + el.textContent.trim().slice(0, 28) + " »");
+      }
+    });
+    ok("langue : tout ce qui s'affiche en allemand est annoncé en allemand",
+       muets.length === 0, muets.slice(0, 4).join(" | "));
+  })();
+
+  /* Le champ de saisie, à la source. Les deux sens comptent : marquer le champ
+     qui attend de l'allemand, et NE PAS marquer celui qui attend du français —
+     une erreur dans ce sens-là ferait relire « la sœur » avec une voix
+     allemande, et elle serait invisible à l'écran. */
+  (function () {
+    const de = saisieAttrs("x", true), fr = saisieAttrs("x", false);
+    ok("langue : le champ qui attend de l'allemand est marqué",
+       de.indexOf('lang="de"') !== -1);
+    ok("langue : le champ qui attend du français ne l'est pas",
+       fr.indexOf('lang=') === -1);
+
+    /* Et à l'écran : la carte du niveau 1 demande le SENS, en français. */
+    S = fresh(); S.day = 1; seed(1);
+    go("cards");
+    const champ = view.querySelector("#answer");
+    if (champ) {
+      const attendue = view.querySelector('[data-consigne="En français"]') ? "" : "de";
+      ok("langue : la carte qui demande le sens laisse le champ en français",
+         (champ.getAttribute("lang") || "") === attendue,
+         "lu : " + (champ.getAttribute("lang") || "aucun"));
+    }
+  })();
+
   /* ---- Le test de fin de niveau A1 ----
      Demande d'Exsangue le 02/08/2026. Un examen qui se trompe est pire
      qu'un examen absent : il donne un niveau qu'on n'a pas, ou refuse un

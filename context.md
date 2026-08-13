@@ -88,6 +88,7 @@ l'entraînement et le compteur de « mots fragiles » sur l'accueil.
 | PWA / page web plutôt qu'Android natif | Le compte `franky` est standard : impossible d'installer Android Studio + JDK 17 sans l'admin. Une page web ne demande rien. |
 | ~~Un seul fichier `index.html`~~ — **abandonné le 13/08/2026** | La contrainte d'origine (zéro build, zéro dépendance, zéro `npm install`) reste valable ; la conclusion « donc un seul fichier » était le mauvais raccourci. On découpe en vrais fichiers **sans build**, et la contrainte est intacte. ⚠️ En **scripts classiques**, pas en modules ES : vérifié le 13/08, un module ne se charge pas en `file://`, ce que fait `test.ps1`. Les modules viendront avec le découpage de `moteur/` et `ecrans/`, et le `serveur.ps1` qu'ils imposent. |
 | **Un seul endroit décide du rendu du contenu** (11/08/2026) | `idea` était échappé et `detail` non ; `check.q` échappé et `quiz.q` non. Ce n'était pas une politique, c'était un oubli — et l'écran affichait `<b>der Körper</b>` en clair. `rich()` échappe TOUT puis réautorise une liste blanche (`b`, `i`, `u`, six entités). L'ordre compte : l'inverse laisserait passer ce qu'on neutralise. Le gras est employé **2 802 fois** dans le cours pour faire ressortir le mot allemand — l'échappement total aurait détruit la pédagogie. |
+| **La langue de l'allemand se déduit de la FEUILLE DE STYLE** (13/08/2026) | L'app marquait déjà l'allemand visuellement, par la police `var(--de)`. `marqueAllemand()` lit ces règles dans `document.styleSheets` et pose `lang="de"` sur ce qu'elles désignent — une règle CSS neuve est donc marquée toute seule. Recopier les sélecteurs en JavaScript aurait créé une seconde source de vérité, et le projet a déjà payé deux fois pour ça. ⚠️ Exception réelle : `.answer`, le champ de saisie, porte la police allemande même quand la réponse attendue est en français ; sa langue est décidée à la source par `saisieAttrs(label, enAllemand)`. |
 | **`seed()` n'est appelé que par `lessonView()`** (11/08/2026) | Quatre appelants, dont la validation du quiz qui ensemençait l'étape **suivante** : le mode cartes servait des mots jamais vus, on les ratait tous, et chaque erreur ajoutant deux cartes, le paquet grossissait plus vite qu'on ne le vidait. `context.md` affirmait déjà « le mot a déjà été présenté dans la leçon avant d'arriver aux cartes » — c'est vrai dans le code depuis seulement cette date. |
 | Contenu écrit à la main dans `COURSE` | Pas de base de données ni d'API à maintenir. Ajouter un jour = ajouter un objet au tableau. |
 | Progression dans `localStorage` | Suffisant pour un usage mono-appareil. Sauvegarde/restauration JSON pour ne rien perdre. |
@@ -195,6 +196,11 @@ complets. Plan complet dans `PLAN-A2.md`.
   hors production (**868 → 719 Ko** publiés), `2070 / 2070` inchangé. Voir ci-dessus.
 - ✅ **`.\test.ps1 -Publie`** teste ce qui part réellement en ligne, tests reposés le temps
   d'une exécution puis effacés.
+- ✅ **`lang="de"` posé le 13/08/2026** — le §4 de l'audit. Auto-test **2076 / 2076**.
+- ⬜ **16 gras français** (sur 2 802) sont désormais annoncés avec une voix allemande : la
+  convention « gras = mot allemand » n'est pas tenue partout. Liste et arbitrage en attente
+  dans `TODO.md`. ⚠️ Chaque cas doit être **lu dans sa phrase** — un comptage automatique en
+  annonce 46 en confondant les suffixes allemands `-en`/`-et` avec le mot français « en ».
 - ✅ **Le livre est retiré**, `index.html` est suivi par git.
 - ✅ **Deux niveaux dans le sommaire** : un dépliant A1, un dépliant A2 en dessous.
 - ⬜ **Étapes 43 à 63** — à écrire.

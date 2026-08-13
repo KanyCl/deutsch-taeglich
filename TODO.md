@@ -1754,10 +1754,7 @@ expliquait la première.
       20 % du poids téléchargé par l'utilisateur, et c'est le vecteur du §1.3.
 - [ ] **§3 · Code mort** : `enrichirDepuisLivre` n'est jamais appelé (le livre est parti) ;
       `revele` est déclaré, commenté sur 6 lignes, jamais lu.
-- [ ] **§4 · Aucun `lang="de"` dans tout le fichier** — vérifié, **0 occurrence**. Le texte
-      allemand est balisé comme du français (`<html lang="fr">`) : un lecteur d'écran le
-      prononce avec une voix française. **Sur une app d'apprentissage des langues, c'est le
-      point d'accessibilité le plus important, et il est absent.**
+- [x] **§4 · `lang="de"`** ✅ 13/08/2026 — voir la section dédiée plus bas.
 - [ ] **§4 · Aucun service worker** (0 occurrence). Manifeste et icônes sont là, mais il n'y
       a ni cache hors-ligne ni éligibilité à l'invite d'installation. Pour une app qui
       s'annonce « sans compte ni serveur », l'usage hors-ligne est l'attente par défaut.
@@ -1916,3 +1913,90 @@ PowerShell 5.1 lit les `.ps1` en ANSI.** Le script de découpage contenait des t
 et des guillemets français dans les en-têtes qu'il écrivait — ils sont ressortis en
 `â€"` dans les cinq fichiers produits. Corrigés à la main. **Un `.ps1` reste en ASCII pur**,
 et c'est écrit en tête de `publier.ps1` depuis le 02/08.
+
+## ✅ `lang="de"` — l'allemand est enfin annoncé comme de l'allemand, 13/08/2026
+
+Point le plus lourd du §4 de l'audit, et il avait raison : la page est déclarée `lang="fr"`
+— ce qui est juste, l'interface est en français — donc un lecteur d'écran prononçait
+*der Körper* avec une **voix française**. Sur une app d'apprentissage des langues, c'est le
+défaut d'accessibilité qui coûte le plus cher. `<html lang="fr">` reste inchangé.
+
+### D'où vient la liste des éléments allemands : de la feuille de style
+
+L'app marquait **déjà** l'allemand, visuellement, par la police `var(--de)` — 16 règles CSS.
+`marqueAllemand()` lit ces règles **dans la feuille de style au moment de l'exécution**
+(`document.styleSheets`, `r.style.fontFamily === "var(--de)"`) et pose `lang="de"` sur ce
+qu'elles désignent, après chaque injection de HTML.
+
+**Recopier ces sélecteurs dans une constante JavaScript aurait créé une seconde source de
+vérité**, et le projet a déjà payé deux fois pour ça (le badge de l'en-tête, l'écran de fin
+du test A1). Ici, une règle CSS neuve portant la police allemande est marquée **toute
+seule**, sans que personne ait à y penser.
+
+Vérifié avant d'écrire la moindre ligne : le CSSOM rend bien `"var(--de)"` comme valeur de
+`fontFamily`, et `selectorText` conserve les listes à virgules.
+
+Quatre endroits injectent du HTML, tous branchés : `show()`, le retour des questions du
+livre, la réponse modèle d'un exercice ouvert, et le bandeau du titre — où **« Deutsch
+Täglich » est de l'allemand** et était lu en français.
+
+### L'exception, et elle est réelle : le champ de saisie
+
+`.answer` porte la police allemande dans **tous** les exercices, y compris ceux qui
+attendent une réponse **en français** (la carte de niveau 1, qui montre l'allemand et
+demande le sens). Le style ne peut donc pas décider ici : la langue est posée **à la
+source**, par `saisieAttrs(label, enAllemand)`. Sept champs sur huit sont en allemand ; le
+huitième porte un commentaire qui dit de ne pas le « corriger ».
+
+⚠️ Le mode oral est le cas subtil : `saisieAttrs("Ce que tu entends", it.task === "write")`.
+Le même champ attend l'allemand en dictée et le français en traduction.
+
+### Six vérifications, dont une qui regarde l'écran et pas la fonction
+
+La vérification qui compte lit le **style calculé** : tout ce qui s'affiche dans la police
+allemande, sur dix écrans, doit être annoncé en allemand. Elle ne réutilise **pas** la liste
+de sélecteurs de `marqueAllemand` — la comparer à elle-même serait exactement le défaut de
+l'ancienne « sécurité : le HTML des contenus est échappé », qui mesurait `esc()` en vase
+clos et passait pendant que l'écran était cassé.
+
+**Éprouvée sur une copie volontairement cassée** : en retirant l'appel dans `show()`, elle
+échoue et nomme les fautifs (`home · de « Das Alphabet »`). Un test qui n'a jamais échoué
+ne prouve rien.
+
+Auto-test : **2076 / 2076**, source et version publiée.
+
+### ⚠️ Ce que la marque a révélé : le gras ne veut pas toujours dire « allemand »
+
+La convention du projet est *gras = mot allemand* — 2 802 emplois. En marquant, **16 sont
+en réalité du français mis en valeur**, et sont donc désormais annoncés avec une voix
+allemande. C'est 0,6 % : la marque reste très largement gagnante (2 786 mots allemands enfin
+prononcés correctement), mais ces 16-là sont à reprendre.
+
+⚠️ **Ne pas se fier à un comptage automatique ici.** Un premier balayage en a annoncé 46 :
+il prenait `<b>-en</b>` et `<b>-et</b>` (suffixes allemands) pour le mot français « en »,
+`<b>au</b>` (diphtongue allemande) pour la préposition, `<b>des</b>` (génitif) pour l'article
+français, et `<b>les</b>` pour un morceau de `ge**les**en`. **Chaque cas doit être lu dans sa
+phrase.**
+
+| Étape | Le gras français |
+|---|---|
+| 1 | quatre signes en plus |
+| 3, 5 | toujours |
+| 5 | tout |
+| 6 | jamais · les trois genres |
+| 13 | Seul le masculin change. |
+| 17 | jamais |
+| 21 | à la fin |
+| 24 | parenthèse verbale |
+| 25 | même forme |
+| 26 | un verre de vin |
+| 32 | déjà un complément |
+| 33 | Si tu vas quelque part · Si tu y es déjà |
+| 36 | la tête fait mal |
+
+- [ ] **Trancher avec Exsangue.** Le correctif évident est de passer ces 16 en `<i>`, déjà
+      dans la liste blanche de `rich()` — mais **c'est un changement visuel** (le gras
+      insiste plus que l'italique), donc son choix, pas le mien.
+      ⛔ **Ne PAS ajouter d'attribut `lang` dans le contenu** : `rich()` n'accepte que des
+      balises nues, et lui faire accepter des attributs rouvrirait exactement la brèche
+      refermée le 11/08.
