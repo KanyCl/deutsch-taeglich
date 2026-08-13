@@ -32,7 +32,11 @@ $html = Get-Content $app -Raw -Encoding utf8
 # telechargeait pour rien, et le vecteur du bug qui ecrasait sa progression.
 # demarrage.js verifie que runTests existe avant de l appeler, donc son absence
 # ne casse rien -- #test ouvre simplement l accueil sur la version en ligne.
-$fichiers = @("donnees\cours.js", "app.js", "demarrage.js")
+#
+# sw.js ajoute le 13/08/2026 (§4) : c est du code publie, il passe donc par
+# $fichiers et non par $statiques -- ainsi le garde-fou du livre le scrute lui
+# aussi. Un controle doit suivre ce qu il controle.
+$fichiers = @("donnees\cours.js", "app.js", "demarrage.js", "sw.js")
 $statiques = @("icon-180.png", "icon-512.png", "manifest.webmanifest")
 
 # Garde-fou conserve, et il n est pas decoratif. Si le livre revenait un jour

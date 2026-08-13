@@ -169,6 +169,18 @@ body {
 button { font: inherit; color: inherit; cursor: pointer; }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 
+/* Lu par les lecteurs d'ecran, invisible a l'oeil. On ne prend NI
+   `display:none` NI `visibility:hidden` : les deux retirent l'element de
+   l'arbre d'accessibilite, donc de ce qui est annonce -- ce serait ecrire un
+   message dans une piece vide. Le pli d'un pixel, lui, reste lisible. */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  overflow: hidden; clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .app {
   max-width: 31rem;
   margin: 0 auto;
@@ -1201,7 +1213,17 @@ body.has-tts .say { display: inline-flex; }
   border-radius: var(--edge);
   padding: .875rem .75rem;
 }
-.answer:focus { outline: none; border-color: var(--accent); }
+/* ⚠️ L'INDICATEUR DE FOCUS NE SE RETIRE PAS — signale par le mentor (§4).
+   La regle disait `outline: none`, et comme elle est plus specifique que le
+   `:focus-visible` general d'en haut, elle gagnait : le champ PRINCIPAL de
+   l'app -- celui ou l'on tape toutes les reponses -- n'avait plus aucun
+   reperage au clavier. Un changement de couleur de bordure ne suffit pas :
+   WCAG 2.4.7 demande un indicateur visible, et une bordure qui change de
+   teinte sans changer d'epaisseur passe inapercue des qu'on regarde ailleurs.
+   La bordure d'accent reste -- elle est jolie et elle aide -- mais elle
+   s'ajoute au trait, elle ne le remplace plus. */
+.answer:focus { border-color: var(--accent); }
+.answer:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 
 /* Remettre les mots dans l'ordre : les étiquettes qu'on assemble.
    La zone du haut est la phrase en construction, celle du bas la réserve. */
@@ -1667,6 +1689,18 @@ body.has-tts .say { display: inline-flex; }
   </header>
   <main id="view"></main>
 </div>
+
+<!-- LA REGION D'ANNONCE, signalee par le mentor (§4). Les ecrans sont
+     reconstruits par innerHTML : pour un lecteur d'ecran, la page ne change
+     pas, elle se remplace en silence. Ni le changement d'ecran ni la
+     CORRECTION -- c'est-a-dire la reponse a la seule question qu'on se pose en
+     revisant -- n'etaient annonces.
+
+     `polite` et non `assertive` : on attend que la phrase en cours se termine.
+     Couper la lecture d'une consigne pour annoncer « Exact. » ferait perdre la
+     consigne. Elle est hors de #view, sinon chaque innerHTML la remplacerait
+     et le navigateur perdrait le fil de ce qu'il devait dire. -->
+<p id="annonce" class="sr-only" role="status" aria-live="polite"></p>
 
 <!-- Le code vit dans des fichiers separes depuis le 13/08/2026. L ordre
      compte : les donnees, puis le code, puis les tests, puis le demarrage

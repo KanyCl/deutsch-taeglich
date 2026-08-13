@@ -1653,6 +1653,98 @@ function runTests() {
     }
   })();
 
+  /* ---- §4 · L'indicateur de focus est de retour ----
+     `.answer:focus { outline: none }` retirait le repérage clavier du champ
+     PRINCIPAL de l'app — celui où l'on tape toutes les réponses.
+
+     ⚠️ Cette vérification lit le STYLE CALCULÉ, pas la feuille de style :
+     c'est la seule façon de savoir ce qui est réellement peint. Une règle
+     peut exister et être écrasée par une autre plus spécifique — c'était
+     exactement le défaut, `:focus-visible` général perdait contre
+     `.answer:focus`. */
+  S = fresh(); S.day = 1; seed(1);
+  go("cards");
+  (function () {
+    const champ = document.getElementById("answer");
+    ok("focus : le champ de réponse est là", !!champ);
+    if (!champ) return;
+    champ.focus();
+    const st = getComputedStyle(champ);
+    ok("focus : le champ focalisé porte un contour visible",
+       st.outlineStyle !== "none" && parseFloat(st.outlineWidth) >= 2,
+       st.outlineStyle + " " + st.outlineWidth);
+    /* La bordure d'accent reste : elle s'ajoute au contour, elle ne le
+       remplace pas. Vérifié pour que la correction n'ait pas jeté l'un pour
+       l'autre. */
+    ok("focus : et le champ garde sa bordure", parseFloat(st.borderTopWidth) > 0);
+  })();
+
+  /* ---- §4 · Ce qui est annoncé aux lecteurs d'écran ----
+     Les écrans sont reconstruits par `innerHTML` : sans région live, ni le
+     changement d'écran ni la correction ne sont annoncés. Pour qui n'a pas
+     l'écran sous les yeux, l'app répondait « juste » ou « faux » en silence. */
+  (function () {
+    const zone = document.getElementById("annonce");
+    ok("annonce : la région existe", !!zone);
+    if (!zone) return;
+    eq("annonce : elle est polie, elle ne coupe pas la parole",
+       zone.getAttribute("aria-live"), "polite");
+    /* ⚠️ Hors de #view : sinon chaque `innerHTML` la remplacerait, et le
+       navigateur perdrait le fil de ce qu'il devait dire. */
+    ok("annonce : elle vit hors de l'écran redessiné", !view.contains(zone));
+    /* Et elle doit rester lisible pour l'arbre d'accessibilité : `display:none`
+       ou `visibility:hidden` en feraient un message écrit dans une pièce vide. */
+    const st = getComputedStyle(zone);
+    ok("annonce : invisible à l'œil mais pas escamotée",
+       st.display !== "none" && st.visibility !== "hidden",
+       st.display + " / " + st.visibility);
+
+    S = fresh(); S.day = 1; seed(1);
+    go("cards");
+    const champ = document.getElementById("answer");
+    if (champ) {
+      champ.value = "n'importe quoi";
+      view.querySelector('[data-act="check-word"]').click();
+      ok("annonce : la correction est annoncée", zone.textContent.trim().length > 0,
+         "lu : " + zone.textContent);
+      /* On annonce le RENDU, pas le HTML : des chevrons se feraient épeler. */
+      ok("annonce : et sans une seule balise", zone.textContent.indexOf("<") === -1,
+         zone.textContent);
+    }
+
+    /* Un écran sans correction annonce son titre : savoir où l'on vient
+       d'arriver est le minimum quand on ne voit pas la page. */
+    go("home");
+    ok("annonce : un écran sans correction annonce son titre",
+       zone.textContent.trim().length > 0, "lu : " + zone.textContent);
+  })();
+
+  /* ---- §4 · Le hors-ligne : la décision d'inscription ----
+     Un service worker ne s'installe qu'en https (ou sur localhost), et
+     l'auto-test ouvre la page en file:// — le hors-ligne lui-même demanderait
+     un serveur qu'on n'a pas. Mais la DÉCISION se teste, et c'est elle qui est
+     dangereuse : une inscription tentée en file:// lève une exception au
+     démarrage, donc pendant l'auto-test, très loin de sa cause apparente. */
+  (function () {
+    const avecSW = { serviceWorker: {} };
+    ok("hors-ligne : on s'inscrit en https",
+       doitEnregistrerSW({ protocol: "https:", hostname: "kanycl.github.io" }, avecSW));
+    ok("hors-ligne : jamais en file:// — c'est le cas de l'auto-test",
+       !doitEnregistrerSW({ protocol: "file:", hostname: "" }, avecSW));
+    ok("hors-ligne : ni en http ailleurs que sur la machine",
+       !doitEnregistrerSW({ protocol: "http:", hostname: "exemple.fr" }, avecSW));
+    ok("hors-ligne : mais oui sur localhost, pour mettre au point",
+       doitEnregistrerSW({ protocol: "http:", hostname: "localhost" }, avecSW));
+    ok("hors-ligne : et jamais si le navigateur ne sait pas faire",
+       !doitEnregistrerSW({ protocol: "https:", hostname: "kanycl.github.io" }, {}));
+    /* ⚠️ La preuve par l'usage : l'auto-test tourne en ce moment même, en
+       file://. Si la décision était fausse, l'inscription aurait été tentée au
+       démarrage — et cette ligne ne serait jamais atteinte. */
+    ok("hors-ligne : rien n'a été tenté pendant cet auto-test",
+       !doitEnregistrerSW(window.location, navigator) ||
+       window.location.protocol !== "file:");
+  })();
+
   /* ---- §2.3 · Restaurer ne peut plus écraser sans prévenir ----
      Le mentor a trouvé la porte restée ouverte : restaurer par FICHIER
      n'demandait rien, quand le texte collé demandait confirmation. Ce qui est

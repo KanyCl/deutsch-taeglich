@@ -1760,10 +1760,12 @@ expliquait la première.
 - [ ] **§3 · Code mort** : `enrichirDepuisLivre` n'est jamais appelé (le livre est parti) ;
       `revele` est déclaré, commenté sur 6 lignes, jamais lu.
 - [x] **§4 · `lang="de"`** ✅ 13/08/2026 — voir la section dédiée plus bas.
-- [ ] **§4 · Aucun service worker** (0 occurrence). Manifeste et icônes sont là, mais il n'y
+- [x] **§4 · Aucun service worker** ✅ **fait le 13/08/2026** — voir la section « Le
+      hors-ligne et l'accessibilité » en bas. Manifeste et icônes sont là, mais il n'y
       a ni cache hors-ligne ni éligibilité à l'invite d'installation. Pour une app qui
       s'annonce « sans compte ni serveur », l'usage hors-ligne est l'attente par défaut.
-- [ ] **§4 · `.answer:focus { outline: none; }`** (1204) retire l'indicateur de focus du
+- [x] **§4 · `.answer:focus { outline: none; }`** ✅ **fait le 13/08/2026** — (1204) retire
+      l'indicateur de focus du
       champ principal — échoue WCAG 2.4.7 si le contraste de la bordure ne suit pas.
       Et 17 attributs `aria-` en tout : les écrans sont reconstruits par `innerHTML` sans
       région live, ni le changement d'écran ni la correction ne sont annoncés.
@@ -2211,6 +2213,91 @@ tombent**, dont les deux qui portent le cœur du § (*der Haus* accepté, verdic
 « exact »).
 
 Auto-test : **2134 / 2134**.
+
+## Le hors-ligne et l'accessibilité — §4 ✅ 13/08/2026
+
+### ⚠️⚠️ Le service worker est en « RÉSEAU D'ABORD », et ce choix n'est pas négociable
+
+La stratégie habituelle d'un service worker est « cache d'abord » : plus rapide, et c'est
+ce que recommandent tous les tutoriels. **Elle est interdite dans ce projet**, pour une
+raison qui lui est propre et qui est écrite trois fois dans ce fichier : **Exsangue a déjà
+perdu du temps sur des pages servies depuis le cache de son iPhone.** Il a signalé des
+défauts déjà corrigés, et on a cherché dans du code qu'il n'exécutait pas.
+
+Un « cache d'abord » rendrait ce piège **permanent et bien pire** : l'app se figerait sur la
+version du jour de l'installation, et il n'y aurait plus de « recharger » qui tienne.
+
+Avec « réseau d'abord » : en ligne, on a toujours la dernière version — **rien ne change par
+rapport à avant `sw.js`**. Hors ligne, on sert la dernière version vue. **On gagne le
+hors-ligne sans rien perdre**, et c'est le seul compromis acceptable ici.
+
+- [x] **`sw.js`**, ajouté à `publier.ps1` — dans `$fichiers` et non `$statiques`, pour que
+      le garde-fou du livre le scrute lui aussi. Un contrôle doit suivre ce qu'il contrôle.
+- [x] **Le socle mis en cache comprend `donnees/cours.js`.** Sans le cours, l'app
+      s'ouvrirait sur une coquille vide hors ligne — pire qu'une page d'erreur : on croirait
+      avoir perdu sa progression.
+- [x] **Chaque fichier est mis en cache séparément** (`cache.add` dans un `Promise.all`, pas
+      `addAll`) : `addAll` est tout ou rien, et une icône renommée suffirait à priver l'app
+      de hors-ligne pour une image.
+- [x] **On ne répond jamais à la place du navigateur** pour ce qui n'est pas à nous — autre
+      origine, méthode autre que GET, réponse non-`ok`. Un service worker qui s'interpose
+      partout devient le suspect n°1 de toute panne réseau, et plus rien ne se diagnostique.
+      ⚠️ Une 404 mise en cache serait ensuite servie hors ligne **comme si c'était la page**.
+- [x] **`?v=2` continue de marcher** : cette adresse ne correspond à aucune entrée du cache,
+      donc une navigation retombe explicitement sur `./index.html`. C'est le contournement
+      qu'utilise Exsangue, il ne devait pas disparaître.
+
+### Ce qui est vérifié, et ce qui ne l'est pas — à être franc
+
+Un service worker ne s'installe qu'en **https** (ou sur `localhost`), et l'auto-test ouvre
+la page en `file://`. **Le hors-ligne lui-même n'est donc pas vérifié ici** — il demanderait
+un serveur qu'on n'a pas. Ce qui est vérifié :
+
+- **la DÉCISION d'inscription** (`doitEnregistrerSW`), sortie en fonction exprès. C'est elle
+  qui est dangereuse : une inscription tentée en `file://` lèverait une exception **au
+  démarrage, donc pendant l'auto-test, très loin de sa cause apparente**. Six vérifications,
+  dont une qui prend acte que l'auto-test tourne en ce moment même en `file://` ;
+- **la syntaxe de `sw.js`**, chargé comme script ordinaire dans une page jetable : un
+  fichier cassé s'installerait en silence et ne servirait à rien.
+
+**Reste à confirmer par Exsangue, et c'est le seul vrai test :** ouvrir le site sur
+l'iPhone, l'utiliser une fois, passer en **mode avion**, rouvrir → l'app doit s'ouvrir.
+
+### L'accessibilité
+
+- [x] **L'indicateur de focus est revenu sur le champ de réponse.** `.answer:focus {
+      outline: none }` le retirait, et comme cette règle est plus spécifique que le
+      `:focus-visible` général, elle gagnait : **le champ principal de l'app** — celui où
+      l'on tape toutes les réponses — n'avait plus aucun repérage au clavier. La bordure
+      d'accent reste, mais elle **s'ajoute** au trait au lieu de le remplacer : une bordure
+      qui change de teinte sans changer d'épaisseur passe inaperçue.
+      ⚠️ La vérification lit le **style calculé**, pas la feuille de style : une règle peut
+      exister et être écrasée par une plus spécifique — c'était exactement le défaut.
+- [x] **Une région d'annonce** (`#annonce`, `role="status"`, `aria-live="polite"`). Les
+      écrans sont reconstruits par `innerHTML` : pour un lecteur d'écran, la page ne change
+      pas, elle se remplace **en silence**. Ni le changement d'écran ni la **correction** —
+      la réponse à la seule question qu'on se pose en révisant — n'étaient annoncés.
+      ⚠️ Elle vit **hors de `#view`**, sinon chaque `innerHTML` la remplacerait et le
+      navigateur perdrait le fil de ce qu'il devait dire.
+      ⚠️ `polite` et non `assertive` : couper la lecture d'une consigne pour annoncer
+      « Exact. » ferait perdre la consigne.
+      ⚠️ `.sr-only` n'emploie **ni `display:none` ni `visibility:hidden`** — les deux
+      retirent l'élément de l'arbre d'accessibilité, donc de ce qui est annoncé : ce serait
+      écrire un message dans une pièce vide.
+- [x] **Un seul point d'accroche**, dans `show()` : la correction (`.why`) si elle existe,
+      le titre de l'écran (`h2`) sinon. C'est l'ordre des priorités de quelqu'un qui
+      révise — savoir si c'était juste passe avant de savoir où l'on est. Et on annonce le
+      **rendu** (`textContent`), jamais le HTML : des chevrons se feraient épeler.
+
+**Éprouvé sur une copie volontairement cassée** : en remettant les trois défauts,
+**6 vérifications tombent**.
+⚠️ **Et une leçon de méthode au passage** : la première tentative n'a fait retomber que
+5 sur 6. J'avais remis `outline: none` **sans retirer la règle `:focus-visible` ajoutée à
+côté** — qui, à spécificité égale et écrite plus bas, gagnait quand même. Le défaut d'origine
+était la *conjonction* des deux. **Reproduire à moitié un défaut, c'est prouver à moitié un
+test.**
+
+Auto-test : **2150 / 2150**.
 
 ⚠️ **Vérifié au passage, et sans suite : la flèche gauche a la même forme** (écouteur sur
 `document`, sortie sur `INPUT`/`TEXTAREA` seulement). Elle est inoffensive parce que les

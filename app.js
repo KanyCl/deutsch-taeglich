@@ -1020,6 +1020,46 @@ function paintStreak() {
    demande explicitement — ce que fait `go`, qui est le seul vrai changement
    d'écran. Le défaut inverse (tout conserver) serait moins grave : on peut
    toujours remonter à la main, alors qu'on ne peut pas annuler un saut. */
+/* ⚠️ QUAND ENREGISTRER LE SERVICE WORKER — §4 du rapport du mentor.
+
+   Sorti en fonction pour une raison précise : c'est la SEULE partie du
+   hors-ligne qu'on puisse vraiment vérifier ici. Un service worker ne
+   s'installe qu'en `https:` (ou sur `localhost`), et l'auto-test ouvre la page
+   en `file://` — le tester pour de bon demanderait un serveur qu'on n'a pas.
+   La décision, elle, se teste avec de faux `location` et `navigator`.
+
+   Et c'est bien la décision qui est dangereuse : une inscription tentée en
+   `file://` lève une exception au démarrage, donc pendant l'auto-test, donc
+   très loin de sa cause apparente. */
+function doitEnregistrerSW(loc, nav) {
+  if (!loc || !nav || !("serviceWorker" in nav)) return false;
+  if (loc.protocol === "https:") return true;
+  /* `http:` ne vaut que sur la machine elle-même : ailleurs le navigateur
+     refuse, et prétendre le contraire ferait échouer une inscription qu'on
+     annonçait possible. */
+  return loc.protocol === "http:" &&
+         (loc.hostname === "localhost" || loc.hostname === "127.0.0.1");
+}
+
+/* ⚠️ CE QUE L'APP DIT À VOIX HAUTE — §4 du rapport du mentor.
+
+   Les écrans sont reconstruits par `innerHTML` : pour un lecteur d'écran, la
+   page ne change pas, elle se remplace en silence. On annonce donc nous-mêmes,
+   et une seule chose à la fois — la CORRECTION quand il y en a une, le titre
+   de l'écran sinon. C'est l'ordre des priorités de quelqu'un qui révise :
+   savoir si c'était juste passe avant de savoir où l'on est.
+
+   ⚠️ Réécrire le MÊME texte ne déclenche rien : le navigateur ne relit une
+   région que si elle a changé. Deux « Exact. » de suite resteraient donc
+   muets la seconde fois — d'où l'espace ajouté, invisible à l'oreille comme à
+   l'œil, mais qui fait bien un texte différent. */
+function annonce(txt) {
+  const el = document.getElementById("annonce");
+  if (!el) return;
+  const t = String(txt || "").replace(/\s+/g, " ").trim();
+  el.textContent = (t && t === el.textContent) ? t + " " : t;
+}
+
 function show(html, versLeHaut) {
   // Quitter l'écran doit couper la lecture : sinon le dialogue continue à
   // parler par-dessus l'écran suivant, sans aucun bouton pour l'arrêter.
@@ -1027,6 +1067,13 @@ function show(html, versLeHaut) {
   const y = window.scrollY;
   view.innerHTML = html;
   marqueAllemand(view);
+
+  /* On lit le RENDU, pas le HTML : `textContent` donne le texte tel qu'il
+     s'affiche, sans les balises de mise en valeur ni les entités. Annoncer
+     « Le mot est bon, mais pas le genre : <b>das Haus</b> » ferait épeler des
+     chevrons. */
+  const aDire = view.querySelector(".why") || view.querySelector("h2");
+  annonce(aDire ? aDire.textContent : "");
 
   /* Remettre la position APRÈS le remplacement : le navigateur peut l'avoir
      écrêtée si la nouvelle page est plus courte, et c'est très bien ainsi.
