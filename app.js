@@ -1630,6 +1630,43 @@ function deCore(s) {
   return normDE(String(s).replace(/\([^)]*\)/g, " "));
 }
 
+/* ⚠️ CE QUE LE COURS SAIT DU GENRE DE SES NOMS — construit pour le §2.5.
+
+   Utile quand la réponse attendue n'a PAS d'article et qu'on en écrit un
+   quand même : sans index, on ne pourrait que tout accepter (l'ancien défaut)
+   ou tout refuser. Or refuser à l'aveugle serait faux — *der Bär* EST de
+   l'allemand correct, même si l'exercice ne demandait que *Bär*. Mesuré sur
+   le cours avant de coder : **118 réponses d'exercices sont un nom nu**, donc
+   118 endroits où un refus sec crierait au loup.
+
+   L'index se construit à la première question et une seule fois. Il vient du
+   vocabulaire du cours — la même source que les cartes, jamais une liste
+   recopiée à côté.
+
+   ⚠️ Le cache vit sur la FONCTION, pas dans une variable de module : une
+   déclaration `let` ici serait sous `let S = load()` (ligne 276), donc dans
+   la zone morte temporelle qui a déjà cassé l'app trois fois. Une fonction
+   déclarée, elle, est utilisable de partout.
+
+   Un nom vu avec deux articles différents ne tranche rien : on préfère ne pas
+   savoir que savoir faux. */
+function genreConnu(nom) {
+  if (!genreConnu.index) {
+    const idx = {};
+    (typeof COURSE !== "undefined" ? COURSE : []).forEach(function (etape) {
+      (etape.vocab || []).forEach(function (v) {
+        const s = splitArticle(deCore(v.d));
+        if (!s.art || !s.rest || s.rest.indexOf(" ") !== -1) return;
+        if (idx[s.rest] && idx[s.rest] !== s.art) idx[s.rest] = "?";
+        else if (!idx[s.rest]) idx[s.rest] = s.art;
+      });
+    });
+    genreConnu.index = idx;
+  }
+  const g = genreConnu.index[nom];
+  return (g && g !== "?") ? g : null;
+}
+
 /* Renvoie { ok, kind }. Le genre compte : oublier l'article passe, en
    mettre un faux non — c'est justement ce qui s'apprend mal tout seul. */
 function checkAnswer(typed, expected) {
@@ -1645,6 +1682,23 @@ function checkAnswer(typed, expected) {
     if (ts.rest !== es.rest) continue;
     if (es.art && !ts.art) return { ok: true, kind: "no-article" };
     if (es.art && ts.art)  return { ok: false, kind: "bad-article" };
+
+    /* ⚠️ UN ARTICLE AJOUTÉ LÀ OÙ ON N'EN ATTEND AUCUN — signalé par le mentor
+       (§2.5). Tout passait, *das Hund* compris : sur une app dont l'argument
+       est « strict sur le genre », c'était la mauvaise direction.
+
+       Mais tout refuser aurait été faux dans l'autre sens : *der Bär* est de
+       l'allemand correct même quand l'exercice ne demande que *Bär*, et le
+       cours compte 118 réponses de cette forme. On ne juge donc QUE ce qu'on
+       sait : si le cours connaît le genre de ce nom et que l'article écrit le
+       contredit, c'est faux — et c'est exactement ce qu'on veut attraper,
+       puisque c'est une faute de genre affirmée, pas un oubli. Si le cours ne
+       le connaît pas, on ne devine pas. */
+    if (ts.art) {
+      const vrai = genreConnu(ts.rest);
+      if (vrai && vrai !== ts.art) return { ok: false, kind: "bad-article" };
+      return { ok: true, kind: "article-en-plus" };
+    }
     return { ok: true, kind: "exact" };
   }
   return { ok: false, kind: "wrong" };
@@ -2274,6 +2328,12 @@ function writeBody(c) {
                                                   "</b> traduit bien « " + esc(c.f) +
                                                   " ». Ici on visait <b>" + esc(c.d) + "</b>.";
   else if (verdict.kind === "no-article")  note = "Juste. Pense à l'article : <b>" + esc(c.d) + "</b>.";
+  /* On ne dit PAS « et ton article est bon » : on ne le sait que si le cours
+     connaît ce nom. Annoncer une validation qu'on n'a pas faite serait
+     exactement le travers que le mentor traque. */
+  else if (verdict.kind === "article-en-plus")
+                                           note = "Juste — ici on attendait <b>" + esc(c.d) +
+                                                  "</b>, sans article.";
   else if (verdict.kind === "bad-article") note = "Le mot est bon, mais pas le genre : c'est <b>" + esc(c.d) + "</b>.";
   else if (verdict.kind === "dunno")       note = "Pas grave — ce mot va revenir vite.";
   else if (verdict.kind === "empty")       note = "Rien d'écrit.";
@@ -2690,6 +2750,9 @@ function renderOral() {
   if (oralVerdict.kind === "exact")            note = "Exact.";
   else if (oralVerdict.kind === "typo")        note = "Juste, à une faute de frappe près.";
   else if (oralVerdict.kind === "no-article")  note = "Juste. Pense à l'article : <b>" + esc(it.de) + "</b>.";
+  else if (oralVerdict.kind === "article-en-plus")
+                                               note = "Juste — ici on attendait <b>" + esc(it.de) +
+                                                      "</b>, sans article.";
   else if (oralVerdict.kind === "need-article") note = "À ce niveau l'article compte : c'est <b>" + esc(it.de) + "</b>.";
   else if (oralVerdict.kind === "strict")      note = "Presque — à ce niveau il faut la forme exacte : <b>" + esc(it.de) + "</b>.";
   else if (oralVerdict.kind === "bad-article") note = "Le mot est bon, mais pas le genre : c'est <b>" + esc(it.de) + "</b>.";
@@ -3118,7 +3181,9 @@ function gradeItem(id, reveal) {
   } else if (v.ok) {
     note = v.kind === "no-article"
       ? "Juste — pense à l'article la prochaine fois."
-      : "Exact.";
+      : v.kind === "article-en-plus"
+        ? "Juste — l'article n'était pas demandé ici."
+        : "Exact.";
     classe = " good";
   } else if (v.kind === "bad-article") {
     note = "Le genre de l'article n'est pas le bon. Réessaie.";

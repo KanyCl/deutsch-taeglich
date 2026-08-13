@@ -1748,7 +1748,8 @@ expliquait la première.
       sur `document` : si le focus est sur un bouton quelconque, on tombe sur la branche
       `check-word`, qui fait `preventDefault()` et **valide à la place du bouton focalisé**.
       Toute la navigation clavier hors champ de saisie est faussée.
-- [ ] **§2.5 · Une tolérance à l'envers dans le correcteur.** `checkAnswer` refuse à juste
+- [x] **§2.5 · Une tolérance à l'envers dans le correcteur.** ✅ **fait le 13/08/2026**
+      — voir la section « L'article ajouté » en bas. `checkAnswer` refuse à juste
       titre un mauvais article et pardonne un article oublié — mais accepte aussi un article
       **ajouté** là où la réponse n'en attend aucun : *der Hund* est validé quand on attend
       *Hund*. Sur une app dont l'argument est « strict sur le genre », c'est la mauvaise
@@ -2157,6 +2158,59 @@ rien du tout.
 tombent**, et les quatre du chemin normal restent vertes.
 
 Auto-test : **2121 / 2121**.
+
+## L'article ajouté — §2.5 ✅ 13/08/2026
+
+La tolérance du correcteur était à l'envers sur un cas : oublier l'article passait (voulu),
+en mettre un **faux** là où la réponse en attend un était refusé (voulu), mais en **ajouter
+un là où la réponse n'en attend aucun** passait toujours — ***das Hund*** compris. Sur une
+app dont l'argument est « strict sur le genre », c'est la mauvaise direction.
+
+### ⚠️ Refuser à l'aveugle aurait été faux dans l'autre sens
+
+C'est le vrai piège de ce §, et il a failli me coûter la correction. ***der Bär*** **est de
+l'allemand correct**, même quand l'exercice ne demande que *Bär*. **Mesure faite avant de
+coder** : sur les 1 222 réponses d'exercices du cours, **118 sont un nom nu** — donc
+118 endroits où un refus sec crierait au loup. Et « un contrôle qui crie à tort finit par
+être ignoré » est déjà écrit trois fois dans ce fichier.
+
+### Ce qui a été fait : on ne juge QUE ce qu'on sait
+
+- [x] **`genreConnu()`** construit à la première question un index nom → article **à partir
+      du vocabulaire du cours** — la même source que les cartes, jamais une liste recopiée
+      à côté. Un nom vu avec deux articles différents ne tranche rien : **on préfère ne pas
+      savoir que savoir faux.**
+- [x] **Si le cours connaît le genre et que l'article écrit le contredit → faux**, et nommé
+      `bad-article` : c'est une faute de genre **affirmée**, pas un oubli. C'est exactement
+      ce qu'on voulait attraper.
+- [x] **S'il ne le connaît pas → on accepte.** Deviner un genre serait inventer une
+      correction — c'est la règle « ne jamais inventer une conjugaison » appliquée aux
+      articles.
+- [x] **Un nouveau verdict `article-en-plus`**, avec son message dans les trois écrans qui
+      en affichent un (cartes, oral, questions). Il dit « ici on attendait *Haus*, sans
+      article » et **surtout pas** « ton article est bon » : on ne le sait que si le cours
+      connaît ce nom, et annoncer une validation qu'on n'a pas faite serait précisément le
+      travers que le mentor traque dans tout son rapport.
+
+⚠️ **Le cache vit sur la FONCTION** (`genreConnu.index`), pas dans une variable de module :
+un `let` à cet endroit serait sous `let S = load()` (ligne 276), donc dans **la zone morte
+temporelle qui a déjà cassé l'app trois fois**. Une fonction déclarée est utilisable de
+partout, sans ordre à respecter.
+
+⚠️ **Le niveau 5 de l'oral ne passe pas par là** et n'a rien à changer : il compare les
+formes brutes avant d'appeler `checkAnswer`, donc il refusait déjà *der Bär* pour *Bär*.
+Les deux exigences se rejoignent au lieu de se contredire.
+
+**Vérifications** : 13 neuves, dont trois qui gardent les comportements d'origine (l'oubli
+pardonné, le faux genre refusé, l'exact exact) — sans elles, « refuser l'article en trop »
+se réglerait en refusant tout. Et une qui vérifie que **l'index n'est pas vide** : une liste
+vide ferait passer tous les tests « on ne devine pas » sans corriger quoi que ce soit.
+
+**Éprouvé sur une copie volontairement cassée** : en retirant la branche, **4 vérifications
+tombent**, dont les deux qui portent le cœur du § (*der Haus* accepté, verdict annoncé
+« exact »).
+
+Auto-test : **2134 / 2134**.
 
 ⚠️ **Vérifié au passage, et sans suite : la flèche gauche a la même forme** (écouteur sur
 `document`, sortie sur `INPUT`/`TEXTAREA` seulement). Elle est inoffensive parce que les

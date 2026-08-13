@@ -3027,6 +3027,48 @@ function runTests() {
   ok("saisie : un autre mot est une erreur", !checkAnswer("Haus", "das Wort").ok);
   ok("saisie : une réponse vide est une erreur", !checkAnswer("   ", "Hallo").ok);
 
+  /* ---- §2.5 · Un article AJOUTÉ ne passe plus en fraude ----
+     La tolérance était à l'envers : oublier l'article passait (voulu), en
+     mettre un faux quand la réponse en attend un était refusé (voulu), mais
+     en ajouter un là où la réponse n'en attend AUCUN passait toujours —
+     *das Hund* compris. Sur une app dont l'argument est « strict sur le
+     genre », c'était la mauvaise direction.
+
+     ⚠️ Refuser à l'aveugle aurait été faux dans l'autre sens : *der Bär* est
+     de l'allemand correct même si l'exercice ne demande que *Bär*, et le
+     cours compte 118 réponses de cette forme. On ne juge donc QUE ce que le
+     cours sait. */
+  ok("saisie : un article ajouté avec le bon genre passe",
+     checkAnswer("das Haus", "Haus").ok);
+  eq("saisie : et il est nommé pour ce qu'il est",
+     checkAnswer("das Haus", "Haus").kind, "article-en-plus");
+  ok("saisie : un article ajouté au MAUVAIS genre est refusé",
+     !checkAnswer("der Haus", "Haus").ok);
+  eq("saisie : et c'est bien une faute de genre",
+     checkAnswer("der Haus", "Haus").kind, "bad-article");
+  ok("saisie : vrai aussi sur un nom à tréma", !checkAnswer("das Bär", "Bär").ok);
+  ok("saisie : le nom seul reste évidemment juste", checkAnswer("Haus", "Haus").ok);
+
+  /* ⚠️ LA LIMITE, ASSUMÉE ET VÉRIFIÉE : un nom que le cours ne connaît pas ne
+     se juge pas. Deviner un genre serait inventer une correction — c'est la
+     règle « ne jamais inventer une conjugaison » appliquée aux articles. */
+  ok("saisie : un nom inconnu du cours ne se juge pas",
+     checkAnswer("der Trumpelbolz", "Trumpelbolz").ok);
+  eq("saisie : le cours connaît le genre de ses noms", genreConnu("haus"), "das");
+  eq("saisie : et avoue quand il ne le connaît pas", genreConnu("trumpelbolz"), null);
+
+  /* L'index sort du vocabulaire du cours, jamais d'une liste recopiée : il
+     doit donc contenir de quoi juger. Une liste vide ferait passer tous les
+     tests « on ne devine pas » ci-dessus sans rien corriger du tout. */
+  ok("saisie : l'index des genres n'est pas vide",
+     Object.keys(genreConnu.index || {}).length > 20,
+     "connus : " + Object.keys(genreConnu.index || {}).length);
+
+  /* Et les trois comportements d'origine, qui ne doivent RIEN perdre. */
+  eq("saisie : l'oubli reste pardonné", checkAnswer("Wort", "das Wort").kind, "no-article");
+  eq("saisie : le faux genre reste refusé", checkAnswer("der Wort", "das Wort").kind, "bad-article");
+  ok("saisie : la réponse exacte reste exacte", checkAnswer("das Wort", "das Wort").ok);
+
   /* Signalé par Exsangue : « sprechen » était refusé parce que le vocabulaire
      dit « sprechen (du sprichst) ». La parenthèse est une note, pas la réponse. */
   ok("saisie : la note entre parenthèses n'est pas à taper",
