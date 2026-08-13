@@ -1738,10 +1738,11 @@ expliquait la première.
       → **Copie profonde.**
 - [x] **§2.2 · `sane()` ne valide pas `cards`.** ✅ **fait le 13/08/2026** — voir la section
       « Trois défauts du rapport corrigés » en bas.
-- [ ] **§2.3 · Restaurer par fichier n'a aucune confirmation** (le collage par texte, si).
-      Le fichier écrase directement. Et `URL.revokeObjectURL` est appelé de façon synchrone
-      juste après `a.click()` (11869) — plusieurs navigateurs annulent le téléchargement ;
-      le `<a>` n'est jamais inséré dans le document non plus.
+- [x] **§2.3 · Restaurer par fichier n'a aucune confirmation** ✅ **fait le 13/08/2026**
+      — voir la section « La sauvegarde ne peut plus mentir » en bas. (le collage par
+      texte, si). Le fichier écrase directement. Et `URL.revokeObjectURL` est appelé de
+      façon synchrone juste après `a.click()` (11869) — plusieurs navigateurs annulent le
+      téléchargement ; le `<a>` n'est jamais inséré dans le document non plus.
 - [ ] **§2.4 · Entrée détourne l'activation des autres boutons.** Le gestionnaire est posé
       sur `document` : si le focus est sur un bouton quelconque, on tombe sur la branche
       `check-word`, qui fait `preventDefault()` et **valide à la place du bouton focalisé**.
@@ -2066,3 +2067,54 @@ que le vrai était amputé**. Un test qui recopie ce qu'il contrôle ne contrôl
 une seule source, ou pas de source du tout.
 
 Auto-test : **2096 / 2096**, tout au vert.
+
+## La sauvegarde ne peut plus mentir — §2.3 ✅ 13/08/2026
+
+Trois défauts dans le même écran, et **aucun des trois ne se voyait** : deux affichaient
+« Sauvegarde enregistrée. » alors que rien n'était enregistré, le troisième écrasait une
+progression sans rien demander. C'est l'écran auquel on confie ce qu'on ne veut pas perdre.
+
+- [x] **La cause de fond n'était pas la confirmation manquante — c'était la DUPLICATION.**
+      Deux chemins écrivaient une sauvegarde entrante, le fichier et le texte collé, et ils
+      ne faisaient déjà pas la même chose : le fichier reposait le contenu sur `fresh()`
+      avant de le borner, le texte collé non. Deux copies d'une même procédure dérivent
+      toujours ; c'est ainsi que la confirmation avait pu manquer d'un côté sans que
+      personne le voie. **`restaureDepuis()` est désormais le seul endroit qui écrit** —
+      lire → vérifier → demander → écrire, une fois pour les deux portes.
+      ⚠️ Le commentaire du collage annonçait « mêmes garanties que la restauration par
+      fichier ». **C'était faux, et c'est exactement la famille de défauts que le mentor
+      pointe partout : une garantie écrite quelque part et tenue nulle part.** Elle est
+      vraie maintenant, et elle l'est *parce que* les deux appellent la même fonction.
+      `restaureDepuis` renvoie « format » / « annule » / « ok » et n'affiche rien : les
+      appelants ne parlent pas de la même chose (« ce fichier », « ce texte ») et
+      n'atterrissent pas sur le même écran. **La fonction fait, l'appelant raconte.**
+
+- [x] **La question dit CE QU'ON PERD.** « Remplacer ta progression ? » ne se compare à
+      rien et se répond oui par réflexe — une confirmation à laquelle on ne réfléchit pas
+      ne protège de rien. Elle affiche maintenant les deux états côte à côte
+      (« Maintenant : étape 26, 180 mots travaillés » / « La sauvegarde : étape 4, 20 mots »).
+      **C'est le cas dangereux qu'on vise** : restaurer une vieille sauvegarde en croyant
+      prendre la récente.
+      ⚠️ **On demande APRÈS avoir lu et vérifié, jamais avant.** Poser la question en
+      premier ferait confirmer l'écrasement par un fichier qui se révèle ensuite
+      illisible : on aurait dit oui à rien.
+
+- [x] **Le téléchargement était cassé de deux façons.** Le `<a>` n'était **jamais inséré
+      dans la page** — plusieurs navigateurs ignorent le clic sur un élément détaché du
+      document. Et `URL.revokeObjectURL` était appelé **tout de suite après `click()`**, or
+      le téléchargement ne fait que COMMENCER au clic : libérer l'adresse dans la foulée,
+      c'est retirer le fichier des mains du navigateur pendant qu'il l'écrit. Le lien est
+      maintenant posé dans la page (`hidden`, retiré aussitôt), et l'adresse libérée une
+      minute plus tard.
+
+⚠️ **Un « ancien » fichier de sauvegarde ressort complet.** `Object.assign(fresh(), p)` avant
+`sane()` : une sauvegarde d'une version antérieure n'a pas toutes les clés d'aujourd'hui, et
+la première lecture d'une clé absente planterait. Une vérification compare les clés de
+`fresh()` à celles obtenues et **nomme celles qui manquent**.
+
+**Éprouvé sur une copie volontairement cassée**, comme le veut la règle du projet : en
+remettant les deux défauts (révocation immédiate, lien détaché, confirmation retirée),
+**7 vérifications tombent** et nomment précisément le fautif. Un test qui n'a jamais échoué
+ne prouve rien.
+
+Auto-test : **2113 / 2113**.

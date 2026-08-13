@@ -4703,9 +4703,11 @@ view.addEventListener("click", function (e) {
     return;
   }
 
-  /* Restaurer depuis du texte collé. Mêmes garanties que la restauration par
-     fichier : on refuse un texte illisible plutôt que d'écraser une
-     progression avec du vide, et `sane` borne ce qui entre. */
+  /* Restaurer depuis du texte collé. Exactement les mêmes garanties que la
+     restauration par fichier — et ce n'est plus une promesse en l'air depuis
+     le 13/08/2026 : les deux chemins lisent, valident, appellent
+     `confirmeRemplacement`, puis `sane`. On refuse un texte illisible plutôt
+     que d'écraser une progression avec du vide. */
   if (t.dataset.act === "coller") {
     const zone = document.getElementById("sauve-in");
     if (!zone) return;
@@ -4714,16 +4716,9 @@ view.addEventListener("click", function (e) {
     let lu;
     try { lu = JSON.parse(brut); }
     catch (e) { toolMsg("Ce texte n'est pas une sauvegarde valable. Recopie-le en entier."); return; }
-    if (!lu || typeof lu !== "object" || !lu.cards) {
-      toolMsg("Ce texte n'est pas une sauvegarde de cette app.");
-      return;
-    }
-    if (!window.confirm("Remplacer ta progression actuelle par cette sauvegarde ?")) return;
-    S = sane(lu);
-    persist();
-    paintStreak();
-    applyPrefs();
-    go("reglages");
+    const issue = restaureDepuis(lu, "reglages");
+    if (issue === "format") { toolMsg("Ce texte n'est pas une sauvegarde de cette app."); return; }
+    if (issue === "annule") { toolMsg("Restauration annulée. Rien n'a bougé."); return; }
     toolMsg("Progression restaurée.");
     return;
   }
@@ -4860,6 +4855,67 @@ function toolMsg(txt) {
   const el = document.getElementById("toolmsg");
   if (el) el.textContent = txt;
 }
+
+/* ⚠️ LA MÊME QUESTION POUR LES DEUX CHEMINS DE RESTAURATION — signalé par le
+   mentor (§2.3). Restaurer par FICHIER n'a longtemps rien demandé du tout : le
+   fichier écrasait la progression directement, alors que le collage par texte,
+   lui, demandait confirmation. Deux portes vers la même pièce, une seule
+   fermée à clé.
+
+   Le commentaire du collage annonçait pourtant « mêmes garanties que la
+   restauration par fichier ». C'est la famille de défauts que le mentor
+   pointe partout dans son rapport : une garantie ÉCRITE quelque part et tenue
+   nulle part. Elle est vraie maintenant, et elle l'est parce que les deux
+   chemins appellent LA MÊME FONCTION — deux confirmations recopiées auraient
+   fini par diverger.
+
+   Elle DIT CE QU'ON PERD. Une question à laquelle on répond toujours oui ne
+   protège de rien : « Remplacer ta progression ? » ne se compare à rien, alors
+   que « étape 26 → étape 4 » se voit tout de suite. C'est exactement le cas
+   dangereux — restaurer une vieille sauvegarde en croyant récupérer la
+   récente. */
+function confirmeRemplacement(p) {
+  const etape = function (n) {
+    const v = Math.floor(Number(n));
+    return isFinite(v) ? Math.min(COURSE.length, Math.max(1, v)) : 1;
+  };
+  const mots = function (o) {
+    return (o && o.cards && typeof o.cards === "object") ? Object.keys(o.cards).length : 0;
+  };
+  return window.confirm(
+    "Remplacer ta progression actuelle par cette sauvegarde ?\n\n" +
+    "Maintenant :   étape " + etape(S.day) + ", " + mots(S) + " mots travaillés\n" +
+    "La sauvegarde :  étape " + etape(p && p.day) + ", " + mots(p) + " mots travaillés\n\n" +
+    "L'actuelle sera perdue."
+  );
+}
+/* ⚠️ LE SEUL ENDROIT QUI ÉCRIT UNE SAUVEGARDE ENTRANTE. Il y en avait deux —
+   le fichier et le texte collé — et ils ne faisaient PAS la même chose : le
+   fichier reposait le contenu sur `fresh()` avant de le borner, le texte
+   collé non. C'est ainsi que la confirmation avait pu manquer d'un côté sans
+   que personne le voie : deux copies d'une même procédure dérivent toujours,
+   et c'est le défaut de fond du §2.3, pas la confirmation elle-même.
+
+   `Object.assign(fresh(), p)` d'abord, et pour une raison précise : une
+   sauvegarde d'une version ANTÉRIEURE n'a pas toutes les clés d'aujourd'hui.
+   La reposer sur une progression neuve garantit qu'aucune ne manque, avant
+   même que `sane` ne borne les valeurs.
+
+   Renvoie « format », « annule » ou « ok » — au lieu d'afficher lui-même le
+   message. Les deux appelants ne parlent pas de la même chose (« ce fichier »,
+   « ce texte ») et n'atterrissent pas sur le même écran : la fonction fait,
+   l'appelant raconte. */
+function restaureDepuis(p, ecran) {
+  if (!p || typeof p !== "object" || !p.cards) return "format";
+  if (!confirmeRemplacement(p)) return "annule";
+  S = sane(Object.assign(fresh(), p));
+  persist();
+  paintStreak();
+  applyPrefs();
+  go(ecran || "home");
+  return "ok";
+}
+
 function exportData() {
   const json = JSON.stringify(S, null, 2);
   const name = "allemand-progression-" + today() + ".json";
@@ -4873,11 +4929,31 @@ function exportData() {
       });
     return;
   }
+  /* ⚠️ DEUX DÉFAUTS DU TÉLÉCHARGEMENT — signalés par le mentor (§2.3). Les
+     deux donnaient le même résultat : « Sauvegarde enregistrée. » à l'écran,
+     et aucun fichier sur l'appareil. Le pire message possible sur l'écran de
+     sauvegarde — on croit sa progression à l'abri, et elle ne l'est pas.
+
+     1. Le lien n'était JAMAIS inséré dans la page. Plusieurs navigateurs
+        ignorent le clic sur un élément détaché du document.
+     2. `URL.revokeObjectURL` était appelé tout de suite après `click()`. Or le
+        téléchargement ne fait que COMMENCER au clic : révoquer l'adresse dans
+        la foulée, c'est retirer le fichier des mains du navigateur pendant
+        qu'il l'écrit. On libère donc plus tard — la mémoire est rendue de
+        toute façon, juste pas dans la même seconde.
+
+     Le lien est retiré tout de suite, lui : il n'a rien à faire dans la page,
+     et il porte `hidden` pour ne pas déplacer un pixel entre-temps. */
   try {
     const url = URL.createObjectURL(new Blob([json], { type: "application/json" }));
     const a = document.createElement("a");
-    a.href = url; a.download = name; a.click();
-    URL.revokeObjectURL(url);
+    a.href = url;
+    a.download = name;
+    a.hidden = true;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
     toolMsg("Sauvegarde enregistrée.");
   } catch (e) { toolMsg("Sauvegarde impossible dans ce navigateur."); }
 }
@@ -4891,14 +4967,13 @@ function importData() {
     const r = new FileReader();
     r.onload = function () {
       try {
-        const p = JSON.parse(r.result);
-        if (typeof p !== "object" || !p.cards) throw new Error("format");
-        // `sane` manquait ici, alors que `load` l'appelle : une sauvegarde
-        // restaurée n'était donc pas bornée, et une progression venue d'un
-        // cours plus long ouvrait une étape inexistante. C'est aussi elle qui
-        // valide les réglages du fichier.
-        S = sane(Object.assign(fresh(), p));
-        persist(); paintStreak(); applyPrefs(); go("home");
+        /* ⚠️ ON DEMANDE APRÈS AVOIR LU, JAMAIS AVANT — c'est `restaureDepuis`
+           qui tient cet ordre. Poser la question en premier ferait confirmer
+           l'écrasement de sa progression par un fichier qui se révèle ensuite
+           illisible : on aurait dit oui à rien. */
+        const issue = restaureDepuis(JSON.parse(r.result), "home");
+        if (issue === "format") { toolMsg("Ce fichier n'est pas une sauvegarde valide."); return; }
+        if (issue === "annule") { toolMsg("Restauration annulée. Rien n'a bougé."); return; }
         toolMsg("Progression restaurée.");
       } catch (e) { toolMsg("Ce fichier n'est pas une sauvegarde valide."); }
     };

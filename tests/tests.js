@@ -1590,6 +1590,106 @@ function runTests() {
     }
   })();
 
+  /* ---- §2.3 · Restaurer ne peut plus écraser sans prévenir ----
+     Le mentor a trouvé la porte restée ouverte : restaurer par FICHIER
+     n'demandait rien, quand le texte collé demandait confirmation. Ce qui est
+     vérifié ici n'est donc pas « la confirmation existe » — c'est qu'un refus
+     laisse la progression EXACTEMENT où elle était. Une question posée puis
+     ignorée serait pire que pas de question du tout. */
+  (function () {
+    const vraiConfirm = window.confirm;
+    let demande = null;
+
+    try {
+      /* Refuser. La progression ne doit pas bouger d'un cheveu. */
+      window.confirm = function (txt) { demande = txt; return false; };
+      S = fresh(); S.day = 5; S.streak = 4; seed(5);
+      const avant = JSON.stringify(S);
+      const issue = restaureDepuis({ day: 1, cards: {}, streak: 0 }, "home");
+      eq("restaurer : un refus est rapporté comme tel", issue, "annule");
+      eq("restaurer : un refus ne touche à RIEN", JSON.stringify(S), avant);
+
+      /* ⚠️ La question doit DIRE CE QU'ON PERD. Une confirmation à laquelle on
+         répond oui par réflexe ne protège de rien : c'est le cas dangereux —
+         restaurer une vieille sauvegarde en croyant prendre la récente. */
+      ok("restaurer : la question nomme l'étape actuelle",
+         !!demande && demande.indexOf("étape 5") !== -1, String(demande));
+      ok("restaurer : et celle de la sauvegarde",
+         !!demande && demande.indexOf("étape 1") !== -1, String(demande));
+
+      /* Un objet étranger est refusé AVANT même de demander quoi que ce soit :
+         on ne fait pas confirmer l'écrasement par du vide. */
+      demande = null;
+      eq("restaurer : un objet étranger est refusé", restaureDepuis({ a: 1 }, "home"), "format");
+      eq("restaurer : rien du tout non plus", restaureDepuis(null, "home"), "format");
+      ok("restaurer : et on n'a même pas posé la question", demande === null);
+      eq("restaurer : la progression est toujours là", S.day, 5);
+
+      /* Et LE CHEMIN QUI MARCHE — sans lui, tout ce qui précède ne prouverait
+         que l'app sait refuser, y compris les bonnes sauvegardes. */
+      window.confirm = function () { return true; };
+      eq("restaurer : une sauvegarde valable passe",
+         restaureDepuis({ day: 2, cards: {}, streak: 6 }, "home"), "ok");
+      eq("restaurer : et elle est bien en place", S.day, 2);
+      eq("restaurer : avec sa série", S.streak, 6);
+
+      /* ⚠️ Une sauvegarde d'une VERSION ANTÉRIEURE n'a pas toutes les clés
+         d'aujourd'hui. Elle est reposée sur `fresh()` : aucune ne doit
+         manquer, sinon le premier écran qui lit la clé absente plante. */
+      restaureDepuis({ day: 1, cards: {} }, "home");
+      const neuf = fresh();
+      const manquantes = Object.keys(neuf).filter(function (k) { return !(k in S); });
+      ok("restaurer : une sauvegarde ancienne ressort complète",
+         manquantes.length === 0, "manque : " + manquantes.join(", "));
+      ok("restaurer : réglages compris", !!S.prefs && typeof S.prefs === "object");
+    } finally {
+      window.confirm = vraiConfirm;
+    }
+  })();
+
+  /* ---- §2.3 · La sauvegarde s'enregistre VRAIMENT ----
+     Deux défauts donnaient le même résultat : « Sauvegarde enregistrée. » à
+     l'écran, et aucun fichier sur l'appareil. C'est le pire message possible
+     ici — on croit sa progression à l'abri.
+
+     Ce test regarde ce que le navigateur a réellement reçu, pas ce que l'app
+     affiche. Le message, lui, était déjà là quand rien ne marchait. */
+  (function () {
+    const vraiCreate = URL.createObjectURL;
+    const vraiRevoke = URL.revokeObjectURL;
+    const vraiClick = HTMLAnchorElement.prototype.click;
+    let connecteAuClic = null, revoqueTot = false, telecharge = null;
+
+    URL.createObjectURL = function () { return "blob:essai"; };
+    URL.revokeObjectURL = function () { revoqueTot = true; };
+    HTMLAnchorElement.prototype.click = function () {
+      connecteAuClic = this.isConnected;
+      telecharge = this.download;
+    };
+    try {
+      S = fresh(); S.day = 3;
+      exportData();
+      /* Plusieurs navigateurs ignorent le clic sur un élément détaché du
+         document : le lien doit être DANS la page à cet instant précis. */
+      ok("sauvegarde : le lien est dans la page au moment du clic",
+         connecteAuClic === true);
+      ok("sauvegarde : et le fichier porte un nom",
+         typeof telecharge === "string" && telecharge.indexOf(".json") !== -1,
+         String(telecharge));
+      /* Le téléchargement ne fait que COMMENCER au clic. Libérer l'adresse
+         dans la foulée, c'est retirer le fichier des mains du navigateur
+         pendant qu'il l'écrit. */
+      ok("sauvegarde : l'adresse n'est pas révoquée dans la foulée",
+         revoqueTot === false);
+      ok("sauvegarde : et le lien ne reste pas dans la page",
+         !document.querySelector('a[download]'));
+    } finally {
+      URL.createObjectURL = vraiCreate;
+      URL.revokeObjectURL = vraiRevoke;
+      HTMLAnchorElement.prototype.click = vraiClick;
+    }
+  })();
+
   /* ---- Le relais entre deux phases ----
      Demande d'Exsangue le 02/08/2026 : « fin de leçon, hop une animation
      pour dire place à la révision, écrire, puis oral, ensuite place au
