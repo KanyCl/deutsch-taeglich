@@ -86,7 +86,9 @@ l'entraînement et le compteur de « mots fragiles » sur l'accueil.
 | Décision | Raison |
 |---|---|
 | PWA / page web plutôt qu'Android natif | Le compte `franky` est standard : impossible d'installer Android Studio + JDK 17 sans l'admin. Une page web ne demande rien. |
-| Un seul fichier `index.html` | Zéro build, zéro dépendance, zéro `npm install`. Le fichier s'ouvre tel quel et se publie tel quel. |
+| ~~Un seul fichier `index.html`~~ — **dépassé le 11/08/2026** | La contrainte d'origine (zéro build, zéro dépendance, zéro `npm install`) reste valable ; la conclusion « donc un seul fichier » était le mauvais raccourci. Les navigateurs lisent nativement les **modules ES** : on découpe en vrais fichiers sans build. Décision et plan de découpage dans `TODO.md`, section « L'architecture ». |
+| **Un seul endroit décide du rendu du contenu** (11/08/2026) | `idea` était échappé et `detail` non ; `check.q` échappé et `quiz.q` non. Ce n'était pas une politique, c'était un oubli — et l'écran affichait `<b>der Körper</b>` en clair. `rich()` échappe TOUT puis réautorise une liste blanche (`b`, `i`, `u`, six entités). L'ordre compte : l'inverse laisserait passer ce qu'on neutralise. Le gras est employé **2 802 fois** dans le cours pour faire ressortir le mot allemand — l'échappement total aurait détruit la pédagogie. |
+| **`seed()` n'est appelé que par `lessonView()`** (11/08/2026) | Quatre appelants, dont la validation du quiz qui ensemençait l'étape **suivante** : le mode cartes servait des mots jamais vus, on les ratait tous, et chaque erreur ajoutant deux cartes, le paquet grossissait plus vite qu'on ne le vidait. `context.md` affirmait déjà « le mot a déjà été présenté dans la leçon avant d'arriver aux cartes » — c'est vrai dans le code depuis seulement cette date. |
 | Contenu écrit à la main dans `COURSE` | Pas de base de données ni d'API à maintenir. Ajouter un jour = ajouter un objet au tableau. |
 | Progression dans `localStorage` | Suffisant pour un usage mono-appareil. Sauvegarde/restauration JSON pour ne rien perdre. |
 | ~~Pas de `<!doctype>` ni de `<html>` dans le fichier~~ — **abandonné le 31/07/2026** | Valait tant que l'app était publiée en Artifact, où le format enveloppe le fichier. Mais ce mode d'affichage (dans un cadre sur claude.ai) empêchait iOS de sauvegarder la progression. Le fichier est donc une page HTML complète, hébergée seule. |
@@ -120,8 +122,15 @@ l'entraînement et le compteur de « mots fragiles » sur l'accueil.
 ## Comment on vérifie
 
 `test.ps1` pilote le Chrome déjà installé, en mode sans fenêtre. Il lance l'auto-test
-embarqué (`index.html#test`, **240 vérifications**) et sait photographier chaque écran
-en thème clair et sombre. Aucune dépendance : ni Node, ni Playwright, ni droits admin.
+embarqué (`index.html#test`, **2 070 vérifications** au 11/08/2026) et sait photographier
+chaque écran en thème clair et sombre. Aucune dépendance : ni Node, ni Playwright, ni
+droits admin.
+
+⚠️ **Il a déjà annoncé « Tout passe » sur une app morte** (corrigé le 11/08/2026) : il
+cherchait le rapport dans le DOM entier, qui contient le code source, lequel contient les
+chaînes qui *fabriquent* le rapport. Il retire désormais les blocs `script` avant analyse et
+exige un score de la forme `N / N`. **Un harnais de test se vérifie sur une copie
+volontairement cassée** — c'est comme ça que le faux positif a été prouvé.
 
 Les écrans sont aussi accessibles par l'URL (`#lesson`, `#cards`, `#quiz`).
 
@@ -142,7 +151,7 @@ Deux pièges du harnais, à ne pas re-découvrir :
   génère une copie de l'app qui applique le thème elle-même avant l'affichage.
 
 
-## Où ça en est — 02/08/2026
+## Où ça en est — 11/08/2026
 
 **Niveau A1 : complet.** 35 étapes, 350 mots, 1026 exercices, 12 chapitres, plus un test
 de fin de niveau (24 questions, 4 épreuves, seuil 70 %).
@@ -152,7 +161,10 @@ complets. Plan complet dans `PLAN-A2.md`.
 
 - ✅ **En ligne et à jour** : https://kanycl.github.io/deutsch-taeglich/ — dépôt public,
   publié par `publier.ps1` qui copie la source vers `docs/`.
-- ✅ **Auto-test : 2053 vérifications**, toutes au vert. `verifier.ps1` : 0 écart d'article.
+- ✅ **Auto-test : 2070 vérifications**, toutes au vert, **source et version publiée**.
+  `verifier.ps1` : 0 écart d'article.
+- ✅ **Audit externe passé le 11/08/2026** (le mentor d'Exsangue) — deux bloquants corrigés
+  le soir même, le reste est une liste ouverte dans `TODO.md`, section « Audit externe ».
 - ✅ **Le livre est retiré**, `index.html` est suivi par git.
 - ✅ **Deux niveaux dans le sommaire** : un dépliant A1, un dépliant A2 en dessous.
 - ⬜ **Étapes 43 à 63** — à écrire.
@@ -182,13 +194,28 @@ complets. Plan complet dans `PLAN-A2.md`.
 - ⚠️ **Aucun outil ne relit ce que l'app AFFIRME.** `verifier.ps1` contrôle les articles et
   les mots, pas les règles de grammaire énoncées. Chercher les affirmations absolues
   (*jamais · toujours · tous · aucun*) et les vérifier une par une.
+- ⚠️ **Un commentaire n'est pas une preuve.** Reproche central de l'audit du 11/08, et il
+  était fondé : plusieurs commentaires affirmaient des garanties que le code ne tenait pas
+  (un bug décrit comme corrigé ne l'était pas ; un autre avait été contourné localement
+  sans être généralisé). Avant d'écrire « corrigé » quelque part, le vérifier sur pièce.
+- ⚠️ **Une balise fermante de `script` écrite telle quelle dans une chaîne JavaScript
+  referme le bloc** — l'analyseur HTML ne sait pas qu'il lit une chaîne. App morte, écran
+  blanc. Rencontré deux fois le même soir, dont une dans le commentaire qui expliquait la
+  première.
 
 ## Où reprendre
 
-**Étape 43 · Le logement** — l'appartement, les pièces, les meubles. Elle ouvre le
-**chapitre 15 « Chez soi, et ce qu'on en pense »**, qui n'est pas encore déclaré : le créer
-avec la seule étape 43, puis l'allonger. On ne déclare que ce qui existe, sinon l'auto-test
-échoue — et il a raison.
+Deux chantiers ouverts. **Le découpage passe devant le contenu** — décidé après l'audit du
+11/08 : chaque bug de cette soirée venait de la même cause, 15 000 lignes où rien n'a de
+frontière.
 
-Ordre des étapes suivantes dans `PLAN-A2.md`. Détail de la session et pièges rencontrés
-dans `TODO.md`, section « Reprendre ici ».
+1. **Le découpage en modules ES** — plan complet et ordre des étapes dans `TODO.md`,
+   section « L'architecture ». Commencer par sortir `COURSE` et `runTests` du fichier :
+   c'est mécanique, ça ne touche aucune fonction, et ça divise le fichier par trois.
+2. **Étape 43 · Le logement** — l'appartement, les pièces, les meubles. Elle ouvre le
+   **chapitre 15 « Chez soi, et ce qu'on en pense »**, qui n'est pas encore déclaré : le
+   créer avec la seule étape 43, puis l'allonger. On ne déclare que ce qui existe, sinon
+   l'auto-test échoue — et il a raison. Ordre des étapes suivantes dans `PLAN-A2.md`.
+
+Le reste de l'audit (§2.x, accessibilité, service worker) est une liste à cocher dans
+`TODO.md`, section « Audit externe ».

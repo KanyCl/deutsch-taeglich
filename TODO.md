@@ -1664,3 +1664,180 @@ les deux niveaux et rien ne disait où l'un finissait.
       (L'écart de nombre est normal : les vérifications du livre sont sous `if (BOOK.length)`.)
 - [ ] **Le test de fin de niveau A2** — en DERNIER, quand les 28 étapes sont là : il doit
       porter sur ce qui a été enseigné. Tant qu'il n'existe pas, ne rien promettre.
+
+## 🔍 AUDIT EXTERNE — le mentor d'Exsangue, 11/08/2026
+
+Exsangue a fait relire l'app par son mentor. Rapport en 7 sections, remis le 11/08 à 16 h 59.
+**Il a raison sur presque tout, et deux de ses points étaient des bugs que l'utilisateur
+subissait sans savoir les nommer.** Le rapport intégral est reproduit dans la session
+`1dfb70b8` ; l'essentiel est repris ici, parce qu'une session finit par disparaître.
+
+Ce qu'il note comme réellement bon, vérifié de son côté : `normDE`/`checkAnswer` (article
+oublié pardonné, mauvais article refusé — la bonne distinction pour un francophone),
+`editDistance` (élagage correct), `luminance`/`encrePour` (formule WCAG juste, l'argument
+du noir pur tient au calcul), la validation `/^#[0-9a-f]{6}$/` avant tout `setProperty`,
+et le Leitner à 5 boîtes avec le journal découplé du calendrier.
+
+⚠️ **La critique de fond, celle qui vaut pour tout le reste :** les commentaires du code
+affirment des garanties que le code ne tient pas. §1.3 est décrit comme résolu alors qu'il
+ne l'était pas, §1.1 avait été rencontré puis contourné localement sans être généralisé.
+**Un commentaire n'est pas une preuve.** À se rappeler avant d'écrire « corrigé » quelque part.
+
+### Ce qui a été corrigé le 11/08 ✅
+
+- [x] **§1.1 — le balisage s'affichait en clair.** *« Le corps se dit `<b>der Körper</b>` »*
+      à l'écran, et `a &rarr; ä` littéralement. La cause n'était pas une étourderie mais
+      une **absence de règle** : `idea` passait par `esc()`, `detail` non ; `check.q` par
+      `esc()`, `quiz.q` non. Deux champs voisins, deux traitements, aucune décision écrite.
+      **`rich()` est désormais le seul rendu du contenu** : on échappe TOUT, puis on
+      réautorise une liste blanche minuscule (`b`, `i`, `u` et six entités). L'ordre compte —
+      l'inverse laisserait passer ce qu'on veut neutraliser. Les énoncés d'exercices restent
+      sur `esc()` : vérifié, ils ne portent aucun balisage.
+      Mesure faite avant de corriger : le gras est employé **2 802 fois** dans le cours pour
+      faire ressortir le mot allemand. Le retirer aurait détruit la pédagogie — d'où la
+      liste blanche plutôt qu'un échappement total.
+- [x] **§1.3 — les tests écrasaient la vraie progression.** La suite écrit pour de vrai dans
+      `localStorage` et ne restaurait la sauvegarde qu'à la **dernière ligne** : une exception
+      avant, et la progression d'Exsangue restait remplacée par l'état de test.
+      `runTests()` est enveloppé dans un **`try/finally`**. Un drapeau distingue « il n'y
+      avait rien » de « je n'ai pas pu lire » : sans lui, un `getItem` en échec faisait
+      **effacer** la sauvegarde.
+- [x] **Les cartes servaient des mots jamais vus** (signalé par Exsangue, pas par le rapport).
+      `seed()` était appelé depuis quatre endroits, dont la validation du quiz, qui
+      ensemençait l'étape **suivante**. On ratait tout, et chaque erreur ajoute deux cartes :
+      le paquet grossissait plus vite qu'on ne le vidait. `lessonView()` est désormais le
+      seul appelant hors des tests. `nettoieCartesJamaisVues()` répare une fois au démarrage
+      les paquets déjà abîmés — **seules partent les cartes jamais travaillées**, toute trace
+      de travail est gardée.
+      ⚠️ Le test « le vocabulaire du jour 2 est chargé » **encodait exactement le défaut**.
+      Il a été retourné et garde maintenant contre la régression.
+
+### Deux pièges du harnais, à ne pas re-découvrir
+
+⚠️ **`test.ps1` annonçait « Tout passe » sur une app morte.** Il cherchait le rapport dans
+le DOM entier — lequel contient le code source, lequel contient les chaînes qui *fabriquent*
+le rapport. Il retire désormais les blocs `script` avant analyse et exige un score de la
+forme `N / N`. **Vérifié sur une copie volontairement cassée** : l'ancienne logique donne un
+faux positif, la nouvelle échoue. C'est la seule façon de tester un test.
+
+⚠️ **Une balise fermante de script écrite telle quelle dans une chaîne JavaScript referme le
+bloc** — l'analyseur HTML ne sait pas qu'il lit une chaîne. App morte, écran blanc.
+Rencontré **deux fois le même soir** : la seconde, c'était dans le commentaire qui
+expliquait la première.
+
+### Ce qui RESTE du rapport — revérifié dans le code le 13/08/2026
+
+- [ ] **§2.1 · `fresh()` partage ses objets avec `PREFS_DEFAUT`** (ligne 7467,
+      `Object.assign` = copie de **surface**). `S.prefs.teintes` et `S.prefs.ordre` sont le
+      même objet que la constante, et `poseTeinte` mute en place → **on écrit dans les
+      valeurs par défaut**. Symptôme visible : après « Tout effacer », des couleurs
+      personnalisées choisies plus tôt réapparaissent. Chemins atteints : première
+      ouverture, stockage bloqué, sauvegarde illisible, « Tout effacer » — tous retournent
+      `fresh()` sans passer par `sane()`, seul endroit qui reconstruit `teintes`.
+      → **Copie profonde.**
+- [ ] **§2.2 · `sane()` ne valide pas `cards`.**
+- [ ] **§2.3 · Restaurer par fichier n'a aucune confirmation** (le collage par texte, si).
+      Le fichier écrase directement. Et `URL.revokeObjectURL` est appelé de façon synchrone
+      juste après `a.click()` (11869) — plusieurs navigateurs annulent le téléchargement ;
+      le `<a>` n'est jamais inséré dans le document non plus.
+- [ ] **§2.4 · Entrée détourne l'activation des autres boutons.** Le gestionnaire est posé
+      sur `document` : si le focus est sur un bouton quelconque, on tombe sur la branche
+      `check-word`, qui fait `preventDefault()` et **valide à la place du bouton focalisé**.
+      Toute la navigation clavier hors champ de saisie est faussée.
+- [ ] **§2.5 · Une tolérance à l'envers dans le correcteur.** `checkAnswer` refuse à juste
+      titre un mauvais article et pardonne un article oublié — mais accepte aussi un article
+      **ajouté** là où la réponse n'en attend aucun : *der Hund* est validé quand on attend
+      *Hund*. Sur une app dont l'argument est « strict sur le genre », c'est la mauvaise
+      direction.
+- [ ] **§3 · Les 3 265 lignes de tests sont toujours livrées en production.**
+      Vérifié : `docs/index.html` fait exactement le même poids que la source (888 815 o).
+      20 % du poids téléchargé par l'utilisateur, et c'est le vecteur du §1.3.
+- [ ] **§3 · Code mort** : `enrichirDepuisLivre` n'est jamais appelé (le livre est parti) ;
+      `revele` est déclaré, commenté sur 6 lignes, jamais lu.
+- [ ] **§4 · Aucun `lang="de"` dans tout le fichier** — vérifié, **0 occurrence**. Le texte
+      allemand est balisé comme du français (`<html lang="fr">`) : un lecteur d'écran le
+      prononce avec une voix française. **Sur une app d'apprentissage des langues, c'est le
+      point d'accessibilité le plus important, et il est absent.**
+- [ ] **§4 · Aucun service worker** (0 occurrence). Manifeste et icônes sont là, mais il n'y
+      a ni cache hors-ligne ni éligibilité à l'invite d'installation. Pour une app qui
+      s'annonce « sans compte ni serveur », l'usage hors-ligne est l'attente par défaut.
+- [ ] **§4 · `.answer:focus { outline: none; }`** (1204) retire l'indicateur de focus du
+      champ principal — échoue WCAG 2.4.7 si le contraste de la bordure ne suit pas.
+      Et 17 attributs `aria-` en tout : les écrans sont reconstruits par `innerHTML` sans
+      région live, ni le changement d'écran ni la correction ne sont annoncés.
+
+### Deux constats de provenance, notés sans conclusion
+
+- Ligne 11791 : `if (window.claude && window.claude.downloads)` — cette API n'existe que
+  dans le runtime d'artifacts de Claude. Le code a été produit et exécuté là.
+- Les commentaires forment un journal daté (01 et 02/08/2026) qui s'adresse à Exsangue et
+  rapporte ses demandes au fil de l'eau.
+
+⚠️ **Copyright — sa mise en garde reste valable** même après le retrait du livre : la
+mécanique et la documentation du contenu sous copyright restent dans le fichier, et la
+séparation reposait sur un script manuel. À revérifier explicitement avant toute
+publication ou remise notée.
+
+## 🏗️ L'ARCHITECTURE — arbitrage du 11/08/2026, chantier NON COMMENCÉ
+
+Le mentor ne demande pas une correction, il demande un **principe** : *chaque fonction a un
+rôle, chaque fichier qui contient ces fonctions aussi.* Sa règle générale, telle qu'il l'a
+formulée : **proto jetable → un fichier, on s'en fiche ; truc à maintenir → découpé.**
+Il ajoute un argument qui vaut pour ce projet en particulier : une IA travaille moins cher
+et plus juste sur un code découpé, parce que les **noms de fichiers** lui disent déjà où
+regarder.
+
+L'app est clairement dans le second cas : 63 étapes prévues, 42 écrites, retouchée chaque
+semaine.
+
+### Le chiffre qui change le plan
+
+| Bloc | Lignes | Ce que c'est |
+|---|---:|---|
+| `<style>` | 1 613 | le CSS |
+| `COURSE` | 5 509 | **le contenu du cours** (données) |
+| `runTests` | 3 265 | les tests, **livrés en production** |
+| thèmes, verbes, config | ~400 | données |
+| **le reste** | **~4 300** | **le code réellement maintenu** |
+
+Le « monstre de 15 000 lignes » est en fait **4 300 lignes de code noyées dans 9 000 lignes
+de contenu et de tests**. Conséquence : **le découpage le plus rentable ne demande de
+toucher aucune fonction.** Sortir le contenu et les tests est mécanique, sans risque, et
+divise le fichier par trois.
+
+### La décision : modules ES natifs, découpés par fonctionnalité
+
+Les navigateurs lisent nativement `import`/`export` : on découpe en vrais fichiers **sans
+build, sans npm**. C'était la contrainte d'origine (« zéro build, zéro dépendance ») — mais
+on en avait tiré « donc un seul fichier », et c'était le mauvais raccourci.
+
+```
+index.html        la coquille HTML, et rien d'autre
+styles/           le CSS par zone
+donnees/          cours-a1.js · cours-a2.js · themes.js · verbes.js
+moteur/           sauvegarde.js · correcteur.js · leitner.js · voix.js · rendu.js
+ecrans/           accueil.js · lecon.js · cartes.js · oral.js · quiz.js · exercices.js · reglages.js
+tests/            hors du fichier publié
+```
+
+**Par fonctionnalité et non par couche, parce que l'app EST ses cinq modes.** Quand Exsangue
+dit « l'oral est trop dur », on doit ouvrir un fichier, pas trois. (Le consensus général :
+par couche tant que c'est petit, par fonctionnalité dès que ça grandit.)
+
+**Le point non négociable :** le rendu vit dans **un seul** fichier. Le bug du `<b>` visible
+n'était pas une étourderie, c'était le symptôme mécanique de 40 endroits qui décidaient
+chacun dans leur coin. Tant que c'est éparpillé, ça revient.
+
+⚠️ **Le seul vrai coût :** les modules ES **ne se chargent pas en `file://`**. L'iPhone s'en
+fiche (GitHub Pages sert en https), mais `test.ps1` ouvre le fichier en local. Vérifié : ni
+Node ni Python ne sont installés (le `python.exe` du système est un leurre du Microsoft
+Store). Il faut donc écrire un **`serveur.ps1`** d'une quarantaine de lignes — rien à
+installer, pas besoin d'admin.
+
+### L'ordre du chantier
+
+- [ ] **1. Sortir `COURSE` et `runTests` du fichier** — mécanique, aucune fonction touchée.
+      Livre `donnees/` et `tests/`, et retire au passage les tests du fichier publié (§3).
+- [ ] **2. `serveur.ps1`** + `test.ps1` qui passe par lui.
+- [ ] **3. Découper `moteur/` puis `ecrans/`** — là seulement on touche au code.
+- [ ] **4. Ensuite : `lang="de"`, service worker, et les §2.x du rapport.**
