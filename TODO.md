@@ -1657,13 +1657,16 @@ les deux niveaux et rien ne disait où l'un finissait.
       en bas. Le **chapitre 15 « Chez soi, et ce qu'on en pense »** est créé avec elle seule.
 - [x] **Étape 44 · Datif ou accusatif ?** ✅ **écrite le 14/08/2026** — voir la section
       « L'étape 44 » en bas. Le chapitre 15 passe à `[43, 44]`.
-- [ ] **Étape 45 · Rapporter une pensée** (`dass` — *ich denke, dass…*), puis 46 à 63 selon
-      `PLAN-A2.md`. Allonger le chapitre 15, qui sera alors complet.
-      **On ne déclare que ce qui existe**, sinon l'auto-test échoue — et il a raison.
-      ⚠️ **Terrain déjà préparé par l'étape 42** : `weil` a posé le verbe rejeté à la fin.
-      `dass` suit exactement la même mécanique — l'étape 45 devrait donc s'appuyer dessus et
-      porter sur ce qui DIFFÈRE (les verbes qui l'introduisent : *denken*, *glauben*,
-      *sagen*, *wissen*), pas re-expliquer la subordonnée.
+- [x] **Étape 45 · Rapporter une pensée** ✅ **écrite le 14/08/2026** — voir la section
+      « L'étape 45 » en bas. **Le chapitre 15 est COMPLET** (`[43, 44, 45]`).
+- [ ] **Étape 46 · Les verbes coupés en deux** (particules séparables : *ich stehe um 7 Uhr
+      auf*), puis 47 à 63 selon `PLAN-A2.md`. Elle **ouvre le chapitre 16 « Le travail et
+      les verbes qui se coupent »**, à créer avec elle seule.
+      ⚠️ **Vocabulaire déjà en place, à ne pas re-servir comme neuf** : `aufstehen`,
+      `aufwachen`, `anrufen` et `einkaufen` sont **déjà** au vocabulaire (thème
+      `quotidien`) — ils ont été appris comme des blocs, sans que la règle de la particule
+      soit jamais donnée. L'étape 46 a donc exactement la même forme que la 43 vis-à-vis
+      des composés : **la matière est là, c'est la règle qui manque.**
 
 ## Mise en ligne du 02/08/2026
 
@@ -2314,6 +2317,52 @@ côté** — qui, à spécificité égale et écrite plus bas, gagnait quand mê
 test.**
 
 Auto-test : **2150 / 2150**.
+
+## L'étape 45 · Rapporter une pensée ✅ 14/08/2026
+
+**Le chapitre 15 est complet** : « chez soi » (43-44), « ce qu'on en pense » (45).
+
+### Elle ne ré-explique PAS la subordonnée, et c'est délibéré
+
+`dass` a exactement la mécanique de `weil`, posée à l'étape 42 : virgule, verbe conjugué au
+bout, auxiliaire dernier au passé composé. **Refaire cette explication aurait donné une
+étape sans contenu.** Le premier écran le dit franchement — « sa mécanique, tu la connais
+déjà » — et l'étape va chercher ailleurs ce qu'elle a à apprendre :
+
+- **Les six verbes qui l'appellent** : `denken`, `glauben`, `wissen`, `sagen`, `hoffen`,
+  `finden`. C'est le vrai apport de vocabulaire.
+- ⚠️ **`dass` peut sauter — et alors le verbe remonte.** C'est le seul point réellement
+  neuf, et il surprend : *Ich denke, dass er krank ist* et *Ich denke, er ist krank* sont
+  tous les deux justes. Ce qui est faux, c'est de garder `dass` **et** l'ordre normal — le
+  tableau montre les trois cas, dont le mauvais, **marqué comme tel dans la cellule**.
+  ⚠️ *Cette phrase fausse est volontaire et vit dans un `table` de leçon, jamais dans
+  `examples` ni `vocab` : elle ne peut donc pas descendre dans les cartes ni dans l'oral.
+  Même principe que les options de QCM fausses exprès, que `verifier.ps1` retire avant
+  analyse. À ne pas « corriger » lors d'une relecture.*
+- ⚠️ **`das` ou `dass` ?** Le piège à une lettre, sur lequel les Allemands eux-mêmes
+  trébuchent. Le tri donné est **mécanique, pas intuitif** : si `dieses` peut remplacer le
+  mot, c'est `das` ; sinon c'est `dass`. Un test qu'on peut appliquer sans réfléchir vaut
+  mieux qu'une explication qu'on comprend sur le moment et qu'on oublie.
+- **`finden` + `dass` = donner son avis**, pas chercher un objet. Le même glissement qu'en
+  français, donc facile à retenir — mais il fallait le dire, sinon `finden` reste rangé
+  dans « trouver ses clés ».
+
+### Détails tenus
+
+- L'ancienne orthographe **`daß`** est proposée comme mauvaise réponse dans le quiz, avec
+  son explication : elle a disparu à la réforme de 1996, et elle traîne encore dans les
+  vieux livres qu'Exsangue pourrait croiser.
+- ⚠️ **`ich weiß`** apparaît dans un exercice : le `why` précise que **`weiss` est accepté**
+  — le ß n'est jamais exigé, c'est la règle du projet, et mieux vaut le dire là où le mot
+  tombe que de laisser douter.
+- Les 10 mots sont neufs, vérifiés un par un : `leider` et `verstehen` étaient déjà au
+  vocabulaire, ils servent donc de matière connue dans les phrases sans être re-servis.
+
+**Contrôles** : auto-test **2252 / 2252** · `verifier.ps1` **0 écart, 0 mot absent du
+socle** — les 10 nouveaux mots sont tous dans les 5 000 plus fréquents · balises : `<b>` et
+`<i>` seuls, les quatre `<i>` entourant bien du français.
+
+⚠️ **Non vérifié : le rendu à l'écran** — même angle mort que pour les étapes 43 et 44.
 
 ## L'étape 44 · Datif ou accusatif ? ✅ 14/08/2026
 

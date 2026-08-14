@@ -5779,5 +5779,134 @@ const COURSE = [
     { t: "trans", inst: "Dis où la chose se trouve, une fois posée.", from: "Ich lege das Buch auf den Tisch.", a: "Das Buch liegt auf dem Tisch.",
       why: "<b>legen</b> devient <b>liegen</b>, et <b>den</b> devient <b>dem</b>." }
   ]
+},
+{
+  day: 45, title: "Rapporter une pensée", de: "Ich denke, dass…",
+  steps: [
+    {
+      idea: "<b>dass</b> veut dire « que » — et sa mécanique, tu la connais déjà.",
+      detail: "L'étape 42 t'a donné <b>weil</b> : virgule, puis le verbe conjugué tout au bout. <b>dass</b> marche <i>exactement</i> pareil. Ce qui change, c'est ce qu'il introduit : non plus une raison, mais ce qu'on pense, croit, sait ou dit. Il n'y a donc aucune règle neuve à apprendre ici — seulement un nouvel usage.",
+      table: [["Ich denke, dass er <b>kommt</b>.", "Je pense qu'il vient."], ["Ich hoffe, dass du gut <b>geschlafen hast</b>.", "Au passé composé, l'auxiliaire finit — comme avec weil."]],
+      gloss: { de: ["Ich", "denke,", "dass", "er", "kommt"], fr: ["Je", "pense", "que", "il", "vient"] }
+    },
+    {
+      idea: "Les verbes qui l'appellent.",
+      detail: "Ce sont les verbes de la tête et de la parole. Six suffisent pour tout dire, et ils reviennent sans arrêt dans une conversation.",
+      table: [["<b>denken</b>", "penser — Ich denke, dass…"], ["<b>glauben</b>", "croire — Ich glaube, dass…"], ["<b>wissen</b>", "savoir — Ich weiß, dass…"], ["<b>sagen</b>", "dire — Er sagt, dass…"], ["<b>hoffen</b>", "espérer — Ich hoffe, dass…"], ["<b>finden</b>", "trouver que — Ich finde, dass…"]],
+      check: { q: "« Je sais qu'il vient » se dit…", o: ["Ich weiß, dass er kommt", "Ich weiß, dass er kommen", "Ich weiß, dass kommt er"], a: 0, why: "<b>kommt</b> reste conjugué, et il descend à la fin comme après <b>weil</b>." }
+    },
+    {
+      idea: "⚠️ <b>dass</b> peut sauter — et alors le verbe remonte.",
+      detail: "C'est le seul point vraiment neuf de l'étape, et il surprend. On a le droit de ne pas dire <b>dass</b> : la phrase reprend alors l'ordre normal, verbe en deuxième position. Les deux tournures sont justes et veulent dire la même chose. ⚠️ Ce qui serait faux, c'est de garder <b>dass</b> <i>et</i> l'ordre normal.",
+      table: [["Ich denke, <b>dass</b> er krank <b>ist</b>.", "avec dass : verbe à la fin"], ["Ich denke, er <b>ist</b> krank.", "sans dass : verbe en 2ᵉ, comme d'habitude"], ["Ich denke, dass er ist krank.", "⚠️ faux — les deux à la fois"]],
+      check: { q: "Si on retire <b>dass</b>, le verbe…", o: ["remonte en deuxième position", "reste à la fin", "disparaît"], a: 0, why: "Sans <b>dass</b>, ce n'est plus une subordonnée : la phrase redevient ordinaire." }
+    },
+    {
+      idea: "⚠️ <b>das</b> ou <b>dass</b> ? Le piège se joue à une lettre.",
+      detail: "Les deux se prononcent pareil, et les Allemands eux-mêmes s'y trompent. Le tri est pourtant mécanique : <b>das</b> est l'article ou le pronom — <i>tu peux le remplacer par</i> <b>dieses</b> (celui-ci). <b>dass</b> est la conjonction « que » — <i>rien ne peut le remplacer</i>. Un seul essai suffit à trancher.",
+      table: [["<b>das</b> Buch", "l'article — das = ce, celui-ci"], ["Ich weiß <b>das</b>.", "le pronom — je sais CELA"], ["Ich weiß, <b>dass</b> er kommt.", "la conjonction — impossible d'y mettre « cela »"]],
+      check: { q: "« Ich weiß, ___ er kommt. » — on écrit…", o: ["dass", "das", "les deux se disent"], a: 0, why: "Impossible de remplacer par <b>dieses</b> : c'est donc la conjonction, avec deux <b>s</b>." }
+    },
+    {
+      idea: "Donner son avis : <b>Ich finde, dass…</b>",
+      detail: "⚠️ <b>finden</b> ne veut pas dire que « trouver un objet ». Suivi de <b>dass</b>, il devient « trouver que », c'est-à-dire donner son avis — exactement comme en français. Et le nom qui va avec est <b>die Meinung</b>, l'avis.",
+      table: [["Ich <b>finde</b>, dass das Zimmer schön ist.", "Je trouve que la chambre est belle."], ["Was ist deine <b>Meinung</b>?", "Quel est ton avis ?"]],
+      check: { q: "<b>Ich finde, dass…</b> sert à…", o: ["donner son avis", "chercher un objet perdu", "poser une question"], a: 0, why: "Le même glissement qu'en français : « je trouve que » n'a rien à voir avec trouver ses clés." }
+    }
+  ],
+  examples: [
+    { d: "Ich denke, dass er kommt.", f: "Je pense qu'il vient." },
+    { d: "Ich glaube, dass er müde ist.", f: "Je crois qu'il est fatigué." },
+    { d: "Ich weiß, dass du das kannst.", f: "Je sais que tu peux le faire." },
+    { d: "Er sagt, dass er keine Zeit hat.", f: "Il dit qu'il n'a pas le temps." },
+    { d: "Ich hoffe, dass du bald kommst.", f: "J'espère que tu viens bientôt." },
+    { d: "Ich finde, dass das Zimmer schön ist.", f: "Je trouve que la chambre est belle." },
+    { d: "Ich denke, er ist krank.", f: "Je pense qu'il est malade." },
+    { d: "Was ist deine Meinung?", f: "Quel est ton avis ?" },
+    { d: "Sie antwortet, dass sie kommt.", f: "Elle répond qu'elle vient." },
+    { d: "Er erzählt, dass er in Berlin war.", f: "Il raconte qu'il était à Berlin." },
+    { d: "Ich glaube, dass ich das verstehe.", f: "Je crois que je comprends." },
+    { d: "Ich hoffe, dass du gut geschlafen hast.", f: "J'espère que tu as bien dormi." }
+  ],
+  vocab: [
+    { d: "dass", f: "que", p: "DASS" },
+    { d: "denken", f: "penser", p: "DÈN-keun" },
+    { d: "glauben", f: "croire", p: "GLAO-beun" },
+    { d: "wissen", f: "savoir", p: "VI-seun" },
+    { d: "sagen", f: "dire", p: "ZAA-gueun" },
+    { d: "hoffen", f: "espérer", p: "HO-feun" },
+    { d: "finden", f: "trouver", p: "FIN-deun" },
+    { d: "antworten", f: "répondre", p: "ANT-vor-teun" },
+    { d: "erzählen", f: "raconter", p: "èr-TSÈÈ-leun" },
+    { d: "die Meinung", f: "l'avis", p: "dii MAÏ-noung" }
+  ],
+  quiz: [
+    { q: "Après <b>dass</b>, le verbe conjugué se place…", o: ["à la fin", "en deuxième position", "juste après dass"], a: 0, why: "Comme après <b>weil</b> : toute subordonnée allemande rejette son verbe au bout." },
+    { q: "« Je pense qu'il vient » se dit…", o: ["Ich denke, dass er kommt", "Ich denke, dass er kommen", "Ich denke, dass kommt er"], a: 0, why: "Le verbe reste conjugué, et il finit la phrase." },
+    { q: "Si on supprime <b>dass</b>, le verbe…", o: ["remonte en deuxième position", "reste à la fin", "se met à l'infinitif"], a: 0, why: "<b>Ich denke, er ist krank</b> : sans <b>dass</b>, la phrase redevient ordinaire." },
+    { q: "« Ich weiß, ___ er kommt. » — on écrit…", o: ["dass", "das", "daß"], a: 0, why: "C'est la conjonction : deux <b>s</b>. L'orthographe <b>daß</b> a disparu avec la réforme de 1996." },
+    { q: "Lequel peut se remplacer par <b>dieses</b> ?", o: ["das", "dass", "aucun des deux"], a: 0, why: "C'est le test qui tranche : si <b>dieses</b> passe, c'est <b>das</b> — article ou pronom." }
+  ],
+  drills: [
+    { t: "gap", f: "Je pense qu'il vient.", s: "Ich denke, ___ er kommt.", a: "dass",
+      why: "La conjonction, avec deux <b>s</b>." },
+    { t: "gap", f: "Je crois qu'il est fatigué.", s: "Ich glaube, dass er müde ___.", a: "ist",
+      why: "Le verbe descend à la fin de la subordonnée." },
+    { t: "gap", f: "Il dit qu'il n'a pas le temps.", s: "Er sagt, dass er keine Zeit ___.", a: "hat",
+      why: "<b>hat</b> ferme la phrase, après son complément." },
+    { t: "gap", f: "J'espère que tu viens bientôt.", s: "Ich ___, dass du bald kommst.", a: "hoffe",
+      why: "<b>hoffen</b> à la première personne." },
+    { t: "gap", f: "Je sais que tu peux le faire.", s: "Ich ___, dass du das kannst.", a: "weiß",
+      why: "<b>wissen</b> est irrégulier : <b>ich weiß</b>, sans terminaison. L'orthographe <b>weiss</b> est acceptée ici." },
+    { t: "gap", f: "Je trouve que la chambre est belle.", s: "Ich ___, dass das Zimmer schön ist.", a: "finde",
+      why: "<b>finden</b> + <b>dass</b> sert à donner son avis." },
+    { t: "gap", f: "Quel est ton avis ?", s: "Was ist deine ___?", a: "Meinung",
+      why: "<b>die Meinung</b> — féminin, comme tous les noms en <b>-ung</b>." },
+    { t: "gap", f: "Elle répond qu'elle vient.", s: "Sie ___, dass sie kommt.", a: "antwortet",
+      why: "<b>antworten</b> intercale un <b>e</b> à la troisième personne, pour qu'on puisse le prononcer." },
+
+    { t: "order", f: "Je pense qu'il vient.", a: "Ich denke dass er kommt",
+      why: "La proposition principale, puis <b>dass</b>, le sujet, et le verbe au bout." },
+    { t: "order", f: "Je crois qu'il est fatigué.", a: "Ich glaube dass er müde ist",
+      why: "<b>ist</b> descend derrière l'adjectif." },
+    { t: "order", f: "Il dit qu'il n'a pas le temps.", a: "Er sagt dass er keine Zeit hat",
+      why: "Le complément passe avant le verbe, qui finit." },
+    { t: "order", f: "Je pense qu'il est malade.", a: "Ich denke er ist krank",
+      why: "Sans <b>dass</b>, l'ordre redevient ordinaire : verbe en deuxième position." },
+    { t: "order", f: "J'espère que tu viens bientôt.", a: "Ich hoffe dass du bald kommst",
+      why: "<b>kommst</b> tout au bout, après l'adverbe." },
+    { t: "order", f: "Je trouve que la chambre est belle.", a: "Ich finde dass das Zimmer schön ist",
+      why: "Ici <b>das</b> est l'article de <b>Zimmer</b> — un seul <b>s</b>." },
+
+    { t: "trad", f: "que", a: "dass",
+      why: "Deux <b>s</b>, et il envoie le verbe à la fin." },
+    { t: "trad", f: "penser", a: "denken",
+      why: "Régulier au présent." },
+    { t: "trad", f: "croire", a: "glauben",
+      why: "S'emploie comme <b>denken</b>." },
+    { t: "trad", f: "espérer", a: "hoffen",
+      why: "Régulier." },
+    { t: "trad", f: "raconter", a: "erzählen",
+      why: "Le préfixe <b>er-</b> ne se détache pas du verbe." },
+    { t: "trad", f: "l'avis", a: "die Meinung",
+      why: "Féminin — terminaison <b>-ung</b>." },
+    { t: "trad", f: "Je pense qu'il vient.", a: "Ich denke, dass er kommt.",
+      why: "Virgule obligatoire, verbe à la fin." },
+    { t: "trad", f: "Il dit qu'il n'a pas le temps.", a: "Er sagt, dass er keine Zeit hat.",
+      why: "<b>hat</b> ferme la subordonnée." },
+
+    { t: "trans", inst: "Relie les deux phrases avec dass.", from: "Ich denke. Er kommt.", a: "Ich denke, dass er kommt.",
+      why: "<b>kommt</b> quitte sa deuxième place et descend au bout." },
+    { t: "trans", inst: "Relie les deux phrases avec dass.", from: "Ich glaube. Er ist müde.", a: "Ich glaube, dass er müde ist.",
+      why: "<b>ist</b> passe derrière l'adjectif." },
+    { t: "trans", inst: "Relie les deux phrases avec dass.", from: "Er sagt. Er hat keine Zeit.", a: "Er sagt, dass er keine Zeit hat.",
+      why: "Le complément d'abord, le verbe ensuite." },
+    { t: "trans", inst: "Relie les deux phrases avec dass.", from: "Ich hoffe. Du kommst bald.", a: "Ich hoffe, dass du bald kommst.",
+      why: "<b>bald</b> passe avant le verbe, qui ferme la marche." },
+    { t: "trans", inst: "Enlève dass, et remets le verbe à sa place.", from: "Ich denke, dass er krank ist.", a: "Ich denke, er ist krank.",
+      why: "Sans <b>dass</b>, ce n'est plus une subordonnée : <b>ist</b> remonte en deuxième position." },
+    { t: "trans", inst: "Enlève dass, et remets le verbe à sa place.", from: "Ich glaube, dass sie müde ist.", a: "Ich glaube, sie ist müde.",
+      why: "Même bascule : le verbe reprend sa place normale." }
+  ]
 }
 ];
