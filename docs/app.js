@@ -113,10 +113,11 @@ const CHAPTERS = [
      Repartir à 1 ferait deux « chapitre 1 » dans la même liste. --- */
   { n: 13, title: "Raconter ce qui s'est passé", steps: [36, 37, 38, 39] },
   { n: 14, title: "Le corps, la santé, la cause", steps: [40, 41, 42] },
-  /* Le chapitre 15 s'allongera avec l'étape 45 (dass). On ne déclare que ce
-     qui existe : une étape annoncée mais absente ferait échouer l'auto-test,
-     et il aurait raison. */
-  { n: 15, title: "Chez soi, et ce qu'on en pense", steps: [43, 44] }
+  /* Chapitre 15 COMPLET — « chez soi » (43-44), « ce qu'on en pense » (45).
+     Le chapitre 16 s'ouvrira avec l'étape 46. On ne déclare que ce qui existe :
+     une étape annoncée mais absente ferait échouer l'auto-test, et il aurait
+     raison. */
+  { n: 15, title: "Chez soi, et ce qu'on en pense", steps: [43, 44, 45] }
 ];
 
 /* Le chapitre auquel appartient une étape, et son rang à l'intérieur. */
@@ -2022,7 +2023,7 @@ const THEME_ETAPE = {
   31: "mots",  32: "verbes", 33: "mots",  34: "voyage", 35: "voyage",
   /* Niveau A2 */
   36: "corps", 37: "verbes", 38: "verbes", 39: "verbes", 40: "corps",
-  41: "verbes", 42: "mots", 43: "maison", 44: "mots"
+  41: "verbes", 42: "mots", 43: "maison", 44: "mots", 45: "verbes"
 };
 const THEME_DEFAUT = "mots";
 
@@ -2158,7 +2159,13 @@ const THEME_MOT = {};
      deux noms rejoignent la maison — c'est là qu'on les emploie. */
   ["mots", ["wohin", "an", "neben", "über", "zwischen"]],
   ["verbes", ["stehen", "stellen", "liegen"]],
-  ["maison", ["die Wand", "der Boden"]]
+  ["maison", ["die Wand", "der Boden"]],
+
+  /* Étape 45 : six verbes de la tête et de la parole, plus `dass` et l'avis
+     lui-même, qui relèvent de la langue. */
+  ["verbes", ["denken", "glauben", "wissen", "sagen", "hoffen", "finden",
+    "antworten", "erzählen"]],
+  ["mots", ["dass", "die Meinung"]]
 ].forEach(function (groupe) {
   groupe[1].forEach(function (mot) { THEME_MOT[mot] = groupe[0]; });
 });
