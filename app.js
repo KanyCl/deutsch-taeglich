@@ -1276,7 +1276,7 @@ const OU_SUIS_JE = {
   practice: "Entraînement", oral: "L'oral", quiz: "Le quiz",
   book: "Le livre", unit: "Le livre", booktest: "Test du livre",
   reglages: "Réglages", relais: "La suite", chrono: "Contre la montre",
-  verbes: "Verbes irréguliers", a1: "Test A1"
+  verbes: "Verbes irréguliers", a1: "Test A1", ancrage: "L'ancrage"
 };
 
 /* L'étape suivante du parcours, en sautant celles qui n'ont rien à offrir
@@ -1627,6 +1627,19 @@ function home() {
       Object.keys(S.cards).length >= 4
         ? '<button class="btn wide" data-go="chrono">Contre la montre &#183; 30 secondes</button>'
         : '',
+
+      /* L'ancrage, même coin « à part » — il ne s'enchaîne jamais après une
+         leçon, c'est tout son intérêt : il travaille TOUT le vocabulaire,
+         alors que les cartes ne travaillent que la leçon en cours.
+         Toujours visible, même à zéro mot : son écran explique alors comment
+         le remplir. Le cacher priverait un débutant de savoir qu'il existe. */
+      (function () {
+        const reste = stockAncrage().length, ancres = motsAncres().length;
+        return '<button class="btn wide" data-go="ancrage">L\'ancrage &#183; ' +
+          (reste + ancres === 0
+            ? 'à remplir'
+            : reste + ' mot' + (reste > 1 ? 's' : '') + ' à ancrer') + '</button>';
+      })(),
 
       /* Les verbes irréguliers, même coin « à part ». Toujours accessible,
          lui : contrairement au contre-la-montre, il n'a besoin d'aucun
@@ -4407,6 +4420,271 @@ function verbeRepond() {
 }
 
 /* ===============================================================
+   L'ANCRAGE
+   ===============================================================
+   Conçu avec Exsangue le 18/08/2026. La spec complète, avec le raisonnement
+   et les chiffres, est dans PLAN-ANCRAGE.md §2.
+
+   À QUOI ÇA SERT, et pourquoi c'est un outil SÉPARÉ des cartes. Les cartes
+   travaillent la leçon qu'on vient de finir — apprendre. L'ancrage travaille
+   tout le vocabulaire depuis le début — ne pas perdre. Les mélanger dans un
+   même paquet, ce que faisait l'app jusqu'ici, fait que réviser noie
+   apprendre : un mot de l'étape 3 tombait au milieu de l'étape 45.
+
+   C'est donc un onglet « à part », comme les verbes irréguliers : hors du
+   PARCOURS, jamais enchaîné après une leçon, disponible tout le temps.
+
+   LA BOUCLE. 50 mots tirés au hasard, tous différents. Les 50 finis, nouveau
+   tirage, sans aucune mémoire du précédent : un mot peut retomber tout de
+   suite ou pas avant longtemps. Aucune notion de jour, aucun quota — on
+   enchaîne autant de boucles qu'on veut. Choisi par Exsangue contre une
+   version à 50 mots par jour : le rythme lui appartient, pas à l'app.
+
+   LE RETRAIT À 20. Un mot ancré sort du stock. Effet secondaire heureux, et
+   gratuit : le stock rétrécit à mesure, donc les mots qui restent — les
+   difficiles — reviennent de plus en plus souvent. La fin accélère seule,
+   sans une ligne de code pour la pondération qu'on avait justement écartée.
+
+   L'ÉCHEC ne fait perdre qu'un niveau, et RIEN D'AUTRE. Le mot n'est pas
+   reproposé dans la boucle : une boucle qui s'allonge à chaque faute
+   punirait les mauvais jours, ce qui fait arrêter. */
+const BOUCLE_MOTS = 50;
+/* Le filet contre l'oubli à un an. Un mot ancré a cette chance de repasser ;
+   raté, il retombe à 19 et réintègre le stock. ~1 mot par boucle : c'est un
+   filet, pas une révision — rendre au joueur des mots qu'il connaît serait
+   lui faire perdre son temps. */
+const CHANCE_ANCRE = 0.02;
+
+let ancrDeck = [], ancrPos = 0, ancrVerdict = null;
+
+/* Les mots encore à travailler, et ceux qui sont acquis. `cardById` filtre au
+   passage les cartes d'étapes qui n'existent plus — une sauvegarde peut
+   toujours désigner un contenu retiré depuis. */
+function stockAncrage() {
+  return Object.keys(S.cards).filter(function (id) {
+    return S.cards[id].niv < ANCRE_A && cardById(id);
+  });
+}
+function motsAncres() {
+  return Object.keys(S.cards).filter(function (id) {
+    return S.cards[id].niv >= ANCRE_A && cardById(id);
+  });
+}
+
+/* Tire une boucle. Les mots sont TOUS DIFFÉRENTS à l'intérieur d'une boucle —
+   le hasard joue d'une boucle à l'autre, pas au sein de la même : reposer le
+   même mot deux fois dans la minute n'apprend rien.
+
+   Le filet des ancrés est tiré par slot et non « un ancré garanti » : à 2 %
+   par slot, il arrive qu'une boucle n'en contienne aucun, et c'est bien ce
+   qu'on veut d'un filet. */
+function tireBoucle() {
+  const stock = stockAncrage();
+  const ancres = motsAncres();
+
+  /* ⚠️ LA TAILLE SE MESURE SUR LE STOCK SEUL, pas sur stock + ancrés. Une
+     première version prenait les deux, et le test du filet l'a attrapée : avec
+     33 mots à travailler et 33 ancrés, elle servait une boucle de 50 en
+     complétant avec 17 mots déjà sus — un tiers de la séance passé sur du
+     connu. La spec dit « moins de 50 au stock, la boucle fait ce qu'il y a » ;
+     les ancrés sont un filet, jamais un remplissage. */
+  const base = stock.length ? stock : ancres;
+  if (!base.length) return [];
+  const taille = Math.min(BOUCLE_MOTS, base.length);
+
+  const pris = {};
+  const out = [];
+  let garde = 0;
+  while (out.length < taille && garde++ < base.length * 40) {
+    // Le filet ne joue que s'il y a un ailleurs où piocher.
+    const filet = ancres.length && base !== ancres && Math.random() < CHANCE_ANCRE;
+    const vivier = filet ? ancres : base;
+    const id = vivier[Math.floor(Math.random() * vivier.length)];
+    if (pris[id]) continue;
+    pris[id] = true;
+    out.push(cardById(id));
+  }
+  return out;
+}
+
+/* Ce que le niveau du mot commande. Les paliers viennent de PLAN-ANCRAGE.md :
+   on reconnaît d'abord, on produit ensuite, on produit parfaitement à la fin.
+   Repousser le genre est délibéré — c'est la partie dure de l'allemand, et
+   l'exiger d'un mot qu'on reconnaît à peine ne produit que de l'échec. */
+function modeAncrage(niv) {
+  if (niv < ECRIT_DE_A) return "vers-fr";      // on montre l'allemand, on écrit le français
+  if (niv < ARTICLE_A) return "vers-de";       // on écrit l'allemand, déterminant facultatif
+  return "vers-de-strict";                     // déterminant obligatoire
+}
+
+/* Juge une réponse d'ancrage. Un seul correcteur — `checkAnswer` — avec une
+   seule différence selon le palier : au-dessus de ARTICLE_A, l'article oublié
+   ne passe plus. `checkAnswer` le signale déjà par `kind: "no-article"`, on
+   n'a donc rien à re-décider ici, seulement à cesser de le pardonner.
+
+   ⚠️ Ça ne rend PAS l'article obligatoire sur les mots qui n'en ont pas :
+   « grün » ou « ja » ne produisent jamais ce verdict, puisque la réponse
+   attendue n'a pas d'article. La règle ne mord que là où elle a un sens. */
+function jugeAncrage(mot, saisi) {
+  const niv = S.cards[mot.id].niv;
+  const mode = modeAncrage(niv);
+  if (mode === "vers-fr") return checkGloss(saisi, mot.f);
+  const v = checkAnswer(saisi, mot.d);
+  if (mode === "vers-de-strict" && v.ok && v.kind === "no-article") {
+    return { ok: false, kind: "article-manquant" };
+  }
+  return v;
+}
+
+function ancrageView() {
+  /* ⚠️ UNE BOUCLE EN COURS PEUT DÉSIGNER DES CARTES QUI N'EXISTENT PLUS —
+     « Tout effacer », une sauvegarde restaurée, un contenu retiré du cours.
+     La suite lit `S.cards[mot.id].niv` sans filet : une carte absente ferait
+     écran blanc. On jette la boucle entière plutôt que de la recoudre, sinon
+     `ancrPos` désignerait un autre mot que celui qu'on regardait.
+
+     Le contrôle est ICI et pas dans `oublieSeances()`, où il aurait sa place :
+     `fresh()` l'appelle depuis `load()`, donc avant que `ancrDeck` existe —
+     et on y gagnerait la zone morte temporelle qu'on vient de retirer. */
+  if (ancrDeck.some(function (m) { return !S.cards[m.id]; })) {
+    ancrDeck = []; ancrPos = 0; ancrVerdict = null;
+  }
+
+  /* ⚠️ DEUX ÉCRANS VIDES QUI DISENT L'INVERSE L'UN DE L'AUTRE, et les
+     confondre serait décourager exactement la personne qu'il ne faut pas.
+     Signalé par Exsangue en concevant la règle : un mot n'entre qu'une fois
+     sa leçon TERMINÉE, donc quelqu'un qui débute a un stock vide — et c'est
+     normal, pas un échec. Tandis qu'un stock vide en fin de parcours veut
+     dire l'exact contraire : tout est acquis. Même absence, deux sens. */
+  if (!ancrDeck.length) {
+    const stock = stockAncrage(), ancres = motsAncres();
+
+    if (!stock.length && !ancres.length) {
+      return [
+        backBar('Accueil'),
+        '<div class="stack">',
+          '<div class="card"><span class="label">L\'ancrage</span>',
+            '<p class="msg" style="margin:.5rem 0 0">L\'ancrage revoit tout le ' +
+            'vocabulaire appris depuis le début, pour ne plus rien perdre.</p>',
+            '<p class="msg" style="margin:.5rem 0 0">Il est vide pour l\'instant : ' +
+            'un mot y entre quand tu as <b>terminé</b> sa leçon. Commence par ' +
+            'là, et reviens.</p></div>',
+          '<button class="btn primary wide" data-go="lesson">Aller à la leçon</button>',
+          '<button class="btn wide" data-go="home">Retour à l\'accueil</button>',
+        '</div>'
+      ].join("");
+    }
+
+    if (!stock.length) {
+      return [
+        backBar('Accueil'),
+        '<div class="stack">',
+          '<div class="card"><span class="label">L\'ancrage</span>',
+            '<p class="msg" style="margin:.5rem 0 0">Tes <b>' + ancres.length +
+            '</b> mots sont ancrés. Il n\'en reste aucun à travailler.</p>',
+            '<p class="msg" style="margin:.5rem 0 0">Tu peux continuer sur les ' +
+            'mots ancrés : ce qui se perd, se perd sans prévenir.</p></div>',
+          '<button class="btn primary wide" data-act="ancr-boucle">Une boucle quand même</button>',
+          '<button class="btn wide" data-go="home">Retour à l\'accueil</button>',
+        '</div>'
+      ].join("");
+    }
+
+    ancrDeck = tireBoucle();
+    ancrPos = 0;
+    ancrVerdict = null;
+  }
+
+  // Boucle finie : le bilan, puis on repart sur un tirage tout neuf.
+  if (ancrPos >= ancrDeck.length) {
+    const ancres = motsAncres().length;
+    return [
+      backBar('Accueil'),
+      '<div class="stack">',
+        '<div class="score"><b>' + ancrDeck.length + '</b><span>mots revus.</span></div>',
+        '<div class="card"><span class="label">Ancrés</span>' +
+          '<p class="msg" style="margin:.5rem 0 0"><b>' + ancres + '</b> mot' +
+          (ancres > 1 ? 's' : '') + ' sur ' + (ancres + stockAncrage().length) +
+          ' — un mot est ancré quand il atteint le niveau ' + ANCRE_A + '.</p></div>',
+        '<button class="btn primary wide" data-act="ancr-boucle">Une autre boucle</button>',
+        '<button class="btn wide" data-go="home">Retour à l\'accueil</button>',
+      '</div>'
+    ].join("");
+  }
+
+  const mot = ancrDeck[ancrPos];
+  const niv = S.cards[mot.id].niv;
+  const mode = modeAncrage(niv);
+  const reste = ancrDeck.length - ancrPos - 1;
+  const ancre = niv >= ANCRE_A;
+
+  const consigne = mode === "vers-fr"
+    ? "Écris ce que ça veut dire, en français."
+    : (mode === "vers-de-strict"
+        ? "Écris le mot en allemand, avec son déterminant."
+        : "Écris le mot en allemand.");
+
+  /* La question. En dessous du seuil on montre l'allemand et on le prononce —
+     le mot est déjà à l'écran, l'entendre ne souffle rien. Au-dessus c'est
+     l'allemand qu'on cherche : le prononcer avant le donnerait, donc le
+     bouton d'écoute n'apparaît qu'après la réponse. */
+  const question = mode === "vers-fr"
+    ? '<div class="front">' + esc(mot.d) + '</div>' + sayBtn(mot.d)
+    : '<div class="ask">' + esc(mot.f) + '</div>';
+
+  let note = "";
+  if (ancrVerdict) {
+    if (ancrVerdict.kind === "dunno")            note = "Pas grave — il reviendra.";
+    else if (ancrVerdict.kind === "empty")       note = "Rien d'écrit.";
+    else if (ancrVerdict.ok && ancrVerdict.kind === "no-article")
+                                                 note = "Juste. Pense à l'article : <b>" + esc(mot.d) + "</b>.";
+    else if (ancrVerdict.ok)                     note = "Exact.";
+    else if (ancrVerdict.kind === "article-manquant")
+                                                 note = "Le mot est bon, mais à ce niveau le déterminant compte : " +
+                                                        "c'est <b>" + esc(mot.d) + "</b>.";
+    else if (ancrVerdict.kind === "bad-article") note = "Le mot est bon, mais pas le genre : c'est <b>" + esc(mot.d) + "</b>.";
+    else if (mode === "vers-fr")                 note = "Ce n'était pas ça.";
+    else                                         note = fauteOrtho(ancrVerdict.typed, mot.d) || "Ce n'était pas ça.";
+  }
+
+  return [
+    backBar('Accueil'),
+    '<div class="stack">',
+      '<div class="stack-s">',
+        '<span class="label">' +
+          (reste > 0 ? 'Encore ' + reste : 'Dernier mot') +
+          ' &#183; niveau ' + niv + '/' + NIV_MAX +
+          (ancre ? ' &#183; ancré' : '') + '</span>',
+        '<div class="meter">' + ancrDeck.map(function (_, i) {
+          return '<i class="' + (i < ancrPos ? 'on' : '') + '"></i>';
+        }).join("") + '</div>',
+      '</div>',
+      '<div class="card">',
+        question,
+        ancrVerdict
+          ? '<div class="sol">' + esc(mot.d) + '</div>' +
+            '<div class="p">' + esc(mot.p) + '</div>' +
+            '<div class="trad">' + esc(mot.f) + '</div>' +
+            (mode === "vers-fr" ? '' : sayBtn(mot.d)) +
+            (ancrVerdict.typed
+              ? '<div class="tip">Tu as écrit : ' + esc(ancrVerdict.typed) + '</div>' : '')
+          : '<div class="tip">' + consigne + '</div>',
+      '</div>',
+      ancrVerdict
+        ? '<div class="why ' + (ancrVerdict.ok ? "good" : "bad") + '">' + note + '</div>' +
+          '<button class="btn primary wide" data-act="ancr-next">Continuer</button>'
+        : '<input class="answer" id="answer"' +
+            saisieAttrs(mode === "vers-fr" ? "Ta réponse en français" : "Ta réponse en allemand",
+                        mode !== "vers-fr") + '>' +
+          '<div class="pair">' +
+            '<button class="btn" data-act="ancr-dunno">Je ne sais pas</button>' +
+            '<button class="btn primary" data-act="ancr-check">Vérifier</button>' +
+          '</div>',
+    '</div>'
+  ].join("");
+}
+
+/* ===============================================================
    LE CONTRE-LA-MONTRE
    ===============================================================
    Demandé par Exsangue le 02/08/2026 : « un timer de 30 secondes, je dois
@@ -4622,7 +4900,7 @@ const ROUTES = {
   practice: practiceView, oral: oralView, drills: drillsView, quiz: quizView,
   book: bookView, unit: unitView, booktest: bookTestView,
   reglages: reglagesView, relais: relaisView, chrono: chronoView,
-  verbes: verbesView, a1: a1View
+  verbes: verbesView, a1: a1View, ancrage: ancrageView
 };
 
 /* L'écran affiché. Sert au rouage, qui doit savoir s'il ouvre les réglages
@@ -4959,6 +5237,40 @@ view.addEventListener("click", function (e) {
     verbeVerdict = null;
     verbeCourant = verbeTire();
     show(verbesView());
+    return;
+  }
+
+  /* L'ancrage. `grade` fait tout le travail de niveau : +1 / -1, borné 0-20,
+     et c'est le MÊME compteur que les cartes de leçon — deux nombres pour le
+     même mot finiraient par se contredire.
+
+     ⚠️ Un mot raté N'EST PAS remis dans la boucle. C'est le choix d'Exsangue
+     du 18/08/2026, contre la version d'origine qui le renvoyait « plus tard
+     dans la journée » : il n'y a plus de journée, et une boucle qui s'allonge
+     à chaque faute punit les mauvais jours. Le mot reviendra par le hasard. */
+  if (t.dataset.act === "ancr-check" || t.dataset.act === "ancr-dunno") {
+    const mot = ancrDeck[ancrPos];
+    if (!mot) return;
+    const champ = document.getElementById("answer");
+    const brut = champ ? champ.value : "";
+    ancrVerdict = (t.dataset.act === "ancr-dunno")
+      ? { ok: false, kind: "dunno", typed: "" }
+      : Object.assign(jugeAncrage(mot, brut), { typed: brut.trim() });
+    grade(mot.id, ancrVerdict.ok, true);
+    show(ancrageView());
+    return;
+  }
+  if (t.dataset.act === "ancr-next") {
+    ancrPos++;
+    ancrVerdict = null;
+    show(ancrageView());
+    return;
+  }
+  if (t.dataset.act === "ancr-boucle") {
+    ancrDeck = tireBoucle();
+    ancrPos = 0;
+    ancrVerdict = null;
+    show(ancrageView(), true);
     return;
   }
 

@@ -3121,6 +3121,201 @@ function runTests() {
        return false;
      })());
 
+  /* ================= L'ANCRAGE (PLAN-ANCRAGE.md §2) =================
+     Conçu avec Exsangue le 18/08/2026. Ce qui est vérifié ici n'est pas
+     « l'écran s'affiche » mais les règles qui le rendent honnête : la boucle,
+     le retrait à 20, le filet, et les deux écrans vides qui disent l'inverse
+     l'un de l'autre. */
+  (function () {
+    // Un stock large : plusieurs étapes semées, tous les mots à zéro.
+    function stockDe(nEtapes) {
+      S = fresh();
+      for (let d = 1; d <= nEtapes; d++) { S.done.push(d); seed(d); }
+      S.day = nEtapes;
+      ancrDeck = []; ancrPos = 0; ancrVerdict = null;
+    }
+
+    /* --- La boucle --- */
+    stockDe(6);
+    const total = Object.keys(S.cards).length;
+    ok("ancrage : le stock est assez grand pour le test", total > BOUCLE_MOTS,
+       "mots : " + total);
+
+    const b1 = tireBoucle();
+    eq("ancrage : une boucle fait 50 mots", b1.length, BOUCLE_MOTS);
+    eq("ancrage : tous différents à l'intérieur d'une boucle",
+       Object.keys(b1.reduce(function (acc, m) { acc[m.id] = 1; return acc; }, {})).length,
+       BOUCLE_MOTS);
+
+    /* Le hasard est REEL d'une boucle à l'autre : deux tirages de suite ne
+       doivent pas donner la même liste. On tolère la coïncidence en réessayant
+       — sinon le test lui-même serait aléatoire. */
+    ok("ancrage : deux boucles ne sont pas identiques", (function () {
+      const a = tireBoucle().map(function (m) { return m.id; }).join(",");
+      for (let k = 0; k < 20; k++) {
+        if (tireBoucle().map(function (m) { return m.id; }).join(",") !== a) return true;
+      }
+      return false;
+    })());
+
+    /* Et un mot PEUT retomber d'une boucle à l'autre — c'est le hasard pur
+       qu'Exsangue a choisi, pas une rotation. Le vérifier évite qu'on
+       « corrige » un jour en croyant à un doublon. */
+    ok("ancrage : un mot peut revenir d'une boucle à la suivante", (function () {
+      const a = {}; tireBoucle().forEach(function (m) { a[m.id] = 1; });
+      for (let k = 0; k < 30; k++) {
+        if (tireBoucle().some(function (m) { return a[m.id]; })) return true;
+      }
+      return false;
+    })());
+
+    /* --- Le stock est plus petit que la boucle --- */
+    stockDe(1);
+    const petit = Object.keys(S.cards).length;
+    ok("ancrage : l'étape 1 fait moins de 50 mots", petit < BOUCLE_MOTS, "mots : " + petit);
+    eq("ancrage : la boucle fait alors ce qu'il y a", tireBoucle().length, petit);
+
+    /* --- Le retrait à 20 --- */
+    stockDe(2);
+    const unId = Object.keys(S.cards)[0];
+    S.cards[unId].niv = ANCRE_A;
+    ok("ancrage : un mot à 20 sort du stock", stockAncrage().indexOf(unId) === -1);
+    ok("ancrage : et rejoint les ancrés", motsAncres().indexOf(unId) !== -1);
+    eq("ancrage : il compte comme ancré", ancreCount(), 1);
+
+    /* Un ancré raté retombe à 19 et REVIENT dans le stock. C'est tout l'objet
+       du filet : sans ce retour, le rattraper ne servirait à rien. */
+    grade(unId, false, true);
+    eq("ancrage : un ancré raté retombe à 19", S.cards[unId].niv, ANCRE_A - 1);
+    ok("ancrage : et réintègre le stock", stockAncrage().indexOf(unId) !== -1);
+
+    /* --- Le filet à 2 % --- */
+    stockDe(3);
+    Object.keys(S.cards).forEach(function (id, i) {
+      if (i % 2 === 0) S.cards[id].niv = ANCRE_A;      // la moitié ancrée
+    });
+    ok("ancrage : le filet ramène parfois un mot ancré", (function () {
+      for (let k = 0; k < 60; k++) {
+        if (tireBoucle().some(function (m) { return S.cards[m.id].niv >= ANCRE_A; })) return true;
+      }
+      return false;
+    })());
+    /* Mais RAREMENT : un filet qui rendrait la moitié des mots déjà sus ferait
+       perdre son temps. Sur un gros échantillon, la part doit rester basse
+       alors même que la moitié du vocabulaire est ancrée. */
+    ok("ancrage : mais il reste rare", (function () {
+      let ancres = 0, vus = 0;
+      for (let k = 0; k < 20; k++) {
+        tireBoucle().forEach(function (m) {
+          vus++; if (S.cards[m.id].niv >= ANCRE_A) ancres++;
+        });
+      }
+      return vus > 0 && ancres / vus < 0.25;
+    })());
+
+    /* --- Les paliers --- */
+    eq("paliers : au niveau 0, on écrit le français", modeAncrage(0), "vers-fr");
+    eq("paliers : au niveau 2 encore", modeAncrage(2), "vers-fr");
+    eq("paliers : au niveau 3, on passe à l'allemand", modeAncrage(3), "vers-de");
+    eq("paliers : au niveau 4 aussi", modeAncrage(4), "vers-de");
+    eq("paliers : au niveau 5, le déterminant devient obligatoire",
+       modeAncrage(5), "vers-de-strict");
+    eq("paliers : et ça ne redescend plus", modeAncrage(NIV_MAX), "vers-de-strict");
+
+    /* --- Le déterminant, palier par palier --- */
+    stockDe(1);
+    const nomId = Object.keys(S.cards).filter(function (id) {
+      return /^(der|die|das) /.test(cardById(id).d);
+    })[0];
+    ok("ancrage : le cours a bien un nom avec article pour ce test", !!nomId);
+    if (nomId) {
+      const nom = cardById(nomId);
+      const sansArticle = nom.d.replace(/^(der|die|das) /, "");
+
+      S.cards[nomId].niv = 3;
+      ok("déterminant : facultatif au niveau 3", jugeAncrage(nom, sansArticle).ok);
+      ok("déterminant : le bon article passe aussi", jugeAncrage(nom, nom.d).ok);
+
+      S.cards[nomId].niv = ARTICLE_A;
+      ok("déterminant : obligatoire au niveau 5", !jugeAncrage(nom, sansArticle).ok);
+      eq("déterminant : et l'erreur est nommée",
+         jugeAncrage(nom, sansArticle).kind, "article-manquant");
+      ok("déterminant : avec l'article, c'est juste", jugeAncrage(nom, nom.d).ok);
+
+      /* ⚠️ La règle ne doit mordre QUE sur les mots qui ont un article. Un
+         adjectif n'en a pas : exiger un déterminant sur « grün » rendrait le
+         niveau 5 impossible à passer sur la moitié du vocabulaire. */
+      const adjId = Object.keys(S.cards).filter(function (id) {
+        return !/^(der|die|das) /.test(cardById(id).d);
+      })[0];
+      if (adjId) {
+        S.cards[adjId].niv = ARTICLE_A;
+        ok("déterminant : un mot sans article reste jugeable au niveau 5",
+           jugeAncrage(cardById(adjId), cardById(adjId).d).ok);
+      }
+    }
+
+    /* --- Les deux écrans vides, qui disent l'inverse l'un de l'autre --- */
+    S = fresh(); ancrDeck = []; ancrPos = 0;      // rien de terminé
+    go("ancrage");
+    ok("vide : sans leçon terminée, l'écran explique comment le remplir",
+       view.innerHTML.indexOf("terminé") !== -1);
+    ok("vide : et renvoie à la leçon plutôt qu'à un cul-de-sac",
+       !!view.querySelector('[data-go="lesson"]'));
+
+    stockDe(1);
+    Object.keys(S.cards).forEach(function (id) { S.cards[id].niv = ANCRE_A; });
+    ancrDeck = []; ancrPos = 0;
+    go("ancrage");
+    ok("vide : tout ancré, l'écran le dit",
+       view.innerHTML.indexOf("ancrés") !== -1);
+    ok("vide : et propose de continuer quand même",
+       !!view.querySelector('[data-act="ancr-boucle"]'));
+    ok("vide : sans confondre avec « rien de terminé »",
+       view.innerHTML.indexOf("Aller à la leçon") === -1);
+
+    /* --- Le parcours réel, bout en bout --- */
+    stockDe(3);
+    go("ancrage");
+    ok("ancrage : l'écran s'ouvre sur un mot", !!document.getElementById("answer"));
+    const premier = ancrDeck[ancrPos], nivAvant = S.cards[premier.id].niv;
+    document.getElementById("answer").value = premier.f;      // niveau 0 : le français
+    view.querySelector('[data-act="ancr-check"]').click();
+    ok("ancrage : la bonne réponse est acceptée", !!view.querySelector(".why.good"));
+    eq("ancrage : et le mot monte d'un niveau", S.cards[premier.id].niv, nivAvant + 1);
+    view.querySelector('[data-act="ancr-next"]').click();
+    eq("ancrage : on passe au mot suivant", ancrPos, 1);
+
+    /* Un mot raté perd un niveau et N'EST PAS remis dans la boucle — choix
+       d'Exsangue contre la version d'origine. Une boucle qui s'allonge à
+       chaque faute punirait les mauvais jours. */
+    const rate = ancrDeck[ancrPos];
+    S.cards[rate.id].niv = 4;
+    const tailleAvant = ancrDeck.length;
+    show(ancrageView());
+    document.getElementById("answer").value = "n'importe quoi du tout";
+    view.querySelector('[data-act="ancr-check"]').click();
+    eq("ancrage : un mot raté perd un niveau", S.cards[rate.id].niv, 3);
+    eq("ancrage : et la boucle ne s'allonge pas", ancrDeck.length, tailleAvant);
+    ok("ancrage : il n'est pas reprogrammé dans ce qui reste",
+       ancrDeck.slice(ancrPos + 1).every(function (m) { return m.id !== rate.id; }));
+
+    /* Le niveau reste borné même en enchaînant les réponses. */
+    const borneId = ancrDeck[0].id;
+    for (let k = 0; k < 40; k++) grade(borneId, true, true);
+    eq("ancrage : le niveau ne dépasse jamais 20", S.cards[borneId].niv, NIV_MAX);
+    for (let k = 0; k < 40; k++) grade(borneId, false, true);
+    eq("ancrage : et ne descend jamais sous 0", S.cards[borneId].niv, 0);
+
+    /* --- La boucle survit à une progression effacée --- */
+    stockDe(2);
+    ancrDeck = tireBoucle(); ancrPos = 0;
+    S = fresh();                       // « Tout effacer » sous les pieds de la boucle
+    ok("ancrage : une boucle qui désigne des cartes disparues ne fait pas écran blanc",
+       (function () { try { ancrageView(); return true; } catch (e) { return false; } })());
+    eq("ancrage : la boucle périmée est jetée, pas recousue", ancrDeck.length, 0);
+  })();
+
   /* --- N. Le paquet de cartes : ordre, relances, plafond --- */
   S = fresh(); S.day = 1; seed(1);
   ok("cartes : l'ordre du paquet change d'une session à l'autre",
