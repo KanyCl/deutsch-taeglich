@@ -77,9 +77,22 @@ dans la suite des leçons, c'est disponible tout le temps.
 
 ### Le stock
 
-Tous les mots vus depuis le début **dont le niveau est inférieur à 20**. Un mot qui
-atteint 20 est **ancré** et quitte le stock. Les mots des nouvelles étapes y entrent au
-fur et à mesure qu'on lit les leçons.
+Les mots **dont la leçon a été terminée**, et **dont le niveau est inférieur à 20**. Un mot
+qui atteint 20 est **ancré** et quitte le stock.
+
+**« Terminée » veut dire quiz validé**, pas leçon ouverte. Posé par Exsangue le 18/08/2026,
+et c'est un durcissement : aujourd'hui `seed()` est appelé depuis `lessonView()`
+(`app.js:1545`), donc ouvrir une étape et la refermer aussitôt met déjà ses mots dans le
+paquet. Un mot survolé n'est pas un mot appris. **Conséquence assumée : quelqu'un qui n'a
+pas fini la leçon 1 n'a aucun mot**, et l'ancrage lui est vide.
+
+> ⚠️ **Piège pour le prochain qui touche à ça — moi compris.** Il y a un commentaire à
+> `app.js:2506` qui dit « Surtout PAS de seed() ici », à l'endroit précis où il va
+> désormais en falloir un. Ce n'est pas une contradiction : à ce moment du code `S.day` a
+> déjà été incrémenté, donc `seed(S.day)` sèmerait la leçon **suivante**, jamais ouverte —
+> c'était le défaut signalé par Exsangue le 11/08/2026. Semer l'étape qu'on vient de
+> **finir** (`seed(d)`) est l'inverse. Écrire la distinction sur place, sinon quelqu'un
+> annulera le changement en croyant réparer.
 
 ### La boucle
 
@@ -122,9 +135,12 @@ l'exiger d'un mot qu'on reconnaît à peine ne produit que de l'échec.
 
 - **Moins de 50 mots au stock** → la boucle fait ce qu'il y a. Ça arrivera en fin de
   parcours, et aussi à quelqu'un qui démarre : l'étape 1 ne fait que 22 mots.
-- **Stock vide, tout est ancré** → l'écran le dit, et propose de continuer sur les mots
-  ancrés seuls. Un cul-de-sac silencieux serait un bug.
 - **Aucun mot ancré** (au début) → les 2 % ne piochent nulle part, on tire tout du stock.
+- **Stock vide — et les deux raisons ne disent PAS la même chose.** Même écran, messages
+  opposés, et les confondre serait décourager quelqu'un qui vient de commencer :
+  - *aucune leçon terminée* → « L'ancrage travaille les mots des leçons finies. Commence
+    par la leçon 1. »
+  - *tout est ancré* → « Les N mots sont ancrés. » Et on propose de continuer sur eux.
 
 ---
 
@@ -170,6 +186,13 @@ La migration doit être **idempotente** — la relancer ne doit rien changer. Un
 version dans l'état sauvegardé, et jamais une détection à la volée du genre « si `box`
 existe » : une sauvegarde à moitié convertie est le pire des cas.
 
+**La règle « leçon terminée » ne s'applique PAS rétroactivement.** La sauvegarde actuelle
+contient des mots semés à l'ancienne, à l'ouverture de leur leçon. On ne les retire pas :
+`nettoieCartesJamaisVues()` (`app.js:658`) fait déjà le tri utile — elle enlève ce qui vient
+d'étapes non validées **et sur quoi on n'a jamais travaillé**, en gardant tout ce qui porte
+une trace de réussite ou d'échec. On ne jette pas l'historique de quelqu'un pour faire
+respecter une règle écrite après coup ; la règle vaut pour la suite.
+
 ---
 
 ## Ce qu'il faudra vérifier (tests à écrire)
@@ -177,6 +200,12 @@ existe » : une sauvegarde à moitié convertie est le pire des cas.
 **Migration**
 - Convertit une progression réelle sans rien perdre ; la relancer deux fois ne change rien.
 - `hit` et `miss` survivent.
+
+**L'entrée dans le stock**
+- Ouvrir une leçon puis la quitter **n'ajoute aucun mot**.
+- Valider le quiz ajoute les mots de **cette** étape, et **jamais** ceux de la suivante.
+- Sans aucune leçon terminée, l'ancrage est vide et le dit — sans se confondre avec
+  « tout est ancré ».
 
 **La boucle**
 - Une boucle fait 50 mots **tous différents**.
