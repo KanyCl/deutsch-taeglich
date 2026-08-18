@@ -3045,17 +3045,27 @@ function runTests() {
         juste ? (enDE ? c.d : c.f) : "totalement faux et pas une traduction";
       view.querySelector('[data-act="check-word"]').click();
     }
+    /* ⚠️ ON LIT DANS LE BANDEAU DE CORRECTION, et c'est le fond du sujet. La
+       première version affichait le niveau dans une ligne à part ; ces tests
+       passaient, et Exsangue ne voyait rien. Chercher le texte n'importe où
+       dans la page les ferait repasser au vert le jour où l'information
+       ressortirait du bandeau — donc on vise `.why`, et rien d'autre. */
+    function texteWhy() {
+      const w = view.querySelector(".why");
+      return w ? w.textContent : "(aucun bandeau de correction)";
+    }
 
     let nid = carteA(3);
     repond(true, nid);
     ok("niveau : la montée est annoncée",
-       !!view.querySelector(".niv-move.up") && view.innerHTML.indexOf("niveau 3") !== -1);
+       texteWhy().indexOf("Niveau 3 → 4.") !== -1, texteWhy());
     view.querySelector('[data-act="card-next"]').click();
     eq("niveau : et l'annonce disait vrai", S.cards[nid].niv, 4);
 
     nid = carteA(3);
     repond(false, nid);
-    ok("niveau : la descente est annoncée", !!view.querySelector(".niv-move.down"));
+    ok("niveau : la descente est annoncée",
+       texteWhy().indexOf("Niveau 3 → 2.") !== -1, texteWhy());
     view.querySelector('[data-act="card-next"]').click();
     eq("niveau : et l'annonce disait vrai aussi", S.cards[nid].niv, 2);
 
@@ -3064,7 +3074,7 @@ function runTests() {
     nid = carteA(NIV_MAX);
     repond(true, nid);
     ok("niveau : au plafond, aucune montée n'est promise",
-       !view.querySelector(".niv-move.up"));
+       texteWhy().indexOf("→") === -1, texteWhy());
     ok("niveau : et le mot est dit ancré", view.innerHTML.indexOf("ancré") !== -1);
     view.querySelector('[data-act="card-next"]').click();
     eq("niveau : le plafond tient", S.cards[nid].niv, NIV_MAX);
@@ -3072,7 +3082,7 @@ function runTests() {
     nid = carteA(0);
     repond(false, nid);
     ok("niveau : au plancher, aucune descente n'est promise",
-       !view.querySelector(".niv-move.down"));
+       texteWhy().indexOf("→") === -1, texteWhy());
     view.querySelector('[data-act="card-next"]').click();
     eq("niveau : le plancher tient", S.cards[nid].niv, 0);
 
@@ -3094,7 +3104,7 @@ function runTests() {
     document.getElementById("answer").value = cardById(pid).d;
     view.querySelector('[data-act="check-word"]').click();
     ok("niveau : l'entraînement libre n'annonce aucun mouvement",
-       !view.querySelector(".niv-move"));
+       texteWhy().indexOf("Niveau") === -1, texteWhy());
     view.querySelector('[data-act="card-next"]').click();
     eq("niveau : et n'en produit aucun", S.cards[pid].niv, pavant);
 

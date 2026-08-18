@@ -862,9 +862,18 @@ function grade(id, ok, schedule) {
   }
   persist();
 }
-/* « niveau 3 → 4 », montré avec la correction. Demandé par Exsangue le
+/* « Niveau 3 → 4 », montré avec la correction. Demandé par Exsangue le
    18/08/2026 : savoir ce que la réponse vient de coûter ou de rapporter, au
    moment où on la lit.
+
+   ⚠️ ÇA S'ÉCRIT DANS LE BANDEAU DE CORRECTION, PAS À CÔTÉ. Première version :
+   une ligne grise à part, sous le bandeau — Exsangue ne la voyait tout
+   simplement pas, et il a désigné ce qu'il voulait : « sur le mode oral il y a
+   quelque chose qui montre les niveaux, je veux la même chose ». L'oral colle
+   la phrase À LA SUITE du message de correction, dans la même boîte verte ou
+   rouge, en gras quand ça monte (voir `renderOral`). On fait pareil, aux mêmes
+   mots près. Une information posée à côté d'un bloc coloré ne se lit pas :
+   l'œil va à la couleur.
 
    ⚠️ ON CALCULE L'ARRIVÉE, ON NE LA LIT PAS. Le niveau ne bouge qu'au
    « Continuer » — `grade` est appelé par `advanceCard`, pas à la
@@ -885,13 +894,13 @@ function transitionNiveau(id, ok) {
   const de = c.niv;
   const vers = ok ? Math.min(NIV_MAX, de + 1) : Math.max(0, de - 1);
 
-  if (vers === de) {
-    return '<div class="niv-move">niveau ' + de + '/' + NIV_MAX +
-      (de >= ANCRE_A ? ' &#183; ancré' : ' &#183; déjà au plus bas') + '</div>';
+  if (vers > de) {
+    return ' <b>Niveau ' + de + ' &#8594; ' + vers + '.' +
+      (vers >= ANCRE_A ? ' Mot ancré !' : '') + '</b>';
   }
-  return '<div class="niv-move' + (ok ? ' up' : ' down') + '">niveau ' +
-    de + ' &#8594; <b>' + vers + '</b>' +
-    (vers >= ANCRE_A ? ' &#183; ancré' : '') + '</div>';
+  if (vers < de) return ' Niveau ' + de + ' &#8594; ' + vers + '.';
+  if (ok && de >= ANCRE_A) return ' <b>Mot ancré</b>, niveau maximum tenu.';
+  return '';
 }
 
 function learnedCount() {
@@ -2612,8 +2621,8 @@ function writeFrBody(c) {
       verdict ? '' : ' data-consigne="En français" data-autosay="' + att(c.d) + '"', avant,
       '', arriere) +
     (verdict
-      ? '<div class="why ' + (verdict.ok ? "good" : "bad") + '">' + note + '</div>' +
-        transitionNiveau(c.id, verdict.ok) +
+      ? '<div class="why ' + (verdict.ok ? "good" : "bad") + '">' + note +
+          transitionNiveau(c.id, verdict.ok) + '</div>' +
         '<button class="btn primary wide" data-act="card-next">Continuer</button>'
       /* ⚠️ LE SEUL CHAMP QUI RESTE EN FRANÇAIS — ne pas « corriger ».
          C'est la carte du niveau 1, qui montre l'allemand et demande le sens.
@@ -2679,8 +2688,8 @@ function writeBody(c) {
       verdict ? '' : ' data-consigne="En allemand"', avant,
       verdict ? ' data-autosay="' + att(c.d) + '"' : '', arriere) +
     (verdict
-      ? '<div class="why ' + (verdict.ok ? "good" : "bad") + '">' + note + '</div>' +
-        transitionNiveau(c.id, verdict.ok) +
+      ? '<div class="why ' + (verdict.ok ? "good" : "bad") + '">' + note +
+          transitionNiveau(c.id, verdict.ok) + '</div>' +
         '<button class="btn primary wide" data-act="card-next">Continuer</button>'
       : '<input class="answer" id="answer"' + saisieAttrs("Ta réponse en allemand", true) + '>' +
         '<div class="pair">' +
