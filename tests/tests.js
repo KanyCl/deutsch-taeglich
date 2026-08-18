@@ -3172,6 +3172,55 @@ function runTests() {
   ok("saisie : un autre verbe reste faux",
      !checkAnswer("laufen", "sprechen (du sprichst)").ok);
 
+  /* ---- Un énoncé à trou se répond par le trou ----
+     Signalé par Exsangue le 18/08/2026, capture à l'appui : « ___ Mai » sous
+     la consigne « mets la préposition qui convient », il écrit « im » — juste —
+     et l'app refuse, parce qu'elle attend « im Mai ». Montrer un trou et exiger
+     la phrase entière n'est pas défendable. */
+  eq("trou : le mot manquant se déduit de la réponse",
+     gapOf("___ Mai", "im Mai"), "im");
+  eq("trou : au milieu de la phrase aussi",
+     gapOf("Ich nehme ___ Saft.", "Ich nehme einen Saft."), "einen");
+  eq("trou : et quand il reste des mots derrière",
+     gapOf("Ich fahre ___ dem Bus.", "Ich fahre mit dem Bus."), "mit");
+  eq("trou : sans trou, rien à déduire", gapOf("im Freitag", "am Freitag"), null);
+  eq("trou : deux trous, on ne devine pas lequel",
+     gapOf("___ Mai ___ Juni", "im Mai im Juni"), null);
+  eq("trou : un énoncé qui ne colle pas à sa réponse ne se devine pas",
+     gapOf("___ Mai", "am Montag"), null);
+
+  const trou = { t: "trans", from: "___ Mai", a: "im Mai" };
+  ok("trou : la préposition seule est acceptée", checkDrill(trou, "im").ok);
+  ok("trou : la phrase entière reste acceptée elle aussi", checkDrill(trou, "im Mai").ok);
+  ok("trou : la mauvaise préposition reste fausse", !checkDrill(trou, "am").ok);
+  ok("trou : et un mot sans rapport aussi", !checkDrill(trou, "Hund").ok);
+  eq("trou : la faute se pointe sur le mot demandé, pas sur la phrase",
+     checkDrill(trou, "in").gap, "im");
+
+  /* Ce que la correction devait laisser intact : un `trans` SANS trou attend
+     toujours la phrase entière — « Corrige la faute : im Freitag » se répond
+     « am Freitag », pas « am ». */
+  const plein = { t: "trans", from: "im Freitag", a: "am Freitag" };
+  ok("trans : sans trou, la phrase entière est toujours exigée",
+     !checkDrill(plein, "am").ok);
+  ok("trans : et la phrase entière passe", checkDrill(plein, "am Freitag").ok);
+
+  /* La garantie qui vaut pour tout le cours : plus un seul énoncé n'affiche un
+     trou en attendant autre chose que ce trou. C'est ce test-là qui rattrapera
+     le prochain exercice écrit de travers. */
+  (function () {
+    const boiteux = [];
+    COURSE.forEach(function (u, iu) {
+      (u.drills || []).forEach(function (d, id) {
+        if (!d.from || String(d.from).indexOf("___") === -1) return;
+        const t = gapOf(d.from, d.a);
+        if (!t || !checkDrill(d, t).ok) boiteux.push("étape " + (iu + 1) + " ex." + (id + 1));
+      });
+    });
+    ok("trou : tout énoncé à trou du cours se répond par son trou",
+       boiteux.length === 0, boiteux.join(", "));
+  })();
+
   /* Garantie sur tout le cours, à tous les niveaux : le mot seul suffit. */
   COURSE.forEach(function (l, i) {
     ok("jour " + (i + 1) + " : chaque mot s'écrit sans sa note entre parenthèses",

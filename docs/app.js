@@ -2928,6 +2928,37 @@ function drillAnswer(d) {
   return orderPicked.map(function (i) { return orderPool[i]; }).join(" ");
 }
 
+/* Ce que cache le trou d'un énoncé « ___ ».
+
+   Signalé par Exsangue le 18/08/2026, capture à l'appui : l'exercice affichait
+   « ___ Mai » sous la consigne « mets la préposition qui convient », il a écrit
+   « im » — la bonne préposition — et l'app a refusé, parce qu'elle attendait
+   « im Mai ». Il a raison, c'est illogique : on ne peut pas montrer un trou et
+   exiger la phrase entière.
+
+   L'app a pourtant le bon type pour ça — `gap`, que 443 exercices emploient.
+   Huit exercices étaient typés `trans` alors qu'ils sont POSÉS comme des `gap`.
+   On aurait pu retyper ces huit-là ; on corrige plutôt le moteur, parce que
+   retyper ne protège pas le neuvième, celui qui sera écrit dans six mois.
+
+   Le trou se DÉDUIT : l'énoncé donne le début et la fin, la réponse complète
+   donne le tout, la différence est le mot attendu. Aucune donnée à ressaisir,
+   donc aucune occasion de se tromper en la ressaisissant.
+
+   Renvoie null s'il n'y a pas de trou, s'il y en a plusieurs — on ne saurait
+   pas lequel est demandé — ou si la réponse ne colle pas à l'énoncé : données
+   incohérentes, et là on ne devine pas, on laisse le contrôle plein juger. */
+function gapOf(from, answer) {
+  const parts = String(from == null ? "" : from).split(/_{3,}/);
+  if (parts.length !== 2) return null;
+  const quote = function (s) { return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); };
+  const re = new RegExp(
+    "^\\s*" + quote(parts[0].trim()) + "\\s*(.+?)\\s*" + quote(parts[1].trim()) + "\\s*$"
+  );
+  const m = String(answer == null ? "" : answer).match(re);
+  return m ? m[1] : null;
+}
+
 function checkDrill(d, typed) {
   if (d.t === "order") {
     const got = normDE(drillAnswer(d));
@@ -2936,7 +2967,23 @@ function checkDrill(d, typed) {
       ? { ok: true, kind: "exact" }
       : { ok: false, kind: "wrong" };
   }
-  return checkAnswer(typed, d.a);
+  const plein = checkAnswer(typed, d.a);
+  if (plein.ok) return plein;
+
+  /* Énoncé à trou : le mot seul vaut la phrase entière. Les DEUX sont acceptés
+     — écrire « im Mai » reste juste — et rien d'autre ne s'élargit : c'est le
+     même checkAnswer, avec la même sévérité sur le genre. */
+  const trou = gapOf(d.from, d.a);
+  if (trou) {
+    const court = checkAnswer(typed, trou);
+    if (court.ok) return court;
+    /* Raté des deux côtés : on garde le verdict du trou, celui de la question
+       réellement posée. C'est lui qui permettra de pointer la faute de frappe
+       sur « im » plutôt que de la chercher, en vain, dans « im Mai ». */
+    court.gap = trou;
+    return court;
+  }
+  return plein;
 }
 
 function renderDrill() {
@@ -3044,7 +3091,10 @@ function renderDrill() {
       (drillVerdict.ok
         ? "Exact. "
         : (function () {
-            const f = fauteOrtho(drillVerdict.typed, d.a);
+            /* Sur un énoncé à trou, la faute se cherche dans LE MOT demandé,
+               pas dans la phrase entière : « in » pour « im » est une lettre à
+               corriger, et la comparer à « im Mai » ne trouverait rien. */
+            const f = fauteOrtho(drillVerdict.typed, drillVerdict.gap || d.a);
             return f ? f + "<br>" : "";
           })()) +
       (d.why || "") + '</div>',
