@@ -843,16 +843,6 @@ function practiceCards(n) {
   return shuffleIdx(chosen.length).map(function (i) { return cardById(chosen[i]); });
 }
 
-/* Un mot déjà su, tiré au hasard. Sert à ne pas finir une session en boucle
-   sur ses seules erreurs : chaque mot raté revient accompagné de celui-ci. */
-function pickEasy(excludeId) {
-  const ids = Object.keys(S.cards).filter(function (id) {
-    return id !== excludeId && cardById(id) && weakness(id) < 0.5;
-  });
-  if (!ids.length) return null;
-  return cardById(ids[shuffleIdx(ids.length)[0]]);
-}
-
 /* schedule === false : on note la réponse sans toucher au niveau.
    C'est le mode entraînement — réviser en avance ne doit pas faire avancer
    la progression, sinon on pourrait ancrer un mot en le répétant d'affilée. */
@@ -2476,7 +2466,7 @@ function renderCard() {
         '<div class="meter">' + deck.map(function (_, i) { return '<i class="' + (i < pos ? 'on' : '') + '"></i>'; }).join("") + '</div>',
       '</div>',
 
-      st.niv >= ECRIT_DE_A ? writeBody(c) : writeFrBody(c),
+      corpsCarte(c, st.niv),
     '</div>'
   ].join("");
 }
@@ -2504,6 +2494,120 @@ function carte3d(theme, attrsAvant, avant, attrsArriere, arriere) {
          '</div>';
 }
 
+/* ---------- LES TROIS MODES D'UNE CARTE DE LEÇON ----------
+   Demandés par Exsangue le 18/08/2026 (PLAN-ANCRAGE.md §1) :
+
+     mode 1  le mot est PRONONCÉ en allemand  → on écrit le français
+     mode 2  le mot est PRONONCÉ en allemand  → on écrit l'allemand
+     mode 3  le mot est ÉCRIT en français     → on écrit l'allemand
+
+   Le saut par rapport à avant : aux modes 1 et 2, le mot allemand n'est plus
+   AFFICHÉ, seulement entendu. C'est un exercice différent — reconnaître un mot
+   à l'oreille n'a rien à voir avec le lire, et c'est précisément la compétence
+   qui manque quand on n'apprend qu'avec les yeux.
+
+   ⚠️ CE MODE DÉPEND D'UNE VOIX ALLEMANDE INSTALLÉE. Sans elle, une carte muette
+   serait impossible à répondre — pas difficile, IMPOSSIBLE, et rien à l'écran
+   n'expliquerait pourquoi. L'app masque déjà ses boutons d'écoute quand aucune
+   voix n'est là (« mieux vaut rien qu'un bouton muet ») : on retombe donc sur
+   le mot écrit, et on le DIT, plutôt que de laisser quelqu'un devant une carte
+   vide en croyant que l'app est cassée.
+
+   Même raison pour le bouton « Écouter », qui reste toujours affiché ici : la
+   lecture automatique est un réglage, et si Exsangue l'a coupée il doit
+   pouvoir déclencher le son lui-même. */
+function modeCarte(niv) {
+  if (niv < ECRIT_DE_A) return "ecoute-fr";
+  if (niv < ARTICLE_A)  return "ecoute-de";
+  return "lit-fr";
+}
+
+function corpsCarte(c, niv) {
+  /* ⚠️ L'ENTRAÎNEMENT LIBRE GARDE L'ANCIEN JEU, à deux modes et mot écrit.
+     Il ne suit pas la progression — il repêche les mots les plus ratés sans
+     toucher aux niveaux — et le passer à l'oreille en ferait un second
+     exercice d'écoute là où on veut réviser du sens. Le même écran sert les
+     deux, d'où ce test : sans lui, `training` hériterait des trois modes en
+     silence. */
+  if (training) return niv >= ECRIT_DE_A ? writeBody(c) : writeFrBody(c);
+
+  const mode = modeCarte(niv);
+  if (mode === "lit-fr") return writeBody(c);
+  return ecouteBody(c, mode === "ecoute-de");
+}
+
+function ecouteBody(c, enAllemand) {
+  const muet = !TTS.voice;
+
+  const avant =
+    (muet
+      /* Repli assumé : sans voix, on montre le mot. Et on l'explique — une
+         carte qui change de règle sans le dire passerait pour un bug. */
+      ? '<div class="front">' + esc(c.d) + '</div>' +
+        '<div class="tip">Aucune voix allemande sur cet appareil : le mot est ' +
+        'écrit à la place.</div>'
+      : '<div class="ecoute">&#9835;</div>' + sayBtn(c.d)) +
+    '<div class="tip">' +
+      (enAllemand
+        ? (muet ? 'Recopie le mot en allemand.' : 'Écris en allemand le mot que tu entends.')
+        : (muet ? 'Écris ce que ça veut dire, en français.'
+                : 'Écris en français le mot que tu entends.')) +
+    '</div>';
+
+  let note = "";
+  if (verdict) {
+    if (verdict.kind === "dunno")      note = "Pas grave — ce mot va revenir vite.";
+    else if (verdict.kind === "empty") note = "Rien d'écrit.";
+    /* Le synonyme accepté doit être nommé, sinon on croit avoir donné LE mot
+       attendu. Oublié à la première écriture de ce mode, rattrapé par le test
+       « le mot visé est rappelé » — la branche existait dans writeBody, et une
+       réponse dupliquée finit toujours par perdre une de ses moitiés. */
+    else if (verdict.kind === "autre") note = "Juste aussi — <b>" + esc(verdict.autre) +
+                                              "</b> traduit bien « " + esc(c.f) +
+                                              " ». Ici on visait <b>" + esc(c.d) + "</b>.";
+    else if (verdict.ok && verdict.kind === "no-article")
+                                       note = "Juste. Pense à l'article : <b>" + esc(c.d) + "</b>.";
+    else if (verdict.ok && verdict.kind === "article-en-plus")
+                                       note = "Juste — ici on attendait <b>" + esc(c.d) + "</b>, sans article.";
+    else if (verdict.ok)               note = "Exact.";
+    else if (verdict.kind === "bad-article")
+                                       note = "Le mot est bon, mais pas le genre : c'est <b>" + esc(c.d) + "</b>.";
+    /* Pas de diagnostic de lettre sur du français : `checkGloss` est
+       volontairement indulgent, et pointer une faute d'orthographe sur une
+       traduction transformerait la compréhension en piège. */
+    else if (!enAllemand)              note = "Ce n'était pas ça.";
+    else                               note = fauteOrtho(verdict.typed, c.d) || "Ce n'était pas ça.";
+  }
+
+  const arriere =
+    '<div class="front">' + esc(c.d) + '</div>' +
+    '<div class="p">' + esc(c.p) + '</div>' +
+    sayBtn(c.d) +
+    '<div class="trad">' + esc(c.f) + '</div>' +
+    (verdict && verdict.typed ? '<div class="tip">Tu as écrit : ' + esc(verdict.typed) + '</div>' : '');
+
+  return carte3d(themeDe(c),
+      /* Le mot se prononce dès l'affichage — c'est TOUTE la question ici, pas
+         une aide. Rien n'est soufflé : ce qu'on demande, c'est la traduction
+         ou l'orthographe, jamais le son lui-même. */
+      verdict ? '' : ' data-consigne="' + (enAllemand ? 'À l\'oreille' : 'En français') +
+                     '"' + (muet ? '' : ' data-autosay="' + att(c.d) + '"'), avant,
+      verdict ? ' data-autosay="' + att(c.d) + '"' : '', arriere) +
+    (verdict
+      ? '<div class="why ' + (verdict.ok ? "good" : "bad") + '">' + note + '</div>' +
+        '<button class="btn primary wide" data-act="card-next">Continuer</button>'
+      : '<input class="answer" id="answer"' +
+          saisieAttrs(enAllemand ? "Ta réponse en allemand" : "Ta réponse en français",
+                      enAllemand) + '>' +
+        '<div class="pair">' +
+          '<button class="btn" data-act="dunno">Je ne sais pas</button>' +
+          '<button class="btn primary" data-act="check-word">Vérifier</button>' +
+        '</div>');
+}
+
+/* Conservé pour l'entraînement libre, qui montre le mot écrit : il travaille
+   les mots les plus ratés hors progression, et le mettre à l'oreille en ferait
+   un second exercice d'écoute là où on veut juste réviser du sens. */
 function writeFrBody(c) {
   // Le mot est prononcé dès qu'il s'affiche : demandé par Exsangue pour
   // pouvoir travailler à l'oreille autant qu'à l'œil. Sans risque ici, le
@@ -2615,9 +2719,16 @@ function advanceCard(ok) {
   const room = deck.length < deckCap && passes[cur.id] < MAX_PASSES;
 
   if (room && !ok) {
-    deck.push(cur);                       // le mot raté repasse en fin de paquet
-    const easy = pickEasy(cur.id);        // accompagné d'un mot déjà su, pour ne pas
-    if (easy) deck.push(easy);            // terminer en boucle sur ses seules erreurs
+    /* Le mot raté repasse en fin de paquet — le retravailler tout de suite est
+       ce qui l'ancre. Mais RIEN D'AUTRE ne s'ajoute.
+
+       ⚠️ On ajoutait ici un second mot, déjà su, « pour ne pas terminer en
+       boucle sur ses seules erreurs ». Retiré le 18/08/2026 à la demande
+       d'Exsangue, et il a raison : chaque faute coûtait DEUX cartes, donc un
+       mauvais jour gonflait le paquet, ce qui produisait d'autres fautes, qui
+       le gonflaient encore. La sanction d'un échec, c'est le niveau perdu —
+       pas du travail en plus. */
+    deck.push(cur);
   } else if (room && !training && S.cards[cur.id].niv <= ECRIT_DE_A) {
     // Étapes d'apprentissage : le mot repasse dans la même séance pour monter
     // d'un cran. Le seuil est « <= » et non « < » : un mot qui vient d'atteindre

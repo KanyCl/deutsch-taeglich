@@ -2994,13 +2994,37 @@ function runTests() {
      Au-dessus, c'est l'allemand qu'on doit écrire — le prononcer avant la
      réponse la soufflerait, donc on attend. */
   (function () {
+    /* ⚠️ LA MACHINE DE TEST N'A PAS DE VOIX ALLEMANDE. Sans ce montage, les
+       modes « à l'oreille » ne seraient JAMAIS exercés ici — seul leur repli
+       le serait, et on croirait les avoir testés. On simule donc une voix, et
+       on teste aussi le cas sans, qui est le seul que la machine connaît
+       spontanément. */
+    const vraieVoix = TTS.voice;
+    TTS.voice = { lang: "de-DE", name: "test" };
+
     S = fresh(); S.day = 1; seed(1);
     go("cards");
     const front = view.querySelector(".face[data-autosay]");
-    ok("son : au niveau 1, le mot est prononcé dès l'affichage", !!front);
+    ok("son : au niveau 0, le mot est prononcé dès l'affichage", !!front);
     if (front) {
       eq("son : et c'est bien le mot allemand", front.getAttribute("data-autosay"), deck[pos].d);
     }
+    ok("écoute : le mot allemand n'est PAS affiché, il est entendu",
+       view.innerHTML.indexOf(esc(deck[pos].d)) === -1 ||
+       !view.querySelector(".face.avant .front"));
+
+    /* Sans voix, la carte doit rester répondable : on retombe sur le mot
+       écrit, et on le dit. Une carte muette et vide passerait pour une panne. */
+    TTS.voice = null;
+    S = fresh(); S.day = 1; seed(1);
+    go("cards");
+    ok("écoute : sans voix, le mot est affiché à la place",
+       !!view.querySelector(".face.avant .front"));
+    ok("écoute : et l'app explique pourquoi",
+       view.innerHTML.indexOf("Aucune voix allemande") !== -1);
+    ok("écoute : sans voix, il y a toujours un champ à remplir",
+       !!document.getElementById("answer"));
+    TTS.voice = vraieVoix;
 
     S = fresh(); S.day = 1; seed(1);
     Object.keys(S.cards).forEach(function (id) { S.cards[id].niv = ECRIT_DE_A; });
@@ -3015,6 +3039,80 @@ function runTests() {
 
     // Ce bloc a monté tous les mots au niveau d'écriture : on rend un état
     // neuf aux vérifications suivantes, qui repartent d'un mot de niveau 1.
+    S = fresh(); S.day = 1; seed(1);
+  })();
+
+  /* ---- LES TROIS MODES DE LA CARTE DE LEÇON (PLAN-ANCRAGE.md §1) ----
+     Demandés par Exsangue le 18/08/2026 :
+       mode 1  prononcé en allemand → on écrit le français
+       mode 2  prononcé en allemand → on écrit l'allemand
+       mode 3  écrit en français    → on écrit l'allemand
+
+     ⚠️ Ces tests SIMULENT une voix allemande. Sans ça, la machine de test
+     retombe sur le mot écrit et les modes 1 et 2 ne sont jamais exercés — on
+     croirait les avoir couverts alors qu'on n'aurait testé que le repli. */
+  (function () {
+    const vraieVoix = TTS.voice;
+    TTS.voice = { lang: "de-DE", name: "test" };
+
+    function carteAu(niv) {
+      S = fresh(); S.day = 1; seed(1);
+      const id = Object.keys(S.cards)[0];
+      Object.keys(S.cards).forEach(function (k) { if (k !== id) delete S.cards[k]; });
+      S.cards[id].niv = niv;
+      oublieSeances();
+      go("cards");
+      return cardById(id);
+    }
+
+    eq("modes : niveau 0 → on écoute, on écrit le français", modeCarte(0), "ecoute-fr");
+    eq("modes : niveau 2 encore", modeCarte(2), "ecoute-fr");
+    eq("modes : niveau 3 → on écoute, on écrit l'allemand", modeCarte(3), "ecoute-de");
+    eq("modes : niveau 4 aussi", modeCarte(4), "ecoute-de");
+    eq("modes : niveau 5 → on lit le français, on écrit l'allemand", modeCarte(5), "lit-fr");
+    eq("modes : et ça ne change plus ensuite", modeCarte(NIV_MAX), "lit-fr");
+
+    /* Mode 1 — le mot est ENTENDU, pas lu. C'est tout l'intérêt : reconnaître
+       un mot à l'oreille est une autre compétence que le lire. */
+    let c = carteAu(0);
+    ok("mode 1 : le mot allemand n'est pas affiché", !view.querySelector(".face.avant .front"));
+    ok("mode 1 : il est prononcé dès l'affichage",
+       !!view.querySelector(".face.avant[data-autosay]"));
+    eq("mode 1 : et c'est bien lui qu'on prononce",
+       view.querySelector(".face.avant[data-autosay]").getAttribute("data-autosay"), c.d);
+    ok("mode 1 : on peut le réécouter à la demande",
+       !!view.querySelector(".face.avant [data-say]"));
+    ok("mode 1 : c'est le français qui est demandé",
+       view.innerHTML.indexOf("en français") !== -1);
+    document.getElementById("answer").value = c.f;
+    view.querySelector('[data-act="check-word"]').click();
+    ok("mode 1 : la traduction française est acceptée", !!view.querySelector(".why.good"));
+    ok("mode 1 : et la réponse se dévoile après coup",
+       !!view.querySelector(".face.arriere .front"));
+
+    /* Mode 2 — même écoute, mais c'est l'orthographe allemande qu'on rend. */
+    c = carteAu(ECRIT_DE_A);
+    ok("mode 2 : le mot allemand n'est toujours pas affiché",
+       !view.querySelector(".face.avant .front"));
+    ok("mode 2 : il est prononcé", !!view.querySelector(".face.avant[data-autosay]"));
+    ok("mode 2 : et le français non plus n'est pas montré",
+       !view.querySelector(".face.avant .ask"));
+    ok("mode 2 : c'est l'allemand qui est demandé",
+       view.innerHTML.indexOf("en allemand") !== -1);
+    document.getElementById("answer").value = c.d;
+    view.querySelector('[data-act="check-word"]').click();
+    ok("mode 2 : l'orthographe allemande est acceptée", !!view.querySelector(".why.good"));
+
+    /* Mode 3 — on lit le français, on produit l'allemand. Et RIEN n'est
+       prononcé avant la réponse : ce serait la souffler. */
+    c = carteAu(ARTICLE_A);
+    eq("mode 3 : le français est affiché",
+       view.querySelector(".face.avant .ask").textContent, c.f);
+    ok("mode 3 : rien n'est prononcé avant la réponse",
+       !view.querySelector(".face.avant[data-autosay]"));
+    ok("mode 3 : et l'allemand n'est pas montré", !view.querySelector(".face.avant .sol"));
+
+    TTS.voice = vraieVoix;
     S = fresh(); S.day = 1; seed(1);
   })();
 
@@ -3331,7 +3429,12 @@ function runTests() {
   const beforeMiss = deck.length;
   view.querySelector('[data-act="dunno"]').click();
   view.querySelector('[data-act="card-next"]').click();
-  eq("cartes : un mot raté revient accompagné d'un mot déjà su", deck.length, beforeMiss + 2);
+  /* ⚠️ Ce test disait « accompagné d'un mot déjà su » et attendait +2 jusqu'au
+     18/08/2026. Retourné à la demande d'Exsangue : chaque faute coûtait DEUX
+     cartes, donc un mauvais jour gonflait le paquet, ce qui produisait
+     d'autres fautes. La sanction d'un échec est le niveau perdu, pas du
+     travail en plus. */
+  eq("cartes : un mot raté repasse SEUL, sans carte ajoutée", deck.length, beforeMiss + 1);
 
   S = fresh(); S.day = 1; seed(1);
   go("cards");
@@ -3551,7 +3654,7 @@ function runTests() {
     return id;
   }
 
-  const wid = soloCard(ECRIT_DE_A);
+  const wid = soloCard(ARTICLE_A);
   go("cards");
   eq("saisie : un seul mot est dû", deck.length, 1);
   ok("saisie : le mot connu demande d'écrire", !!view.querySelector("#answer"));
@@ -3566,26 +3669,26 @@ function runTests() {
   ok("saisie : la bonne réponse est acceptée", !!view.querySelector(".why.good"));
   ok("saisie : la solution s'affiche ensuite", !!view.querySelector(".face .sol"));
   view.querySelector('[data-act="card-next"]').click();
-  eq("saisie : le mot monte d'un niveau", S.cards[wid].niv, ECRIT_DE_A + 1);
+  eq("saisie : le mot monte d'un niveau", S.cards[wid].niv, ARTICLE_A + 1);
   eq("saisie : la réussite est notée au journal", S.cards[wid].hit, 1);
 
-  const wid2 = soloCard(ECRIT_DE_A);
+  const wid2 = soloCard(ARTICLE_A);
   go("cards");
   view.querySelector('[data-act="dunno"]').click();
   ok("saisie : « je ne sais pas » montre la réponse", !!view.querySelector(".face .sol"));
   ok("saisie : et c'est compté comme raté", !!view.querySelector(".why.bad"));
   view.querySelector('[data-act="card-next"]').click();
   eq("saisie : l'erreur est notée au journal", S.cards[wid2].miss, 1);
-  eq("saisie : le mot redescend d'un niveau", S.cards[wid2].niv, ECRIT_DE_A - 1);
+  eq("saisie : le mot redescend d'un niveau", S.cards[wid2].niv, ARTICLE_A - 1);
 
-  const wid3 = soloCard(ECRIT_DE_A);
+  const wid3 = soloCard(ARTICLE_A);
   go("cards");
   document.getElementById("answer").value = "totalement faux";
   view.querySelector('[data-act="check-word"]').click();
   ok("saisie : une mauvaise réponse est refusée", !!view.querySelector(".why.bad"));
   ok("saisie : ce qu'on a écrit est rappelé", view.innerHTML.indexOf("Tu as écrit") !== -1);
   view.querySelector('[data-act="card-next"]').click();
-  eq("saisie : une mauvaise réponse fait redescendre d'un niveau", S.cards[wid3].niv, ECRIT_DE_A - 1);
+  eq("saisie : une mauvaise réponse fait redescendre d'un niveau", S.cards[wid3].niv, ARTICLE_A - 1);
 
   /* En dessous du seuil, on écrit aussi — mais en français, et on part de
      l'allemand. Le sens facile, jamais la reconnaissance passive. */
