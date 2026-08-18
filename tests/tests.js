@@ -3380,6 +3380,32 @@ function runTests() {
        !!view.querySelector('[data-act="dunno"]'));
     ok("dessin : l'ancrage passe bien par le paquet commun", ancrage === true);
 
+    /* ⚠️ LA MOITIÉ DU DESSIN N'EST PAS DANS LE HTML. `body.plein` donne à la
+       carte sa hauteur, donc sa FORME : sans lui elle s'effondre et l'écran
+       ne ressemble plus à des cartes, quand bien même le HTML serait
+       rigoureusement le même. C'est ce qui s'est produit le 18/08/2026 —
+       j'avais fusionné les vues et conclu que le dessin suivait, alors que
+       `go()` porte une liste de noms d'écrans que j'avais laissée derrière.
+       Exsangue a vu un écran plat là où le code disait « c'est la même vue ».
+
+       Ce test balaie la liste au lieu de nommer l'ancrage : le prochain écran
+       à cartes sera couvert sans que personne y pense. */
+    ECRANS_CARTES.forEach(function (ecran) {
+      go(ecran);
+      ok("dessin : « " + ecran + " » reçoit body.plein, qui donne sa forme à la carte",
+         document.body.classList.contains("plein"));
+    });
+    ok("dessin : et l'ancrage est bien dans cette liste",
+       ECRANS_CARTES.indexOf("ancrage") !== -1);
+    /* L'inverse compte autant : un écran sans carte ne doit pas être bloqué en
+       pleine hauteur, sinon il ne défile plus. */
+    go("home");
+    ok("dessin : un écran sans carte ne prend pas body.plein",
+       !document.body.classList.contains("plein"));
+
+    stockDe(3);
+    go("ancrage");
+
     /* --- Le parcours réel, bout en bout --- */
     ok("ancrage : l'écran s'ouvre sur un mot", !!document.getElementById("answer"));
     const premier = deck[pos], nivAvant = S.cards[premier.id].niv;

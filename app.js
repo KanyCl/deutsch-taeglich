@@ -1261,6 +1261,10 @@ const PARCOURS_NOM = {
    ne lui servent pas.
    L'accueil n'y figure pas volontairement : c'est là que le nom de l'app
    reprend sa place, puisqu'on ne peut pas s'y perdre. */
+/* Les écrans qui servent une carte à deux faces. Ils prennent `body.plein`,
+   qui leur donne la hauteur — et la carte sa forme. Voir `go()`. */
+const ECRANS_CARTES = ["cards", "practice", "ancrage"];
+
 const OU_SUIS_JE = {
   lesson: "La leçon", drills: "Les exercices", cards: "Les cartes",
   practice: "Entraînement", oral: "L'oral", quiz: "Le quiz",
@@ -4905,8 +4909,18 @@ function go(name) {
      pas — c'est la seule façon de garantir que le mot ET le champ restent
      vus ensemble quand le clavier monte. Posé sur `body` et non sur `view` :
      l'en-tête et la marge de `.app` entrent dans le calcul, et ils sont
-     au-dessus de `view`. */
-  document.body.classList.toggle("plein", name === "cards" || name === "practice");
+     au-dessus de `view`.
+
+     ⚠️ TOUT ÉCRAN QUI SERT UNE `.carte3d` DOIT ÊTRE DANS CETTE LISTE. C'est
+     `body.plein` qui donne à la carte sa hauteur et donc sa FORME : sans lui
+     elle s'effondre, et l'écran ne ressemble plus à des cartes du tout.
+     Oublié pour l'ancrage le 18/08/2026 — j'avais partagé le HTML des cartes
+     en croyant que partager le dessin suffisait, alors que la moitié du
+     dessin vit ici, dans une liste de noms d'écrans. Signalé par Exsangue,
+     qui voyait un écran plat là où le code disait « c'est la même vue ».
+     La liste est vérifiée par un test : un écran à cartes absent d'ici le
+     fait tomber. */
+  document.body.classList.toggle("plein", ECRANS_CARTES.indexOf(name) !== -1);
 
   /* Quitter le contre-la-montre arrête le compte à rebours. Sans ça, il
      continuerait à tourner sous les autres écrans et finirait par ramener de
