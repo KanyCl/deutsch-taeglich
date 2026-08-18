@@ -140,11 +140,37 @@ function chapterOf(stepNo) {
    donnerait donc pas une progression fausse d'un peu : elle rattacherait
    chaque compteur à un contenu sans rapport. On repart proprement. */
 const KEY = "deutsch-taeglich-v2";
-/* Espacement des révisions, en jours.
-   Les niveaux 1 et 2 valent 0 : ce sont des étapes d'apprentissage, elles se
-   franchissent dans la même séance. Le vrai espacement commence au niveau 3 —
-   celui où le mot ne se reconnaît plus mais s'écrit. */
-const INTERVALS = { 1: 0, 2: 0, 3: 1, 4: 4, 5: 16 };
+
+/* ---------- LE NIVEAU D'UN MOT ----------
+   Refonte du 18/08/2026, spec dans PLAN-ANCRAGE.md.
+
+   AVANT : chaque mot portait une box Leitner 1→5 ET une date `due` calculée
+   par un tableau d'intervalles. Deux nombres pour dire une seule chose.
+
+   MAINTENANT : un seul niveau, 0 → 20, et AUCUNE date. Les mots reviennent
+   parce que le tirage aléatoire de l'ancrage les ramène, pas parce qu'un
+   calendrier arrive à échéance.
+
+   ⚠️ POURQUOI LES DATES SONT PARTIES, et pourquoi il ne faut pas les
+   réintroduire « juste pour les cartes » : une date dit « ne repose pas ce
+   mot avant le 4 septembre », un tirage aléatoire dit « quand son tour
+   vient ». Les deux se contrediront, et ce jour-là RIEN ne le signalera —
+   le mot sera simplement posé trop tôt, ou jamais. Pas d'erreur, pas
+   d'écran rouge : un calendrier qui ment en silence, sur une app dont la
+   révision est le cœur. C'est exactement le défaut qu'on vient de retirer. */
+/* ⚠️ ETAT_V EST ICI, ET PAS À CÔTÉ DE `migreVersNiveaux` QUI L'EMPLOIE.
+   `let S = load()` (plus bas) appelle `sane()`, qui appelle la migration : une
+   constante déclarée après cette ligne serait en ZONE MORTE TEMPORELLE au
+   moment où on la lit. Ce n'est pas théorique — c'est le défaut du 02/08/2026,
+   celui qui a fait repartir la progression d'Exsangue de zéro pendant que
+   2 501 vérifications étaient au vert. Écrit ici la première fois, la faute a
+   été rattrapée par le test « la sauvegarde a été relue sans erreur ». */
+const ETAT_V    = 2;    // version du format de sauvegarde — voir migreVersNiveaux()
+const NIV_MAX   = 20;   // au-delà, le mot est ancré et sort du stock
+const ANCRE_A   = 20;   // « ancré définitivement »
+const APPRIS_A  = 15;   // compté comme appris sur l'accueil — l'ancien `box >= 4`
+const ECRIT_DE_A = 3;   // en dessous, on écrit le français ; à partir de là, l'allemand
+const ARTICLE_A  = 5;   // à partir de là, le déterminant est exigé
 
 /* ---------- Les préférences ----------
    Demandées par Exsangue le 01/08/2026, après avoir choisi le design.
@@ -368,6 +394,62 @@ function load() {
    comptait plus que 10, ouvrait COURSE[11] et plantait l'écran d'accueil.
    Le cas se reproduira à chaque remaniement : on borne une fois pour
    toutes, au lieu de compter sur le fait que ça ne rearrivera pas. */
+/* ---------- LA MIGRATION box → niv ----------
+   Écrite le 18/08/2026 avec la refonte de l'ancrage (PLAN-ANCRAGE.md §3).
+
+   Une progression réelle existe sur l'iPhone d'Exsangue : des mois de travail.
+   Elle ne doit RIEN perdre. La conversion :
+
+       niv = (box - 1) × 5      box 1 → 0 · 2 → 5 · 3 → 10 · 4 → 15 · 5 → 20
+
+   Choisie pour deux raisons, pas pour la commodité arithmétique :
+     - `box >= 4` valait « appris » et donne `niv >= 15` : le compteur de
+       l'accueil affiche le même nombre avant et après la mise à jour, ce qui
+       évite la seule chose qu'on ne pourrait pas rattraper — la conviction
+       d'avoir perdu sa progression ;
+     - la box 5 tombe pile sur 20, donc « ancré ».
+
+   `hit` et `miss` sont RECOPIÉS tels quels : c'est le journal des mots
+   fragiles, et rien dans la refonte ne le remplace.
+
+   ⚠️ IDEMPOTENCE — c'est tout l'enjeu, et elle repose sur un détail fragile.
+   Le témoin est `s.v`, et `fresh()` NE DOIT PAS LE POSER. La raison est dans
+   `load()` : l'état lu vaut `Object.assign(fresh(), JSON.parse(raw))`. Si
+   `fresh()` renvoyait `v: 2`, une vieille sauvegarde — qui n'a pas de `v` —
+   hériterait du 2 de `fresh()` et passerait pour déjà migrée. La progression
+   resterait en box, la migration ne tournerait jamais, et le mot ne serait ni
+   appris ni ancré. Silencieusement.
+
+   Donc : pas de `v` dans `fresh()`. Une progression neuve n'a pas de cartes,
+   la migrer ne coûte rien, et elle ressort en v2 comme les autres.
+
+   On ne détecte SURTOUT pas « à la volée » (« si la carte a un box… ») : une
+   sauvegarde à moitié convertie serait le pire des cas, et c'est exactement
+   ce qu'on obtient en migrant carte par carte au fil de la lecture.
+
+   `ETAT_V` est déclaré tout en haut du fichier, avec les autres constantes de
+   niveau, et pas ici : `let S = load()` appelle cette fonction, donc une
+   constante écrite à cet endroit serait lue avant d'exister. */
+function migreVersNiveaux(s) {
+  if (Number(s.v) >= ETAT_V) return false;
+  const src = (s.cards && typeof s.cards === "object") ? s.cards : {};
+  Object.keys(src).forEach(function (id) {
+    const c = src[id];
+    if (!c || typeof c !== "object") return;
+    if (c.niv === undefined) {
+      // La box est bornée ICI aussi : on migre des données brutes, pas encore
+      // normalisées. Une box absente ou absurde vaut 1, donc niveau 0.
+      const box = Math.floor(Number(c.box));
+      const sain = (isFinite(box) && box >= 1 && box <= 5) ? box : 1;
+      c.niv = (sain - 1) * 5;
+    }
+    delete c.box;
+    delete c.due;
+  });
+  s.v = ETAT_V;
+  return true;
+}
+
 function sane(s) {
   const max = COURSE.length;
   if (!(s.day >= 1 && s.day <= max)) s.day = Math.min(Math.max(1, s.day | 0 || 1), max);
@@ -379,21 +461,20 @@ function sane(s) {
      confirmation.
 
      Ce qu'une carte abîmée provoque, et pourquoi ça ne se voit pas tout de
-     suite : un `box` non numérique fait `Math.min(5, NaN + 1)` → NaN, puis
-     `INTERVALS[NaN]` → undefined, puis `shift(today(), undefined)` → une date
-     invalide. Le mot n'est alors PLUS JAMAIS dû, ou l'est toujours. Rien ne
-     plante, rien ne s'affiche en rouge : le calendrier de révision ment en
-     silence, ce qui est le pire des deux mondes pour une app dont c'est le
-     cœur. Et une entrée qui n'est pas un objet fait carrément écran blanc à
-     la première lecture de `.box`.
+     suite : un `niv` non numérique se propage en NaN dans les comparaisons,
+     qui répondent alors `false` partout. Le mot n'est plus jamais tiré, ou
+     l'est toujours, et il n'est ni appris ni ancré. Rien ne plante, rien ne
+     s'affiche en rouge : la progression ment en silence, ce qui est le pire
+     des deux mondes pour une app dont la révision est le cœur. Et une entrée
+     qui n'est pas un objet fait carrément écran blanc à la première lecture.
 
-     On BORNE plutôt que de jeter : une carte au `box` fantaisiste garde son
+     On BORNE plutôt que de jeter : une carte au `niv` fantaisiste garde son
      journal (hit/miss), qui représente du travail réel. Seul ce qui n'a aucun
      sens — une entrée qui n'est pas un objet — disparaît. */
+  migreVersNiveaux(s);
   s.cards = (function () {
     const src = (s.cards && typeof s.cards === "object") ? s.cards : {};
     const propre = {};
-    const auj = today();
     const entier = function (v) {
       const n = Math.floor(Number(v));
       return isFinite(n) && n >= 0 ? n : 0;
@@ -401,13 +482,9 @@ function sane(s) {
     Object.keys(src).forEach(function (id) {
       const c = src[id];
       if (!c || typeof c !== "object") return;
-      const box = Math.floor(Number(c.box));
+      const niv = Math.floor(Number(c.niv));
       propre[id] = {
-        box: (isFinite(box) && box >= 1 && box <= 5) ? box : 1,
-        /* La date doit être une vraie date ISO ET une date qui existe :
-           `2026-02-31` passe une simple expression régulière et donnerait un
-           jour décalé au premier `shift`. */
-        due: dateValide(c.due) ? c.due : auj,
+        niv: (isFinite(niv) && niv >= 0 && niv <= NIV_MAX) ? niv : 0,
         hit: entier(c.hit),
         miss: entier(c.miss)
       };
@@ -633,24 +710,26 @@ function touchStreak() {
 
 /* Fait entrer le vocabulaire d une etape dans le paquet de cartes.
 
-   ⚠️ UN SEUL ENDROIT L APPELLE HORS DES TESTS : lessonView(). C est la regle,
-   et elle a ete posee apres un defaut signale par Exsangue le 11/08/2026.
-   Un mot n entre dans le paquet QUE lorsque sa lecon a ete ouverte — jamais
-   avant. Appeler seed() depuis l accueil, depuis le demarrage ou en validant
-   le quiz mettait dans le paquet des mots jamais presentes : ils tombaient dus
-   le jour meme, on les ratait tous, et chaque erreur ajoute deux cartes.
-   Le paquet grossissait plus vite qu on ne le vidait.
+   ⚠️ UN SEUL ENDROIT L APPELLE HORS DES TESTS : renderQuestion(), au moment
+   ou le quiz est VALIDE. La regle a change le 18/08/2026 a la demande
+   d Exsangue, et elle s est DURCIE : avant, seed() partait de lessonView(),
+   donc ouvrir une etape et la refermer aussitot suffisait a mettre ses mots
+   dans le paquet. Un mot survole n est pas un mot appris. Desormais il faut
+   avoir fini la lecon. Consequence assumee et voulue : qui n a pas termine la
+   lecon 1 n a aucun mot, et l ancrage lui est vide.
 
-   context.md l affirmait deja (« le mot a deja ete presente dans la lecon avant
-   d arriver aux cartes ») : c est desormais vrai dans le code aussi.
-   seed() est son propre journal — une carte qui existe dit que la lecon est lue. */
+   ⚠️ NE PAS CONFONDRE AVEC LE DEFAUT DU 11/08/2026 — c est le meme fichier, le
+   meme voisinage, et l erreur serait naturelle. Ce defaut-la etait de semer la
+   lecon SUIVANTE (`seed(S.day)` apres que S.day a ete incremente) : des mots
+   jamais presentes tombaient dans le paquet, on les ratait tous. Semer l etape
+   qu on vient de FINIR est l inverse exact. Voir la note sur place. */
 function seed(dayNo) {
   const lesson = COURSE[dayNo - 1];
   if (!lesson) return;
   let added = false;
   lesson.vocab.forEach(function (v, i) {
     const id = dayNo + ":" + i;
-    if (!S.cards[id]) { S.cards[id] = { box: 1, due: today(), hit: 0, miss: 0 }; added = true; }
+    if (!S.cards[id]) { S.cards[id] = { niv: 0, hit: 0, miss: 0 }; added = true; }
   });
   if (added) persist();
 }
@@ -689,11 +768,39 @@ function cardById(id) {
   if (!lesson || !lesson.vocab[parts[1]]) return null;
   return Object.assign({ id: id, day: parts[0] }, lesson.vocab[parts[1]]);
 }
-/* Le paquet du jour, dans un ordre différent à chaque session. */
-function dueCards() {
-  const t = today();
+/* Les cartes de la LEÇON, dans un ordre différent à chaque séance.
+
+   Remplace `dueCards()` le 18/08/2026. Il n'y a plus de calendrier : le paquet
+   n'est plus « ce qui est dû aujourd'hui » mais « les mots de la leçon qu'on
+   vient de terminer ». Le reste du vocabulaire est le travail de l'ancrage,
+   plus celui des cartes — c'est toute la séparation de PLAN-ANCRAGE.md §1.
+
+   ⚠️ LA DERNIÈRE ÉTAPE FINIE, PAS `S.day`. Valider le quiz sème les mots ET
+   avance `S.day` à l'étape suivante : viser `S.day` donnerait donc toujours
+   un paquet vide, puisque la leçon suivante n'est pas encore faite. Le piège
+   est invisible — un écran de cartes vide ressemble à « rien à réviser ».
+
+   L'étape se lit dans LES CARTES ELLES-MÊMES, pas dans `S.done`. Les deux
+   disent la même chose en production — un mot n'entre qu'au quiz validé, donc
+   la carte la plus récente vient de la dernière étape finie — mais les lire
+   dans les cartes évite d'entretenir deux sources de vérité qui finiraient par
+   diverger. Et sur une sauvegarde d'avant le 18/08/2026, où les mots entraient
+   à l'ouverture de la leçon, c'est même la plus juste des deux : elle montre
+   les mots qu'on a réellement, pas ceux qu'une règle écrite après coup aurait
+   voulu qu'on ait. */
+function etapeDesCartes() {
+  let max = 0;
+  Object.keys(S.cards).forEach(function (id) {
+    const etape = Number(id.split(":")[0]);
+    if (isFinite(etape) && etape > max) max = etape;
+  });
+  return max;
+}
+function cartesLecon() {
+  const etape = etapeDesCartes();
+  if (!etape) return [];
   const ids = Object.keys(S.cards).filter(function (id) {
-    return S.cards[id].due <= t && cardById(id);
+    return Number(id.split(":")[0]) === etape && cardById(id);
   });
   return shuffleIdx(ids.length).map(function (i) { return cardById(ids[i]); });
 }
@@ -730,9 +837,9 @@ function pickEasy(excludeId) {
   return cardById(ids[shuffleIdx(ids.length)[0]]);
 }
 
-/* schedule === false : on note la réponse sans toucher au calendrier.
-   C'est le mode entraînement — réviser en avance ne doit pas dérégler
-   l'espacement calculé par la méthode Leitner. */
+/* schedule === false : on note la réponse sans toucher au niveau.
+   C'est le mode entraînement — réviser en avance ne doit pas faire avancer
+   la progression, sinon on pourrait ancrer un mot en le répétant d'affilée. */
 function grade(id, ok, schedule) {
   const c = S.cards[id];
   if (!c) return;
@@ -740,16 +847,21 @@ function grade(id, ok, schedule) {
   if (ok) c.hit = (c.hit || 0) + 1;
   else    c.miss = (c.miss || 0) + 1;
   if (schedule !== false) {
-    // Bonne réponse : un cran de plus. Ratée : un cran de moins, jamais la
-    // chute complète — perdre quinze jours de travail sur un mot hésitant
-    // décourage plus que ça n'apprend.
-    c.box = ok ? Math.min(5, c.box + 1) : Math.max(1, c.box - 1);
-    c.due = shift(today(), INTERVALS[c.box]);
+    /* Un cran de plus, un cran de moins. Jamais la chute complète — perdre
+       des semaines de travail sur un mot hésitant décourage plus que ça
+       n'apprend. Le niveau est le MÊME compteur pour les cartes de la leçon
+       et pour l'ancrage : c'est tout l'objet de la refonte, deux nombres pour
+       le même mot finissant toujours par se contredire. */
+    c.niv = ok ? Math.min(NIV_MAX, c.niv + 1) : Math.max(0, c.niv - 1);
   }
   persist();
 }
 function learnedCount() {
-  return Object.keys(S.cards).filter(function (id) { return S.cards[id].box >= 4; }).length;
+  return Object.keys(S.cards).filter(function (id) { return S.cards[id].niv >= APPRIS_A; }).length;
+}
+/* Les mots ancrés : sortis du stock de l'ancrage, acquis pour de bon. */
+function ancreCount() {
+  return Object.keys(S.cards).filter(function (id) { return S.cards[id].niv >= ANCRE_A; }).length;
 }
 /* Mots réellement fragiles : ratés au moins une fois, et au moins une fois
    sur trois. C'est ce chiffre qui dit sur quoi il reste du travail. */
@@ -1261,7 +1373,7 @@ function home() {
   /* Pas de seed() ici : passer par l accueil n est pas avoir lu la lecon.
      Voir la note sur seed() — un mot n entre dans le paquet qu une fois presente. */
   const lesson = COURSE[S.day - 1];
-  const due = dueCards().length;
+  const due = cartesLecon().length;
   const doneToday = S.done.indexOf(S.day) !== -1;
   const place = chapterOf(S.day);
   const nbDrills = (lesson.drills || []).length;
@@ -1406,18 +1518,35 @@ function home() {
               sous: lesson.steps.length + " écrans, " + lesson.vocab.length + " mots",
               chip: String(lesson.steps.length)
             },
-            // Rien à réviser n'est plus un cul-de-sac : on bascule sur
-            // l'entraînement libre, qui travaille les mots les plus ratés
-            // sans toucher au calendrier.
-            cards: {
-              go: due === 0 ? "practice" : "cards",
-              titre: "Les cartes",
-              sous: due === 0
-                ? "Rien d'obligatoire aujourd'hui — entraîne-toi si tu veux"
-                : "Révision espacée du vocabulaire",
-              chip: due > 0 ? String(due) : "libre",
-              classeChip: due > 0 ? " hot" : ""
-            },
+            /* ⚠️ DEUX PAQUETS VIDES QUI NE DISENT PAS LA MÊME CHOSE, et les
+               confondre découragerait exactement la personne qu'il ne faut pas
+               décourager. Depuis le 18/08/2026 un mot n'entre qu'une fois sa
+               leçon TERMINÉE : quelqu'un qui débute n'a donc aucune carte, et
+               l'envoyer vers l'entraînement libre — vide lui aussi — serait le
+               cul-de-sac qu'on avait justement retiré.
+
+                 - aucune carte du tout  → il n'a rien fini. On l'envoie à la
+                   leçon, et on le lui dit.
+                 - des cartes, séance faite → l'entraînement libre, qui travaille
+                   les mots les plus ratés sans toucher aux niveaux. */
+            cards: (function () {
+              const vierge = Object.keys(S.cards).length === 0;
+              if (vierge) return {
+                go: "lesson",
+                titre: "Les cartes",
+                sous: "Termine une leçon : ses mots arriveront ici",
+                chip: "—"
+              };
+              return {
+                go: due === 0 ? "practice" : "cards",
+                titre: "Les cartes",
+                sous: due === 0
+                  ? "Rien d'obligatoire aujourd'hui — entraîne-toi si tu veux"
+                  : "Le vocabulaire de ta dernière leçon",
+                chip: due > 0 ? String(due) : "libre",
+                classeChip: due > 0 ? " hot" : ""
+              };
+            })(),
             // Toujours actif : les voix de l'appareil arrivent parfois après
             // le premier affichage. C'est l'écran lui-même qui explique s'il
             // en manque.
@@ -1542,7 +1671,9 @@ function setStep(i) {
 }
 
 function lessonView() {
-  seed(S.day);
+  /* Pas de seed() ici depuis le 18/08/2026. Ouvrir une leçon n'est pas l'avoir
+     faite : le mot entre dans le paquet quand le quiz est validé, et là
+     seulement. Voir la note sur seed(). */
   setStep(0);
   return renderStep();
 }
@@ -1966,20 +2097,27 @@ let passes = {};   // combien de fois chaque mot est déjà passé dans CETTE s�
 const PRACTICE_SIZE = 10;
 /* Un même mot ne repasse pas indéfiniment dans une séance, même en le ratant. */
 const MAX_PASSES = 5;
-/* À partir de ce niveau, on écrit le mot EN ALLEMAND. En dessous — c'est-à-dire
-   au niveau 1 — on l'écrit en français.
+/* Le sens d'écriture est décidé par `ECRIT_DE_A` (voir en tête de fichier) :
+   en dessous on écrit le français, au-dessus l'allemand. La constante a
+   remplacé `WRITE_FROM_BOX` le 18/08/2026 avec le passage à l'échelle 0-20 ;
+   le raisonnement, lui, n'a pas bougé et vaut d'être gardé.
 
-   Il n'y a donc plus aucune carte passive. Signalé par Exsangue le 01/08/2026 :
-   « je n'ai pas l'impression d'apprendre sur les niveaux 1, j'apprends beaucoup
-   en écrivant par moi-même ». Il a raison, et c'est un défaut connu du principe
+   Il n'y a AUCUNE carte passive. Signalé par Exsangue le 01/08/2026 : « je
+   n'ai pas l'impression d'apprendre sur les niveaux 1, j'apprends beaucoup en
+   écrivant par moi-même ». Il a raison, et c'est un défaut connu du principe
    même de la carte à retourner : « Révéler » puis « Je savais » mesure la
    RECONNAISSANCE, pas le rappel. On croit savoir parce qu'on reconnaît, et on
    sèche le lendemain.
 
-   Le niveau 1 demande donc le français — le sens le plus facile, mais actif :
-   il faut aller chercher la réponse au lieu de la reconnaître. Dès le niveau 2,
-   on écrit l'allemand, seul sens qui apprenne l'orthographe. */
-const WRITE_FROM_BOX = 2;
+   Les premiers niveaux demandent donc le français — le sens le plus facile,
+   mais actif : il faut aller chercher la réponse au lieu de la reconnaître.
+   Ensuite on écrit l'allemand, seul sens qui apprenne l'orthographe.
+
+   ⚠️ Le seuil est passé de « box 2 » à « niveau 3 », ce qui n'est pas une
+   traduction exacte : la box 2 devient le niveau 5. Sans conséquence sur une
+   progression migrée — la conversion ne produit que 0, 5, 10, 15 et 20, donc
+   jamais 3 ni 4 — et c'est le palier de PLAN-ANCRAGE.md, qu'on applique
+   désormais aux deux outils puisqu'ils partagent l'échelle. */
 
 /* ---------- Le thème d'une étape ----------
    Demandé par Exsangue le 02/08/2026 : « le fond de la carte est dans le
@@ -2245,7 +2383,7 @@ function startDeck(cards, isTraining) {
    ce ne sont pas les mêmes mots. Le test le dit explicitement. */
 function cardsView() {
   return reprend("cards", deck.length > 0 && pos < deck.length && !training)
-    ? renderCard() : startDeck(dueCards(), false);
+    ? renderCard() : startDeck(cartesLecon(), false);
 }
 function practiceView() {
   return reprend("practice", deck.length > 0 && pos < deck.length && training)
@@ -2291,7 +2429,7 @@ function renderCard() {
   const left = deck.length - pos - 1;
   const tag = training
     ? (st.miss ? 'entraînement &#183; raté ' + st.miss + ' fois' : 'entraînement')
-    : 'niveau ' + st.box + '/5';
+    : 'niveau ' + st.niv + '/' + NIV_MAX;
 
   return [
     backBar('Accueil'),
@@ -2309,7 +2447,7 @@ function renderCard() {
         '<div class="meter">' + deck.map(function (_, i) { return '<i class="' + (i < pos ? 'on' : '') + '"></i>'; }).join("") + '</div>',
       '</div>',
 
-      st.box >= WRITE_FROM_BOX ? writeBody(c) : writeFrBody(c),
+      st.niv >= ECRIT_DE_A ? writeBody(c) : writeFrBody(c),
     '</div>'
   ].join("");
 }
@@ -2451,7 +2589,7 @@ function advanceCard(ok) {
     deck.push(cur);                       // le mot raté repasse en fin de paquet
     const easy = pickEasy(cur.id);        // accompagné d'un mot déjà su, pour ne pas
     if (easy) deck.push(easy);            // terminer en boucle sur ses seules erreurs
-  } else if (room && !training && S.cards[cur.id].box <= WRITE_FROM_BOX) {
+  } else if (room && !training && S.cards[cur.id].niv <= ECRIT_DE_A) {
     // Étapes d'apprentissage : le mot repasse dans la même séance pour monter
     // d'un cran. Le seuil est « <= » et non « < » : un mot qui vient d'atteindre
     // le niveau où il s'écrit doit être écrit AU MOINS UNE FOIS le jour même,
@@ -2500,13 +2638,24 @@ function renderQuestion() {
       // L'avancée à jouer sur le chemin, au prochain passage par l'accueil.
       vientDeValider = d;
       if (S.done.indexOf(d) === -1) S.done.push(d);
+
+      /* L'étape est finie : SES mots entrent dans le paquet. Posé par Exsangue
+         le 18/08/2026 — un mot survolé n'est pas un mot appris, il faut avoir
+         terminé la leçon.
+
+         ⚠️ LIRE AVANT DE « CORRIGER » CETTE LIGNE. Le commentaire qui tenait
+         cette place disait « surtout PAS de seed() ici », et il avait raison —
+         mais d'un autre seed(). Le défaut signalé le 11/08/2026 était
+         `seed(S.day)` APRÈS l'incrément ci-dessous : ça semait la leçon
+         SUIVANTE, jamais ouverte, dont les mots tombaient dus le jour même et
+         qu'on ratait tous. Ici on sème `d`, l'étape qu'on vient de terminer.
+         La différence tient dans une variable, et c'est toute la différence.
+         Ne pas remplacer `d` par `S.day`. */
+      seed(d);
+
       // On n'avance que si c'était le jour le plus avancé (pas en rejouant un ancien).
       if (d === Math.max.apply(null, S.done) && d < COURSE.length) {
         S.day = d + 1;
-        /* Surtout PAS de seed(S.day) ici. C etait le defaut signale par Exsangue :
-           valider une etape faisait entrer les 10 mots de la SUIVANTE dans le paquet,
-           dus le jour meme, alors que sa lecon n a jamais ete ouverte. On enchainait
-           les erreurs, et chaque erreur ajoute deux cartes (le mot + un mot facile). */
       }
     }
     persist();
@@ -4673,7 +4822,7 @@ view.addEventListener("click", function (e) {
     // français, au-dessus l'allemand. Deux correcteurs, parce que les deux
     // langues ne s'exigent pas pareil — le français est jugé avec indulgence,
     // l'allemand au mot près.
-    const enAllemand = S.cards[cur.id].box >= WRITE_FROM_BOX;
+    const enAllemand = S.cards[cur.id].niv >= ECRIT_DE_A;
     verdict = (t.dataset.act === "dunno")
       ? { ok: false, kind: "dunno", typed: "" }
       : (enAllemand ? checkAnswer(raw, cur.d) : checkGloss(raw, cur.f));

@@ -862,27 +862,27 @@ function runTests() {
        b.prefs.teintes.quiz === undefined);
   })();
 
-  /* ---- §2.2 · Une carte abîmée ne peut plus dérégler le calendrier ----
+  /* ---- §2.2 · Une carte abîmée ne peut plus dérégler la progression ----
      C'est l'objet le plus exposé de la sauvegarde, et le seul chemin qui
      l'écrase entièrement (restaurer un fichier) ne demande aucune
-     confirmation. Un `box` non numérique ne plante pas : il rend le mot
-     jamais dû, ou toujours dû, EN SILENCE. */
+     confirmation. Un `niv` non numérique ne plante pas : il se propage en NaN
+     dans les comparaisons, qui répondent `false` partout — le mot n'est alors
+     ni appris, ni ancré, ni jamais tiré. EN SILENCE.
+
+     Réécrit le 18/08/2026 : les dates ont disparu avec la box. */
   (function () {
-    const abime = fresh();
-    abime.cards = {
-      "1:0": { box: "beaucoup", due: "2026-01-01", hit: 3, miss: 1 },
-      "1:1": { box: 99,   due: "2026-02-31", hit: -5, miss: "x" },
-      "1:2": { box: 3,    due: "pas une date", hit: 2, miss: 0 },
+    const abime = { v: 2, cards: {
+      "1:0": { niv: "beaucoup", hit: 3, miss: 1 },
+      "1:1": { niv: 99,  hit: -5, miss: "x" },
+      "1:2": { niv: -3,  hit: 2, miss: 0 },
       "1:3": "je ne suis pas un objet",
       "1:4": null,
-      "1:5": { box: 4, due: "2026-03-15", hit: 1, miss: 2 }
-    };
-    const propre = sane(abime).cards;
-    ok("cartes : un niveau non numérique retombe à 1", propre["1:0"].box === 1);
-    ok("cartes : un niveau hors bornes retombe à 1", propre["1:1"].box === 1);
-    ok("cartes : une date qui n'existe pas est remplacée",
-       propre["1:1"].due !== "2026-02-31" && dateValide(propre["1:1"].due));
-    ok("cartes : une date illisible est remplacée", dateValide(propre["1:2"].due));
+      "1:5": { niv: 12, hit: 1, miss: 2 }
+    } };
+    const propre = sane(Object.assign(fresh(), abime)).cards;
+    eq("cartes : un niveau non numérique retombe à 0", propre["1:0"].niv, 0);
+    eq("cartes : un niveau au-dessus du plafond retombe à 0", propre["1:1"].niv, 0);
+    eq("cartes : un niveau négatif retombe à 0", propre["1:2"].niv, 0);
     ok("cartes : un journal négatif ou illisible retombe à 0",
        propre["1:1"].hit === 0 && propre["1:1"].miss === 0);
     ok("cartes : ce qui n'est pas un objet disparaît",
@@ -892,10 +892,73 @@ function runTests() {
     ok("cartes : le journal d'une carte bornée est conservé",
        propre["1:0"].hit === 3 && propre["1:0"].miss === 1);
     ok("cartes : une carte saine traverse sans être touchée",
-       propre["1:5"].box === 4 && propre["1:5"].due === "2026-03-15" &&
-       propre["1:5"].hit === 1 && propre["1:5"].miss === 2);
+       propre["1:5"].niv === 12 && propre["1:5"].hit === 1 && propre["1:5"].miss === 2);
+    ok("cartes : plus aucune trace de box ni de date",
+       propre["1:5"].box === undefined && propre["1:5"].due === undefined);
     ok("dates : le 31 février est refusé", !dateValide("2026-02-31"));
     ok("dates : une vraie date est acceptée", dateValide("2026-02-28"));
+  })();
+
+  /* ---- La migration box → niv (18/08/2026, PLAN-ANCRAGE.md §3) ----
+     Une progression réelle existe sur l'iPhone d'Exsangue. Elle ne doit RIEN
+     perdre, et la migration ne doit jamais tourner deux fois sur la même. */
+  (function () {
+    const vieux = {
+      day: 3, done: [1, 2],
+      cards: {
+        "1:0": { box: 1, due: "2026-01-01", hit: 0, miss: 0 },
+        "1:1": { box: 2, due: "2026-01-02", hit: 4, miss: 1 },
+        "1:2": { box: 3, due: "2026-01-03", hit: 7, miss: 2 },
+        "1:3": { box: 4, due: "2026-01-04", hit: 9, miss: 0 },
+        "1:4": { box: 5, due: "2026-01-05", hit: 12, miss: 3 },
+        "1:5": { due: "2026-01-06", hit: 1, miss: 1 },        // box absente
+        "1:6": { box: "?", due: "2026-01-07", hit: 2, miss: 2 } // box absurde
+      }
+    };
+    const migre = sane(Object.assign(fresh(), JSON.parse(JSON.stringify(vieux)))).cards;
+
+    eq("migration : box 1 devient le niveau 0",  migre["1:0"].niv, 0);
+    eq("migration : box 2 devient le niveau 5",  migre["1:1"].niv, 5);
+    eq("migration : box 3 devient le niveau 10", migre["1:2"].niv, 10);
+    eq("migration : box 4 devient le niveau 15", migre["1:3"].niv, 15);
+    eq("migration : box 5 devient le niveau 20", migre["1:4"].niv, 20);
+    eq("migration : une box absente vaut le niveau 0", migre["1:5"].niv, 0);
+    eq("migration : une box absurde vaut le niveau 0", migre["1:6"].niv, 0);
+
+    /* Le point qui décide si Exsangue croit avoir perdu sa progression : le
+       nombre affiché sur l'accueil doit être le même avant et après. */
+    ok("migration : ce qui valait « appris » (box>=4) le reste (niv>=15)",
+       migre["1:3"].niv >= APPRIS_A && migre["1:4"].niv >= APPRIS_A);
+    ok("migration : ce qui ne l'était pas ne le devient pas",
+       migre["1:2"].niv < APPRIS_A);
+    ok("migration : la box 5 tombe pile sur « ancré »", migre["1:4"].niv >= ANCRE_A);
+
+    ok("migration : le journal survit intact",
+       migre["1:4"].hit === 12 && migre["1:4"].miss === 3);
+    ok("migration : box et date ont disparu",
+       migre["1:1"].box === undefined && migre["1:1"].due === undefined);
+
+    /* IDEMPOTENCE. Le piège est que `load()` fait Object.assign(fresh(), …) :
+       si `fresh()` posait un `v`, une vieille sauvegarde en hériterait et
+       passerait pour déjà migrée — la progression resterait en box, en
+       silence. D'où le test suivant, qui vaut autant que la conversion. */
+    ok("migration : fresh() ne pose PAS de témoin de version",
+       fresh().v === undefined);
+
+    const relu = sane(JSON.parse(JSON.stringify(
+      sane(Object.assign(fresh(), JSON.parse(JSON.stringify(vieux))))
+    )));
+    eq("migration : la relancer ne change rien (niveau)", relu.cards["1:3"].niv, 15);
+    eq("migration : la relancer ne change rien (journal)", relu.cards["1:3"].hit, 9);
+    eq("migration : la sauvegarde porte le témoin de version", relu.v, ETAT_V);
+
+    /* Une progression DÉJÀ migrée ne doit pas être reconvertie : un niveau 7
+       relu comme une box donnerait n'importe quoi. */
+    const deja = sane(Object.assign(fresh(), { v: ETAT_V, cards: {
+      "1:0": { niv: 7, hit: 1, miss: 1 }
+    } }));
+    eq("migration : un état déjà en v2 traverse sans être reconverti",
+       deja.cards["1:0"].niv, 7);
   })();
 
   /* ---- §1.2 · Les flèches de l'ordre des cases ----
@@ -1365,15 +1428,15 @@ function runTests() {
        compétence que se souvenir à trois jours d'intervalle. */
     S = fresh(); S.day = 1; seed(1);
     const id0 = Object.keys(S.cards)[0];
-    const echeance = S.cards[id0].due, niveau = S.cards[id0].box;
+    const niveau = S.cards[id0].niv;
     go("chrono");
     view.querySelector('[data-act="chrono-go"]').click();
     chronoMot = cardById(id0);
     show(chronoView());
     document.getElementById("answer").value = chronoMot.d;
     view.querySelector('[data-act="chrono-check"]').click();
-    eq("chrono : le calendrier de révision ne bouge pas", S.cards[id0].due, echeance);
-    eq("chrono : ni le niveau du mot", S.cards[id0].box, niveau);
+    eq("chrono : le niveau du mot ne bouge pas", S.cards[id0].niv, niveau);
+    ok("chrono : et aucune date n'est réintroduite", S.cards[id0].due === undefined);
     ok("chrono : mais la réussite est notée", S.cards[id0].hit > 0);
 
     // La fin enregistre un record, et le classement reste borné.
@@ -2328,7 +2391,7 @@ function runTests() {
   ok("formes : en rectangles, la grille est nommée « carre »",
      !!view.querySelector(".modes-home.carre"));
   ok("formes : et le sous-titre d'un mode est bien là",
-     view.textContent.indexOf("Révision espacée") !== -1);
+     view.textContent.indexOf("dernière leçon") !== -1);
 
   S.prefs.forme = "rond"; go("home");
   ok("formes : en cercles, la grille est nommée « rond »",
@@ -2501,36 +2564,40 @@ function runTests() {
   /* --- C. Répétition espacée --- */
   S = fresh(); S.day = 1; seed(1);
   const id = "1:0";
-  eq("carte neuve : niveau 1", S.cards[id].box, 1);
-  eq("carte neuve : à réviser aujourd'hui", S.cards[id].due, today());
-  eq("toutes les cartes du jour 1 sont dues", dueCards().length, COURSE[0].vocab.length);
+  eq("carte neuve : niveau 0", S.cards[id].niv, 0);
+  ok("carte neuve : aucune date, il n'y a plus de calendrier",
+     S.cards[id].due === undefined);
+  eq("toutes les cartes de l'étape sont dans le paquet",
+     cartesLecon().length, COURSE[0].vocab.length);
 
   grade(id, true);
-  eq("bonne réponse : passe au niveau 2", S.cards[id].box, 2);
-  eq("niveau 2 : encore une étape d'apprentissage, donc le même jour", S.cards[id].due, today());
-  eq("elle reste donc dans le paquet du jour", dueCards().length, COURSE[0].vocab.length);
+  eq("bonne réponse : un cran de plus", S.cards[id].niv, 1);
+  grade(id, true); grade(id, true);
+  eq("trois bonnes réponses : niveau 3", S.cards[id].niv, 3);
+  ok("niveau 3 : c'est là qu'on passe à l'écriture en allemand",
+     S.cards[id].niv >= ECRIT_DE_A);
 
-  grade(id, true);
-  eq("bonne réponse : niveau 3", S.cards[id].box, 3);
-  eq("niveau 3 : le vrai espacement commence, révision demain", S.cards[id].due, shift(today(), 1));
-  eq("une carte repoussée sort du paquet du jour", dueCards().length, COURSE[0].vocab.length - 1);
+  /* Le paquet de la leçon ne dépend PLUS du niveau : monter un mot ne le fait
+     pas sortir de sa leçon. C'est l'ancrage qui espace, plus un calendrier. */
+  eq("monter de niveau ne retire pas la carte de sa leçon",
+     cartesLecon().length, COURSE[0].vocab.length);
 
-  grade(id, true);
-  eq("niveau 4 : dans 4 jours", S.cards[id].due, shift(today(), 4));
-  grade(id, true);
-  eq("quatre bonnes réponses : niveau 5", S.cards[id].box, 5);
-  eq("niveau 5 : revient dans 16 jours", S.cards[id].due, shift(today(), 16));
-  grade(id, true);
-  eq("le niveau ne dépasse jamais 5", S.cards[id].box, 5);
+  for (let k = 0; k < 30; k++) grade(id, true);
+  eq("le niveau ne dépasse jamais 20", S.cards[id].niv, NIV_MAX);
+  ok("à 20, le mot est ancré", S.cards[id].niv >= ANCRE_A);
 
   grade(id, false);
-  eq("carte ratée : un seul niveau perdu, pas la chute complète", S.cards[id].box, 4);
-  eq("carte ratée : et l'espacement du niveau 4", S.cards[id].due, shift(today(), 4));
+  eq("carte ratée : un seul niveau perdu, pas la chute complète", S.cards[id].niv, 19);
   grade(id, false); grade(id, false);
-  eq("carte ratée trois fois : elle redescend niveau par niveau", S.cards[id].box, 2);
-  eq("redescendue en étape d'apprentissage : à revoir aujourd'hui", S.cards[id].due, today());
-  grade(id, false);
-  eq("le niveau ne descend jamais sous 1", S.cards[id].box, 1);
+  eq("carte ratée trois fois : elle redescend niveau par niveau", S.cards[id].niv, 17);
+  for (let k = 0; k < 30; k++) grade(id, false);
+  eq("le niveau ne descend jamais sous 0", S.cards[id].niv, 0);
+
+  /* L'entraînement libre note la réponse SANS toucher au niveau : sinon on
+     ancrerait un mot en le répétant d'affilée. */
+  grade(id, true, false);
+  eq("entraînement : le journal compte", S.cards[id].hit > 0, true);
+  eq("entraînement : mais le niveau ne bouge pas", S.cards[id].niv, 0);
 
   /* --- D. La série --- */
   S = fresh();
@@ -2615,8 +2682,12 @@ function runTests() {
      du jour 2 soit chargé en validant le jour 1. Il encodait le défaut signalé par
      Exsangue — on tombait sur des mots jamais vus dès la première carte. Retourné. */
   ok("quiz réussi : le vocabulaire du jour 2 n'entre PAS encore dans le paquet", !S.cards["2:0"]);
+  ok("quiz réussi : mais celui du jour 1, qu'on vient de finir, oui", !!S.cards["1:0"]);
+  /* ⚠️ Retourné le 18/08/2026 avec le durcissement demandé par Exsangue :
+     ouvrir une leçon ne suffit plus, il faut l'avoir TERMINÉE. Un mot survolé
+     n'est pas un mot appris. Le test d'avant exigeait l'inverse. */
   go("lesson");
-  ok("le vocabulaire du jour 2 entre à l'ouverture de sa leçon", !!S.cards["2:0"]);
+  ok("ouvrir la leçon du jour 2 n'y fait PAS entrer son vocabulaire", !S.cards["2:0"]);
 
   /* Le nettoyage des paquets abîmés par l'ancien défaut. */
   S = fresh(); S.day = 3; S.done = [1, 2];
@@ -2766,7 +2837,7 @@ function runTests() {
        On vise la carte « das ist » explicitement : la laisser au tirage
        rendait le test aléatoire, et il tombait sur « hier ist » elle-même. */
     S = fresh(); S.day = 3; seed(3);
-    Object.keys(S.cards).forEach(function (id) { S.cards[id].box = WRITE_FROM_BOX; });
+    Object.keys(S.cards).forEach(function (id) { S.cards[id].niv = ECRIT_DE_A; });
     go("cards");
     const idx = deck.map(function (c) { return normDE(c.d); }).indexOf(normDE("das ist"));
     ok("synonyme : la carte « das ist » est bien dans le paquet", idx !== -1);
@@ -2932,7 +3003,7 @@ function runTests() {
     }
 
     S = fresh(); S.day = 1; seed(1);
-    Object.keys(S.cards).forEach(function (id) { S.cards[id].box = WRITE_FROM_BOX; });
+    Object.keys(S.cards).forEach(function (id) { S.cards[id].niv = ECRIT_DE_A; });
     go("cards");
     ok("son : au-dessus du seuil, rien n'est prononcé avant la réponse",
        !view.querySelector(".face[data-autosay]"));
@@ -2987,11 +3058,11 @@ function runTests() {
   view.querySelector('[data-act="check-word"]').click();
   view.querySelector('[data-act="card-next"]').click();
   eq("cartes : une carte ratée est remise dans le paquet", deck.length, sizeBefore + 1);
-  eq("cartes : au niveau 1, elle ne peut pas descendre plus bas", S.cards[firstId].box, 1);
+  eq("cartes : au niveau 0, elle ne peut pas descendre plus bas", S.cards[firstId].niv, 0);
 
   /* Au-dessus du seuil, c'est l'allemand qu'on écrit — et il est jugé au mot près. */
   S = fresh(); S.day = 1; seed(1);
-  Object.keys(S.cards).forEach(function (id) { S.cards[id].box = WRITE_FROM_BOX; });
+  Object.keys(S.cards).forEach(function (id) { S.cards[id].niv = ECRIT_DE_A; });
   go("cards");
   ok("cartes : au-dessus du seuil, c'est l'allemand qui est demandé",
      view.innerHTML.indexOf("en allemand") !== -1);
@@ -3021,11 +3092,11 @@ function runTests() {
   /* --- M. L'entraînement libre ne dérègle pas le calendrier --- */
   S = fresh(); S.day = 1; seed(1);
   const tid = "1:0";
-  S.cards[tid].box = 3;
-  S.cards[tid].due = shift(today(), 4);
+  S.cards[tid].niv = 3;
+
   grade(tid, true, false);
-  eq("entraînement : le niveau ne bouge pas", S.cards[tid].box, 3);
-  eq("entraînement : la date de révision ne bouge pas", S.cards[tid].due, shift(today(), 4));
+  eq("entraînement : le niveau ne bouge pas", S.cards[tid].niv, 3);
+  ok("entraînement : et aucune date n'apparaît", S.cards[tid].due === undefined);
   eq("entraînement : mais la réponse est notée", S.cards[tid].hit, 1);
 
   /* Le mot le plus raté doit ressortir à tous les coups. */
@@ -3054,8 +3125,8 @@ function runTests() {
   S = fresh(); S.day = 1; seed(1);
   ok("cartes : l'ordre du paquet change d'une session à l'autre",
      (function () {
-       const first = dueCards()[0].id;
-       for (let k = 0; k < 40; k++) if (dueCards()[0].id !== first) return true;
+       const first = cartesLecon()[0].id;
+       for (let k = 0; k < 40; k++) if (cartesLecon()[0].id !== first) return true;
        return false;
      })());
 
@@ -3081,13 +3152,24 @@ function runTests() {
   ok("cartes : rater en boucle ne produit pas un paquet sans fin",
      deck.length <= cap, "paquet " + deck.length + " pour un plafond de " + cap);
 
-  /* --- O. Ne plus être renvoyé à demain --- */
-  S = fresh(); S.day = 1; seed(1);
-  Object.keys(S.cards).forEach(function (id) { S.cards[id].due = shift(today(), 3); });
+  /* --- O. Les deux paquets vides, qui ne disent pas la même chose ---
+     Réécrit le 18/08/2026. Le cas « rien à réviser aujourd'hui » venait des
+     dates, qui n'existent plus. Ce qui reste, et qui compte davantage : un
+     débutant n'a AUCUNE carte tant qu'il n'a pas fini une leçon, et l'envoyer
+     vers l'entraînement libre — vide lui aussi — serait un cul-de-sac. */
+  S = fresh(); S.day = 1;                 // rien de terminé, donc aucune carte
   go("home");
-  eq("accueil : plus rien à réviser aujourd'hui", dueCards().length, 0);
-  ok("accueil : l'entraînement libre est proposé à la place",
-     !!view.querySelector('.mode[data-go="practice"]'));
+  eq("accueil : sans leçon terminée, aucune carte", cartesLecon().length, 0);
+  ok("accueil : la tuile renvoie à la leçon, pas à l'entraînement vide",
+     !!view.querySelector('.mode[data-go="lesson"]') &&
+     !view.querySelector('.mode[data-go="practice"]'));
+  ok("accueil : et elle explique pourquoi",
+     view.innerHTML.indexOf("Termine une leçon") !== -1);
+
+  S = fresh(); S.day = 1; seed(1);
+  go("home");
+  ok("accueil : dès qu'une leçon est finie, les cartes sont proposées",
+     !!view.querySelector('.mode[data-go="cards"]'));
   ok("accueil : et le bouton n'est pas grisé", !view.querySelector(".mode[disabled]"));
 
   S = fresh(); S.day = 1; S.done = [1]; seed(1);
@@ -3098,12 +3180,12 @@ function runTests() {
   S = fresh(); S.day = 1; seed(1);
   go("practice");
   ok("entraînement : l'écran s'ouvre sur une carte", !!view.querySelector(".face .front"));
-  const pBox = S.cards[deck[0].id].box, pDue = S.cards[deck[0].id].due, pId = deck[0].id;
+  const pNiv = S.cards[deck[0].id].niv, pId = deck[0].id;
   document.getElementById("answer").value = deck[0].f;
   view.querySelector('[data-act="check-word"]').click();
   view.querySelector('[data-act="card-next"]').click();
-  eq("entraînement : depuis l'écran, le niveau reste inchangé", S.cards[pId].box, pBox);
-  eq("entraînement : et la date aussi", S.cards[pId].due, pDue);
+  eq("entraînement : depuis l'écran, le niveau reste inchangé", S.cards[pId].niv, pNiv);
+  ok("entraînement : et aucune date n'apparaît", S.cards[pId].due === undefined);
 
   /* --- Q. Écrire la réponse, à partir du niveau 3 --- */
   ok("saisie : la casse est ignorée", checkAnswer("hallo", "Hallo").ok);
@@ -3232,18 +3314,21 @@ function runTests() {
   });
   eq("saisie : la réponse vide est signalée à part", checkAnswer("", "Hallo").kind, "empty");
 
-  /* Un seul mot dû, monté au niveau 3 : il doit passer en mode écriture. */
-  function soloCard(box) {
+  /* Un seul mot dans le paquet, à un niveau donné.
+
+     ⚠️ On RETIRE les autres cartes au lieu de les repousser à une date future,
+     comme le faisait la version d'avant le 18/08/2026 : il n'y a plus de dates,
+     et le paquet d'une leçon contient désormais tous ses mots. Isoler par le
+     calendrier ne veut plus rien dire. */
+  function soloCard(niv) {
     S = fresh(); S.day = 1; seed(1);
     const id = Object.keys(S.cards)[0];
-    Object.keys(S.cards).forEach(function (k) {
-      if (k !== id) S.cards[k].due = shift(today(), 5);
-    });
-    S.cards[id].box = box;
+    Object.keys(S.cards).forEach(function (k) { if (k !== id) delete S.cards[k]; });
+    S.cards[id].niv = niv;
     return id;
   }
 
-  const wid = soloCard(WRITE_FROM_BOX);
+  const wid = soloCard(ECRIT_DE_A);
   go("cards");
   eq("saisie : un seul mot est dû", deck.length, 1);
   ok("saisie : le mot connu demande d'écrire", !!view.querySelector("#answer"));
@@ -3258,30 +3343,30 @@ function runTests() {
   ok("saisie : la bonne réponse est acceptée", !!view.querySelector(".why.good"));
   ok("saisie : la solution s'affiche ensuite", !!view.querySelector(".face .sol"));
   view.querySelector('[data-act="card-next"]').click();
-  eq("saisie : le mot monte d'un niveau", S.cards[wid].box, WRITE_FROM_BOX + 1);
+  eq("saisie : le mot monte d'un niveau", S.cards[wid].niv, ECRIT_DE_A + 1);
   eq("saisie : la réussite est notée au journal", S.cards[wid].hit, 1);
 
-  const wid2 = soloCard(WRITE_FROM_BOX);
+  const wid2 = soloCard(ECRIT_DE_A);
   go("cards");
   view.querySelector('[data-act="dunno"]').click();
   ok("saisie : « je ne sais pas » montre la réponse", !!view.querySelector(".face .sol"));
   ok("saisie : et c'est compté comme raté", !!view.querySelector(".why.bad"));
   view.querySelector('[data-act="card-next"]').click();
   eq("saisie : l'erreur est notée au journal", S.cards[wid2].miss, 1);
-  eq("saisie : le mot redescend d'un niveau", S.cards[wid2].box, WRITE_FROM_BOX - 1);
+  eq("saisie : le mot redescend d'un niveau", S.cards[wid2].niv, ECRIT_DE_A - 1);
 
-  const wid3 = soloCard(WRITE_FROM_BOX);
+  const wid3 = soloCard(ECRIT_DE_A);
   go("cards");
   document.getElementById("answer").value = "totalement faux";
   view.querySelector('[data-act="check-word"]').click();
   ok("saisie : une mauvaise réponse est refusée", !!view.querySelector(".why.bad"));
   ok("saisie : ce qu'on a écrit est rappelé", view.innerHTML.indexOf("Tu as écrit") !== -1);
   view.querySelector('[data-act="card-next"]').click();
-  eq("saisie : une mauvaise réponse fait redescendre d'un niveau", S.cards[wid3].box, WRITE_FROM_BOX - 1);
+  eq("saisie : une mauvaise réponse fait redescendre d'un niveau", S.cards[wid3].niv, ECRIT_DE_A - 1);
 
   /* En dessous du seuil, on écrit aussi — mais en français, et on part de
      l'allemand. Le sens facile, jamais la reconnaissance passive. */
-  const wid4 = soloCard(WRITE_FROM_BOX - 1);
+  const wid4 = soloCard(ECRIT_DE_A - 1);
   go("cards");
   ok("saisie : un mot pas encore acquis demande d'écrire lui aussi", !!view.querySelector("#answer"));
   eq("saisie : et c'est l'allemand qui est montré", view.querySelector(".face.avant .front").textContent, cardById(wid4).d);
@@ -3292,16 +3377,12 @@ function runTests() {
   view.querySelector('[data-act="check-word"]').click();
   ok("saisie : la traduction française est acceptée", !!view.querySelector(".why.good"));
   view.querySelector('[data-act="card-next"]').click();
-  eq("saisie : le mot monte d'un niveau", S.cards[wid4].box, WRITE_FROM_BOX);
+  eq("saisie : le mot monte d'un niveau", S.cards[wid4].niv, ECRIT_DE_A);
 
-  /* --- R. Monter au niveau 3 dans la même séance --- */
-  S = fresh(); S.day = 1; seed(1);
-  const climbId = Object.keys(S.cards)[0];
-  Object.keys(S.cards).forEach(function (k) {
-    if (k !== climbId) S.cards[k].due = shift(today(), 5);   // un seul mot en jeu
-  });
+  /* --- R. Monter jusqu'à l'écriture dans la même séance --- */
+  const climbId = soloCard(0);
   go("cards");
-  eq("montée : on démarre avec un seul mot, au niveau 1", S.cards[climbId].box, 1);
+  eq("montée : on démarre avec un seul mot, au niveau 0", S.cards[climbId].niv, 0);
 
   /* Trois bonnes réponses d'affilée sans quitter l'écran. On répond dans la
      langue que le niveau du mot demande : français au niveau 1, allemand
@@ -3311,24 +3392,20 @@ function runTests() {
     const champ = document.getElementById("answer");
     if (!champ) break;
     seenWrite = true;
-    const enAllemand = S.cards[deck[pos].id].box >= WRITE_FROM_BOX;
+    const enAllemand = S.cards[deck[pos].id].niv >= ECRIT_DE_A;
     champ.value = enAllemand ? cardById(climbId).d : cardById(climbId).f;
     view.querySelector('[data-act="check-word"]').click();
     view.querySelector('[data-act="card-next"]').click();
   }
   ok("montée : le mot est repassé dans la séance au lieu de disparaître", seenWrite,
-     "niveau atteint : " + S.cards[climbId].box);
-  ok("montée : il a dépassé le niveau où l'on écrit", S.cards[climbId].box > WRITE_FROM_BOX,
-     "niveau " + S.cards[climbId].box);
-  ok("montée : et tout ça le jour même", S.cards[climbId].due > today());
+     "niveau atteint : " + S.cards[climbId].niv);
+  ok("montée : il a atteint le niveau où l'on écrit l'allemand",
+     S.cards[climbId].niv >= ECRIT_DE_A, "niveau " + S.cards[climbId].niv);
+  ok("montée : et sans qu'aucune date ne réapparaisse",
+     S.cards[climbId].due === undefined);
 
   /* Un mot déjà acquis, lui, ne repasse pas : il sort de la séance. */
-  S = fresh(); S.day = 1; seed(1);
-  const doneId = Object.keys(S.cards)[0];
-  Object.keys(S.cards).forEach(function (k) {
-    if (k !== doneId) S.cards[k].due = shift(today(), 5);
-  });
-  S.cards[doneId].box = WRITE_FROM_BOX;
+  const doneId = soloCard(ECRIT_DE_A);
   go("cards");
   eq("montée : un mot déjà au niveau d'écriture est seul dans le paquet", deck.length, 1);
   document.getElementById("answer").value = cardById(doneId).d;
