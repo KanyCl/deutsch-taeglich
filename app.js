@@ -862,6 +862,38 @@ function grade(id, ok, schedule) {
   }
   persist();
 }
+/* « niveau 3 → 4 », montré avec la correction. Demandé par Exsangue le
+   18/08/2026 : savoir ce que la réponse vient de coûter ou de rapporter, au
+   moment où on la lit.
+
+   ⚠️ ON CALCULE L'ARRIVÉE, ON NE LA LIT PAS. Le niveau ne bouge qu'au
+   « Continuer » — `grade` est appelé par `advanceCard`, pas à la
+   vérification — donc au moment où cette ligne s'affiche, la carte porte
+   encore son ancien niveau. Lire `c.niv` deux fois afficherait « 3 → 3 ».
+   Le calcul doit rester le MÊME que celui de `grade`, bornes comprises.
+
+   Trois cas se disent différemment, et les confondre serait mentir :
+     - l'entraînement libre ne touche à rien : on n'annonce aucun mouvement ;
+     - au plafond comme au plancher, le niveau ne bouge pas non plus, et
+       prétendre le contraire ferait attendre une progression qui n'arrive
+       jamais ;
+     - atteindre 20 est l'événement du parcours : il se dit en toutes lettres. */
+function transitionNiveau(id, ok) {
+  if (training) return "";
+  const c = S.cards[id];
+  if (!c) return "";
+  const de = c.niv;
+  const vers = ok ? Math.min(NIV_MAX, de + 1) : Math.max(0, de - 1);
+
+  if (vers === de) {
+    return '<div class="niv-move">niveau ' + de + '/' + NIV_MAX +
+      (de >= ANCRE_A ? ' &#183; ancré' : ' &#183; déjà au plus bas') + '</div>';
+  }
+  return '<div class="niv-move' + (ok ? ' up' : ' down') + '">niveau ' +
+    de + ' &#8594; <b>' + vers + '</b>' +
+    (vers >= ANCRE_A ? ' &#183; ancré' : '') + '</div>';
+}
+
 function learnedCount() {
   return Object.keys(S.cards).filter(function (id) { return S.cards[id].niv >= APPRIS_A; }).length;
 }
@@ -2581,6 +2613,7 @@ function writeFrBody(c) {
       '', arriere) +
     (verdict
       ? '<div class="why ' + (verdict.ok ? "good" : "bad") + '">' + note + '</div>' +
+        transitionNiveau(c.id, verdict.ok) +
         '<button class="btn primary wide" data-act="card-next">Continuer</button>'
       /* ⚠️ LE SEUL CHAMP QUI RESTE EN FRANÇAIS — ne pas « corriger ».
          C'est la carte du niveau 1, qui montre l'allemand et demande le sens.
@@ -2647,6 +2680,7 @@ function writeBody(c) {
       verdict ? ' data-autosay="' + att(c.d) + '"' : '', arriere) +
     (verdict
       ? '<div class="why ' + (verdict.ok ? "good" : "bad") + '">' + note + '</div>' +
+        transitionNiveau(c.id, verdict.ok) +
         '<button class="btn primary wide" data-act="card-next">Continuer</button>'
       : '<input class="answer" id="answer"' + saisieAttrs("Ta réponse en allemand", true) + '>' +
         '<div class="pair">' +

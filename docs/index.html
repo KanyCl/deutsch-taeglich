@@ -1537,6 +1537,23 @@ body.has-tts .say { display: inline-flex; }
 .why.bad  { color: var(--bad);  background: var(--bad-soft); }
 .why.good b, .why.bad b { color: inherit; }
 
+/* « niveau 3 → 4 », sous la correction. Demandé par Exsangue le 18/08/2026.
+   Volontairement DISCRET : c'est une information, pas un verdict — celui-ci
+   est déjà donné juste au-dessus, en vert ou en rouge. Deux blocs colorés à
+   la suite se disputeraient l'attention, et on relirait le second en croyant
+   qu'il dit autre chose. Seul le chiffre d'arrivée est marqué. */
+.niv-move {
+  font-size: .8125rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+  color: var(--ink-3);
+  text-align: center;
+  padding: .125rem 0;
+}
+.niv-move b      { font-size: 1rem; color: var(--ink); }
+.niv-move.up b   { color: var(--good); }
+.niv-move.down b { color: var(--bad); }
+
 .meter { display: flex; gap: .25rem; }
 .meter i {
   flex: 1;

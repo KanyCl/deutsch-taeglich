@@ -3018,6 +3018,89 @@ function runTests() {
     S = fresh(); S.day = 1; seed(1);
   })();
 
+  /* ---- « niveau 3 → 4 » sous la correction ----
+     Demandé par Exsangue le 18/08/2026 : savoir ce que la réponse vient de
+     coûter ou de rapporter, au moment où on la lit.
+
+     ⚠️ CETTE LIGNE PEUT MENTIR SANS QUE RIEN NE PLANTE, et c'est tout l'objet
+     de ces tests. Le niveau ne bouge qu'au « Continuer » : elle CALCULE son
+     arrivée au lieu de la lire. Si son calcul s'écarte de celui de `grade` —
+     une borne oubliée, un signe inversé — elle annoncera un niveau que le mot
+     n'atteindra pas, et rien ne le signalera. On vérifie donc systématiquement
+     L'ANNONCE **ET** LE RÉSULTAT. */
+  (function () {
+    function carteA(niv) {
+      S = fresh(); S.day = 1; seed(1);
+      const id = Object.keys(S.cards)[0];
+      Object.keys(S.cards).forEach(function (k) { if (k !== id) delete S.cards[k]; });
+      S.cards[id].niv = niv;
+      oublieSeances(); deck = []; pos = 0; ancrage = false;
+      go("cards");
+      return id;
+    }
+    function repond(juste, id) {
+      const c = cardById(id);
+      const enDE = S.cards[id].niv >= ECRIT_DE_A;
+      document.getElementById("answer").value =
+        juste ? (enDE ? c.d : c.f) : "totalement faux et pas une traduction";
+      view.querySelector('[data-act="check-word"]').click();
+    }
+
+    let nid = carteA(3);
+    repond(true, nid);
+    ok("niveau : la montée est annoncée",
+       !!view.querySelector(".niv-move.up") && view.innerHTML.indexOf("niveau 3") !== -1);
+    view.querySelector('[data-act="card-next"]').click();
+    eq("niveau : et l'annonce disait vrai", S.cards[nid].niv, 4);
+
+    nid = carteA(3);
+    repond(false, nid);
+    ok("niveau : la descente est annoncée", !!view.querySelector(".niv-move.down"));
+    view.querySelector('[data-act="card-next"]').click();
+    eq("niveau : et l'annonce disait vrai aussi", S.cards[nid].niv, 2);
+
+    /* Les bornes. Annoncer « 20 → 21 » ou « 0 → -1 » ferait attendre une
+       progression qui n'arrive jamais. */
+    nid = carteA(NIV_MAX);
+    repond(true, nid);
+    ok("niveau : au plafond, aucune montée n'est promise",
+       !view.querySelector(".niv-move.up"));
+    ok("niveau : et le mot est dit ancré", view.innerHTML.indexOf("ancré") !== -1);
+    view.querySelector('[data-act="card-next"]').click();
+    eq("niveau : le plafond tient", S.cards[nid].niv, NIV_MAX);
+
+    nid = carteA(0);
+    repond(false, nid);
+    ok("niveau : au plancher, aucune descente n'est promise",
+       !view.querySelector(".niv-move.down"));
+    view.querySelector('[data-act="card-next"]').click();
+    eq("niveau : le plancher tient", S.cards[nid].niv, 0);
+
+    /* Atteindre 20 est l'événement du parcours : il se dit. */
+    nid = carteA(NIV_MAX - 1);
+    repond(true, nid);
+    ok("niveau : la dernière marche annonce l'ancrage",
+       view.innerHTML.indexOf("ancré") !== -1);
+    view.querySelector('[data-act="card-next"]').click();
+    eq("niveau : et le mot est bien ancré", S.cards[nid].niv, ANCRE_A);
+
+    /* ⚠️ L'ENTRAÎNEMENT LIBRE NE TOUCHE À RIEN. Y annoncer un mouvement serait
+       le mensonge le plus coûteux de tous : on croirait progresser en révisant. */
+    S = fresh(); S.day = 1; seed(1);
+    Object.keys(S.cards).forEach(function (k) { S.cards[k].niv = 3; });
+    oublieSeances(); deck = []; pos = 0; ancrage = false;
+    go("practice");
+    const pid = deck[pos].id, pavant = S.cards[pid].niv;
+    document.getElementById("answer").value = cardById(pid).d;
+    view.querySelector('[data-act="check-word"]').click();
+    ok("niveau : l'entraînement libre n'annonce aucun mouvement",
+       !view.querySelector(".niv-move"));
+    view.querySelector('[data-act="card-next"]').click();
+    eq("niveau : et n'en produit aucun", S.cards[pid].niv, pavant);
+
+    S = fresh(); S.day = 1; seed(1);
+  })();
+
   /* ---- LES TROIS PALIERS DE LA CARTE DE LEÇON (PLAN-ANCRAGE.md §1) ----
      Posés par Exsangue le 18/08/2026, puis RECTIFIÉS par lui le même jour :
      une première version présentait les deux premiers paliers à l'oreille,
