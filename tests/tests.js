@@ -2994,14 +2994,6 @@ function runTests() {
      Au-dessus, c'est l'allemand qu'on doit écrire — le prononcer avant la
      réponse la soufflerait, donc on attend. */
   (function () {
-    /* ⚠️ LA MACHINE DE TEST N'A PAS DE VOIX ALLEMANDE. Sans ce montage, les
-       modes « à l'oreille » ne seraient JAMAIS exercés ici — seul leur repli
-       le serait, et on croirait les avoir testés. On simule donc une voix, et
-       on teste aussi le cas sans, qui est le seul que la machine connaît
-       spontanément. */
-    const vraieVoix = TTS.voice;
-    TTS.voice = { lang: "de-DE", name: "test" };
-
     S = fresh(); S.day = 1; seed(1);
     go("cards");
     const front = view.querySelector(".face[data-autosay]");
@@ -3009,22 +3001,6 @@ function runTests() {
     if (front) {
       eq("son : et c'est bien le mot allemand", front.getAttribute("data-autosay"), deck[pos].d);
     }
-    ok("écoute : le mot allemand n'est PAS affiché, il est entendu",
-       view.innerHTML.indexOf(esc(deck[pos].d)) === -1 ||
-       !view.querySelector(".face.avant .front"));
-
-    /* Sans voix, la carte doit rester répondable : on retombe sur le mot
-       écrit, et on le dit. Une carte muette et vide passerait pour une panne. */
-    TTS.voice = null;
-    S = fresh(); S.day = 1; seed(1);
-    go("cards");
-    ok("écoute : sans voix, le mot est affiché à la place",
-       !!view.querySelector(".face.avant .front"));
-    ok("écoute : et l'app explique pourquoi",
-       view.innerHTML.indexOf("Aucune voix allemande") !== -1);
-    ok("écoute : sans voix, il y a toujours un champ à remplir",
-       !!document.getElementById("answer"));
-    TTS.voice = vraieVoix;
 
     S = fresh(); S.day = 1; seed(1);
     Object.keys(S.cards).forEach(function (id) { S.cards[id].niv = ECRIT_DE_A; });
@@ -3042,22 +3018,25 @@ function runTests() {
     S = fresh(); S.day = 1; seed(1);
   })();
 
-  /* ---- LES TROIS MODES DE LA CARTE DE LEÇON (PLAN-ANCRAGE.md §1) ----
-     Demandés par Exsangue le 18/08/2026 :
-       mode 1  prononcé en allemand → on écrit le français
-       mode 2  prononcé en allemand → on écrit l'allemand
-       mode 3  écrit en français    → on écrit l'allemand
+  /* ---- LES TROIS PALIERS DE LA CARTE DE LEÇON (PLAN-ANCRAGE.md §1) ----
+     Posés par Exsangue le 18/08/2026, puis RECTIFIÉS par lui le même jour :
+     une première version présentait les deux premiers paliers à l'oreille,
+     sans écrire le mot. Ce n'est pas ce qu'il veut — tout est écrit.
 
-     ⚠️ Ces tests SIMULENT une voix allemande. Sans ça, la machine de test
-     retombe sur le mot écrit et les modes 1 et 2 ne sont jamais exercés — on
-     croirait les avoir couverts alors qu'on n'aurait testé que le repli. */
+       niveau 0-2  le mot est écrit en ALLEMAND → on répond en français
+       niveau 3-4  le mot est écrit en FRANÇAIS → on répond en allemand
+       niveau 5+   idem, mais le déterminant est EXIGÉ
+
+     ⚠️ Ce sont les paliers de l'ancrage, décidés par la même fonction. Ces
+     tests-ci vérifient que l'ÉCRAN DES CARTES les applique vraiment : les
+     deux outils partagent le niveau d'un mot, et deux tables de paliers
+     feraient qu'un même mot serait demandé de deux façons selon l'écran. */
   (function () {
-    const vraieVoix = TTS.voice;
-    TTS.voice = { lang: "de-DE", name: "test" };
-
     function carteAu(niv) {
       S = fresh(); S.day = 1; seed(1);
-      const id = Object.keys(S.cards)[0];
+      const id = Object.keys(S.cards).filter(function (k) {
+        return /^(der|die|das) /.test(cardById(k).d);      // un nom, pour l'article
+      })[0] || Object.keys(S.cards)[0];
       Object.keys(S.cards).forEach(function (k) { if (k !== id) delete S.cards[k]; });
       S.cards[id].niv = niv;
       oublieSeances();
@@ -3065,61 +3044,73 @@ function runTests() {
       return cardById(id);
     }
 
-    eq("modes : niveau 0 → on écoute, on écrit le français", modeCarte(0), "ecoute-fr");
-    eq("modes : niveau 2 encore", modeCarte(2), "ecoute-fr");
-    eq("modes : niveau 3 → on écoute, on écrit l'allemand", modeCarte(3), "ecoute-de");
-    eq("modes : niveau 4 aussi", modeCarte(4), "ecoute-de");
-    eq("modes : niveau 5 → on lit le français, on écrit l'allemand", modeCarte(5), "lit-fr");
-    eq("modes : et ça ne change plus ensuite", modeCarte(NIV_MAX), "lit-fr");
-
-    /* Mode 1 — le mot est ENTENDU, pas lu. C'est tout l'intérêt : reconnaître
-       un mot à l'oreille est une autre compétence que le lire. */
+    /* Palier 1 — l'allemand est ÉCRIT, on répond en français. */
     let c = carteAu(0);
-    ok("mode 1 : le mot allemand n'est pas affiché", !view.querySelector(".face.avant .front"));
-    ok("mode 1 : il est prononcé dès l'affichage",
-       !!view.querySelector(".face.avant[data-autosay]"));
-    eq("mode 1 : et c'est bien lui qu'on prononce",
-       view.querySelector(".face.avant[data-autosay]").getAttribute("data-autosay"), c.d);
-    ok("mode 1 : on peut le réécouter à la demande",
-       !!view.querySelector(".face.avant [data-say]"));
-    ok("mode 1 : c'est le français qui est demandé",
+    eq("palier 1 : le mot allemand est affiché",
+       view.querySelector(".face.avant .front").textContent, c.d);
+    ok("palier 1 : c'est le français qui est demandé",
        view.innerHTML.indexOf("en français") !== -1);
+    ok("palier 1 : la traduction n'est pas dévoilée", !view.querySelector(".face.avant .trad"));
     document.getElementById("answer").value = c.f;
     view.querySelector('[data-act="check-word"]').click();
-    ok("mode 1 : la traduction française est acceptée", !!view.querySelector(".why.good"));
-    ok("mode 1 : et la réponse se dévoile après coup",
-       !!view.querySelector(".face.arriere .front"));
+    ok("palier 1 : la traduction française est acceptée", !!view.querySelector(".why.good"));
 
-    /* Mode 2 — même écoute, mais c'est l'orthographe allemande qu'on rend. */
+    /* Palier 2 — le français est écrit, on répond en allemand, article libre. */
     c = carteAu(ECRIT_DE_A);
-    ok("mode 2 : le mot allemand n'est toujours pas affiché",
-       !view.querySelector(".face.avant .front"));
-    ok("mode 2 : il est prononcé", !!view.querySelector(".face.avant[data-autosay]"));
-    ok("mode 2 : et le français non plus n'est pas montré",
-       !view.querySelector(".face.avant .ask"));
-    ok("mode 2 : c'est l'allemand qui est demandé",
-       view.innerHTML.indexOf("en allemand") !== -1);
+    eq("palier 2 : le français est affiché",
+       view.querySelector(".face.avant .ask").textContent, c.f);
+    ok("palier 2 : l'allemand n'est pas montré", !view.querySelector(".face.avant .sol"));
+    ok("palier 2 : rien n'est prononcé avant la réponse",
+       !view.querySelector(".face.avant[data-autosay]"));
+    document.getElementById("answer").value = c.d.replace(/^(der|die|das) /, "");
+    view.querySelector('[data-act="check-word"]').click();
+    ok("palier 2 : le mot sans son article est accepté", !!view.querySelector(".why.good"));
+
+    /* Palier 3 — même présentation, mais le déterminant est exigé. C'est la
+       SEULE nouveauté par rapport à l'app d'avant. */
+    c = carteAu(ARTICLE_A);
+    eq("palier 3 : le français est affiché aussi",
+       view.querySelector(".face.avant .ask").textContent, c.f);
+    document.getElementById("answer").value = c.d.replace(/^(der|die|das) /, "");
+    view.querySelector('[data-act="check-word"]').click();
+    ok("palier 3 : le mot sans son article est REFUSÉ", !!view.querySelector(".why.bad"));
+    ok("palier 3 : et l'app dit que c'est le déterminant qui manque",
+       view.innerHTML.indexOf("déterminant") !== -1);
+
+    c = carteAu(ARTICLE_A);
     document.getElementById("answer").value = c.d;
     view.querySelector('[data-act="check-word"]').click();
-    ok("mode 2 : l'orthographe allemande est acceptée", !!view.querySelector(".why.good"));
+    ok("palier 3 : avec l'article, c'est juste", !!view.querySelector(".why.good"));
 
-    /* Mode 3 — on lit le français, on produit l'allemand. Et RIEN n'est
-       prononcé avant la réponse : ce serait la souffler. */
-    c = carteAu(ARTICLE_A);
-    eq("mode 3 : le français est affiché",
-       view.querySelector(".face.avant .ask").textContent, c.f);
-    ok("mode 3 : rien n'est prononcé avant la réponse",
-       !view.querySelector(".face.avant[data-autosay]"));
-    ok("mode 3 : et l'allemand n'est pas montré", !view.querySelector(".face.avant .sol"));
+    /* ⚠️ L'ENTRAÎNEMENT LIBRE N'EST PAS UN EXAMEN. Il ne touche pas aux
+       niveaux, il ne doit donc pas non plus en appliquer la sévérité : on y
+       révise, on n'y est pas jugé. */
+    S = fresh(); S.day = 1; seed(1);
+    const tid = Object.keys(S.cards).filter(function (k) {
+      return /^(der|die|das) /.test(cardById(k).d);
+    })[0];
+    if (tid) {
+      S.cards[tid].niv = ARTICLE_A;
+      oublieSeances();
+      go("practice");
+      const idx = deck.map(function (m) { return m.id; }).indexOf(tid);
+      if (idx !== -1) {
+        pos = idx; verdict = null; montreCarte();
+        document.getElementById("answer").value =
+          cardById(tid).d.replace(/^(der|die|das) /, "");
+        view.querySelector('[data-act="check-word"]').click();
+        ok("entraînement : l'article reste pardonné, même au niveau 5",
+           !!view.querySelector(".why.good"));
+      }
+    }
 
-    TTS.voice = vraieVoix;
     S = fresh(); S.day = 1; seed(1);
   })();
 
-  /* Plus aucune carte passive depuis le 01/08/2026 : au niveau 1 on écrit la
-     traduction française, au-dessus l'allemand. « Révéler / Je savais » mesurait
-     la reconnaissance et non le rappel — on croyait savoir parce qu'on
-     reconnaissait. */
+  /* Plus aucune carte passive depuis le 01/08/2026 : aux premiers niveaux on
+     écrit la traduction française, au-dessus l'allemand. « Révéler / Je
+     savais » mesurait la reconnaissance et non le rappel — on croyait savoir
+     parce qu'on reconnaissait. */
   go("cards");
   const firstId = deck[0] ? deck[0].id : null;
   ok("cartes : une carte est présentée", !!view.querySelector(".face .front"));

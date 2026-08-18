@@ -47,17 +47,33 @@ difficiles — reviennent de plus en plus souvent. La fin accélère toute seule
 **Portée : la leçon en cours, uniquement.** Pas les mots d'avant, pas ceux d'après.
 Les mots des étapes passées sont le travail de l'ancrage, plus celui des cartes.
 
-**Trois modes**, dans cet ordre :
+**Trois paliers — TOUT EST ÉCRIT**, et ce sont **exactement ceux de l'ancrage** (§2) :
 
-| Mode | On présente | On écrit |
-|---|---|---|
-| 1 | le mot **prononcé en allemand** (synthèse vocale) | en **français** |
-| 2 | le mot **prononcé en allemand** | en **allemand** |
-| 3 | le mot **écrit en français** | en **allemand** |
+| Niveau | On présente | On répond | Déterminant |
+|---|---|---|---|
+| 0 – 2 | le mot écrit en **allemand** | en **français** | — |
+| 3 – 4 | le mot écrit en **français** | en **allemand** | facultatif |
+| 5 et + | le mot écrit en **français** | en **allemand** | **obligatoire** |
 
-> Le mode 3 est **écrit**, pas prononcé — corrigé par Exsangue le 18/08/2026. Aucune voix
-> française n'est nécessaire nulle part, ce qui retire la seule dépendance incertaine
-> (la disponibilité d'une voix `fr` sur iPhone).
+> ⚠️ **Rectifié par Exsangue le 18/08/2026, après une version fausse.** La première
+> rédaction de cette spec faisait *entendre* les mots des deux premiers paliers, sans les
+> écrire, sur la foi d'un « prononcé en allemand » de la demande initiale. Ce n'est pas ce
+> qu'il veut : **rien n'est présenté à l'oreille**, tout est écrit. La synthèse vocale
+> reste ce qu'elle était — un bouton « écouter » qu'on déclenche si on veut, jamais la
+> question elle-même.
+>
+> Conséquence heureuse : plus aucune dépendance à une voix installée. Un appareil sans
+> voix allemande fait tourner l'app à l'identique.
+
+> **Une seule table de paliers pour les deux outils**, décidée par `modeAncrage()`. Les
+> cartes et l'ancrage partagent déjà le niveau d'un mot ; leur laisser deux tables ferait
+> qu'un même mot, au même niveau, serait demandé de deux façons selon l'écran ouvert.
+> La **seule nouveauté** des cartes par rapport à l'app d'avant est donc le déterminant
+> exigé à partir du niveau 5.
+
+> **L'entraînement libre reste hors de cette règle.** Il ne touche pas aux niveaux — on y
+> révise, on n'y est pas examiné — donc il n'en applique pas la sévérité : l'article
+> oublié y reste pardonné, quel que soit le niveau du mot.
 
 **Ce qu'on supprime : les cartes ajoutées en cas d'échec.** Rater une carte en ajoutait
 deux (le mot + un mot facile). C'était une spirale : un mauvais jour gonflait le paquet,
