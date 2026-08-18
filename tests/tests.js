@@ -3172,6 +3172,34 @@ function runTests() {
      !!view.querySelector('.mode[data-go="cards"]'));
   ok("accueil : et le bouton n'est pas grisé", !view.querySelector(".mode[disabled]"));
 
+  /* ---- Les cartes ne montrent QUE la leçon en cours ----
+     Posé par Exsangue le 18/08/2026. « En cours » a deux sens selon qu'on
+     avance ou qu'on rejoue, et les deux doivent tomber juste. */
+  (function () {
+    // Parcours normal : on vient de finir la 2, S.day pointe déjà la 3.
+    S = fresh(); S.done = [1, 2]; seed(1); seed(2); S.day = 3;
+    const paquet = cartesLecon();
+    eq("cartes : le paquet fait la taille de la leçon terminée",
+       paquet.length, COURSE[1].vocab.length);
+    ok("cartes : QUE des mots de l'étape 2 — ni avant, ni après",
+       paquet.every(function (c) { return c.day === 2; }),
+       paquet.map(function (c) { return c.day; }).join(","));
+
+    /* Rejeu. Choisir l'étape 1 sur le chemin fait S.day = 1 : c'est ELLE que
+       les cartes doivent servir, pas la 2 qui est pourtant la plus avancée.
+       C'est le cas que la première version ratait. */
+    S.day = 1;
+    const rejeu = cartesLecon();
+    ok("cartes : en rejouant une vieille étape, ce sont SES mots",
+       rejeu.length > 0 && rejeu.every(function (c) { return c.day === 1; }),
+       rejeu.map(function (c) { return c.day; }).join(","));
+
+    /* Et le repli : une étape sans cartes ne doit pas vider l'écran. */
+    S.day = 3;
+    ok("cartes : une étape non terminée retombe sur la dernière qui a des mots",
+       cartesLecon().every(function (c) { return c.day === 2; }));
+  })();
+
   S = fresh(); S.day = 1; S.done = [1]; seed(1);
   go("home");
   ok("accueil : jour terminé, on peut enchaîner sur le suivant",

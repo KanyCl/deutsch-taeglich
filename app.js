@@ -775,20 +775,36 @@ function cardById(id) {
    vient de terminer ». Le reste du vocabulaire est le travail de l'ancrage,
    plus celui des cartes — c'est toute la séparation de PLAN-ANCRAGE.md §1.
 
-   ⚠️ LA DERNIÈRE ÉTAPE FINIE, PAS `S.day`. Valider le quiz sème les mots ET
-   avance `S.day` à l'étape suivante : viser `S.day` donnerait donc toujours
-   un paquet vide, puisque la leçon suivante n'est pas encore faite. Le piège
-   est invisible — un écran de cartes vide ressemble à « rien à réviser ».
+   ⚠️ « LA LEÇON EN COURS » A DEUX SENS, ET IL FAUT LES DEUX. Posé par
+   Exsangue le 18/08/2026 : les cartes montrent les mots de la leçon en cours,
+   uniquement. Sauf que `S.day` seul ne suffit pas à le dire.
 
-   L'étape se lit dans LES CARTES ELLES-MÊMES, pas dans `S.done`. Les deux
-   disent la même chose en production — un mot n'entre qu'au quiz validé, donc
-   la carte la plus récente vient de la dernière étape finie — mais les lire
-   dans les cartes évite d'entretenir deux sources de vérité qui finiraient par
-   diverger. Et sur une sauvegarde d'avant le 18/08/2026, où les mots entraient
-   à l'ouverture de la leçon, c'est même la plus juste des deux : elle montre
-   les mots qu'on a réellement, pas ceux qu'une règle écrite après coup aurait
-   voulu qu'on ait. */
+     - Parcours normal. Valider le quiz sème les mots ET avance `S.day` à
+       l'étape suivante. Viser `S.day` donnerait donc TOUJOURS un paquet vide,
+       puisque la leçon suivante n'est pas encore faite. Et le piège est
+       muet : un écran de cartes vide ressemble à « rien à réviser ».
+     - Rejeu d'une vieille étape. Choisir l'étape 10 sur le chemin fait
+       `S.day = 10` (voir `data-step`). Là, « en cours » veut bien dire 10 —
+       et remonter à la dernière étape finie servirait les mots de la 46,
+       alors qu'on vient d'ouvrir la 10.
+
+   D'où la règle : `S.day` s'il a des cartes, sinon l'étape la plus récente
+   qui en a. Les deux lectures tombent juste, et aucune ne rend l'écran vide
+   par construction.
+
+   L'étape de repli se lit dans LES CARTES, pas dans `S.done` : un mot n'entre
+   qu'au quiz validé, donc la carte la plus récente vient forcément de la
+   dernière étape finie. Une seule source de vérité au lieu de deux qui
+   finiraient par diverger — et sur une sauvegarde d'avant le 18/08/2026, où
+   les mots entraient à l'ouverture, c'est la plus juste des deux : elle montre
+   les mots qu'on a vraiment. */
+function etapeAdesCartes(n) {
+  return Object.keys(S.cards).some(function (id) {
+    return Number(id.split(":")[0]) === n;
+  });
+}
 function etapeDesCartes() {
+  if (etapeAdesCartes(S.day)) return S.day;
   let max = 0;
   Object.keys(S.cards).forEach(function (id) {
     const etape = Number(id.split(":")[0]);
