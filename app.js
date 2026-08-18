@@ -288,7 +288,7 @@ function ordreModes() {
    message. Le fichier connaît déjà ce piège pour les tables de réglages ;
    il s'est reproduit ici, et il a fallu deux tentatives pour le placer assez
    haut. Le mode d'emploi complet est près de `reprend`. */
-const seanceDe = { cards: 0, practice: 0, oral: 0, drills: 0, quiz: 0 };
+const seanceDe = { cards: 0, practice: 0, ancrage: 0, oral: 0, drills: 0, quiz: 0 };
 
 /* ⚠️ DÉCLARÉ ICI, au-dessus de `load()`, et pour la troisième fois dans ce
    fichier : `sane()` s'en sert, et `load()` appelle `sane()`. Déclaré plus
@@ -2111,6 +2111,13 @@ function autreTraduction(typed, carte) {
    - l'entraînement libre, qui n'y touche pas — pour pouvoir travailler
      plus un jour où on a le temps, sans dérégler l'espacement. */
 let deck = [], pos = 0, revealed = false, training = false, deckCap = 0, verdict = null;
+/* Le même paquet sert trois écrans : les cartes de leçon, l'entraînement libre
+   et l'ancrage. `training` et `ancrage` les distinguent — jamais deux à la fois.
+   Un seul jeu de vues pour les trois, c'est ce qui garantit qu'ils se
+   ressemblent : Exsangue a demandé le 18/08/2026 que l'ancrage ait EXACTEMENT
+   le dessin des cartes, et une copie de l'écran aurait divergé au premier
+   changement. */
+let ancrage = false;
 let passes = {};   // combien de fois chaque mot est déjà passé dans CETTE séance
 
 const PRACTICE_SIZE = 10;
@@ -2385,12 +2392,13 @@ function seanceEnCours(mode) {
   return "Séance en cours — encore " + reste;
 }
 
-function startDeck(cards, isTraining) {
+function startDeck(cards, isTraining, isAncrage) {
   deck = cards;
   pos = 0;
   revealed = false;
   verdict = null;
   training = isTraining;
+  ancrage = !!isAncrage;
   passes = {};
   // Les mots repassent dans la séance — pour monter de niveau, ou parce
   // qu'ils ont été ratés. Sans plafond, une mauvaise séance n'aurait pas de fin.
@@ -2401,12 +2409,12 @@ function startDeck(cards, isTraining) {
    distingue. Passer de l'un à l'autre repart donc de zéro, et c'est juste —
    ce ne sont pas les mêmes mots. Le test le dit explicitement. */
 function cardsView() {
-  return reprend("cards", deck.length > 0 && pos < deck.length && !training)
-    ? renderCard() : startDeck(cartesLecon(), false);
+  return reprend("cards", deck.length > 0 && pos < deck.length && !training && !ancrage)
+    ? renderCard() : startDeck(cartesLecon(), false, false);
 }
 function practiceView() {
   return reprend("practice", deck.length > 0 && pos < deck.length && training)
-    ? renderCard() : startDeck(practiceCards(PRACTICE_SIZE), true);
+    ? renderCard() : startDeck(practiceCards(PRACTICE_SIZE), true, false);
 }
 
 /* Affiche la carte, PUIS déclenche le retournement. En deux temps, et c'est
@@ -2427,10 +2435,32 @@ function renderCard() {
   if (pos >= deck.length) {
     touchStreak();
     const n = deck.length;
+
+    /* La fin d'une BOUCLE D'ANCRAGE. Même écran de bilan, autre suite : on ne
+       renvoie pas vers la leçon suivante — l'ancrage n'est pas une étape du
+       parcours — mais vers une nouvelle boucle, qui est tout ce qu'on vient y
+       chercher. */
+    if (ancrage) {
+      const ancres = motsAncres().length;
+      const reste = stockAncrage().length;
+      return [
+        backBar('Accueil'),
+        '<div class="stack">',
+          '<div class="score"><b>' + n + '</b><span>mot' + (n > 1 ? 's revus' : ' revu') +
+            '. Un mot est ancré quand il atteint le niveau ' + ANCRE_A + '.</span></div>',
+          '<div class="card"><span class="label">Ancrés</span>' +
+            '<p class="msg" style="margin:.5rem 0 0"><b>' + ancres + '</b> sur ' +
+            (ancres + reste) + '.</p></div>',
+          '<button class="btn primary wide" data-act="ancr-boucle">Une autre boucle</button>',
+          '<button class="btn wide" data-go="home">Retour à l\'accueil</button>',
+        '</div>'
+      ].join("");
+    }
+
     let msg;
     if (n === 0) msg = 'Aucun mot à réviser pour l\'instant. Fais une leçon pour en apprendre de nouveaux.';
     else if (training) msg = 'Entraînement : le calendrier de révision n\'a pas bougé, mais tes erreurs sont notées.';
-    else msg = 'Les mots sus s\'espacent, les mots hésitants redescendent d\'un niveau.';
+    else msg = 'Les mots sus montent d\'un niveau, les mots hésitants redescendent.';
 
     return [
       backBar('Accueil'),
@@ -2629,7 +2659,15 @@ function advanceCard(ok) {
   passes[cur.id] = (passes[cur.id] || 0) + 1;
   const room = deck.length < deckCap && passes[cur.id] < MAX_PASSES;
 
-  if (room && !ok) {
+  /* ⚠️ DANS L'ANCRAGE, RIEN NE REPASSE. Ni le mot raté, ni celui qui vient de
+     monter d'un cran : une boucle fait 50 mots et en fait 50. C'est le choix
+     d'Exsangue du 18/08/2026, contre la version d'origine qui renvoyait le mot
+     raté « plus tard dans la journée » — il n'y a plus de journée, et une
+     boucle qui s'allonge à chaque faute punit les mauvais jours. Le mot
+     reviendra quand le hasard le ramènera. */
+  if (ancrage) {
+    // rien
+  } else if (room && !ok) {
     /* Le mot raté repasse en fin de paquet — le retravailler tout de suite est
        ce qui l'ancre. Mais RIEN D'AUTRE ne s'ajoute.
 
@@ -4477,8 +4515,6 @@ const BOUCLE_MOTS = 50;
    lui faire perdre son temps. */
 const CHANCE_ANCRE = 0.02;
 
-let ancrDeck = [], ancrPos = 0, ancrVerdict = null;
-
 /* Les mots encore à travailler, et ceux qui sont acquis. `cardById` filtre au
    passage les cartes d'étapes qui n'existent plus — une sauvegarde peut
    toujours désigner un contenu retiré depuis. */
@@ -4558,152 +4594,65 @@ function jugeAncrage(mot, saisi) {
   return v;
 }
 
+/* L'écran de l'ancrage.
+
+   ⚠️ IL N'A PAS DE DESSIN À LUI, ET C'EST VOULU. Une première version, écrite
+   le 18/08/2026, redessinait tout — carte plate, boutons à part, ses propres
+   `ancr-check` / `ancr-next`. Exsangue l'a arrêtée net : « l'ancrage doit avoir
+   le même design que les cartes, c'était vraiment cool et instinctif ». Il a
+   raison deux fois. Le dessin des cartes est celui qu'il connaît déjà, donc
+   celui qu'il n'a pas à réapprendre ; et deux écrans qui se ressemblent sans
+   partager leur code finissent TOUJOURS par diverger, à la première retouche
+   faite d'un seul côté.
+
+   L'ancrage est donc le même paquet que les cartes, avec un autre contenu :
+   `startDeck` avec `ancrage = true`. Tout le reste — la carte à deux faces, le
+   retournement, la jauge, la consigne en filigrane, les boutons — est celui des
+   cartes, et le restera parce que c'est LE MÊME.
+
+   Ne restent ici que les deux écrans vides, qui n'ont pas d'équivalent chez les
+   cartes et qui disent l'inverse l'un de l'autre. */
 function ancrageView() {
-  /* ⚠️ UNE BOUCLE EN COURS PEUT DÉSIGNER DES CARTES QUI N'EXISTENT PLUS —
-     « Tout effacer », une sauvegarde restaurée, un contenu retiré du cours.
-     La suite lit `S.cards[mot.id].niv` sans filet : une carte absente ferait
-     écran blanc. On jette la boucle entière plutôt que de la recoudre, sinon
-     `ancrPos` désignerait un autre mot que celui qu'on regardait.
+  const stock = stockAncrage(), ancres = motsAncres();
 
-     Le contrôle est ICI et pas dans `oublieSeances()`, où il aurait sa place :
-     `fresh()` l'appelle depuis `load()`, donc avant que `ancrDeck` existe —
-     et on y gagnerait la zone morte temporelle qu'on vient de retirer. */
-  if (ancrDeck.some(function (m) { return !S.cards[m.id]; })) {
-    ancrDeck = []; ancrPos = 0; ancrVerdict = null;
-  }
-
-  /* ⚠️ DEUX ÉCRANS VIDES QUI DISENT L'INVERSE L'UN DE L'AUTRE, et les
-     confondre serait décourager exactement la personne qu'il ne faut pas.
-     Signalé par Exsangue en concevant la règle : un mot n'entre qu'une fois
-     sa leçon TERMINÉE, donc quelqu'un qui débute a un stock vide — et c'est
-     normal, pas un échec. Tandis qu'un stock vide en fin de parcours veut
-     dire l'exact contraire : tout est acquis. Même absence, deux sens. */
-  if (!ancrDeck.length) {
-    const stock = stockAncrage(), ancres = motsAncres();
-
-    if (!stock.length && !ancres.length) {
-      return [
-        backBar('Accueil'),
-        '<div class="stack">',
-          '<div class="card"><span class="label">L\'ancrage</span>',
-            '<p class="msg" style="margin:.5rem 0 0">L\'ancrage revoit tout le ' +
-            'vocabulaire appris depuis le début, pour ne plus rien perdre.</p>',
-            '<p class="msg" style="margin:.5rem 0 0">Il est vide pour l\'instant : ' +
-            'un mot y entre quand tu as <b>terminé</b> sa leçon. Commence par ' +
-            'là, et reviens.</p></div>',
-          '<button class="btn primary wide" data-go="lesson">Aller à la leçon</button>',
-          '<button class="btn wide" data-go="home">Retour à l\'accueil</button>',
-        '</div>'
-      ].join("");
-    }
-
-    if (!stock.length) {
-      return [
-        backBar('Accueil'),
-        '<div class="stack">',
-          '<div class="card"><span class="label">L\'ancrage</span>',
-            '<p class="msg" style="margin:.5rem 0 0">Tes <b>' + ancres.length +
-            '</b> mots sont ancrés. Il n\'en reste aucun à travailler.</p>',
-            '<p class="msg" style="margin:.5rem 0 0">Tu peux continuer sur les ' +
-            'mots ancrés : ce qui se perd, se perd sans prévenir.</p></div>',
-          '<button class="btn primary wide" data-act="ancr-boucle">Une boucle quand même</button>',
-          '<button class="btn wide" data-go="home">Retour à l\'accueil</button>',
-        '</div>'
-      ].join("");
-    }
-
-    ancrDeck = tireBoucle();
-    ancrPos = 0;
-    ancrVerdict = null;
-  }
-
-  // Boucle finie : le bilan, puis on repart sur un tirage tout neuf.
-  if (ancrPos >= ancrDeck.length) {
-    const ancres = motsAncres().length;
+  /* ⚠️ DEUX ABSENCES QUI NE VEULENT PAS DIRE LA MÊME CHOSE. Un mot n'entre
+     qu'une fois sa leçon TERMINÉE : quelqu'un qui débute a donc un stock vide,
+     et c'est normal — pas un échec. Le même écran en fin de parcours voudrait
+     dire l'exact contraire. Les confondre découragerait précisément celui
+     qu'il ne faut pas décourager. */
+  if (!stock.length && !ancres.length) {
     return [
       backBar('Accueil'),
       '<div class="stack">',
-        '<div class="score"><b>' + ancrDeck.length + '</b><span>mots revus.</span></div>',
-        '<div class="card"><span class="label">Ancrés</span>' +
-          '<p class="msg" style="margin:.5rem 0 0"><b>' + ancres + '</b> mot' +
-          (ancres > 1 ? 's' : '') + ' sur ' + (ancres + stockAncrage().length) +
-          ' — un mot est ancré quand il atteint le niveau ' + ANCRE_A + '.</p></div>',
-        '<button class="btn primary wide" data-act="ancr-boucle">Une autre boucle</button>',
+        '<div class="card"><span class="label">L\'ancrage</span>',
+          '<p class="msg" style="margin:.5rem 0 0">L\'ancrage revoit tout le ' +
+          'vocabulaire appris depuis le début, pour ne plus rien perdre.</p>',
+          '<p class="msg" style="margin:.5rem 0 0">Il est vide pour l\'instant : ' +
+          'un mot y entre quand tu as <b>terminé</b> sa leçon. Commence par ' +
+          'là, et reviens.</p></div>',
+        '<button class="btn primary wide" data-go="lesson">Aller à la leçon</button>',
         '<button class="btn wide" data-go="home">Retour à l\'accueil</button>',
       '</div>'
     ].join("");
   }
 
-  const mot = ancrDeck[ancrPos];
-  const niv = S.cards[mot.id].niv;
-  const mode = modeAncrage(niv);
-  const reste = ancrDeck.length - ancrPos - 1;
-  const ancre = niv >= ANCRE_A;
-
-  const consigne = mode === "vers-fr"
-    ? "Écris ce que ça veut dire, en français."
-    : (mode === "vers-de-strict"
-        ? "Écris le mot en allemand, avec son déterminant."
-        : "Écris le mot en allemand.");
-
-  /* La question. En dessous du seuil on montre l'allemand et on le prononce —
-     le mot est déjà à l'écran, l'entendre ne souffle rien. Au-dessus c'est
-     l'allemand qu'on cherche : le prononcer avant le donnerait, donc le
-     bouton d'écoute n'apparaît qu'après la réponse. */
-  const question = mode === "vers-fr"
-    ? '<div class="front">' + esc(mot.d) + '</div>' + sayBtn(mot.d)
-    : '<div class="ask">' + esc(mot.f) + '</div>';
-
-  let note = "";
-  if (ancrVerdict) {
-    if (ancrVerdict.kind === "dunno")            note = "Pas grave — il reviendra.";
-    else if (ancrVerdict.kind === "empty")       note = "Rien d'écrit.";
-    else if (ancrVerdict.ok && ancrVerdict.kind === "no-article")
-                                                 note = "Juste. Pense à l'article : <b>" + esc(mot.d) + "</b>.";
-    else if (ancrVerdict.ok)                     note = "Exact.";
-    else if (ancrVerdict.kind === "article-manquant")
-                                                 note = "Le mot est bon, mais à ce niveau le déterminant compte : " +
-                                                        "c'est <b>" + esc(mot.d) + "</b>.";
-    else if (ancrVerdict.kind === "bad-article") note = "Le mot est bon, mais pas le genre : c'est <b>" + esc(mot.d) + "</b>.";
-    else if (mode === "vers-fr")                 note = "Ce n'était pas ça.";
-    else                                         note = fauteOrtho(ancrVerdict.typed, mot.d) || "Ce n'était pas ça.";
+  if (!stock.length && !(ancrage && pos < deck.length)) {
+    return [
+      backBar('Accueil'),
+      '<div class="stack">',
+        '<div class="card"><span class="label">L\'ancrage</span>',
+          '<p class="msg" style="margin:.5rem 0 0">Tes <b>' + ancres.length +
+          '</b> mots sont ancrés. Il n\'en reste aucun à travailler.</p>',
+          '<p class="msg" style="margin:.5rem 0 0">Tu peux continuer sur les ' +
+          'mots ancrés : ce qui se perd, se perd sans prévenir.</p></div>',
+        '<button class="btn primary wide" data-act="ancr-boucle">Une boucle quand même</button>',
+        '<button class="btn wide" data-go="home">Retour à l\'accueil</button>',
+      '</div>'
+    ].join("");
   }
 
-  return [
-    backBar('Accueil'),
-    '<div class="stack">',
-      '<div class="stack-s">',
-        '<span class="label">' +
-          (reste > 0 ? 'Encore ' + reste : 'Dernier mot') +
-          ' &#183; niveau ' + niv + '/' + NIV_MAX +
-          (ancre ? ' &#183; ancré' : '') + '</span>',
-        '<div class="meter">' + ancrDeck.map(function (_, i) {
-          return '<i class="' + (i < ancrPos ? 'on' : '') + '"></i>';
-        }).join("") + '</div>',
-      '</div>',
-      '<div class="card">',
-        question,
-        ancrVerdict
-          ? '<div class="sol">' + esc(mot.d) + '</div>' +
-            '<div class="p">' + esc(mot.p) + '</div>' +
-            '<div class="trad">' + esc(mot.f) + '</div>' +
-            (mode === "vers-fr" ? '' : sayBtn(mot.d)) +
-            (ancrVerdict.typed
-              ? '<div class="tip">Tu as écrit : ' + esc(ancrVerdict.typed) + '</div>' : '')
-          : '<div class="tip">' + consigne + '</div>',
-      '</div>',
-      ancrVerdict
-        ? '<div class="why ' + (ancrVerdict.ok ? "good" : "bad") + '">' + note + '</div>' +
-          '<button class="btn primary wide" data-act="ancr-next">Continuer</button>'
-        : '<input class="answer" id="answer"' +
-            saisieAttrs(mode === "vers-fr" ? "Ta réponse en français" : "Ta réponse en allemand",
-                        mode !== "vers-fr") + '>' +
-          '<div class="pair">' +
-            '<button class="btn" data-act="ancr-dunno">Je ne sais pas</button>' +
-            '<button class="btn primary" data-act="ancr-check">Vérifier</button>' +
-          '</div>',
-    '</div>'
-  ].join("");
+  return reprend("ancrage", deck.length > 0 && pos < deck.length && ancrage)
+    ? renderCard() : startDeck(tireBoucle(), false, true);
 }
 
 /* ===============================================================
@@ -5273,37 +5222,13 @@ view.addEventListener("click", function (e) {
     return;
   }
 
-  /* L'ancrage. `grade` fait tout le travail de niveau : +1 / -1, borné 0-20,
-     et c'est le MÊME compteur que les cartes de leçon — deux nombres pour le
-     même mot finiraient par se contredire.
-
-     ⚠️ Un mot raté N'EST PAS remis dans la boucle. C'est le choix d'Exsangue
-     du 18/08/2026, contre la version d'origine qui le renvoyait « plus tard
-     dans la journée » : il n'y a plus de journée, et une boucle qui s'allonge
-     à chaque faute punit les mauvais jours. Le mot reviendra par le hasard. */
-  if (t.dataset.act === "ancr-check" || t.dataset.act === "ancr-dunno") {
-    const mot = ancrDeck[ancrPos];
-    if (!mot) return;
-    const champ = document.getElementById("answer");
-    const brut = champ ? champ.value : "";
-    ancrVerdict = (t.dataset.act === "ancr-dunno")
-      ? { ok: false, kind: "dunno", typed: "" }
-      : Object.assign(jugeAncrage(mot, brut), { typed: brut.trim() });
-    grade(mot.id, ancrVerdict.ok, true);
-    show(ancrageView());
-    return;
-  }
-  if (t.dataset.act === "ancr-next") {
-    ancrPos++;
-    ancrVerdict = null;
-    show(ancrageView());
-    return;
-  }
+  /* L'ancrage n'a plus qu'UN geste à lui : relancer une boucle. Répondre,
+     corriger, passer au mot suivant — tout cela passe par les gestes des
+     cartes (`check-word`, `dunno`, `card-next`), puisque c'est le même écran.
+     C'est la contrepartie de la fusion demandée par Exsangue, et la seule qui
+     compte : rien à maintenir en double. */
   if (t.dataset.act === "ancr-boucle") {
-    ancrDeck = tireBoucle();
-    ancrPos = 0;
-    ancrVerdict = null;
-    show(ancrageView(), true);
+    show(startDeck(tireBoucle(), false, true), true);
     return;
   }
 

@@ -3221,7 +3221,7 @@ function runTests() {
       S = fresh();
       for (let d = 1; d <= nEtapes; d++) { S.done.push(d); seed(d); }
       S.day = nEtapes;
-      ancrDeck = []; ancrPos = 0; ancrVerdict = null;
+      oublieSeances(); deck = []; pos = 0; ancrage = false;
     }
 
     /* --- La boucle --- */
@@ -3345,7 +3345,7 @@ function runTests() {
     }
 
     /* --- Les deux écrans vides, qui disent l'inverse l'un de l'autre --- */
-    S = fresh(); ancrDeck = []; ancrPos = 0;      // rien de terminé
+    S = fresh(); oublieSeances(); deck = []; pos = 0; ancrage = false;   // rien de terminé
     go("ancrage");
     ok("vide : sans leçon terminée, l'écran explique comment le remplir",
        view.innerHTML.indexOf("terminé") !== -1);
@@ -3354,7 +3354,6 @@ function runTests() {
 
     stockDe(1);
     Object.keys(S.cards).forEach(function (id) { S.cards[id].niv = ANCRE_A; });
-    ancrDeck = []; ancrPos = 0;
     go("ancrage");
     ok("vide : tout ancré, l'écran le dit",
        view.innerHTML.indexOf("ancrés") !== -1);
@@ -3363,46 +3362,84 @@ function runTests() {
     ok("vide : sans confondre avec « rien de terminé »",
        view.innerHTML.indexOf("Aller à la leçon") === -1);
 
-    /* --- Le parcours réel, bout en bout --- */
+    /* ---- L'ANCRAGE A LE MÊME DESSIN QUE LES CARTES ----
+       Demandé par Exsangue le 18/08/2026 après avoir vu la première version,
+       qui redessinait son propre écran : « l'ancrage doit avoir le même design
+       que les cartes, c'était vraiment cool et instinctif ». Ce n'est pas une
+       préférence de goût qu'on peut laisser dériver — deux écrans qui se
+       ressemblent sans partager leur code divergent à la première retouche.
+       Ces tests-ci verrouillent le PARTAGE, pas l'apparence. */
     stockDe(3);
     go("ancrage");
-    ok("ancrage : l'écran s'ouvre sur un mot", !!document.getElementById("answer"));
-    const premier = ancrDeck[ancrPos], nivAvant = S.cards[premier.id].niv;
-    document.getElementById("answer").value = premier.f;      // niveau 0 : le français
-    view.querySelector('[data-act="ancr-check"]').click();
-    ok("ancrage : la bonne réponse est acceptée", !!view.querySelector(".why.good"));
-    eq("ancrage : et le mot monte d'un niveau", S.cards[premier.id].niv, nivAvant + 1);
-    view.querySelector('[data-act="ancr-next"]').click();
-    eq("ancrage : on passe au mot suivant", ancrPos, 1);
+    ok("dessin : l'ancrage sert une carte à deux faces, comme les cartes",
+       !!view.querySelector(".carte3d .face.avant") &&
+       !!view.querySelector(".carte3d .face.arriere"));
+    ok("dessin : avec la jauge d'avancement", !!view.querySelector(".meter"));
+    ok("dessin : et les mêmes gestes que les cartes, pas des gestes à lui",
+       !!view.querySelector('[data-act="check-word"]') &&
+       !!view.querySelector('[data-act="dunno"]'));
+    ok("dessin : l'ancrage passe bien par le paquet commun", ancrage === true);
 
-    /* Un mot raté perd un niveau et N'EST PAS remis dans la boucle — choix
-       d'Exsangue contre la version d'origine. Une boucle qui s'allonge à
-       chaque faute punirait les mauvais jours. */
-    const rate = ancrDeck[ancrPos];
+    /* --- Le parcours réel, bout en bout --- */
+    ok("ancrage : l'écran s'ouvre sur un mot", !!document.getElementById("answer"));
+    const premier = deck[pos], nivAvant = S.cards[premier.id].niv;
+    document.getElementById("answer").value = premier.f;      // niveau 0 : le français
+    view.querySelector('[data-act="check-word"]').click();
+    ok("ancrage : la bonne réponse est acceptée", !!view.querySelector(".why.good"));
+    /* ⚠️ Le niveau bouge au « Continuer », pas au « Vérifier » — c'est le
+       rythme des cartes, hérité avec leur écran. La première version de
+       l'ancrage notait dès la vérification ; ce test disait donc l'inverse. */
+    view.querySelector('[data-act="card-next"]').click();
+    eq("ancrage : et le mot monte d'un niveau", S.cards[premier.id].niv, nivAvant + 1);
+    eq("ancrage : on passe au mot suivant", pos, 1);
+
+    /* ⚠️ RIEN NE REPASSE DANS UNE BOUCLE. Ni le mot raté, ni celui qui vient de
+       monter d'un cran — les cartes de leçon font les deux, l'ancrage aucun.
+       C'est LA différence de comportement entre les deux écrans, et donc celle
+       que la fusion des vues pouvait effacer sans bruit. */
+    const rate = deck[pos];
     S.cards[rate.id].niv = 4;
-    const tailleAvant = ancrDeck.length;
-    show(ancrageView());
+    const tailleAvant = deck.length;
+    show(renderCard());
     document.getElementById("answer").value = "n'importe quoi du tout";
-    view.querySelector('[data-act="ancr-check"]').click();
+    view.querySelector('[data-act="check-word"]').click();
+    view.querySelector('[data-act="card-next"]').click();
     eq("ancrage : un mot raté perd un niveau", S.cards[rate.id].niv, 3);
-    eq("ancrage : et la boucle ne s'allonge pas", ancrDeck.length, tailleAvant);
-    ok("ancrage : il n'est pas reprogrammé dans ce qui reste",
-       ancrDeck.slice(ancrPos + 1).every(function (m) { return m.id !== rate.id; }));
+    eq("ancrage : et la boucle ne s'allonge pas", deck.length, tailleAvant);
+    ok("ancrage : le mot raté n'est pas reprogrammé",
+       deck.slice(pos).every(function (m) { return m.id !== rate.id; }));
+
+    /* Un mot de bas niveau ne repasse pas non plus, alors qu'il le ferait
+       dans les cartes de leçon. */
+    const bas = deck[pos];
+    S.cards[bas.id].niv = 0;
+    const avantBas = deck.length;
+    show(renderCard());
+    document.getElementById("answer").value = bas.f;
+    view.querySelector('[data-act="check-word"]').click();
+    view.querySelector('[data-act="card-next"]').click();
+    eq("ancrage : un mot qui monte ne repasse pas non plus", deck.length, avantBas);
 
     /* Le niveau reste borné même en enchaînant les réponses. */
-    const borneId = ancrDeck[0].id;
+    const borneId = deck[0].id;
     for (let k = 0; k < 40; k++) grade(borneId, true, true);
     eq("ancrage : le niveau ne dépasse jamais 20", S.cards[borneId].niv, NIV_MAX);
     for (let k = 0; k < 40; k++) grade(borneId, false, true);
     eq("ancrage : et ne descend jamais sous 0", S.cards[borneId].niv, 0);
 
-    /* --- La boucle survit à une progression effacée --- */
+    /* --- La boucle finie propose la suivante, pas la leçon --- */
     stockDe(2);
-    ancrDeck = tireBoucle(); ancrPos = 0;
-    S = fresh();                       // « Tout effacer » sous les pieds de la boucle
-    ok("ancrage : une boucle qui désigne des cartes disparues ne fait pas écran blanc",
-       (function () { try { ancrageView(); return true; } catch (e) { return false; } })());
-    eq("ancrage : la boucle périmée est jetée, pas recousue", ancrDeck.length, 0);
+    go("ancrage");
+    pos = deck.length;
+    show(renderCard());
+    ok("boucle finie : on peut en relancer une",
+       !!view.querySelector('[data-act="ancr-boucle"]'));
+    ok("boucle finie : et le bilan dit combien de mots sont ancrés",
+       view.innerHTML.indexOf("Ancrés") !== -1);
+    view.querySelector('[data-act="ancr-boucle"]').click();
+    ok("boucle finie : relancer redonne un mot à travailler",
+       !!document.getElementById("answer"));
+    eq("boucle finie : et on repart du début", pos, 0);
   })();
 
   /* --- N. Le paquet de cartes : ordre, relances, plafond --- */
