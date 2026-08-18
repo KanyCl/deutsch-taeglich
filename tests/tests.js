@@ -3440,6 +3440,33 @@ function runTests() {
            jugeAncrage(t, sansTrema).ok, sansTrema + " vs " + t.d);
       }
 
+      /* ⚠️ LA FAUTE VA DANS LES DEUX SENS. Signalé par Exsangue sur
+         `sportlich` : mettre une majuscule à un adjectif est une faute AUSSI,
+         et lui répondre « tout nom commun prend une majuscule » serait un
+         contresens — la correction est exactement l'inverse. La règle
+         allemande est une frontière : les noms en prennent une, TOUT LE RESTE
+         non. Dire la moitié qui ne s'applique pas apprendrait le contraire. */
+      const adjId = Object.keys(S.cards).filter(function (id) {
+        const d = cardById(id).d;
+        return /^[a-zäöü]/.test(d) && !/\s/.test(d);        // un mot seul, en minuscule
+      })[0];
+      ok("majuscule : le cours a bien un mot sans majuscule pour ce test", !!adjId);
+      if (adjId) {
+        const adj = cardById(adjId);
+        S.cards[adjId].niv = MAJUSCULE_A;
+        ok("majuscule : une majuscule EN TROP est une faute aussi",
+           !jugeAncrage(adj, adj.d.charAt(0).toUpperCase() + adj.d.slice(1)).ok,
+           adj.d);
+        eq("majuscule : et c'est la même erreur nommée",
+           jugeAncrage(adj, adj.d.charAt(0).toUpperCase() + adj.d.slice(1)).kind,
+           "majuscule");
+        ok("majuscule : la minuscule passe", jugeAncrage(adj, adj.d).ok);
+      }
+      ok("majuscule : le cours sait qui attend une majuscule", attendMajuscule("das Haus"));
+      ok("majuscule : l'article ne décide pas à la place du nom",
+         attendMajuscule("die Tasche"));
+      eq("majuscule : et un adjectif n'en attend pas", attendMajuscule("sportlich"), false);
+
       /* La règle vaut aussi sur l'écran des cartes — même correcteur. */
       const cid = nomId;
       S.cards[cid].niv = MAJUSCULE_A;
@@ -3452,6 +3479,30 @@ function runTests() {
          !!view.querySelector(".why.bad"));
       ok("majuscule : et l'app enseigne la règle, pas seulement la faute",
          view.innerHTML.indexOf("nom commun") !== -1);
+
+      /* ⚠️ ET LE MESSAGE DOIT SUIVRE LE SENS DE LA FAUTE. Ce test-ci existe
+         parce qu'il manquait : vérifier `attendMajuscule()` et `jugeAncrage()`
+         ne dit rien de ce qui S'AFFICHE, et on peut donc refuser correctement
+         un mot tout en expliquant l'inverse de la règle. Contrôlé en forçant
+         le message des noms sur tout : sans ce test, rien ne tombait. */
+      if (adjId) {
+        S = fresh(); S.done = [1]; seed(1); S.day = 1;
+        Object.keys(S.cards).forEach(function (k) { if (k !== adjId) delete S.cards[k]; });
+        S.cards[adjId].niv = MAJUSCULE_A;
+        oublieSeances(); deck = []; pos = 0; ancrage = false;
+        go("cards");
+        const mot = cardById(adjId);
+        document.getElementById("answer").value =
+          mot.d.charAt(0).toUpperCase() + mot.d.slice(1);
+        view.querySelector('[data-act="check-word"]').click();
+        ok("majuscule : sur un mot qui n'est pas un nom, la faute est signalée",
+           !!view.querySelector(".why.bad"), mot.d);
+        ok("majuscule : et le message dit la BONNE moitié de la règle",
+           view.innerHTML.indexOf("seuls les noms") !== -1,
+           view.querySelector(".why") ? view.querySelector(".why").textContent : "");
+        ok("majuscule : sans réclamer une majuscule qu'il ne faut pas mettre",
+           view.innerHTML.indexOf("tout nom commun prend") === -1);
+      }
 
       S = fresh(); S.day = 1; seed(1);
     })();

@@ -1896,6 +1896,15 @@ function normDEcasse(s) {
    franchement fausse, la casse n'est pas le sujet : dire « attention à la
    majuscule » sur un mot qui n'est pas le bon serait un contresens, et
    masquerait la vraie erreur. */
+/* La réponse attendue porte-t-elle une majuscule ? L'article ne compte pas :
+   dans « das Haus », c'est `Haus` qui décide. Sert à dire la bonne moitié de
+   la règle allemande — les noms prennent la majuscule, tout le reste non. */
+function attendMajuscule(expected) {
+  return /^[A-ZÄÖÜ]/.test(
+    String(expected).replace(/^(der|die|das)\s+/i, "").trim()
+  );
+}
+
 function fauteMajuscule(typed, expected) {
   const cibles = [expected, String(expected).replace(/\([^)]*\)/g, " ")];
   for (let i = 0; i < cibles.length; i++) {
@@ -2707,11 +2716,21 @@ function writeBody(c) {
                                            note = "Le mot est bon, mais à ce niveau le déterminant compte : " +
                                                   "c'est <b>" + esc(c.d) + "</b>.";
   /* Niveau 8 et plus : la majuscule. On DIT la règle, pas seulement la faute —
-     « tous les noms communs en portent une » se retient, « il manque une
-     majuscule » se subit. C'est le seul message où l'on peut enseigner
-     quelque chose plutôt que constater. */
-  else if (verdict.kind === "majuscule")   note = "Presque — en allemand tout nom commun prend une " +
-                                                  "majuscule : c'est <b>" + esc(c.d) + "</b>.";
+     une règle se retient, un constat se subit.
+
+     ⚠️ LA FAUTE VA DANS LES DEUX SENS, et le message doit suivre. Signalé par
+     Exsangue le 18/08/2026 sur `sportlich` : la première version répondait
+     « tout nom commun prend une majuscule » quoi qu'il arrive, ce qui est un
+     contresens sur un adjectif — là, la correction est exactement l'inverse.
+     La règle allemande est une frontière : les noms prennent la majuscule,
+     TOUT LE RESTE reste en minuscule. Dire la moitié qui ne s'applique pas
+     apprendrait le contraire de ce qu'on veut. */
+  else if (verdict.kind === "majuscule")   note = attendMajuscule(c.d)
+                                                  ? "Presque — en allemand tout nom commun prend une " +
+                                                    "majuscule : c'est <b>" + esc(c.d) + "</b>."
+                                                  : "Presque — en allemand, seuls les noms prennent une " +
+                                                    "majuscule. Celui-ci n'en est pas un : c'est <b>" +
+                                                    esc(c.d) + "</b>.";
   else if (verdict.kind === "dunno")       note = "Pas grave — ce mot va revenir vite.";
   else if (verdict.kind === "empty")       note = "Rien d'écrit.";
   /* « Ce n'était pas ça » ne dit rien de ce qu'il faut corriger. Quand le mot
