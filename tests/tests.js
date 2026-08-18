@@ -3395,6 +3395,67 @@ function runTests() {
       return vus > 0 && ancres / vus < 0.25;
     })());
 
+    /* ---- LA MAJUSCULE, À PARTIR DU NIVEAU 8 ----
+       Demandé par Exsangue le 18/08/2026. Vraie règle d'allemand : tout nom
+       commun en porte une, et l'oublier est la faute la plus visible à
+       l'écrit. Elle arrive tard exprès — exiger la casse d'un mot qu'on ne
+       sait pas encore écrire n'apprendrait rien. */
+    (function () {
+      S = fresh(); S.done = [1]; seed(1); S.day = 1;
+      const nomId = Object.keys(S.cards).filter(function (id) {
+        return /^(der|die|das) [A-ZÄÖÜ]/.test(cardById(id).d);
+      })[0];
+      ok("majuscule : le cours a bien un nom pour ce test", !!nomId);
+      if (!nomId) return;
+      const nom = cardById(nomId);
+      const sansMaj = nom.d.toLowerCase();
+
+      S.cards[nomId].niv = MAJUSCULE_A - 1;
+      ok("majuscule : au niveau 7, la casse est encore pardonnée",
+         jugeAncrage(nom, sansMaj).ok, sansMaj + " vs " + nom.d);
+
+      S.cards[nomId].niv = MAJUSCULE_A;
+      ok("majuscule : au niveau 8, elle ne l'est plus", !jugeAncrage(nom, sansMaj).ok);
+      eq("majuscule : et l'erreur est nommée", jugeAncrage(nom, sansMaj).kind, "majuscule");
+      ok("majuscule : la bonne casse passe", jugeAncrage(nom, nom.d).ok);
+
+      /* ⚠️ ON NE PARLE DE CASSE QUE SI LE MOT EST LE BON. Sur une réponse
+         franchement fausse, « attention à la majuscule » masquerait la vraie
+         erreur et enverrait chercher au mauvais endroit. */
+      eq("majuscule : sur un mot faux, ce n'est pas la casse qu'on reproche",
+         jugeAncrage(nom, "der Quatschkopf").kind === "majuscule", false);
+
+      /* Les tolérances d'écriture RESTENT : le clavier sans tréma et le ss
+         pour ß ne sont pas des fautes de casse. Les confondre ferait échouer
+         quelqu'un qui a tout bon, pour un clavier. */
+      const tremaId = Object.keys(S.cards).filter(function (id) {
+        return /[äöüßÄÖÜ]/.test(cardById(id).d);
+      })[0];
+      if (tremaId) {
+        const t = cardById(tremaId);
+        S.cards[tremaId].niv = MAJUSCULE_A;
+        const sansTrema = t.d.replace(/ä/g, "ae").replace(/ö/g, "oe")
+                             .replace(/ü/g, "ue").replace(/ß/g, "ss");
+        ok("majuscule : le tréma tapé « ae » reste accepté au niveau 8",
+           jugeAncrage(t, sansTrema).ok, sansTrema + " vs " + t.d);
+      }
+
+      /* La règle vaut aussi sur l'écran des cartes — même correcteur. */
+      const cid = nomId;
+      S.cards[cid].niv = MAJUSCULE_A;
+      Object.keys(S.cards).forEach(function (k) { if (k !== cid) delete S.cards[k]; });
+      oublieSeances(); deck = []; pos = 0; ancrage = false;
+      go("cards");
+      document.getElementById("answer").value = sansMaj;
+      view.querySelector('[data-act="check-word"]').click();
+      ok("majuscule : les cartes appliquent la règle elles aussi",
+         !!view.querySelector(".why.bad"));
+      ok("majuscule : et l'app enseigne la règle, pas seulement la faute",
+         view.innerHTML.indexOf("nom commun") !== -1);
+
+      S = fresh(); S.day = 1; seed(1);
+    })();
+
     /* --- Les paliers --- */
     eq("paliers : au niveau 0, on écrit le français", modeAncrage(0), "vers-fr");
     eq("paliers : au niveau 2 encore", modeAncrage(2), "vers-fr");

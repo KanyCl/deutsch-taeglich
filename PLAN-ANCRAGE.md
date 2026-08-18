@@ -125,14 +125,30 @@ au joueur des mots qu'il connaît.
 
 ### Ce qu'on demande, selon le niveau du mot
 
-| Niveau | On présente | On écrit | Déterminant |
+| Niveau | On présente | On écrit | Exigence qui s'ajoute |
 |---|---|---|---|
 | 0 – 2 | le mot en **allemand** | en **français** | — |
-| 3 – 4 | le mot en **français** | en **allemand** | facultatif |
-| 5 et + | le mot en **français** | en **allemand** | **obligatoire** |
+| 3 – 4 | le mot en **français** | en **allemand** | déterminant facultatif |
+| 5 – 7 | le mot en **français** | en **allemand** | **déterminant obligatoire** |
+| 8 et + | le mot en **français** | en **allemand** | **+ la majuscule compte** |
 
-Repousser le genre au niveau 5 est délibéré : c'est la partie dure de l'allemand, et
-l'exiger d'un mot qu'on reconnaît à peine ne produit que de l'échec.
+L'exigence monte par crans, et **chaque cran arrive tard exprès**.
+
+Le genre au niveau 5 : c'est la partie dure de l'allemand, et l'exiger d'un mot qu'on
+reconnaît à peine ne produit que de l'échec.
+
+La majuscule au niveau 8 (demandée par Exsangue le 18/08/2026) : c'est une vraie règle —
+**tout nom commun allemand en porte une** — et c'est la faute la plus visible à l'écrit.
+Mais la casse d'un mot qu'on ne sait pas encore écrire n'apprend rien.
+
+> Ce qui **ne devient jamais** strict : le tréma tapé `ae`/`oe`/`ue` et le `ß` écrit `ss`
+> restent acceptés à tous les niveaux. Ce sont des contraintes de clavier, pas des fautes
+> d'allemand — faire échouer quelqu'un qui a tout bon parce que son clavier n'a pas de ü
+> serait le seul vrai contresens de tout ce système.
+
+> Et la casse n'est reprochée **que si le mot visé est le bon**. Sur une réponse
+> franchement fausse, « attention à la majuscule » masquerait la vraie erreur et enverrait
+> chercher au mauvais endroit.
 
 > **Trou connu, à trancher plus tard :** entre 7 et 20, rien ne change — c'est le même
 > exercice, quatorze fois. Ce n'est pas bloquant (c'est de la consolidation, et c'est

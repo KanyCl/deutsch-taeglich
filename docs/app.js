@@ -171,6 +171,11 @@ const ANCRE_A   = 20;   // « ancré définitivement »
 const APPRIS_A  = 15;   // compté comme appris sur l'accueil — l'ancien `box >= 4`
 const ECRIT_DE_A = 3;   // en dessous, on écrit le français ; à partir de là, l'allemand
 const ARTICLE_A  = 5;   // à partir de là, le déterminant est exigé
+/* Et à partir de là, la MAJUSCULE compte. Demandé par Exsangue le 18/08/2026.
+   C'est une vraie règle d'allemand — tout nom commun en porte une — et c'est
+   la faute la plus visible à l'écrit. Elle arrive tard exprès : exiger la
+   casse d'un mot qu'on ne sait pas encore écrire n'apprend rien. */
+const MAJUSCULE_A = 8;
 
 /* ---------- Les préférences ----------
    Demandées par Exsangue le 01/08/2026, après avoir choisi le design.
@@ -1863,6 +1868,44 @@ function normDE(s) {
     .replace(/\s+/g, " ")
     .trim();
 }
+/* La même normalisation, MAIS SANS BAISSER LA CASSE. Sert au palier des
+   majuscules (voir `fauteMajuscule`) : on veut pardonner un tréma tapé « ae »
+   ou un ß écrit « ss », et ne juger que la casse. Écrite comme une variante
+   de `normDE` et non comme une seconde recette : les deux doivent traiter les
+   trémas et la ponctuation à l'identique, sinon un mot passerait dans l'une et
+   pas dans l'autre pour une raison qui n'a rien à voir avec la majuscule. */
+function normDEcasse(s) {
+  return String(s)
+    .replace(/ß/g, "ss")
+    .replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue")
+    .replace(/Ä/g, "Ae").replace(/Ö/g, "Oe").replace(/Ü/g, "Ue")
+    .replace(/[.,!?;:'"()\[\]-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/* Le mot est le bon, seule la casse cloche ?
+
+   Demandé par Exsangue le 18/08/2026 : à partir du niveau 8, la majuscule
+   compte. C'est une vraie règle d'allemand — TOUS les noms communs en portent
+   une, et l'oublier est la faute la plus visible qu'on puisse faire à l'écrit.
+   Elle arrive tard exprès : elle n'apprend rien tant que le mot lui-même n'est
+   pas su, et la sanctionner tôt ne produirait que du découragement.
+
+   ⚠️ On ne répond `true` QUE si le mot visé est le bon. Sur une réponse
+   franchement fausse, la casse n'est pas le sujet : dire « attention à la
+   majuscule » sur un mot qui n'est pas le bon serait un contresens, et
+   masquerait la vraie erreur. */
+function fauteMajuscule(typed, expected) {
+  const cibles = [expected, String(expected).replace(/\([^)]*\)/g, " ")];
+  for (let i = 0; i < cibles.length; i++) {
+    if (normDE(typed) === normDE(cibles[i])) {
+      return normDEcasse(typed) !== normDEcasse(cibles[i]);
+    }
+  }
+  return false;
+}
+
 function splitArticle(norm) {
   const parts = norm.split(" ");
   if (parts.length > 1 && ARTICLES.indexOf(parts[0]) !== -1) {
@@ -2663,6 +2706,12 @@ function writeBody(c) {
   else if (verdict.kind === "article-manquant")
                                            note = "Le mot est bon, mais à ce niveau le déterminant compte : " +
                                                   "c'est <b>" + esc(c.d) + "</b>.";
+  /* Niveau 8 et plus : la majuscule. On DIT la règle, pas seulement la faute —
+     « tous les noms communs en portent une » se retient, « il manque une
+     majuscule » se subit. C'est le seul message où l'on peut enseigner
+     quelque chose plutôt que constater. */
+  else if (verdict.kind === "majuscule")   note = "Presque — en allemand tout nom commun prend une " +
+                                                  "majuscule : c'est <b>" + esc(c.d) + "</b>.";
   else if (verdict.kind === "dunno")       note = "Pas grave — ce mot va revenir vite.";
   else if (verdict.kind === "empty")       note = "Rien d'écrit.";
   /* « Ce n'était pas ça » ne dit rien de ce qu'il faut corriger. Quand le mot
@@ -4637,6 +4686,12 @@ function jugeAncrage(mot, saisi) {
   const v = checkAnswer(saisi, mot.d);
   if (mode === "vers-de-strict" && v.ok && v.kind === "no-article") {
     return { ok: false, kind: "article-manquant" };
+  }
+  /* L'exigence monte une dernière fois au niveau 8 : la majuscule compte.
+     Testée APRÈS le reste et seulement sur une réponse déjà juste — sur un
+     mot faux, parler de casse masquerait la vraie erreur. */
+  if (niv >= MAJUSCULE_A && v.ok && fauteMajuscule(saisi, mot.d)) {
+    return { ok: false, kind: "majuscule" };
   }
   return v;
 }
