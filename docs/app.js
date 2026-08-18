@@ -140,11 +140,37 @@ function chapterOf(stepNo) {
    donnerait donc pas une progression fausse d'un peu : elle rattacherait
    chaque compteur à un contenu sans rapport. On repart proprement. */
 const KEY = "deutsch-taeglich-v2";
-/* Espacement des révisions, en jours.
-   Les niveaux 1 et 2 valent 0 : ce sont des étapes d'apprentissage, elles se
-   franchissent dans la même séance. Le vrai espacement commence au niveau 3 —
-   celui où le mot ne se reconnaît plus mais s'écrit. */
-const INTERVALS = { 1: 0, 2: 0, 3: 1, 4: 4, 5: 16 };
+
+/* ---------- LE NIVEAU D'UN MOT ----------
+   Refonte du 18/08/2026, spec dans PLAN-ANCRAGE.md.
+
+   AVANT : chaque mot portait une box Leitner 1→5 ET une date `due` calculée
+   par un tableau d'intervalles. Deux nombres pour dire une seule chose.
+
+   MAINTENANT : un seul niveau, 0 → 20, et AUCUNE date. Les mots reviennent
+   parce que le tirage aléatoire de l'ancrage les ramène, pas parce qu'un
+   calendrier arrive à échéance.
+
+   ⚠️ POURQUOI LES DATES SONT PARTIES, et pourquoi il ne faut pas les
+   réintroduire « juste pour les cartes » : une date dit « ne repose pas ce
+   mot avant le 4 septembre », un tirage aléatoire dit « quand son tour
+   vient ». Les deux se contrediront, et ce jour-là RIEN ne le signalera —
+   le mot sera simplement posé trop tôt, ou jamais. Pas d'erreur, pas
+   d'écran rouge : un calendrier qui ment en silence, sur une app dont la
+   révision est le cœur. C'est exactement le défaut qu'on vient de retirer. */
+/* ⚠️ ETAT_V EST ICI, ET PAS À CÔTÉ DE `migreVersNiveaux` QUI L'EMPLOIE.
+   `let S = load()` (plus bas) appelle `sane()`, qui appelle la migration : une
+   constante déclarée après cette ligne serait en ZONE MORTE TEMPORELLE au
+   moment où on la lit. Ce n'est pas théorique — c'est le défaut du 02/08/2026,
+   celui qui a fait repartir la progression d'Exsangue de zéro pendant que
+   2 501 vérifications étaient au vert. Écrit ici la première fois, la faute a
+   été rattrapée par le test « la sauvegarde a été relue sans erreur ». */
+const ETAT_V    = 2;    // version du format de sauvegarde — voir migreVersNiveaux()
+const NIV_MAX   = 20;   // au-delà, le mot est ancré et sort du stock
+const ANCRE_A   = 20;   // « ancré définitivement »
+const APPRIS_A  = 15;   // compté comme appris sur l'accueil — l'ancien `box >= 4`
+const ECRIT_DE_A = 3;   // en dessous, on écrit le français ; à partir de là, l'allemand
+const ARTICLE_A  = 5;   // à partir de là, le déterminant est exigé
 
 /* ---------- Les préférences ----------
    Demandées par Exsangue le 01/08/2026, après avoir choisi le design.
@@ -368,6 +394,62 @@ function load() {
    comptait plus que 10, ouvrait COURSE[11] et plantait l'écran d'accueil.
    Le cas se reproduira à chaque remaniement : on borne une fois pour
    toutes, au lieu de compter sur le fait que ça ne rearrivera pas. */
+/* ---------- LA MIGRATION box → niv ----------
+   Écrite le 18/08/2026 avec la refonte de l'ancrage (PLAN-ANCRAGE.md §3).
+
+   Une progression réelle existe sur l'iPhone d'Exsangue : des mois de travail.
+   Elle ne doit RIEN perdre. La conversion :
+
+       niv = (box - 1) × 5      box 1 → 0 · 2 → 5 · 3 → 10 · 4 → 15 · 5 → 20
+
+   Choisie pour deux raisons, pas pour la commodité arithmétique :
+     - `box >= 4` valait « appris » et donne `niv >= 15` : le compteur de
+       l'accueil affiche le même nombre avant et après la mise à jour, ce qui
+       évite la seule chose qu'on ne pourrait pas rattraper — la conviction
+       d'avoir perdu sa progression ;
+     - la box 5 tombe pile sur 20, donc « ancré ».
+
+   `hit` et `miss` sont RECOPIÉS tels quels : c'est le journal des mots
+   fragiles, et rien dans la refonte ne le remplace.
+
+   ⚠️ IDEMPOTENCE — c'est tout l'enjeu, et elle repose sur un détail fragile.
+   Le témoin est `s.v`, et `fresh()` NE DOIT PAS LE POSER. La raison est dans
+   `load()` : l'état lu vaut `Object.assign(fresh(), JSON.parse(raw))`. Si
+   `fresh()` renvoyait `v: 2`, une vieille sauvegarde — qui n'a pas de `v` —
+   hériterait du 2 de `fresh()` et passerait pour déjà migrée. La progression
+   resterait en box, la migration ne tournerait jamais, et le mot ne serait ni
+   appris ni ancré. Silencieusement.
+
+   Donc : pas de `v` dans `fresh()`. Une progression neuve n'a pas de cartes,
+   la migrer ne coûte rien, et elle ressort en v2 comme les autres.
+
+   On ne détecte SURTOUT pas « à la volée » (« si la carte a un box… ») : une
+   sauvegarde à moitié convertie serait le pire des cas, et c'est exactement
+   ce qu'on obtient en migrant carte par carte au fil de la lecture.
+
+   `ETAT_V` est déclaré tout en haut du fichier, avec les autres constantes de
+   niveau, et pas ici : `let S = load()` appelle cette fonction, donc une
+   constante écrite à cet endroit serait lue avant d'exister. */
+function migreVersNiveaux(s) {
+  if (Number(s.v) >= ETAT_V) return false;
+  const src = (s.cards && typeof s.cards === "object") ? s.cards : {};
+  Object.keys(src).forEach(function (id) {
+    const c = src[id];
+    if (!c || typeof c !== "object") return;
+    if (c.niv === undefined) {
+      // La box est bornée ICI aussi : on migre des données brutes, pas encore
+      // normalisées. Une box absente ou absurde vaut 1, donc niveau 0.
+      const box = Math.floor(Number(c.box));
+      const sain = (isFinite(box) && box >= 1 && box <= 5) ? box : 1;
+      c.niv = (sain - 1) * 5;
+    }
+    delete c.box;
+    delete c.due;
+  });
+  s.v = ETAT_V;
+  return true;
+}
+
 function sane(s) {
   const max = COURSE.length;
   if (!(s.day >= 1 && s.day <= max)) s.day = Math.min(Math.max(1, s.day | 0 || 1), max);
@@ -379,21 +461,20 @@ function sane(s) {
      confirmation.
 
      Ce qu'une carte abîmée provoque, et pourquoi ça ne se voit pas tout de
-     suite : un `box` non numérique fait `Math.min(5, NaN + 1)` → NaN, puis
-     `INTERVALS[NaN]` → undefined, puis `shift(today(), undefined)` → une date
-     invalide. Le mot n'est alors PLUS JAMAIS dû, ou l'est toujours. Rien ne
-     plante, rien ne s'affiche en rouge : le calendrier de révision ment en
-     silence, ce qui est le pire des deux mondes pour une app dont c'est le
-     cœur. Et une entrée qui n'est pas un objet fait carrément écran blanc à
-     la première lecture de `.box`.
+     suite : un `niv` non numérique se propage en NaN dans les comparaisons,
+     qui répondent alors `false` partout. Le mot n'est plus jamais tiré, ou
+     l'est toujours, et il n'est ni appris ni ancré. Rien ne plante, rien ne
+     s'affiche en rouge : la progression ment en silence, ce qui est le pire
+     des deux mondes pour une app dont la révision est le cœur. Et une entrée
+     qui n'est pas un objet fait carrément écran blanc à la première lecture.
 
-     On BORNE plutôt que de jeter : une carte au `box` fantaisiste garde son
+     On BORNE plutôt que de jeter : une carte au `niv` fantaisiste garde son
      journal (hit/miss), qui représente du travail réel. Seul ce qui n'a aucun
      sens — une entrée qui n'est pas un objet — disparaît. */
+  migreVersNiveaux(s);
   s.cards = (function () {
     const src = (s.cards && typeof s.cards === "object") ? s.cards : {};
     const propre = {};
-    const auj = today();
     const entier = function (v) {
       const n = Math.floor(Number(v));
       return isFinite(n) && n >= 0 ? n : 0;
@@ -401,13 +482,9 @@ function sane(s) {
     Object.keys(src).forEach(function (id) {
       const c = src[id];
       if (!c || typeof c !== "object") return;
-      const box = Math.floor(Number(c.box));
+      const niv = Math.floor(Number(c.niv));
       propre[id] = {
-        box: (isFinite(box) && box >= 1 && box <= 5) ? box : 1,
-        /* La date doit être une vraie date ISO ET une date qui existe :
-           `2026-02-31` passe une simple expression régulière et donnerait un
-           jour décalé au premier `shift`. */
-        due: dateValide(c.due) ? c.due : auj,
+        niv: (isFinite(niv) && niv >= 0 && niv <= NIV_MAX) ? niv : 0,
         hit: entier(c.hit),
         miss: entier(c.miss)
       };
@@ -633,24 +710,26 @@ function touchStreak() {
 
 /* Fait entrer le vocabulaire d une etape dans le paquet de cartes.
 
-   ⚠️ UN SEUL ENDROIT L APPELLE HORS DES TESTS : lessonView(). C est la regle,
-   et elle a ete posee apres un defaut signale par Exsangue le 11/08/2026.
-   Un mot n entre dans le paquet QUE lorsque sa lecon a ete ouverte — jamais
-   avant. Appeler seed() depuis l accueil, depuis le demarrage ou en validant
-   le quiz mettait dans le paquet des mots jamais presentes : ils tombaient dus
-   le jour meme, on les ratait tous, et chaque erreur ajoute deux cartes.
-   Le paquet grossissait plus vite qu on ne le vidait.
+   ⚠️ UN SEUL ENDROIT L APPELLE HORS DES TESTS : renderQuestion(), au moment
+   ou le quiz est VALIDE. La regle a change le 18/08/2026 a la demande
+   d Exsangue, et elle s est DURCIE : avant, seed() partait de lessonView(),
+   donc ouvrir une etape et la refermer aussitot suffisait a mettre ses mots
+   dans le paquet. Un mot survole n est pas un mot appris. Desormais il faut
+   avoir fini la lecon. Consequence assumee et voulue : qui n a pas termine la
+   lecon 1 n a aucun mot, et l ancrage lui est vide.
 
-   context.md l affirmait deja (« le mot a deja ete presente dans la lecon avant
-   d arriver aux cartes ») : c est desormais vrai dans le code aussi.
-   seed() est son propre journal — une carte qui existe dit que la lecon est lue. */
+   ⚠️ NE PAS CONFONDRE AVEC LE DEFAUT DU 11/08/2026 — c est le meme fichier, le
+   meme voisinage, et l erreur serait naturelle. Ce defaut-la etait de semer la
+   lecon SUIVANTE (`seed(S.day)` apres que S.day a ete incremente) : des mots
+   jamais presentes tombaient dans le paquet, on les ratait tous. Semer l etape
+   qu on vient de FINIR est l inverse exact. Voir la note sur place. */
 function seed(dayNo) {
   const lesson = COURSE[dayNo - 1];
   if (!lesson) return;
   let added = false;
   lesson.vocab.forEach(function (v, i) {
     const id = dayNo + ":" + i;
-    if (!S.cards[id]) { S.cards[id] = { box: 1, due: today(), hit: 0, miss: 0 }; added = true; }
+    if (!S.cards[id]) { S.cards[id] = { niv: 0, hit: 0, miss: 0 }; added = true; }
   });
   if (added) persist();
 }
@@ -689,11 +768,55 @@ function cardById(id) {
   if (!lesson || !lesson.vocab[parts[1]]) return null;
   return Object.assign({ id: id, day: parts[0] }, lesson.vocab[parts[1]]);
 }
-/* Le paquet du jour, dans un ordre différent à chaque session. */
-function dueCards() {
-  const t = today();
+/* Les cartes de la LEÇON, dans un ordre différent à chaque séance.
+
+   Remplace `dueCards()` le 18/08/2026. Il n'y a plus de calendrier : le paquet
+   n'est plus « ce qui est dû aujourd'hui » mais « les mots de la leçon qu'on
+   vient de terminer ». Le reste du vocabulaire est le travail de l'ancrage,
+   plus celui des cartes — c'est toute la séparation de PLAN-ANCRAGE.md §1.
+
+   ⚠️ « LA LEÇON EN COURS » A DEUX SENS, ET IL FAUT LES DEUX. Posé par
+   Exsangue le 18/08/2026 : les cartes montrent les mots de la leçon en cours,
+   uniquement. Sauf que `S.day` seul ne suffit pas à le dire.
+
+     - Parcours normal. Valider le quiz sème les mots ET avance `S.day` à
+       l'étape suivante. Viser `S.day` donnerait donc TOUJOURS un paquet vide,
+       puisque la leçon suivante n'est pas encore faite. Et le piège est
+       muet : un écran de cartes vide ressemble à « rien à réviser ».
+     - Rejeu d'une vieille étape. Choisir l'étape 10 sur le chemin fait
+       `S.day = 10` (voir `data-step`). Là, « en cours » veut bien dire 10 —
+       et remonter à la dernière étape finie servirait les mots de la 46,
+       alors qu'on vient d'ouvrir la 10.
+
+   D'où la règle : `S.day` s'il a des cartes, sinon l'étape la plus récente
+   qui en a. Les deux lectures tombent juste, et aucune ne rend l'écran vide
+   par construction.
+
+   L'étape de repli se lit dans LES CARTES, pas dans `S.done` : un mot n'entre
+   qu'au quiz validé, donc la carte la plus récente vient forcément de la
+   dernière étape finie. Une seule source de vérité au lieu de deux qui
+   finiraient par diverger — et sur une sauvegarde d'avant le 18/08/2026, où
+   les mots entraient à l'ouverture, c'est la plus juste des deux : elle montre
+   les mots qu'on a vraiment. */
+function etapeAdesCartes(n) {
+  return Object.keys(S.cards).some(function (id) {
+    return Number(id.split(":")[0]) === n;
+  });
+}
+function etapeDesCartes() {
+  if (etapeAdesCartes(S.day)) return S.day;
+  let max = 0;
+  Object.keys(S.cards).forEach(function (id) {
+    const etape = Number(id.split(":")[0]);
+    if (isFinite(etape) && etape > max) max = etape;
+  });
+  return max;
+}
+function cartesLecon() {
+  const etape = etapeDesCartes();
+  if (!etape) return [];
   const ids = Object.keys(S.cards).filter(function (id) {
-    return S.cards[id].due <= t && cardById(id);
+    return Number(id.split(":")[0]) === etape && cardById(id);
   });
   return shuffleIdx(ids.length).map(function (i) { return cardById(ids[i]); });
 }
@@ -720,19 +843,9 @@ function practiceCards(n) {
   return shuffleIdx(chosen.length).map(function (i) { return cardById(chosen[i]); });
 }
 
-/* Un mot déjà su, tiré au hasard. Sert à ne pas finir une session en boucle
-   sur ses seules erreurs : chaque mot raté revient accompagné de celui-ci. */
-function pickEasy(excludeId) {
-  const ids = Object.keys(S.cards).filter(function (id) {
-    return id !== excludeId && cardById(id) && weakness(id) < 0.5;
-  });
-  if (!ids.length) return null;
-  return cardById(ids[shuffleIdx(ids.length)[0]]);
-}
-
-/* schedule === false : on note la réponse sans toucher au calendrier.
-   C'est le mode entraînement — réviser en avance ne doit pas dérégler
-   l'espacement calculé par la méthode Leitner. */
+/* schedule === false : on note la réponse sans toucher au niveau.
+   C'est le mode entraînement — réviser en avance ne doit pas faire avancer
+   la progression, sinon on pourrait ancrer un mot en le répétant d'affilée. */
 function grade(id, ok, schedule) {
   const c = S.cards[id];
   if (!c) return;
@@ -740,16 +853,21 @@ function grade(id, ok, schedule) {
   if (ok) c.hit = (c.hit || 0) + 1;
   else    c.miss = (c.miss || 0) + 1;
   if (schedule !== false) {
-    // Bonne réponse : un cran de plus. Ratée : un cran de moins, jamais la
-    // chute complète — perdre quinze jours de travail sur un mot hésitant
-    // décourage plus que ça n'apprend.
-    c.box = ok ? Math.min(5, c.box + 1) : Math.max(1, c.box - 1);
-    c.due = shift(today(), INTERVALS[c.box]);
+    /* Un cran de plus, un cran de moins. Jamais la chute complète — perdre
+       des semaines de travail sur un mot hésitant décourage plus que ça
+       n'apprend. Le niveau est le MÊME compteur pour les cartes de la leçon
+       et pour l'ancrage : c'est tout l'objet de la refonte, deux nombres pour
+       le même mot finissant toujours par se contredire. */
+    c.niv = ok ? Math.min(NIV_MAX, c.niv + 1) : Math.max(0, c.niv - 1);
   }
   persist();
 }
 function learnedCount() {
-  return Object.keys(S.cards).filter(function (id) { return S.cards[id].box >= 4; }).length;
+  return Object.keys(S.cards).filter(function (id) { return S.cards[id].niv >= APPRIS_A; }).length;
+}
+/* Les mots ancrés : sortis du stock de l'ancrage, acquis pour de bon. */
+function ancreCount() {
+  return Object.keys(S.cards).filter(function (id) { return S.cards[id].niv >= ANCRE_A; }).length;
 }
 /* Mots réellement fragiles : ratés au moins une fois, et au moins une fois
    sur trois. C'est ce chiffre qui dit sur quoi il reste du travail. */
@@ -1148,7 +1266,7 @@ const OU_SUIS_JE = {
   practice: "Entraînement", oral: "L'oral", quiz: "Le quiz",
   book: "Le livre", unit: "Le livre", booktest: "Test du livre",
   reglages: "Réglages", relais: "La suite", chrono: "Contre la montre",
-  verbes: "Verbes irréguliers", a1: "Test A1"
+  verbes: "Verbes irréguliers", a1: "Test A1", ancrage: "L'ancrage"
 };
 
 /* L'étape suivante du parcours, en sautant celles qui n'ont rien à offrir
@@ -1261,7 +1379,7 @@ function home() {
   /* Pas de seed() ici : passer par l accueil n est pas avoir lu la lecon.
      Voir la note sur seed() — un mot n entre dans le paquet qu une fois presente. */
   const lesson = COURSE[S.day - 1];
-  const due = dueCards().length;
+  const due = cartesLecon().length;
   const doneToday = S.done.indexOf(S.day) !== -1;
   const place = chapterOf(S.day);
   const nbDrills = (lesson.drills || []).length;
@@ -1406,18 +1524,35 @@ function home() {
               sous: lesson.steps.length + " écrans, " + lesson.vocab.length + " mots",
               chip: String(lesson.steps.length)
             },
-            // Rien à réviser n'est plus un cul-de-sac : on bascule sur
-            // l'entraînement libre, qui travaille les mots les plus ratés
-            // sans toucher au calendrier.
-            cards: {
-              go: due === 0 ? "practice" : "cards",
-              titre: "Les cartes",
-              sous: due === 0
-                ? "Rien d'obligatoire aujourd'hui — entraîne-toi si tu veux"
-                : "Révision espacée du vocabulaire",
-              chip: due > 0 ? String(due) : "libre",
-              classeChip: due > 0 ? " hot" : ""
-            },
+            /* ⚠️ DEUX PAQUETS VIDES QUI NE DISENT PAS LA MÊME CHOSE, et les
+               confondre découragerait exactement la personne qu'il ne faut pas
+               décourager. Depuis le 18/08/2026 un mot n'entre qu'une fois sa
+               leçon TERMINÉE : quelqu'un qui débute n'a donc aucune carte, et
+               l'envoyer vers l'entraînement libre — vide lui aussi — serait le
+               cul-de-sac qu'on avait justement retiré.
+
+                 - aucune carte du tout  → il n'a rien fini. On l'envoie à la
+                   leçon, et on le lui dit.
+                 - des cartes, séance faite → l'entraînement libre, qui travaille
+                   les mots les plus ratés sans toucher aux niveaux. */
+            cards: (function () {
+              const vierge = Object.keys(S.cards).length === 0;
+              if (vierge) return {
+                go: "lesson",
+                titre: "Les cartes",
+                sous: "Termine une leçon : ses mots arriveront ici",
+                chip: "—"
+              };
+              return {
+                go: due === 0 ? "practice" : "cards",
+                titre: "Les cartes",
+                sous: due === 0
+                  ? "Rien d'obligatoire aujourd'hui — entraîne-toi si tu veux"
+                  : "Le vocabulaire de ta dernière leçon",
+                chip: due > 0 ? String(due) : "libre",
+                classeChip: due > 0 ? " hot" : ""
+              };
+            })(),
             // Toujours actif : les voix de l'appareil arrivent parfois après
             // le premier affichage. C'est l'écran lui-même qui explique s'il
             // en manque.
@@ -1483,6 +1618,19 @@ function home() {
         ? '<button class="btn wide" data-go="chrono">Contre la montre &#183; 30 secondes</button>'
         : '',
 
+      /* L'ancrage, même coin « à part » — il ne s'enchaîne jamais après une
+         leçon, c'est tout son intérêt : il travaille TOUT le vocabulaire,
+         alors que les cartes ne travaillent que la leçon en cours.
+         Toujours visible, même à zéro mot : son écran explique alors comment
+         le remplir. Le cacher priverait un débutant de savoir qu'il existe. */
+      (function () {
+        const reste = stockAncrage().length, ancres = motsAncres().length;
+        return '<button class="btn wide" data-go="ancrage">L\'ancrage &#183; ' +
+          (reste + ancres === 0
+            ? 'à remplir'
+            : reste + ' mot' + (reste > 1 ? 's' : '') + ' à ancrer') + '</button>';
+      })(),
+
       /* Les verbes irréguliers, même coin « à part ». Toujours accessible,
          lui : contrairement au contre-la-montre, il n'a besoin d'aucun
          acquis — c'est une table de référence qu'on vient réviser. */
@@ -1542,7 +1690,9 @@ function setStep(i) {
 }
 
 function lessonView() {
-  seed(S.day);
+  /* Pas de seed() ici depuis le 18/08/2026. Ouvrir une leçon n'est pas l'avoir
+     faite : le mot entre dans le paquet quand le quiz est validé, et là
+     seulement. Voir la note sur seed(). */
   setStep(0);
   return renderStep();
 }
@@ -1966,20 +2116,27 @@ let passes = {};   // combien de fois chaque mot est déjà passé dans CETTE s�
 const PRACTICE_SIZE = 10;
 /* Un même mot ne repasse pas indéfiniment dans une séance, même en le ratant. */
 const MAX_PASSES = 5;
-/* À partir de ce niveau, on écrit le mot EN ALLEMAND. En dessous — c'est-à-dire
-   au niveau 1 — on l'écrit en français.
+/* Le sens d'écriture est décidé par `ECRIT_DE_A` (voir en tête de fichier) :
+   en dessous on écrit le français, au-dessus l'allemand. La constante a
+   remplacé `WRITE_FROM_BOX` le 18/08/2026 avec le passage à l'échelle 0-20 ;
+   le raisonnement, lui, n'a pas bougé et vaut d'être gardé.
 
-   Il n'y a donc plus aucune carte passive. Signalé par Exsangue le 01/08/2026 :
-   « je n'ai pas l'impression d'apprendre sur les niveaux 1, j'apprends beaucoup
-   en écrivant par moi-même ». Il a raison, et c'est un défaut connu du principe
+   Il n'y a AUCUNE carte passive. Signalé par Exsangue le 01/08/2026 : « je
+   n'ai pas l'impression d'apprendre sur les niveaux 1, j'apprends beaucoup en
+   écrivant par moi-même ». Il a raison, et c'est un défaut connu du principe
    même de la carte à retourner : « Révéler » puis « Je savais » mesure la
    RECONNAISSANCE, pas le rappel. On croit savoir parce qu'on reconnaît, et on
    sèche le lendemain.
 
-   Le niveau 1 demande donc le français — le sens le plus facile, mais actif :
-   il faut aller chercher la réponse au lieu de la reconnaître. Dès le niveau 2,
-   on écrit l'allemand, seul sens qui apprenne l'orthographe. */
-const WRITE_FROM_BOX = 2;
+   Les premiers niveaux demandent donc le français — le sens le plus facile,
+   mais actif : il faut aller chercher la réponse au lieu de la reconnaître.
+   Ensuite on écrit l'allemand, seul sens qui apprenne l'orthographe.
+
+   ⚠️ Le seuil est passé de « box 2 » à « niveau 3 », ce qui n'est pas une
+   traduction exacte : la box 2 devient le niveau 5. Sans conséquence sur une
+   progression migrée — la conversion ne produit que 0, 5, 10, 15 et 20, donc
+   jamais 3 ni 4 — et c'est le palier de PLAN-ANCRAGE.md, qu'on applique
+   désormais aux deux outils puisqu'ils partagent l'échelle. */
 
 /* ---------- Le thème d'une étape ----------
    Demandé par Exsangue le 02/08/2026 : « le fond de la carte est dans le
@@ -2245,7 +2402,7 @@ function startDeck(cards, isTraining) {
    ce ne sont pas les mêmes mots. Le test le dit explicitement. */
 function cardsView() {
   return reprend("cards", deck.length > 0 && pos < deck.length && !training)
-    ? renderCard() : startDeck(dueCards(), false);
+    ? renderCard() : startDeck(cartesLecon(), false);
 }
 function practiceView() {
   return reprend("practice", deck.length > 0 && pos < deck.length && training)
@@ -2291,7 +2448,7 @@ function renderCard() {
   const left = deck.length - pos - 1;
   const tag = training
     ? (st.miss ? 'entraînement &#183; raté ' + st.miss + ' fois' : 'entraînement')
-    : 'niveau ' + st.box + '/5';
+    : 'niveau ' + st.niv + '/' + NIV_MAX;
 
   return [
     backBar('Accueil'),
@@ -2309,7 +2466,7 @@ function renderCard() {
         '<div class="meter">' + deck.map(function (_, i) { return '<i class="' + (i < pos ? 'on' : '') + '"></i>'; }).join("") + '</div>',
       '</div>',
 
-      st.box >= WRITE_FROM_BOX ? writeBody(c) : writeFrBody(c),
+      corpsCarte(c, st.niv),
     '</div>'
   ].join("");
 }
@@ -2337,6 +2494,25 @@ function carte3d(theme, attrsAvant, avant, attrsArriere, arriere) {
          '</div>';
 }
 
+/* ---------- LES TROIS PALIERS D'UNE CARTE DE LEÇON ----------
+   Posés par Exsangue le 18/08/2026, et RECTIFIÉS par lui le même jour : une
+   première version présentait les mots des deux premiers paliers à l'oreille,
+   sans les écrire. Ce n'est pas ce qu'il veut. Tout est ÉCRIT.
+
+     niveau 0-2   le mot est écrit en ALLEMAND  → on répond en français
+     niveau 3-4   le mot est écrit en FRANÇAIS  → on répond en allemand
+     niveau 5+    le mot est écrit en FRANÇAIS  → on répond en allemand, avec
+                  le déterminant, sans approximation
+
+   ⚠️ CE SONT LES PALIERS DE L'ANCRAGE, et c'est `modeAncrage` qui les décide —
+   pas une seconde fonction. Les deux outils partagent déjà le niveau d'un mot ;
+   leur laisser deux tables de paliers reviendrait à ce qu'un même mot soit
+   demandé de deux façons différentes selon l'écran, pour le même niveau. */
+function corpsCarte(c, niv) {
+  return modeAncrage(niv) === "vers-fr" ? writeFrBody(c) : writeBody(c);
+}
+
+/* Le premier palier : le mot est écrit en allemand, on répond en français. */
 function writeFrBody(c) {
   // Le mot est prononcé dès qu'il s'affiche : demandé par Exsangue pour
   // pouvoir travailler à l'oreille autant qu'à l'œil. Sans risque ici, le
@@ -2405,6 +2581,12 @@ function writeBody(c) {
                                            note = "Juste — ici on attendait <b>" + esc(c.d) +
                                                   "</b>, sans article.";
   else if (verdict.kind === "bad-article") note = "Le mot est bon, mais pas le genre : c'est <b>" + esc(c.d) + "</b>.";
+  /* À partir du niveau 5, l'article oublié ne passe plus — le mot est réputé
+     su, c'est le genre qu'il reste à ancrer. Le dire AINSI et non « faux » :
+     ce qui est acquis reste acquis, seule l'exigence a monté. */
+  else if (verdict.kind === "article-manquant")
+                                           note = "Le mot est bon, mais à ce niveau le déterminant compte : " +
+                                                  "c'est <b>" + esc(c.d) + "</b>.";
   else if (verdict.kind === "dunno")       note = "Pas grave — ce mot va revenir vite.";
   else if (verdict.kind === "empty")       note = "Rien d'écrit.";
   /* « Ce n'était pas ça » ne dit rien de ce qu'il faut corriger. Quand le mot
@@ -2448,10 +2630,17 @@ function advanceCard(ok) {
   const room = deck.length < deckCap && passes[cur.id] < MAX_PASSES;
 
   if (room && !ok) {
-    deck.push(cur);                       // le mot raté repasse en fin de paquet
-    const easy = pickEasy(cur.id);        // accompagné d'un mot déjà su, pour ne pas
-    if (easy) deck.push(easy);            // terminer en boucle sur ses seules erreurs
-  } else if (room && !training && S.cards[cur.id].box <= WRITE_FROM_BOX) {
+    /* Le mot raté repasse en fin de paquet — le retravailler tout de suite est
+       ce qui l'ancre. Mais RIEN D'AUTRE ne s'ajoute.
+
+       ⚠️ On ajoutait ici un second mot, déjà su, « pour ne pas terminer en
+       boucle sur ses seules erreurs ». Retiré le 18/08/2026 à la demande
+       d'Exsangue, et il a raison : chaque faute coûtait DEUX cartes, donc un
+       mauvais jour gonflait le paquet, ce qui produisait d'autres fautes, qui
+       le gonflaient encore. La sanction d'un échec, c'est le niveau perdu —
+       pas du travail en plus. */
+    deck.push(cur);
+  } else if (room && !training && S.cards[cur.id].niv <= ECRIT_DE_A) {
     // Étapes d'apprentissage : le mot repasse dans la même séance pour monter
     // d'un cran. Le seuil est « <= » et non « < » : un mot qui vient d'atteindre
     // le niveau où il s'écrit doit être écrit AU MOINS UNE FOIS le jour même,
@@ -2500,13 +2689,24 @@ function renderQuestion() {
       // L'avancée à jouer sur le chemin, au prochain passage par l'accueil.
       vientDeValider = d;
       if (S.done.indexOf(d) === -1) S.done.push(d);
+
+      /* L'étape est finie : SES mots entrent dans le paquet. Posé par Exsangue
+         le 18/08/2026 — un mot survolé n'est pas un mot appris, il faut avoir
+         terminé la leçon.
+
+         ⚠️ LIRE AVANT DE « CORRIGER » CETTE LIGNE. Le commentaire qui tenait
+         cette place disait « surtout PAS de seed() ici », et il avait raison —
+         mais d'un autre seed(). Le défaut signalé le 11/08/2026 était
+         `seed(S.day)` APRÈS l'incrément ci-dessous : ça semait la leçon
+         SUIVANTE, jamais ouverte, dont les mots tombaient dus le jour même et
+         qu'on ratait tous. Ici on sème `d`, l'étape qu'on vient de terminer.
+         La différence tient dans une variable, et c'est toute la différence.
+         Ne pas remplacer `d` par `S.day`. */
+      seed(d);
+
       // On n'avance que si c'était le jour le plus avancé (pas en rejouant un ancien).
       if (d === Math.max.apply(null, S.done) && d < COURSE.length) {
         S.day = d + 1;
-        /* Surtout PAS de seed(S.day) ici. C etait le defaut signale par Exsangue :
-           valider une etape faisait entrer les 10 mots de la SUIVANTE dans le paquet,
-           dus le jour meme, alors que sa lecon n a jamais ete ouverte. On enchainait
-           les erreurs, et chaque erreur ajoute deux cartes (le mot + un mot facile). */
       }
     }
     persist();
@@ -4242,6 +4442,271 @@ function verbeRepond() {
 }
 
 /* ===============================================================
+   L'ANCRAGE
+   ===============================================================
+   Conçu avec Exsangue le 18/08/2026. La spec complète, avec le raisonnement
+   et les chiffres, est dans PLAN-ANCRAGE.md §2.
+
+   À QUOI ÇA SERT, et pourquoi c'est un outil SÉPARÉ des cartes. Les cartes
+   travaillent la leçon qu'on vient de finir — apprendre. L'ancrage travaille
+   tout le vocabulaire depuis le début — ne pas perdre. Les mélanger dans un
+   même paquet, ce que faisait l'app jusqu'ici, fait que réviser noie
+   apprendre : un mot de l'étape 3 tombait au milieu de l'étape 45.
+
+   C'est donc un onglet « à part », comme les verbes irréguliers : hors du
+   PARCOURS, jamais enchaîné après une leçon, disponible tout le temps.
+
+   LA BOUCLE. 50 mots tirés au hasard, tous différents. Les 50 finis, nouveau
+   tirage, sans aucune mémoire du précédent : un mot peut retomber tout de
+   suite ou pas avant longtemps. Aucune notion de jour, aucun quota — on
+   enchaîne autant de boucles qu'on veut. Choisi par Exsangue contre une
+   version à 50 mots par jour : le rythme lui appartient, pas à l'app.
+
+   LE RETRAIT À 20. Un mot ancré sort du stock. Effet secondaire heureux, et
+   gratuit : le stock rétrécit à mesure, donc les mots qui restent — les
+   difficiles — reviennent de plus en plus souvent. La fin accélère seule,
+   sans une ligne de code pour la pondération qu'on avait justement écartée.
+
+   L'ÉCHEC ne fait perdre qu'un niveau, et RIEN D'AUTRE. Le mot n'est pas
+   reproposé dans la boucle : une boucle qui s'allonge à chaque faute
+   punirait les mauvais jours, ce qui fait arrêter. */
+const BOUCLE_MOTS = 50;
+/* Le filet contre l'oubli à un an. Un mot ancré a cette chance de repasser ;
+   raté, il retombe à 19 et réintègre le stock. ~1 mot par boucle : c'est un
+   filet, pas une révision — rendre au joueur des mots qu'il connaît serait
+   lui faire perdre son temps. */
+const CHANCE_ANCRE = 0.02;
+
+let ancrDeck = [], ancrPos = 0, ancrVerdict = null;
+
+/* Les mots encore à travailler, et ceux qui sont acquis. `cardById` filtre au
+   passage les cartes d'étapes qui n'existent plus — une sauvegarde peut
+   toujours désigner un contenu retiré depuis. */
+function stockAncrage() {
+  return Object.keys(S.cards).filter(function (id) {
+    return S.cards[id].niv < ANCRE_A && cardById(id);
+  });
+}
+function motsAncres() {
+  return Object.keys(S.cards).filter(function (id) {
+    return S.cards[id].niv >= ANCRE_A && cardById(id);
+  });
+}
+
+/* Tire une boucle. Les mots sont TOUS DIFFÉRENTS à l'intérieur d'une boucle —
+   le hasard joue d'une boucle à l'autre, pas au sein de la même : reposer le
+   même mot deux fois dans la minute n'apprend rien.
+
+   Le filet des ancrés est tiré par slot et non « un ancré garanti » : à 2 %
+   par slot, il arrive qu'une boucle n'en contienne aucun, et c'est bien ce
+   qu'on veut d'un filet. */
+function tireBoucle() {
+  const stock = stockAncrage();
+  const ancres = motsAncres();
+
+  /* ⚠️ LA TAILLE SE MESURE SUR LE STOCK SEUL, pas sur stock + ancrés. Une
+     première version prenait les deux, et le test du filet l'a attrapée : avec
+     33 mots à travailler et 33 ancrés, elle servait une boucle de 50 en
+     complétant avec 17 mots déjà sus — un tiers de la séance passé sur du
+     connu. La spec dit « moins de 50 au stock, la boucle fait ce qu'il y a » ;
+     les ancrés sont un filet, jamais un remplissage. */
+  const base = stock.length ? stock : ancres;
+  if (!base.length) return [];
+  const taille = Math.min(BOUCLE_MOTS, base.length);
+
+  const pris = {};
+  const out = [];
+  let garde = 0;
+  while (out.length < taille && garde++ < base.length * 40) {
+    // Le filet ne joue que s'il y a un ailleurs où piocher.
+    const filet = ancres.length && base !== ancres && Math.random() < CHANCE_ANCRE;
+    const vivier = filet ? ancres : base;
+    const id = vivier[Math.floor(Math.random() * vivier.length)];
+    if (pris[id]) continue;
+    pris[id] = true;
+    out.push(cardById(id));
+  }
+  return out;
+}
+
+/* Ce que le niveau du mot commande. Les paliers viennent de PLAN-ANCRAGE.md :
+   on reconnaît d'abord, on produit ensuite, on produit parfaitement à la fin.
+   Repousser le genre est délibéré — c'est la partie dure de l'allemand, et
+   l'exiger d'un mot qu'on reconnaît à peine ne produit que de l'échec. */
+function modeAncrage(niv) {
+  if (niv < ECRIT_DE_A) return "vers-fr";      // on montre l'allemand, on écrit le français
+  if (niv < ARTICLE_A) return "vers-de";       // on écrit l'allemand, déterminant facultatif
+  return "vers-de-strict";                     // déterminant obligatoire
+}
+
+/* Juge une réponse d'ancrage. Un seul correcteur — `checkAnswer` — avec une
+   seule différence selon le palier : au-dessus de ARTICLE_A, l'article oublié
+   ne passe plus. `checkAnswer` le signale déjà par `kind: "no-article"`, on
+   n'a donc rien à re-décider ici, seulement à cesser de le pardonner.
+
+   ⚠️ Ça ne rend PAS l'article obligatoire sur les mots qui n'en ont pas :
+   « grün » ou « ja » ne produisent jamais ce verdict, puisque la réponse
+   attendue n'a pas d'article. La règle ne mord que là où elle a un sens. */
+function jugeAncrage(mot, saisi) {
+  const niv = S.cards[mot.id].niv;
+  const mode = modeAncrage(niv);
+  if (mode === "vers-fr") return checkGloss(saisi, mot.f);
+  const v = checkAnswer(saisi, mot.d);
+  if (mode === "vers-de-strict" && v.ok && v.kind === "no-article") {
+    return { ok: false, kind: "article-manquant" };
+  }
+  return v;
+}
+
+function ancrageView() {
+  /* ⚠️ UNE BOUCLE EN COURS PEUT DÉSIGNER DES CARTES QUI N'EXISTENT PLUS —
+     « Tout effacer », une sauvegarde restaurée, un contenu retiré du cours.
+     La suite lit `S.cards[mot.id].niv` sans filet : une carte absente ferait
+     écran blanc. On jette la boucle entière plutôt que de la recoudre, sinon
+     `ancrPos` désignerait un autre mot que celui qu'on regardait.
+
+     Le contrôle est ICI et pas dans `oublieSeances()`, où il aurait sa place :
+     `fresh()` l'appelle depuis `load()`, donc avant que `ancrDeck` existe —
+     et on y gagnerait la zone morte temporelle qu'on vient de retirer. */
+  if (ancrDeck.some(function (m) { return !S.cards[m.id]; })) {
+    ancrDeck = []; ancrPos = 0; ancrVerdict = null;
+  }
+
+  /* ⚠️ DEUX ÉCRANS VIDES QUI DISENT L'INVERSE L'UN DE L'AUTRE, et les
+     confondre serait décourager exactement la personne qu'il ne faut pas.
+     Signalé par Exsangue en concevant la règle : un mot n'entre qu'une fois
+     sa leçon TERMINÉE, donc quelqu'un qui débute a un stock vide — et c'est
+     normal, pas un échec. Tandis qu'un stock vide en fin de parcours veut
+     dire l'exact contraire : tout est acquis. Même absence, deux sens. */
+  if (!ancrDeck.length) {
+    const stock = stockAncrage(), ancres = motsAncres();
+
+    if (!stock.length && !ancres.length) {
+      return [
+        backBar('Accueil'),
+        '<div class="stack">',
+          '<div class="card"><span class="label">L\'ancrage</span>',
+            '<p class="msg" style="margin:.5rem 0 0">L\'ancrage revoit tout le ' +
+            'vocabulaire appris depuis le début, pour ne plus rien perdre.</p>',
+            '<p class="msg" style="margin:.5rem 0 0">Il est vide pour l\'instant : ' +
+            'un mot y entre quand tu as <b>terminé</b> sa leçon. Commence par ' +
+            'là, et reviens.</p></div>',
+          '<button class="btn primary wide" data-go="lesson">Aller à la leçon</button>',
+          '<button class="btn wide" data-go="home">Retour à l\'accueil</button>',
+        '</div>'
+      ].join("");
+    }
+
+    if (!stock.length) {
+      return [
+        backBar('Accueil'),
+        '<div class="stack">',
+          '<div class="card"><span class="label">L\'ancrage</span>',
+            '<p class="msg" style="margin:.5rem 0 0">Tes <b>' + ancres.length +
+            '</b> mots sont ancrés. Il n\'en reste aucun à travailler.</p>',
+            '<p class="msg" style="margin:.5rem 0 0">Tu peux continuer sur les ' +
+            'mots ancrés : ce qui se perd, se perd sans prévenir.</p></div>',
+          '<button class="btn primary wide" data-act="ancr-boucle">Une boucle quand même</button>',
+          '<button class="btn wide" data-go="home">Retour à l\'accueil</button>',
+        '</div>'
+      ].join("");
+    }
+
+    ancrDeck = tireBoucle();
+    ancrPos = 0;
+    ancrVerdict = null;
+  }
+
+  // Boucle finie : le bilan, puis on repart sur un tirage tout neuf.
+  if (ancrPos >= ancrDeck.length) {
+    const ancres = motsAncres().length;
+    return [
+      backBar('Accueil'),
+      '<div class="stack">',
+        '<div class="score"><b>' + ancrDeck.length + '</b><span>mots revus.</span></div>',
+        '<div class="card"><span class="label">Ancrés</span>' +
+          '<p class="msg" style="margin:.5rem 0 0"><b>' + ancres + '</b> mot' +
+          (ancres > 1 ? 's' : '') + ' sur ' + (ancres + stockAncrage().length) +
+          ' — un mot est ancré quand il atteint le niveau ' + ANCRE_A + '.</p></div>',
+        '<button class="btn primary wide" data-act="ancr-boucle">Une autre boucle</button>',
+        '<button class="btn wide" data-go="home">Retour à l\'accueil</button>',
+      '</div>'
+    ].join("");
+  }
+
+  const mot = ancrDeck[ancrPos];
+  const niv = S.cards[mot.id].niv;
+  const mode = modeAncrage(niv);
+  const reste = ancrDeck.length - ancrPos - 1;
+  const ancre = niv >= ANCRE_A;
+
+  const consigne = mode === "vers-fr"
+    ? "Écris ce que ça veut dire, en français."
+    : (mode === "vers-de-strict"
+        ? "Écris le mot en allemand, avec son déterminant."
+        : "Écris le mot en allemand.");
+
+  /* La question. En dessous du seuil on montre l'allemand et on le prononce —
+     le mot est déjà à l'écran, l'entendre ne souffle rien. Au-dessus c'est
+     l'allemand qu'on cherche : le prononcer avant le donnerait, donc le
+     bouton d'écoute n'apparaît qu'après la réponse. */
+  const question = mode === "vers-fr"
+    ? '<div class="front">' + esc(mot.d) + '</div>' + sayBtn(mot.d)
+    : '<div class="ask">' + esc(mot.f) + '</div>';
+
+  let note = "";
+  if (ancrVerdict) {
+    if (ancrVerdict.kind === "dunno")            note = "Pas grave — il reviendra.";
+    else if (ancrVerdict.kind === "empty")       note = "Rien d'écrit.";
+    else if (ancrVerdict.ok && ancrVerdict.kind === "no-article")
+                                                 note = "Juste. Pense à l'article : <b>" + esc(mot.d) + "</b>.";
+    else if (ancrVerdict.ok)                     note = "Exact.";
+    else if (ancrVerdict.kind === "article-manquant")
+                                                 note = "Le mot est bon, mais à ce niveau le déterminant compte : " +
+                                                        "c'est <b>" + esc(mot.d) + "</b>.";
+    else if (ancrVerdict.kind === "bad-article") note = "Le mot est bon, mais pas le genre : c'est <b>" + esc(mot.d) + "</b>.";
+    else if (mode === "vers-fr")                 note = "Ce n'était pas ça.";
+    else                                         note = fauteOrtho(ancrVerdict.typed, mot.d) || "Ce n'était pas ça.";
+  }
+
+  return [
+    backBar('Accueil'),
+    '<div class="stack">',
+      '<div class="stack-s">',
+        '<span class="label">' +
+          (reste > 0 ? 'Encore ' + reste : 'Dernier mot') +
+          ' &#183; niveau ' + niv + '/' + NIV_MAX +
+          (ancre ? ' &#183; ancré' : '') + '</span>',
+        '<div class="meter">' + ancrDeck.map(function (_, i) {
+          return '<i class="' + (i < ancrPos ? 'on' : '') + '"></i>';
+        }).join("") + '</div>',
+      '</div>',
+      '<div class="card">',
+        question,
+        ancrVerdict
+          ? '<div class="sol">' + esc(mot.d) + '</div>' +
+            '<div class="p">' + esc(mot.p) + '</div>' +
+            '<div class="trad">' + esc(mot.f) + '</div>' +
+            (mode === "vers-fr" ? '' : sayBtn(mot.d)) +
+            (ancrVerdict.typed
+              ? '<div class="tip">Tu as écrit : ' + esc(ancrVerdict.typed) + '</div>' : '')
+          : '<div class="tip">' + consigne + '</div>',
+      '</div>',
+      ancrVerdict
+        ? '<div class="why ' + (ancrVerdict.ok ? "good" : "bad") + '">' + note + '</div>' +
+          '<button class="btn primary wide" data-act="ancr-next">Continuer</button>'
+        : '<input class="answer" id="answer"' +
+            saisieAttrs(mode === "vers-fr" ? "Ta réponse en français" : "Ta réponse en allemand",
+                        mode !== "vers-fr") + '>' +
+          '<div class="pair">' +
+            '<button class="btn" data-act="ancr-dunno">Je ne sais pas</button>' +
+            '<button class="btn primary" data-act="ancr-check">Vérifier</button>' +
+          '</div>',
+    '</div>'
+  ].join("");
+}
+
+/* ===============================================================
    LE CONTRE-LA-MONTRE
    ===============================================================
    Demandé par Exsangue le 02/08/2026 : « un timer de 30 secondes, je dois
@@ -4457,7 +4922,7 @@ const ROUTES = {
   practice: practiceView, oral: oralView, drills: drillsView, quiz: quizView,
   book: bookView, unit: unitView, booktest: bookTestView,
   reglages: reglagesView, relais: relaisView, chrono: chronoView,
-  verbes: verbesView, a1: a1View
+  verbes: verbesView, a1: a1View, ancrage: ancrageView
 };
 
 /* L'écran affiché. Sert au rouage, qui doit savoir s'il ouvre les réglages
@@ -4673,10 +5138,21 @@ view.addEventListener("click", function (e) {
     // français, au-dessus l'allemand. Deux correcteurs, parce que les deux
     // langues ne s'exigent pas pareil — le français est jugé avec indulgence,
     // l'allemand au mot près.
-    const enAllemand = S.cards[cur.id].box >= WRITE_FROM_BOX;
+    const enAllemand = S.cards[cur.id].niv >= ECRIT_DE_A;
+    /* ⚠️ C'est `jugeAncrage` qui tranche, PAS un `checkAnswer` recopié ici.
+       Les cartes et l'ancrage partagent le niveau d'un mot : leur laisser deux
+       correcteurs ferait qu'un même mot, au même niveau, serait accepté sur un
+       écran et refusé sur l'autre. C'est lui qui applique la sévérité sur le
+       déterminant à partir du niveau 5.
+
+       ⚠️ Sauf en ENTRAÎNEMENT LIBRE, qui ne touche pas aux niveaux et ne doit
+       donc pas non plus en appliquer la sévérité : on y révise, on n'y est pas
+       examiné. */
     verdict = (t.dataset.act === "dunno")
       ? { ok: false, kind: "dunno", typed: "" }
-      : (enAllemand ? checkAnswer(raw, cur.d) : checkGloss(raw, cur.f));
+      : (training
+          ? (enAllemand ? checkAnswer(raw, cur.d) : checkGloss(raw, cur.f))
+          : jugeAncrage(cur, raw));
 
     // Réponse refusée en allemand : peut-être un autre mot qui traduit la
     // même chose. On ne punit pas une traduction correcte.
@@ -4794,6 +5270,40 @@ view.addEventListener("click", function (e) {
     verbeVerdict = null;
     verbeCourant = verbeTire();
     show(verbesView());
+    return;
+  }
+
+  /* L'ancrage. `grade` fait tout le travail de niveau : +1 / -1, borné 0-20,
+     et c'est le MÊME compteur que les cartes de leçon — deux nombres pour le
+     même mot finiraient par se contredire.
+
+     ⚠️ Un mot raté N'EST PAS remis dans la boucle. C'est le choix d'Exsangue
+     du 18/08/2026, contre la version d'origine qui le renvoyait « plus tard
+     dans la journée » : il n'y a plus de journée, et une boucle qui s'allonge
+     à chaque faute punit les mauvais jours. Le mot reviendra par le hasard. */
+  if (t.dataset.act === "ancr-check" || t.dataset.act === "ancr-dunno") {
+    const mot = ancrDeck[ancrPos];
+    if (!mot) return;
+    const champ = document.getElementById("answer");
+    const brut = champ ? champ.value : "";
+    ancrVerdict = (t.dataset.act === "ancr-dunno")
+      ? { ok: false, kind: "dunno", typed: "" }
+      : Object.assign(jugeAncrage(mot, brut), { typed: brut.trim() });
+    grade(mot.id, ancrVerdict.ok, true);
+    show(ancrageView());
+    return;
+  }
+  if (t.dataset.act === "ancr-next") {
+    ancrPos++;
+    ancrVerdict = null;
+    show(ancrageView());
+    return;
+  }
+  if (t.dataset.act === "ancr-boucle") {
+    ancrDeck = tireBoucle();
+    ancrPos = 0;
+    ancrVerdict = null;
+    show(ancrageView(), true);
     return;
   }
 
