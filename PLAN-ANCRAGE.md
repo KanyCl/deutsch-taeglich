@@ -1,0 +1,200 @@
+# Plan — L'ancrage, et la refonte des cartes
+
+Conçu le 18/08/2026 avec Exsangue. Ce fichier est la **spec**, pas le code : il fige les
+décisions avant d'écrire, pour qu'on puisse les relire dans six mois et savoir *pourquoi*.
+
+---
+
+## Le problème qu'on résout
+
+Le paquet de cartes actuel mélange deux besoins qui n'ont ni le même rythme ni le même but :
+
+- **apprendre** les mots de la leçon qu'on vient de lire ;
+- **ne pas perdre** les 990 mots vus depuis le début.
+
+Aujourd'hui ils partagent le même paquet, la même box Leitner, le même écran. Résultat :
+réviser noie apprendre, et un mot de l'étape 3 peut tomber au milieu de l'étape 45.
+
+On les sépare. **Deux outils, deux écrans, une seule échelle de niveau.**
+
+---
+
+## Décisions arrêtées
+
+| Question | Décision |
+|---|---|
+| Rythme | **aucune notion de jour.** Une boucle de 50 mots, enchaînable à volonté. |
+| Sélection | **hasard pur**, retirage à chaque boucle. |
+| Échelle de niveau | **une seule, 0 → 20**, partagée par les deux outils. |
+| Mot à 20 | **sort du stock.** |
+| Mot raté | perd un niveau, **rien d'autre**. |
+| Mots ancrés | **~2 % de chance** de repasser, comme filet. |
+
+### Ce que le calcul donne
+
+990 mots × 20 réussites = **19 800 bonnes réponses**, soit **~400 boucles** de 50.
+À ~4 min la boucle : **~26 h de jeu parfait**, une cinquantaine d'heures avec les échecs.
+Il n'y a plus de plafond quotidien — **c'est Exsangue qui fixe le rythme, plus l'app.**
+
+Et le retrait à 20 a un effet secondaire heureux, obtenu sans une ligne de code pour lui :
+**le stock rétrécit à mesure que les mots s'ancrent**, donc ceux qui restent — les
+difficiles — reviennent de plus en plus souvent. La fin accélère toute seule.
+
+---
+
+## 1. Les cartes de la leçon
+
+**Portée : la leçon en cours, uniquement.** Pas les mots d'avant, pas ceux d'après.
+Les mots des étapes passées sont le travail de l'ancrage, plus celui des cartes.
+
+**Trois modes**, dans cet ordre :
+
+| Mode | On présente | On écrit |
+|---|---|---|
+| 1 | le mot **prononcé en allemand** (synthèse vocale) | en **français** |
+| 2 | le mot **prononcé en allemand** | en **allemand** |
+| 3 | le mot **écrit en français** | en **allemand** |
+
+> Le mode 3 est **écrit**, pas prononcé — corrigé par Exsangue le 18/08/2026. Aucune voix
+> française n'est nécessaire nulle part, ce qui retire la seule dépendance incertaine
+> (la disponibilité d'une voix `fr` sur iPhone).
+
+**Ce qu'on supprime : les cartes ajoutées en cas d'échec.** Rater une carte en ajoutait
+deux (le mot + un mot facile). C'était une spirale : un mauvais jour gonflait le paquet,
+ce qui produisait d'autres échecs. Demandé par Exsangue, et c'est juste — la sanction
+d'un échec, c'est le niveau perdu, pas du travail en plus.
+
+**Lien avec l'ancrage :** réussir ou rater une carte de leçon fait gagner ou perdre un
+niveau au mot, exactement comme dans l'ancrage. C'est le **même compteur** — voir §3.
+
+---
+
+## 2. L'ancrage
+
+Un outil **à part**, accessible depuis l'accueil, hors de la progression des étapes —
+même statut que « Les verbes irréguliers », et pour la même raison : ça ne s'inscrit pas
+dans la suite des leçons, c'est disponible tout le temps.
+
+### Le stock
+
+Tous les mots vus depuis le début **dont le niveau est inférieur à 20**. Un mot qui
+atteint 20 est **ancré** et quitte le stock. Les mots des nouvelles étapes y entrent au
+fur et à mesure qu'on lit les leçons.
+
+### La boucle
+
+- Une boucle = **50 mots tirés au hasard** dans le stock, **tous différents**.
+- Les 50 finis → **nouvelle boucle, nouveau tirage**. Aucune mémoire d'une boucle à
+  l'autre : un mot peut retomber immédiatement, ou pas avant longtemps. C'est voulu.
+- **Rien ne limite le nombre de boucles.** Une par jour ou dix d'affilée, l'app ne juge pas.
+
+**Le filet des mots ancrés.** Chacun des 50 tirages a **2 % de chance** de piocher dans les
+mots ancrés plutôt que dans le stock — environ **un mot ancré par boucle**. S'il est raté,
+il retombe à 19 et **réintègre le stock**. C'est un filet, pas une révision : il rattrape
+le seul vrai risque du modèle — oublier en un an un mot ancré aujourd'hui — sans rendre
+au joueur des mots qu'il connaît.
+
+### Ce qu'on demande, selon le niveau du mot
+
+| Niveau | On présente | On écrit | Déterminant |
+|---|---|---|---|
+| 0 – 2 | le mot en **allemand** | en **français** | — |
+| 3 – 4 | le mot en **français** | en **allemand** | facultatif |
+| 5 et + | le mot en **français** | en **allemand** | **obligatoire** |
+
+Repousser le genre au niveau 5 est délibéré : c'est la partie dure de l'allemand, et
+l'exiger d'un mot qu'on reconnaît à peine ne produit que de l'échec.
+
+> **Trou connu, à trancher plus tard :** entre 7 et 20, rien ne change — c'est le même
+> exercice, quatorze fois. Ce n'est pas bloquant (c'est de la consolidation, et c'est
+> ainsi que la mémoire travaille), mais si l'ennui vient, c'est ici qu'il faudra ajouter
+> des paliers : produire une phrase, le pluriel, le mot en contexte.
+
+### La notation
+
+- Réussite → **+1**. À 20, le mot est ancré et sort du stock.
+- Échec → **−1**, jamais sous 0. **Et rien d'autre** : le mot n'est pas reproposé dans la
+  boucle, il reviendra quand le hasard le rendra. Choisi par Exsangue le 18/08/2026, contre
+  la version d'origine qui le renvoyait « plus tard dans la journée » — la journée n'existe
+  plus, et une boucle qui s'allonge à chaque faute punit les mauvais jours.
+
+### Les cas limites — à traiter, pas à découvrir en marchant
+
+- **Moins de 50 mots au stock** → la boucle fait ce qu'il y a. Ça arrivera en fin de
+  parcours, et aussi à quelqu'un qui démarre : l'étape 1 ne fait que 22 mots.
+- **Stock vide, tout est ancré** → l'écran le dit, et propose de continuer sur les mots
+  ancrés seuls. Un cul-de-sac silencieux serait un bug.
+- **Aucun mot ancré** (au début) → les 2 % ne piochent nulle part, on tire tout du stock.
+
+---
+
+## 3. Une seule échelle — le point technique délicat
+
+C'est **la** décision structurante, et celle qui doit être faite proprement du premier coup.
+
+### Aujourd'hui
+
+Chaque carte porte `{ box: 1..5, due: "AAAA-MM-JJ", hit, miss }`. La `box` est une échelle
+Leitner, `due` une date calculée par `INTERVALS = {1:0, 2:0, 3:1, 4:4, 5:16}`, et
+`WRITE_FROM_BOX = 2` décide si l'on écrit en allemand ou en français.
+
+### Demain
+
+Chaque mot porte **un seul niveau, `niv` de 0 à 20**. `box` et `due` **disparaissent**.
+
+`due` disparaît parce qu'il n'y a plus de calendrier du tout : plus de « ne repose pas ce
+mot avant le 4 septembre », le mot revient quand le hasard le tire. Garder une date à côté
+d'un tirage aléatoire, c'est garantir qu'un jour les deux se contrediront — et ce jour-là
+**rien ne le signalera** : le mot sera simplement posé trop tôt ou jamais, et ça ne se
+verra pas avant des mois.
+
+⚠️ **Ce que ça touche ailleurs :** l'accueil affiche aujourd'hui un compteur de cartes
+« dues » (`dueCards()`, `app.js:693`) qui pilote la pastille de la tuile « Les cartes ».
+Sans dates, ce compteur devient **les mots de la leçon en cours**, et l'ancrage prend sa
+propre tuile. À ne pas oublier : c'est le genre de détail qui casse l'accueil en silence.
+
+### La migration — sans perdre la progression
+
+⚠️ Une progression existe déjà sur l'iPhone d'Exsangue. Elle ne doit pas être remise à
+zéro. Conversion à la première ouverture de la nouvelle version :
+
+```
+niv = (box - 1) × 5        box 1 → 0 · box 2 → 5 · box 3 → 10 · box 4 → 15 · box 5 → 20
+```
+
+Choisi pour que **`box >= 4` (« appris » aujourd'hui) donne `niv >= 15`**, et que la box 5
+tombe pile sur « ancré ». `hit` et `miss` sont **conservés** : ce sont eux qui repèrent les
+mots fragiles, et le compteur affiché sur l'accueil en dépend.
+
+La migration doit être **idempotente** — la relancer ne doit rien changer. Un témoin de
+version dans l'état sauvegardé, et jamais une détection à la volée du genre « si `box`
+existe » : une sauvegarde à moitié convertie est le pire des cas.
+
+---
+
+## Ce qu'il faudra vérifier (tests à écrire)
+
+**Migration**
+- Convertit une progression réelle sans rien perdre ; la relancer deux fois ne change rien.
+- `hit` et `miss` survivent.
+
+**La boucle**
+- Une boucle fait 50 mots **tous différents**.
+- Un mot raté **ne revient pas** dans la boucle en cours.
+- Deux boucles consécutives ne sont pas identiques, et un mot **peut** apparaître dans les
+  deux — c'est le hasard, pas un bug.
+- Stock à 30 mots → la boucle fait 30. Stock vide → l'écran le dit, il ne plante pas.
+
+**Les niveaux**
+- Ne descend pas sous 0, ne monte pas au-dessus de 20.
+- Un mot à 20 **sort du stock**.
+- Un mot ancré raté retombe à 19 et **y revient**.
+- Sur un grand nombre de tirages, la part de mots ancrés est de l'ordre de 2 %.
+
+**Le déterminant**
+- Facultatif à 3-4, refusé s'il est **faux** (le genre reste jugé), obligatoire à partir de 5.
+
+**Le lien entre les deux outils**
+- Une carte de leçon ratée fait perdre un niveau **dans l'ancrage** — compteur partagé,
+  c'est tout l'enjeu de §3.
+- Rater une carte n'ajoute plus de cartes au paquet.
